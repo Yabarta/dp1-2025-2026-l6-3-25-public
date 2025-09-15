@@ -47,6 +47,11 @@
 			<email>davlozaco@us.es</email>
 			<url>https://github.com/dlozaco</url>
 		</developer>
+		<developer>
+			<name>luggzz</name>
+			<email>luggzz@us.es</email>
+			<url>https://github.com/luggz</url>
+		</developer>
 	</developers>
 
 	<dependencies>
