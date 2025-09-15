@@ -11,7 +11,7 @@
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>3.5.5</version>
 	</parent>
-	<name>dp1-2025-2026-l6-3</name>
+	<name>dp1-2025-2026-l6-3-25</name>
 
 	<properties>
 		<!-- Generic properties -->
