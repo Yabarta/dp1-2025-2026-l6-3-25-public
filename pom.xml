@@ -57,6 +57,11 @@
 			<email>perezsornipablo@gmail.com</email>
 			<url>https://github.com/Yabarta</url>
 		</developer>
+        <developer>
+            <name>DiegoVicenteCamara</name>
+            <email>diego.vic.cam@gmail.com</email>
+            <url>https://github.com/DiegoVicenteCamara</url>
+        </developer>
 	</developers>
 
 	<dependencies>
