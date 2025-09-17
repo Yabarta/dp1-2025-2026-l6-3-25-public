@@ -62,6 +62,11 @@
             <email>diego.vic.cam@gmail.com</email>
             <url>https://github.com/DiegoVicenteCamara</url>
         </developer>
+		<developer>
+            <name>josbardel1</name>
+            <email>josbardel1@us.es</email>
+            <url>https://github.com/josbardel1</url>
+        </developer>
 	</developers>
 
 	<dependencies>
