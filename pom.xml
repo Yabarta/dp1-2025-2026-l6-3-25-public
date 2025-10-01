@@ -67,6 +67,11 @@
             <email>josbardel1@alum.us.es</email>
             <url>https://github.com/josbardel1</url>
         </developer>
+    	<developer>
+			<name>WTS5677</name>
+			<email>joseaag05@gmail.com</email>
+			<url>https://github.com/Colanin3</url>
+		</developer>
 	</developers>
 
 	<dependencies>
