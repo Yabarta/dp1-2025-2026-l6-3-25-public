@@ -3,7 +3,7 @@
 	xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>es.us.dp1</groupId>
-	<artifactId>lx-xy-2425-game-name</artifactId>
+	<artifactId>l6-3-2526-Petris</artifactId>
 	<version>0.1.0.BUILD-SNAPSHOT</version>
 
 	<parent>
@@ -11,7 +11,7 @@
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>3.5.5</version>
 	</parent>
-	<name>DP1 Game Template</name>
+	<name>dp1-2025-2026-l6-3-25</name>
 
 	<properties>
 		<!-- Generic properties -->
@@ -43,6 +43,31 @@
 			<url>https://github.com/japarejo</url>
 		</developer>
 		<developer>
+			<name>dlozaco</name>
+			<email>davlozaco@us.es</email>
+			<url>https://github.com/dlozaco</url>
+		</developer>
+		<developer>
+			<name>luggzz</name>
+			<email>luggzz@us.es</email>
+			<url>https://github.com/luggz</url>
+		</developer>
+		<developer>
+			<name>Yabarta</name>
+			<email>perezsornipablo@gmail.com</email>
+			<url>https://github.com/Yabarta</url>
+		</developer>
+        <developer>
+            <name>DiegoVicenteCamara</name>
+            <email>diego.vic.cam@gmail.com</email>
+            <url>https://github.com/DiegoVicenteCamara</url>
+        </developer>
+		<developer>
+            <name>josbardel1</name>
+            <email>josbardel1@alum.us.es</email>
+            <url>https://github.com/josbardel1</url>
+        </developer>
+    	<developer>
 			<name>WTS5677</name>
 			<email>joseaag05@gmail.com</email>
 			<url>https://github.com/Colanin3</url>
