@@ -1,6 +1,6 @@
 .home-page-container{
     position: absolute;
-    top: 0;
+    top: 60px;
     left: 0;
     right: 0;
     bottom: 0;
@@ -33,4 +33,159 @@
 
 .hero-div h3{
     text-align: center;
+}
+
+.botonAzul {
+    background-color: #4CAF50;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.botonAzul:hover {
+    background-color: #45a049;
+}
+
+.main-menu {
+    background-color: rgba(255, 255, 255, 0.3);
+    padding: 2rem;
+    border-radius: 25px;
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-width: 300px;
+}
+
+.main-menu h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #2f324f;
+    text-align: center;
+    text-transform: uppercase;
+    margin-bottom: 2rem;
+}
+
+.menu-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+    width: 100%;
+}
+
+.menu-button {
+    background-color: #2196F3;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    width: 200px;
+    min-width: 200px;
+}
+
+.menu-button:hover {
+    background-color: #1976D2;
+}
+
+.back-button {
+    background-color: #f44336;
+    color: white;
+    padding: 12px 24px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: 1rem;
+}
+
+.back-button:hover {
+    background-color: #d32f2f;
+}
+
+.private-room-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    width: 100%;
+    text-align: center;
+}
+
+.private-room-content h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #2f324f;
+    margin: 0;
+}
+
+.room-code-display {
+    background-color: #4CAF50;
+    color: white;
+    font-size: 2.5rem;
+    font-weight: bold;
+    padding: 20px 40px;
+    border-radius: 15px;
+    letter-spacing: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    border: 3px solid #45a049;
+}
+
+.private-room-content p {
+    font-size: 1.1rem;
+    color: #2f324f;
+    margin: 0;
+    font-weight: 500;
+}
+
+.waiting-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.waiting-message p {
+    font-style: italic;
+    color: #666;
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #2196F3;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.room-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+    margin-top: 1rem;
 }
