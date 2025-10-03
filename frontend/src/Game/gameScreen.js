@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import '../static/css/game/gameScreen.css';
 
-const GameScreen = ({ roomCode, onBackToMenu }) => {
+export default function GameScreen ({ roomCode, onBackToMenu }) {
   const [waitingForPlayer, setWaitingForPlayer] = useState(true);
 
   return (
@@ -64,6 +64,4 @@ const GameScreen = ({ roomCode, onBackToMenu }) => {
       </div>
     </div>
   );
-};
-
-export default GameScreen;
+}
