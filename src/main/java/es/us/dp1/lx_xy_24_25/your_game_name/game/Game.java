@@ -39,6 +39,6 @@ public class Game extends BaseEntity{
     @JoinColumn(name = "player2_name", nullable = false)
     private Player player2;
 
-    @OneToOne(mappedBy = "game", cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL)
     private Score score;
 }
