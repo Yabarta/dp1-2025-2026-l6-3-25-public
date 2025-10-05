@@ -8,23 +8,19 @@
     background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url('../../images/home_background2.jpg');
     background-size: cover;
     display: flex;
-    justify-content: space-around;
+    justify-content: center;
+    gap: 2rem;
     align-items: center;
 }
 
-.profile {
-    background-color: rgba(255, 255, 255, 0.3);
-    padding: 2rem;
-    border-radius: 25px;
-    backdrop-filter: blur(10px);
+.left {
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    min-width: 300px;
+    justify-content: space-around;
+    gap: 2rem;
 }
 
-.statistics {
+.bg {
     background-color: rgba(255, 255, 255, 0.3);
     padding: 2rem;
     border-radius: 25px;
@@ -43,4 +39,10 @@
     vertical-align: top;
     text-transform: uppercase;
     margin-bottom: 2rem;
+}
+
+.profilePicture {
+    width: 100px;
+    height: 100px;
+    align-self: flex-start;
 }

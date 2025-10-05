@@ -40,7 +40,7 @@ export default function Home(){
   
   const handleShowProfile = () => {
     if (jwt == null) {
-      return alert("User not logged in")
+      return toast.error("User not logged in")
     } else {
       setShowProfile(true)
     }
