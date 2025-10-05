@@ -77,7 +77,7 @@ A continuación se definen  todas las historias de usuario a implementar junto a
     - **Como** jugador quiero saber el nombre del otro jugador para poder saber a quién me estoy enfrentando.
     - _Se requiere saber mediante un texto el nombre del jugador oponente para identificarlo correctamente. Esto gana un gran peso en las partidas privadas donde se debe saber si la persona que se ha unido es la persona correcta._
 
-10. **Crear partida privada (jugador) - _M2_**
+- HU-(ISSUE#34): **Crear partida privada (jugador) - _M2_** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/34
     - **Como** jugador quiero poder crear una partida privada mediante un código de identificación de 4 letras para poder jugar con alguien en concreto. (Implementada)
     - _Se requiere una opción para crear una partida mediante un código de 4 letras y una sala privada en la que se espera al otro jugador para empezar la partida con la persona correspondiente._
 
