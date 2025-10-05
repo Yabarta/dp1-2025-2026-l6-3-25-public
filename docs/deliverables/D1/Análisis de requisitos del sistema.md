@@ -37,31 +37,31 @@ La duración de una partida es variable, pero ninguna suele superar los 10 minut
 
 ## Historias de Usuario
 
-A continuación se definen  todas las historias de usuario a implementar:
+A continuación se definen  todas las historias de usuario a implementar junto a su mockup correspondiente (M*):
 ---
 ### **Módulo de juego (obligatorio)**
 
-1. **Unirse a una partida (jugador)**
+1. **Unirse a una partida (jugador) - _M2_**
     - **Como** jugador quiero unirme a una partida para poder jugar una partida con alguien aleatorio o conocido.
     - _Se requiere poder seleccionar una búsqueda de partida con alguien aleatorio, o bien, unirse a una partida creada por otro jugador a través de un código de sala._
 
-2. **Avanzar de turno (jugador)**
+2. **Avanzar de turno (jugador) - _M1_**
     - **Como** jugador quiero avanzar de turno para poder continuar con la partida.
     - _Se requiere tener un botón de terminar el turno para poder confirmar los movimientos en la fase de propagación para pasar al siguiente turno._
 
-3. **Validación de movimientos (jugador)**
+3. **Validación de movimientos (jugador) - _M3_**
     - **Como** jugador quiero saber qué movimientos puedo o no hacer en una partida para poder jugar correctamente.
     - _Se requiere poder mostrar mediante señales luminosas en los discos si un movimiento es incorrecto antes de terminar mi turno._
 
-4. **Control de turnos (jugador)**
+4. **Control de turnos (jugador) - _M1_**
     - **Como** jugador quiero conocer el turno por el que voy para poder controlar a quién le toca en cada caso.
     - _Se requiere señalar con colores un marcador de turno de la persona a la que le toca jugar además de los siguientes turnos._
 
-5. **Barra de contaminación (jugador)**
+5. **Barra de contaminación (jugador) - _M1_**
     - **Como** jugador quiero saber cuánta contaminación tenemos ambos jugadores para poder controlar cuánto me queda para perder o ganar.
     - _Se requiere una barra de contaminación tanto para el jugador 1, como para el jugador 2._
 
-6. **Abandonar partida (jugador)**
+6. **Abandonar partida (jugador) - _M1_**
     - **Como** jugador quiero abandonar la partida si quiero para poder jugar otra en el caso en el que dé por perdida mi partida.
     - _Se requiere una opción para salirse de una partida con confirmación (en caso de que se pulse por error)._ 
 
@@ -69,19 +69,19 @@ A continuación se definen  todas las historias de usuario a implementar:
     - **Como** jugador quiero volver a la partida si refresco la pantalla para poder continuar con el juego en caso de que la refresque sin querer.
     - _Se debe vincular al jugador con la partida que está jugando cuando refresque la pantalla en caso de que no la abandone._
 
-8. **Listado de partidas en curso (administrador)**
+8. **Listado de partidas en curso (administrador) - _M4_**
     - **Como** administrador quiero un listado de partidas en curso, incluyendo los usuarios, para poder llevar el control de estos en tiempo real.
     - _Se requiere una vista general de las partidas activas y poder entrar como modo espectador para controlar que las interacciones entre usuarios sean adecuadas._
 
-9. **Ver nombre del oponente (jugador)**
+9. **Ver nombre del oponente (jugador) - _M1_**
     - **Como** jugador quiero saber el nombre del otro jugador para poder saber a quién me estoy enfrentando.
     - _Se requiere saber mediante un texto el nombre del jugador oponente para identificarlo correctamente. Esto gana un gran peso en las partidas privadas donde se debe saber si la persona que se ha unido es la persona correcta._
 
-10. **Crear partida privada (jugador)**
+10. **Crear partida privada (jugador) - _M2_**
     - **Como** jugador quiero poder crear una partida privada mediante un código de identificación de 4 letras para poder jugar con alguien en concreto. (Implementada)
     - _Se requiere una opción para crear una partida mediante un código de 4 letras y una sala privada en la que se espera al otro jugador para empezar la partida con la persona correspondiente._
 
-11. **Ver ganador al finalizar (jugador)**
+11. **Ver ganador al finalizar (jugador) - _M5_**
     - **Como** jugador quiero que cuando acabe una partida ver quién ha ganado para poder saber el resultado y salir de la partida.
     - _Se requiere mostrar un ganador al final de una partida, ya sea mediante una animación o algún método visual intuitivo. Además de la opción de volver al menú principal._
 
@@ -89,38 +89,38 @@ A continuación se definen  todas las historias de usuario a implementar:
     - **Como** jugador quiero que si mi rival pasa mucho tiempo sin jugar sea expulsado para poder tener una experiencia positiva y dinámica que no me haga perder el tiempo.
     - _Se requiere un temporizador visual en el que cada jugador tendrá x tiempo para realizar su jugada. En caso de que el tiempo se agote se pierde automáticamente la partida, ya que hacer un movimiento aleatorio no es una opción en este juego, y no mover nada puede ser incluso una ventaja. El tiempo, por ende, ha de ser algo generoso._
 
-13. **Visualizar partidas recientes (jugador)**
+13. **Visualizar partidas recientes (jugador)  - _M6_**
     - **Como** jugador quiero visualizar las partidas que he jugado recientemente para poder llevar un control sobre mi propio progreso como jugador.
     - _Se requiere una opción que permita al jugador ver las últimas partidas que ha jugado de principio a fin, replicando los mismos movimientos tanto del jugador como del oponente._
 
 ---
 ### **Módulo de gestión de usuarios (obligatorio)**
 
-14. **Registro de usuario (usuario)**
+14. **Registro de usuario (usuario) - _M7_**
     - **Como** usuario quiero registrarme para poder tener una cuenta propia con la que jugar.
     - _Se requiere una opción de poder crear una cuenta con un nombre de usuario y contraseña de manera que esta quede registrada y se pueda iniciar sesión con ella de ahora en adelante._
 
-15. **Inicio de sesión (jugador)**
+15. **Inicio de sesión (jugador) - _M8_**
     - **Como** jugador quiero iniciar sesión para poder jugar al juego con mi cuenta.
     - _Se requiere una opción para que el jugador pueda iniciar sesión con las credenciales (usuario y contraseña) que el propio usuario ha creado._
 
-16. **Cerrar sesión (jugador)**
+16. **Cerrar sesión (jugador) - _M4_**
     - **Como** jugador quiero cerrar sesión para poder jugar con otra cuenta.
     - _Se requiere una opción para que el jugador pueda cerrar sesión. De esta manera no podrá jugar si no inicia sesión de nuevo._
 
-17. **Editar perfil (jugador)**
+17. **Editar perfil (jugador) - _M4_**
     - **Como** jugador quiero editar mi perfil para poder cambiar mis datos en caso de que lo considere necesario.
     - _Se requiere una opción para que el jugador pueda cambiar cosas sobre su perfil tales como su nombre de usuario o su contraseña._
 
-18. **Inicio de sesión (administrador)**
+18. **Inicio de sesión (administrador) - _M8_**
     - **Como** administrador quiero iniciar sesión para poder administrar las acciones de los usuarios.
     - _Se requiere poder iniciar sesión como administrador con las credenciales (usuario y contraseña) que el propio usuario ha creado._
 
-19. **Cerrar sesión (administrador)**
+19. **Cerrar sesión (administrador - _M4_**
     - **Como** administrador quiero cerrar sesión para poder loguearme posteriormente con mi cuenta de jugador.
     - _Se requiere poder cerrar sesión siendo administrador para que el usuario pueda cambiar de cuenta._
 
-20. **Listado de usuarios (administrador)**
+20. **Listado de usuarios (administrador) - _M2_**
     - **Como** administrador quiero ver un listado con todos los usuarios registrados para poder encontrar fácilmente a cualquier jugador.
     - _Se requiere una vista para los administradores en la que se muestren los perfiles de todos los jugadores._
 
@@ -132,14 +132,14 @@ A continuación se definen  todas las historias de usuario a implementar:
     - **Como** administrador quiero eliminar a un usuario en caso de que lo considere necesario.
     - _Se requiere una opción para los administradores para que puedan vetar a un usuario eliminando su cuenta si se considera que su comportamiento no es el adecuado._
 
-23. **Solicitud de administrador (usuario)**
+23. **Solicitud de administrador (usuario) - _M6_**
     - **Como** usuario quiero pedir solicitud de administrador para poder adquirir una cuenta con la que administrar la aplicación.
     - _Se requiere una opción para pedir acceso al equipo de soporte para obtener una cuenta de administrador._
 
 ---
 ### **Módulo de estadísticas (opcional)**
 
-24. **Ver estadísticas personales (jugador)**
+24. **Ver estadísticas personales (jugador) - _M9_**
     - **Como** jugador quiero ver mis estadísticas para poder llevar actualizado mi progreso.
     - _Se requiere una pantalla donde se muestren las estadísticas del jugador tales como el total de partidas jugadas, partidas ganadas, porcentaje de victorias, promedio de tiempo por partida o días desde la creación de la cuenta._
 
@@ -147,11 +147,11 @@ A continuación se definen  todas las historias de usuario a implementar:
     - **Como** jugador quiero ver mis logros para poder ver mis avances.
     - _Se requiere un sistema de objetivos para que los jugadores cumplan y vean su progreso en forma de medallas._
 
-26. **Ver perfil de otro jugador (jugador)**
+26. **Ver perfil de otro jugador (jugador) - _M9_**
     - **Como** jugador quiero poder ver el perfil de otro jugador para poder ver sus estadísticas.
     - _Se requiere mostrar de alguna manera el perfil de otro jugador para mostrar sus estadísticas y así identificar mejor a jugadores, socializar mediante el código de amistad o simplemente entretenerse._
 
-27. **Ver ranking de jugadores (jugador)**
+27. **Ver ranking de jugadores (jugador) - _M10_**
     - **Como** jugador quiero ver el ranking de jugadores para poder ver quienes son los mejores.
     - _Se requiere una opción para poder ver un ranking con el top de los mejores jugadores ordenados por más partidas ganadas y porcentaje de victorias._
 
@@ -162,39 +162,39 @@ A continuación se definen  todas las historias de usuario a implementar:
 ---
 ### **Módulo de juego social (opcional)**
 
-29. **Añadir amigo (jugador)**
+29. **Añadir amigo (jugador) - _M12_**
     - **Como** jugador quiero añadir un amigo para poder conectar rápidamente con una persona con la que frecuento jugar.
     - _Se requiere una opción que permita agregar a un jugador mediante un código de amigo siempre que la otra persona lo acepte._
 
-30. **Ver estado de amigos (jugador)**
+30. **Ver estado de amigos (jugador) - _M11_**
     - **Como** jugador quiero ver si mis amigos están en línea para poder jugar con ellos.
     - _Se requiere un sistema que permita ver la lista de amigos y si se encuentran en estado conectado o desconectado._
 
-31. **Eliminar amigo (jugador)**
+31. **Eliminar amigo (jugador) - _M11_**
     - **Como** jugador quiero eliminar un amigo para poder hacer hueco en la lista de amistades.
     - _Se requiere una opción que permita sin la confirmación del otro jugador eliminarlo de la lista de amigos._
 
-32. **Chat en partida (jugador)**
+32. **Chat en partida (jugador) - _M1_**
     - **Como** jugador quiero conversar con mi oponente para poder aumentar la comunicación entre ambos.
     - _Se requiere un chat de juego dentro de las partidas para poder intercambiar mensajes entre jugadores._
 
-33. **Silenciar chat (jugador)**
+33. **Silenciar chat (jugador) - _M11_**
     - **Como** jugador quiero silenciar el chat para poder aislarme de cualquier tipo de interacción con otros jugadores por el motivo que sea.
     - _Se requiere una opción para silenciar el chat en una partida._
 
-34. **Reportar jugador (jugador)**
+34. **Reportar jugador (jugador) - _M12_**
     - **Como** jugador quiero reportar a otro jugador para poder hacer que le llamen la atención por comportamiento inapropiado.
     - _Se requiere una opción para que un jugador pueda enviar al equipo de soporte una petición de queja, además de silenciar el chat, que permita a los administradores tomar acciones sobre la cuenta de un jugador que está teniendo comportamientos inapropiados hacia otros jugadores._
 
-35. **Bloquear jugador (jugador)**
+35. **Bloquear jugador (jugador) - _M12_**
     - **Como** jugador quiero bloquear a jugadores para poder aislarme de cualquier tipo de interacción con ellos.
     - _Se requiere una opción para bloquear a un jugador y que estos no puedan interactuar de ninguna manera entre ellos._
 
-36. **Monitorizar chat (administrador)**
+36. **Monitorizar chat (administrador) - _M1_**
     - **Como** administrador quiero monitorizar el chat de cualquier partida para poder ocultar cualquier mensaje que propicie un mal ambiente.
     - _Se requiere que el administrador pueda ocultar o eliminar cualquier mensaje dentro del chat de partida por el bienestar de los jugadores._
 
-37. **Vetos sin eliminar cuenta (administrador)**
+37. **Vetos sin eliminar cuenta (administrador) - _M12_**
     - **Como** administrador quiero vetar a los usuarios que no utilicen la aplicación correctamente para poder hacer que no puedan volver a loguearse con esa cuenta sin eliminarla.
     - _Se requiere una opción que permita a los administradores vetar la cuenta a jugadores sin eliminarla por completo._
 
