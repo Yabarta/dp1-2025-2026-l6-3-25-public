@@ -1,7 +1,7 @@
 # Documento de análisis de requisitos del sistema
-**Asignatura:** Diseño y Pruebas 1 (Grado en Ingeniería del Software, Universidad de Sevilla)  
-**Curso académico:** 2025/2026 
-**Grupo/Equipo:** L6-03
+**Asignatura:** Diseño y Pruebas 1 (Grado en Ingeniería del Software, Universidad de Sevilla)   
+**Curso académico:** 2025/2026  
+**Grupo/Equipo:** L6-03     
 **Nombre del proyecto:** Petris  
 **Repositorio:** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25  
 **Integrantes (máx. 6):** 

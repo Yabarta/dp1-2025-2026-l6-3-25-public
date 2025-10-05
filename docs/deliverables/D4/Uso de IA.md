@@ -1,10 +1,16 @@
 # Documentación del Uso de IA en el Proyecto
-**Asignatura:** Diseño y Pruebas (Grado en Ingeniería del Software, Universidad de Sevilla)  
-**Curso académico:** <!-- p.ej., 2025/2026 -->  
-**Grupo/Equipo:** <!-- p.ej., L4-03 Equipo 33 -->  
-**Nombre del proyecto:** <!-- p. ej. Petris -->  
-**Repositorio:** <!-- URL del repo -->  
-**Integrantes (máx. 6):** <!-- Nombre Apellidos (US-Id / correo @us.es) -->
+**Asignatura:** Diseño y Pruebas 1 (Grado en Ingeniería del Software, Universidad de Sevilla)       
+**Curso académico:** 2025/2026      
+**Grupo/Equipo:** L6-03     
+**Nombre del proyecto:** Petris     
+**Repositorio:** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25        
+**Integrantes (máx. 6):** 
+- David Lozano Acosta
+- Diego Vicente Cámara
+- Ismael Barroso Delgado
+- Jose Antonio Aguadero García
+- Lu Dao Guerricabeitia Garzón
+- Pablo Pérez Sorni
 
 ## 1. Introducción
 
@@ -25,11 +31,11 @@ Este documento describe el uso que se ha echo de la IA en el proyecto. El objeti
 **Rellenar este documento es Obligatorio:** La **documentación del uso de IA** es un **entregable** del proyecto.
 
 ## Resumen por Sprint (1–4)
-### Sprint X — Resumen de uso de IA
+### Sprint 1 — Resumen de uso de IA
 
 Usos registrados: <!-- nº -->
 
-Ámbitos principales: <!-- p.ej., generación de pruebas, esqueletos de código, análisis y resolución de errores -->
+Ámbitos principales: <!-- p.ej., generación de pruebas, esqueletos de código, análisis y resolución de errores --> generación de estilos
 
 Valor aportado: <!-- síntesis -->
 
