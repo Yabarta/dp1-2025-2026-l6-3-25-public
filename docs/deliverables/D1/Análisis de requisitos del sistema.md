@@ -41,7 +41,7 @@ A continuación se definen  todas las historias de usuario a implementar junto a
 ---
 ### **Módulo de juego (obligatorio)**
 
-1. **Unirse a una partida (jugador) - _M2_**
+- HU-(ISSUE#33): **Unirse a una partida (jugador) - _M2_** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/33
     - **Como** jugador quiero unirme a una partida para poder jugar una partida con alguien aleatorio o conocido.
     - _Se requiere poder seleccionar una búsqueda de partida con alguien aleatorio, o bien, unirse a una partida creada por otro jugador a través de un código de sala._
 
