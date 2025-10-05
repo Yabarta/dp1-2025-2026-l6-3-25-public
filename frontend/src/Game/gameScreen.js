@@ -1,11 +1,27 @@
 import React, { useState } from 'react';
 import '../static/css/game/gameScreen.css';
+import ExitModal from '../components/modal/ExitModal';
 
 export default function GameScreen ({ roomCode, onBackToMenu }) {
   const [waitingForPlayer, setWaitingForPlayer] = useState(true);
+  const [exitGame, setExitGame] = useState(null);
+
+  const handleExit = () => {
+    setExitGame(null)
+    onBackToMenu()
+  }
 
   return (
     <div className="gameScreenContainer">
+      <ExitModal 
+        text='¿Seguro que quieres abandonar la partida?'
+        isVisible={exitGame !== null}
+        onConfirm={() => {
+          handleExit()
+        }}
+        onCancel={() => {setExitGame(null)}}>
+
+      </ExitModal>
       <div className="chatPanel">
         <div className="chatTitle">CHAT</div>
         {waitingForPlayer && (
@@ -21,7 +37,7 @@ export default function GameScreen ({ roomCode, onBackToMenu }) {
         <div className="topBar">
           <span className="timer">Tiempo</span>
           {waitingForPlayer && (
-            <button className="back" onClick={onBackToMenu}>
+            <button className="back" onClick={() => { setExitGame(true) }}>
               Volver al Menú
             </button>
           )}
