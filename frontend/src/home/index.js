@@ -6,21 +6,26 @@ import logo from '../static/images/petris3D_recortado.png'
 import tokenService from 'frontend/src/services/token.service.js';
 import ProfileScreen from '../profile/profileScreen';
 import {ToastContainer, toast} from 'react-toastify';
+import { NavLink, NavItem, Nav, NavbarText, NavbarToggler } from 'reactstrap';
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function Home(){
+  const navigate = useNavigate();
   const [showMainMenu, setShowMainMenu] = useState(false);
   const [showJoinGameScreen, setShowJoinGameScreen] = useState(false);
-  const [showGameScreen, setShowGameScreen] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const jwt = tokenService.getLocalAccessToken();
   const [roomCode, setRoomCode] = useState('');
 
   const handlePlayButtonClick = () => {
-    setShowMainMenu(true);
+    if (!jwt) {
+      navigate('/login');
+    } else {
+      setShowMainMenu(true);
+    }
   };
 
   const handleBackToMenu = () => {
-    setShowGameScreen(false);
     setShowJoinGameScreen(false);
     setShowMainMenu(true);
   };
@@ -28,14 +33,12 @@ export default function Home(){
   const handleBackToWelcome = () => {
     setShowMainMenu(false);
     setShowJoinGameScreen(false);
-    setShowGameScreen(false);
   };
   //Lógica para unirse a una sala existente
 
   const handleJoinPrivateGame = () => {
     setShowMainMenu(false);
     setShowJoinGameScreen(true);
-    setShowGameScreen(false);
   };
   
   const handleShowProfile = () => {
@@ -65,12 +68,8 @@ export default function Home(){
     const code = generateRoomCode();
     setRoomCode(code);
     setShowMainMenu(false);
-    setShowJoinGameScreen(false);
-    setShowGameScreen(true);
+    navigate('/gameScreen', { state: { roomCode: code } });
   };
-  if (showGameScreen) {
-    return <GameScreen roomCode={roomCode} onBackToMenu={handleBackToMenu} />;
-  }
   if (showProfile) {
     return <ProfileScreen user={jwt} />
   }

@@ -4,6 +4,7 @@ import jwt_decode from "jwt-decode";
 import { ErrorBoundary } from "react-error-boundary";
 import AppNavbar from "./AppNavbar";
 import Home from "./home";
+import GameScreen from "./Game/gameScreen";
 import PrivateRoute from "./privateRoute";
 import Register from "./auth/register";
 import Login from "./auth/login";
@@ -54,7 +55,7 @@ function App() {
     if (role === "PLAYER") {
       ownerRoutes = (
         <>
-          
+          <Route path="/gameScreen" element={<GameScreen />} />
         </>)
     }    
   })

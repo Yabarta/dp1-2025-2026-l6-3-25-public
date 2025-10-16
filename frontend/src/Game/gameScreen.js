@@ -1,14 +1,27 @@
 import React, { useState } from 'react';
 import '../static/css/game/gameScreen.css';
 import ExitModal from '../components/modal/ExitModal';
+import { useLocation, useNavigate } from 'react-router-dom';
 
-export default function GameScreen ({ roomCode, onBackToMenu }) {
+export default function GameScreen ({ roomCode: propRoomCode, onBackToMenu }) {
   const [waitingForPlayer, setWaitingForPlayer] = useState(true);
   const [exitGame, setExitGame] = useState(null);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const roomCode = propRoomCode || (location && location.state && location.state.roomCode) || '';
+
+  const handleBackToMenu = () => {
+    if (onBackToMenu) {
+      onBackToMenu();
+    } else {
+      navigate('/');
+    }
+  }
 
   const handleExit = () => {
     setExitGame(null)
-    onBackToMenu()
+    handleBackToMenu()
   }
 
   return (
