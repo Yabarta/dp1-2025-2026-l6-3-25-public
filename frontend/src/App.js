@@ -5,6 +5,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import AppNavbar from "./AppNavbar";
 import Home from "./home";
 import GameScreen from "./Game/gameScreen";
+import DemoGame from "./Game/demoGame";
 import PrivateRoute from "./privateRoute";
 import Register from "./auth/register";
 import Login from "./auth/login";
@@ -83,6 +84,7 @@ function App() {
         <Routes>
           <Route path="/" exact={true} element={<Home />} />
           <Route path="/plans" element={<PlanList />} />
+          <Route path="/demo" element={<DemoGame />} />
           <Route path="/docs" element={<SwaggerDocs />} />
           {publicRoutes}
           {userRoutes}
