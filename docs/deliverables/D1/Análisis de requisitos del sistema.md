@@ -85,7 +85,7 @@ A continuación se definen  todas las historias de usuario a implementar junto a
     - **Como** jugador quiero que cuando acabe una partida ver quién ha ganado para poder saber el resultado y salir de la partida.
     - _Se requiere mostrar un ganador al final de una partida, ya sea mediante una animación o algún método visual intuitivo. Además de la opción de volver al menú principal._
 
-- HU-(ISSUE#ID): **Expulsión por inactividad (jugador)**
+- HU-(ISSUE#46): **Expulsión por inactividad (jugador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/46
     - **Como** jugador quiero que si mi rival pasa mucho tiempo sin jugar sea expulsado para poder tener una experiencia positiva y dinámica que no me haga perder el tiempo.
     - _Se requiere un temporizador visual en el que cada jugador tendrá x tiempo para realizar su jugada. En caso de que el tiempo se agote se pierde automáticamente la partida, ya que hacer un movimiento aleatorio no es una opción en este juego, y no mover nada puede ser incluso una ventaja. El tiempo, por ende, ha de ser algo generoso._
 
