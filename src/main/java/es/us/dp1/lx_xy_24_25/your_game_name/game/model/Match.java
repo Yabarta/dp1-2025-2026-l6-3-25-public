@@ -1,9 +1,9 @@
-package es.us.dp1.lx_xy_24_25.your_game_name.game;
+package es.us.dp1.lx_xy_24_25.your_game_name.game.model;
 
 import es.us.dp1.lx_xy_24_25.your_game_name.model.BaseEntity;
 import es.us.dp1.lx_xy_24_25.your_game_name.player.Player;
-import es.us.dp1.lx_xy_24_25.your_game_name.user.User;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,31 +14,28 @@ import java.util.List;
 @Setter
 @Entity
 @Table(name = "games")
-public class Game extends BaseEntity{
+public class Match extends BaseEntity{
 
-    @Column(name="createdAt")
     private LocalDateTime createdAt;
-    @Column(name = "startedAt")
     private LocalDateTime startedAt;
-    @Column(name = "endedAt")
     private LocalDateTime endedAt;
-    @Column(name = "turns")
-    private Integer turns;
-    @Column(name = "code")
     private String code;
+    private Integer finalP1Score;
+    private Integer finalP2Score;
+    private Integer winner;
+    private Integer turn;
+    private TurnType turnType;
+
+    @NotNull
     @OneToOne
-    @JoinColumn(name = "game_creator", nullable = false)
     private Player creator;
+    @NotNull
     @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name="petriDishes")
     private List<PetriDish> petriDish;
+    @NotNull
     @ManyToOne
-    @JoinColumn(name = "player1_name", nullable = false)
     private Player player1;
     @ManyToOne
-    @JoinColumn(name = "player2_name", nullable = false)
     private Player player2;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    private Score score;
 }

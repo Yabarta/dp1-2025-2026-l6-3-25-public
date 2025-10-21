@@ -1,11 +1,13 @@
-package es.us.dp1.lx_xy_24_25.your_game_name.game;
+package es.us.dp1.lx_xy_24_25.your_game_name.game.model;
 
 import es.us.dp1.lx_xy_24_25.your_game_name.model.BaseEntity;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.List;
 
 @Getter
 @Setter
@@ -13,9 +15,11 @@ import lombok.Setter;
 @Table(name = "petriDishes")
 public class PetriDish extends BaseEntity {
 
-    @Column(name = "player1Bacterias")
+    @NotNull
+    private Integer index;
     private Integer player1Bacterias;
-    @Column(name = "player2Bacterias")
     private Integer player2Bacterias;
+    @NotNull
+    private List<Integer> movements;
 
 }
