@@ -93,6 +93,9 @@ export default function Home(){
               <button className="menuButton" onClick={handleShowProfile}>
                 Ver Perfil
               </button>
+              <button className="menuButton" onClick={() => navigate('/demo')}>
+                Ver Demo
+              </button>
               <button className="menuButton" onClick={() => toast.error('Funcionalidad pendiente')}>
                 Ajustes
               </button>
