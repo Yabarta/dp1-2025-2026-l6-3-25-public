@@ -20,3 +20,8 @@ INSERT INTO appusers(id,username,password,authority) VALUES (16,'BRD3895','$2a$1
 INSERT INTO appusers(id,username,password,authority) VALUES (17,'RXW1249','$2a$10$DaS6KIEfF5CRTFrxIoGc7emY3BpZZ0.fVjwA3NiJ.BjpGNmocaS3e',2);
 INSERT INTO appusers(id,username,password,authority) VALUES (18,'WHS7046','$2a$10$DaS6KIEfF5CRTFrxIoGc7emY3BpZZ0.fVjwA3NiJ.BjpGNmocaS3e',2);
 INSERT INTO appusers(id,username,password,authority) VALUES (19,'WTS5677','$2a$10$DaS6KIEfF5CRTFrxIoGc7emY3BpZZ0.fVjwA3NiJ.BjpGNmocaS3e',2);
+
+INSERT INTO matches(id, code, turn) VALUES (1,  'GBNW', 0);
+INSERT INTO matches(id, created_at, started_at, turn) VALUES (2, '22/10/2025 20:21:00', '22/10/2025 20:22:00', 4),
+                                                           (3, '22/10/2025 20:26:00', '22/10/2025 20:29:00', 7)
+
