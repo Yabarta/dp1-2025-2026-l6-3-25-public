@@ -40,8 +40,8 @@ public class MatchService {
     }
 
     @Transactional
-    public void save(Match match){
-        matchRepository.save(match);
+    public Match save(Match match){
+        return matchRepository.save(match);
     }
 
     @Transactional
