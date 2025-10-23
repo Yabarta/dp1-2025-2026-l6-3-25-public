@@ -3,16 +3,19 @@ import '../static/css/profile/profile.css';
 import jwt_decode from "jwt-decode"; 
 import { useNavigate } from "react-router-dom";
 //import { getUserDetail, getUserGames, getUserStatistics } from "../api/UserEndpoints";
-//import * as yup from 'yup'
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+import * as Yup from 'yup';
 import { buildInitialValues } from "./Helper";
 import { Button } from "reactstrap";
 
 export default function ProfileScreen ({user}) {
     const navigate = useNavigate();
     const imageInputRef = useRef(null);
-    const [userData, setUserData] = useState({
+    const [showEditPopup, setShowEditPopup] = useState(false);
+    const [userData, setUserData] = useState({ //jwt_decode(user)
         id: 1,
         username: 'Jugador1',
+        email: 'jugador1@example.com',
         createdAt: new Date().toISOString(),
         profilePicture: null
     });
@@ -62,20 +65,6 @@ export default function ProfileScreen ({user}) {
     const [showHistoryPopup, setShowHistoryPopup] = useState(false);
 
     const [initialUserValues, setInitialUserValues] = useState({ name: null, email: null, profilePicture: null })
-//   const validationSchema = yup.object().shape({
-//     name: yup
-//       .string()
-//       .max(255, 'Name too long')
-//       .required('Name is required'),
-//     email: yup
-//       .string()
-//       .nullable()
-//       .email('Please enter a valid email'),
-//     profilePicture: yup
-//       .string()
-//       .nullable()
-//       .url('Please enter a valid URL')
-//   })
   
 //     useEffect(() => {
 //     async function fetchUserData () {
@@ -133,12 +122,30 @@ export default function ProfileScreen ({user}) {
     // }
     // };
 
+    const validationSchema = Yup.object().shape({
+        username: Yup.string()
+            .max(255, 'El nombre de usuario es demasiado largo')
+            .required('El nombre de usuario es requerido'),
+        email: Yup.string()
+            .email('Por favor, introduce un correo electrónico válido')
+            .required('El correo electrónico es requerido'),
+    });
+
+    const handleEditSubmit = (values) => {
+        setUserData(prevData => ({ ...prevData, ...values }));
+        setShowEditPopup(false);
+        alert('Perfil actualizado con éxito (simulación).');
+    };
+    //Despues de cambiar los valores hasta que no funcione el backend no se podra actualizar realmente la informacion del usuario
     return (
         <div className="profileContainer">
             <div className="left">
+                <div>
                 <div className="profileHeader">
-                    <span>{userData.username} || Pepito </span>
-                    <span>🇪🇸</span>
+                    <span style={{marginLeft: '1rem',marginTop: '0.5rem'}}>{userData.username}</span>
+                    <span onClick={() => setShowEditPopup(true)} className="editIcon">✏️</span>
+                </div>
+                <div className="profileHeaderEmail">{userData.email}</div>
                 </div>
                 <div className="bg">
                     <img src={profilePic}
@@ -178,7 +185,7 @@ export default function ProfileScreen ({user}) {
                             <span className="statValue">{userStats.sarcinasCol || 0}</span>
                         </div>
                     </div>
-                    <button className="editProfileButton" onClick={() => navigate('/editProfileScreen')}>Editar Perfil</button>
+                    {/* El botón de editar perfil se ha movido al lado del nombre de usuario */}
                 </div>
             </div>
             <div className="right">
@@ -188,34 +195,34 @@ export default function ProfileScreen ({user}) {
                         {userGames.slice(0, 3).map(game => {
                              return (
                                 <div key={game.id} className={isWinner(game) ? "gameWinBg" : "gameLoseBg"}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
-                                        <div style={{ fontSize: '1.2rem' }}>
+                                    <div className="gameHeader">
+                                        <div className="gameResult">
                                             {isWinner(game) ? "Victoria" : "Derrota"}
-                                            <span style={{ margin: '0.5rem', fontSize: '0.8rem' }}>
+                                            <span className="gameTurns">
                                                 ({game.turns} turnos)
                                             </span>
                                         </div>
-                                        <span style={{ fontSize: '1.2rem' }}>
+                                        <span className="gameDate">
                                             Fecha de creación: {new Date(game.createdAt).toLocaleDateString()}
                                         </span>
                                     </div>
-                                    <div style={{ display: 'flex', alignItems: 'center', marginTop: '0.5rem', justifyContent: 'space-between', width: '100%',fontSize: '1.2rem' }}>
-                                       <div style={{ display: 'flex', alignItems: 'center',marginLeft: '15rem' }}>
-                                            <img src={getPlayerProfilePic(game.player2)} alt={game.player2.nickname} style={{ width: '3rem', height: '3rem', borderRadius: '50%', margin: '0.5rem' }} /> {game.player2.nickname}
+                                    <div className="gamePlayersContainer">
+                                       <div className="gamePlayerInfo player2Info">
+                                            <img src={getPlayerProfilePic(game.player2)} alt={game.player2.nickname} className="gamePlayerPic" /> {game.player2.nickname}
                                         </div>
-                                        <span style={{ margin: '0.5rem' }}>vs</span>
-                                        <div style={{ display: 'flex', alignItems: 'center',marginRight: '15rem'  }}>
-                                            {game.player1.nickname} <img src={getPlayerProfilePic(game.player1)} alt={game.player1.nickname} style={{ width: '3rem', height: '3rem', borderRadius: '50%', margin: '0.5rem' }} />
+                                        <span className="gameVs">vs</span>
+                                        <div className="gamePlayerInfo player1Info">
+                                            {game.player1.nickname} <img src={getPlayerProfilePic(game.player1)} alt={game.player1.nickname} className="gamePlayerPic" />
                                         </div>
                                     </div>
-                                    <div style={{ marginTop: '0.5rem', display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-                                        <div style={{ fontSize: '0.8rem', margin: '0.5rem', borderLeft: '1px solid #444' }}>
+                                    <div className="gameDetailsContainer">
+                                        <div className="gameDetail">
                                             Código de la partida: {game.code}
                                         </div>
-                                        <div style={{ fontSize: '0.8rem', margin: '0.5rem', borderLeft: '1px solid #444' }}>
+                                        <div className="gameDetail">
                                             Puntuación: {game.score}
                                         </div>
-                                        <div style={{ fontSize: '0.8rem', margin: '0.5rem', borderLeft: '1px solid #444' }}>
+                                        <div className="gameDetail">
                                             Duración: {duracion(game)} mins
                                         </div>
                                     </div>
@@ -223,7 +230,7 @@ export default function ProfileScreen ({user}) {
                             );
                         })}
                     </div>
-                    <div style={{alignSelf: 'flex-start', marginTop: '1rem'}}>
+                    <div className="watchHistoryContainer">
                         <button className="watchHistoryButton" onClick={() => setShowHistoryPopup(true)}>
                             Ver Historial
                         </button>
@@ -237,16 +244,16 @@ export default function ProfileScreen ({user}) {
                             const isCompleted = userStats[achievement.StatisticValueName.trim()] >= achievement.value;
                             return (
                                 <div key={achievement.id} className={`achievement ${isCompleted ? 'completed' : ''}`}>
-                                    <div style={{ display: 'flex', flexDirection: 'row' }}>
-                                        <img src={achievement.icon} alt={achievement.name} style={{ width: '3rem', height: '3rem', borderRadius: '50%', margin: '0.5rem' }}/>
-                                        <h3 style={{margin: '0.5rem'}}>{achievement.name}</h3>
-                                        <p style={{ fontWeight: 'bold', fontSize: '0.9rem', margin: '0.2rem 0' }}>
+                                    <div className="achievementHeader">
+                                        <img src={achievement.icon} alt={achievement.name} className="achievementIcon"/>
+                                        <h3 className="achievementName">{achievement.name}</h3>
+                                        <p className="achievementProgress">
                                                 {achievementProgress(achievement, userStats)}
                                         </p>
                                     </div>
                                     <div className="achievementInfo">
                                         <div>
-                                            <p style={{ margin: '0.5rem', borderBottom: '1px solid #444' }} className="achievementDescription">
+                                            <p className="achievementDescriptionContainer achievementDescription">
                                                 {achievement.description}
                                             </p>
                                         </div>
@@ -267,34 +274,34 @@ export default function ProfileScreen ({user}) {
                                 userGames.map(game => {
                              return (
                                 <div key={game.id} className={isWinner(game) ? "gameWinBg" : "gameLoseBg"}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
-                                        <div style={{ fontSize: '1.2rem' }}>
+                                    <div className="gameHeader">
+                                        <div className="gameResult">
                                             {isWinner(game) ? "Victoria" : "Derrota"}
-                                            <span style={{ margin: '0.5rem', fontSize: '0.8rem' }}>
+                                            <span className="gameTurns">
                                                 ({game.turns} turnos)
                                             </span>
                                         </div>
-                                        <span style={{ fontSize: '1.2rem' }}>
+                                        <span className="gameDate">
                                             Fecha de creación: {new Date(game.createdAt).toLocaleDateString()}
                                         </span>
                                     </div>
-                                    <div style={{ display: 'flex', alignItems: 'center', marginTop: '0.5rem', justifyContent: 'space-between', width: '100%',fontSize: '1.2rem' }}>
-                                       <div style={{ display: 'flex', alignItems: 'center' }}>
-                                            <img src={getPlayerProfilePic(game.player2)} alt={game.player2.nickname} style={{ width: '3rem', height: '3rem', borderRadius: '50%', margin: '0.5rem' }} /> {game.player2.nickname}
+                                    <div className="gamePlayersContainer">
+                                       <div className="gamePlayerInfo">
+                                            <img src={getPlayerProfilePic(game.player2)} alt={game.player2.nickname} className="gamePlayerPic" /> {game.player2.nickname}
                                         </div>
-                                        <span style={{ margin: '0.5rem' }}>vs</span>
-                                        <div style={{ display: 'flex', alignItems: 'center' }}>
-                                            {game.player1.nickname} <img src={getPlayerProfilePic(game.player1)} alt={game.player1.nickname} style={{ width: '3rem', height: '3rem', borderRadius: '50%', margin: '0.5rem' }} />
+                                        <span className="gameVs">vs</span>
+                                        <div className="gamePlayerInfo">
+                                            {game.player1.nickname} <img src={getPlayerProfilePic(game.player1)} alt={game.player1.nickname} className="gamePlayerPic" />
                                         </div>
                                     </div>
-                                    <div style={{ marginTop: '0.5rem', display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-                                        <div style={{ fontSize: '0.8rem', margin: '0.5rem', borderLeft: '1px solid #444' }}>
+                                    <div className="gameDetailsContainer">
+                                        <div className="gameDetail">
                                             Código de la partida: {game.code}
                                         </div>
-                                        <div style={{ fontSize: '0.8rem', margin: '0.5rem', borderLeft: '1px solid #444' }}>
+                                        <div className="gameDetail">
                                             Puntuación: {game.score}
                                         </div>
-                                        <div style={{ fontSize: '0.8rem', margin: '0.5rem', borderLeft: '1px solid #444' }}>
+                                        <div className="gameDetail">
                                             Duración: {duracion(game)} mins
                                         </div>
                                     </div>
@@ -305,6 +312,45 @@ export default function ProfileScreen ({user}) {
                                 <p>No hay partidas para mostrar.</p>
                             )}
                         </div>
+                    </div>
+                </div>
+            )}
+            {showEditPopup && (
+                <div className="popupOverlay">
+                    <div className="popupContent">
+                        <h2 className="title">Editar Perfil</h2>
+                        <button onClick={() => setShowEditPopup(false)} className="closePopupButton">X</button>
+                        <Formik
+                            initialValues={{
+                                username: userData.username,
+                                email: userData.email,
+                            }}
+                            validationSchema={validationSchema}
+                            onSubmit={handleEditSubmit}
+                        >
+                            {({ isSubmitting }) => (
+                                <Form>
+                                    <div className="formGroup">
+                                        <label htmlFor="username">Nombre de usuario</label>
+                                        <Field name="username" type="text" className="formControl" />
+                                        <ErrorMessage name="username" component="div" className="error" />
+                                    </div>
+                                    <div className="formGroup">
+                                        <label htmlFor="email">Email</label>
+                                        <Field name="email" type="email" className="formControl" />
+                                        <ErrorMessage name="email" component="div" className="error" />
+                                    </div>
+                                    <div className="formButtons">
+                                        <button type="submit" className="editProfileButton" disabled={isSubmitting}>
+                                            Guardar Cambios
+                                        </button>
+                                        <button type="button" className="watchHistoryButton" onClick={() => setShowEditPopup(false)}>
+                                            Cancelar
+                                        </button>
+                                    </div>
+                                </Form>
+                            )}
+                        </Formik>
                     </div>
                 </div>
             )}
