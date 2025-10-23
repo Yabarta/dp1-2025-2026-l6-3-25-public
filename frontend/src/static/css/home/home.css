@@ -1,18 +1,17 @@
-.home-page-container{
+.homePageContainer{
     position: absolute;
-    top: 0;
+    top: 60px;
     left: 0;
     right: 0;
     bottom: 0;
     z-index: -1;
-    background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url('../../images/home_background.jpg');
+    background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url('../../images/home_background2.jpg');
     background-size: cover;
     display: flex;
     justify-content: center;
     align-items: center;
 }
-
-.hero-div{
+.heroDiv{
     background-color: rgba(255, 255, 255, 0.3);
     padding: 2rem;
     border-radius: 25px;
@@ -23,14 +22,95 @@
     align-items: center;
 }
 
-.hero-div h1{
-    font-size: 3rem;
-    font-weight: 700;
-    color: #2f324f;
+.blueButton {
+    background-color: #4CAF50;
+    color: white;
+    padding: 15px 32px;
     text-align: center;
-    text-transform: uppercase;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s;
 }
 
-.hero-div h3{
+.blueButton:hover {
+    background-color: #45a049;
+}
+
+.mainMenu {
+    background-color: rgba(255, 255, 255, 0.3);
+    padding: 2rem;
+    border-radius: 25px;
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-width: 300px;
+}
+
+.mainMenu h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #ffffff;
     text-align: center;
+    text-transform: uppercase;
+    margin-bottom: 2rem;
+}
+
+.menuButtons {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+    width: 100%;
+}
+
+.menuButton {
+    background-color: #2196F3;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    width: 200px;
+    min-width: 200px;
+}
+
+.menuButton:hover {
+    background-color: #1976D2;
+}
+
+.backButton {
+    background-color: #f44336;
+    color: white;
+    padding: 12px 24px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: 1rem;
+}
+
+.backButton:hover {
+    background-color: #d32f2f;
+}
+
+.Toastify__toast-container {
+  z-index: 9999 !important;
+  position: absolute;
+    top: 60px;
+    right: 20px;
 }
