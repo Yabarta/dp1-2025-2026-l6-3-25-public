@@ -19,6 +19,8 @@ public class Player extends BaseEntity{
     private String nickname;
     @Column(unique = true, name = "email")
     private String email;
+    @Column(nullable = true, name = "profilePicture")
+    private String profilePicture;
     @OneToOne(cascade = CascadeType.ALL)
     private User user;
     @OneToMany
