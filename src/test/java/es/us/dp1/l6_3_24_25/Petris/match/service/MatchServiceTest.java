@@ -13,7 +13,7 @@ import org.springframework.http.HttpStatus;
 
 import es.us.dp1.l6_3_24_25.Petris.match.model.Match;
 import es.us.dp1.l6_3_24_25.Petris.match.model.PetriDish;
-import es.us.dp1.l6_3_24_25.Petris.player.Player;
+import es.us.dp1.l6_3_24_25.Petris.player.model.Player;
 import io.qameta.allure.Description;
 import io.qameta.allure.Owner;
 

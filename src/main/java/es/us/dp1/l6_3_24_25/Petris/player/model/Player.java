@@ -1,4 +1,4 @@
-package es.us.dp1.l6_3_24_25.Petris.player;
+package es.us.dp1.l6_3_24_25.Petris.player.model;
 
 
 import es.us.dp1.l6_3_24_25.Petris.match.model.Match;
@@ -15,13 +15,15 @@ import java.util.*;
 @Table(name = "players")
 public class Player extends BaseEntity{
 
-    @Column(unique = true, name = "nickname")
     private String nickname;
-    @Column(unique = true, name = "email")
     private String email;
     @OneToOne(cascade = CascadeType.ALL)
     private User user;
     @OneToMany
     private Set<Match> game;
+    @ManyToMany
+    private Set<Achievement> achievements;
+    @OneToMany(cascade = CascadeType.ALL)
+    private Set<Statistics> statistics;
 
 }
