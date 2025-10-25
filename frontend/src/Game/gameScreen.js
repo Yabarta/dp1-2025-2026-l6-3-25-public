@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import '../static/css/game/gameScreen.css';
 import ExitModal from '../components/modal/ExitModal';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -8,6 +8,48 @@ export default function GameScreen ({ roomCode: propRoomCode, onBackToMenu }) {
   const [exitGame, setExitGame] = useState(null);
   const location = useLocation();
   const navigate = useNavigate();
+  //contador
+  const TIEMPO_INICIAL = 60
+  const [timeLeft, setTimeLeft] = useState(TIEMPO_INICIAL)
+  const [running, setRunning] = useState(true)
+  const intervaloRef = useRef(null)
+
+  //comprobar que timeLeft no sea 0
+  useEffect(() => {
+    if(timeLeft == 0){
+      handleTimeUp()
+    }
+  }, [timeLeft])
+  // logica del contador
+  useEffect(() => {
+    if (!running) { 
+      clearInterval(intervaloRef.current);
+      return;
+    }
+
+    // Si 'reset' es true (asumiendo que significa CORRIENDO), establece el intervalo
+    intervaloRef.current = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(intervaloRef.current);
+          setRunning(false); // Detiene el timer (reset = false)
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(intervaloRef.current);
+  }, [running]);
+
+  const handleTimeUp = () => {
+    alert("Sin tiempo, has perdido!")
+    // aquí iría toda la lógica de si se acaba el tiempo
+  }
+
+  const handleContinueTurn = () => {
+    setTimeLeft(TIEMPO_INICIAL)
+  }
 
   const roomCode = propRoomCode || (location && location.state && location.state.roomCode) || '';
 
@@ -23,6 +65,7 @@ export default function GameScreen ({ roomCode: propRoomCode, onBackToMenu }) {
     setExitGame(null)
     handleBackToMenu()
   }
+
 
   return (
     <div className="gameScreenContainer">
@@ -48,7 +91,7 @@ export default function GameScreen ({ roomCode: propRoomCode, onBackToMenu }) {
 
       <div className="mainPanel">
         <div className="topBar">
-          <span className="timer">Tiempo</span>
+          <span className="timer">{ timeLeft }</span>
           {waitingForPlayer && (
             <button className="back" onClick={() => { setExitGame(true) }}>
               Volver al Menú
@@ -79,7 +122,9 @@ export default function GameScreen ({ roomCode: propRoomCode, onBackToMenu }) {
           </div>
         </div>
         <div className="turnPanel">
-          <button className="endTurn">
+          <button className="endTurn" onClick={() => {
+            handleContinueTurn()
+          }}>
             Terminar turno
           </button>
         </div>
