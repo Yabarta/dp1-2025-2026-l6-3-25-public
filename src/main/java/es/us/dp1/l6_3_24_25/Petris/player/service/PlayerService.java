@@ -17,18 +17,18 @@ public class PlayerService {
     private PlayerRepository playerRepository;
 
     @Transactional(readOnly = true)
-    public List<Player> getAllPlayer() {
+    public List<Player> getAllPlayers() {
         return playerRepository.findAll();
     }
 
     @Transactional(readOnly = true)
-    public Player getPlayerId(Integer id) {
+    public Player getPlayerById(Integer id) {
         return playerRepository.getById(id);
     }
 
     @Transactional(readOnly = true)
-    public Player getByUsername(String username) {
-        return playerRepository.getByUsername(username);
+    public Player getPlayerByNickname(String username) {
+        return playerRepository.getByNickname(username);
     }
 
     @Transactional

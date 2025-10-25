@@ -20,10 +20,10 @@ public class Player extends BaseEntity{
     @OneToOne(cascade = CascadeType.ALL)
     private User user;
     @OneToMany
-    private Set<Match> game;
+    private List<Match> game;
     @ManyToMany
-    private Set<Achievement> achievements;
+    private List<Achievement> achievements;
     @OneToMany(cascade = CascadeType.ALL)
-    private Set<Statistics> statistics;
+    private List<Statistics> statistics;
 
 }

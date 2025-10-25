@@ -16,7 +16,7 @@ import org.hibernate.annotations.Cascade;
 @Entity
 @Table(name = "matches")
 public class Match extends BaseEntity{
-
+    @NotNull
     private LocalDateTime createdAt;
     private LocalDateTime startedAt;
     private LocalDateTime endedAt;
@@ -27,10 +27,10 @@ public class Match extends BaseEntity{
     private Integer turn;
     private TurnType turnType;
 
-
-    /* Implementar cuando se haga la relación con Player
+    @NotNull
     @OneToOne(cascade = CascadeType.PERSIST)
     private Player creator;
+
     @NotNull
     @OneToMany(cascade = CascadeType.ALL)
     private List<PetriDish> petriDish;
@@ -40,5 +40,5 @@ public class Match extends BaseEntity{
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Player player2;
-    */
+
 }

@@ -13,7 +13,6 @@ public interface PlayerRepository extends CrudRepository<Player ,Integer>{
 
     Player getById(Integer id);
 
-    Player getByUsername(String username);
+    Player getByNickname(String nickname);
 
-    
 }
