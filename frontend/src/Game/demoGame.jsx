@@ -1,9 +1,12 @@
 // Game/Game.jsx
 import React, { useState, useEffect } from "react";
 import { initialGameState, turnOrder, nextPhase } from "./demoLogic";
+import { useLocation, useNavigate } from 'react-router-dom';
 import Board from "./demoBoard";
+import '../static/css/game/gameScreen.css';
+import ExitModal from '../components/modal/ExitModal';
 
-export default function Game() {
+export default function Game({onBackToMenu}) {
   const [gameState, setGameState] = useState({
     ...initialGameState,
     turnOrder: turnOrder,
@@ -11,12 +14,49 @@ export default function Game() {
   const [selectedOrigin, setSelectedOrigin] = useState(null);
   const [selectedDest, setSelectedDest] = useState(null);
   const [moveAmount, setMoveAmount] = useState(1);
+  const [exitGame, setExitGame] = useState(null);
+  const location = useLocation();
+  const navigate = useNavigate();
 
   // estilos por jugador (puedes cambiarlos aquí)
   const playerStyles = [
     { color: '#c42323', nameColor: '#c42323' }, // jugador 1: rojo
-    { color: '#2333c4', nameColor: '#2333c4' }, // jugador 2: azul
+    { color: '#00dee6ff', nameColor: '#00dee6ff' }, // jugador 2: azul
   ];
+
+  // Componente local: barra de puntuación vertical 0..9
+  const ScoreBar = ({ score = 0, color = '#888' }) => {
+    const max = 9;
+    const clamped = Math.max(0, Math.min(max, Number(score) || 0));
+    const fillPercent = (clamped / max) * 100;
+    const numbers = Array.from({ length: max + 1 }, (_, i) => max - i); // 9..0
+
+    return (
+      <div className="scoreBarContainer" style={{ display: 'flex', alignItems: 'center', gap: 12, paddingLeft: 48, paddingTop: 24 }}>
+        <div className="scoreBar" style={{ position: 'relative', width: 56, height: 400, border: '2px solid #000', boxSizing: 'border-box', background: '#fff' }}>
+          <div className="scoreFill" style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: `${fillPercent}%`, background: color, transition: 'height 300ms ease' }} />
+
+          {/* líneas divisorias y etiquetas posicionadas respecto a la barra: centrar en el medio de cada número */}
+          {Array.from({ length: max + 1 }).map((_, i) => {
+            const percent = (i / max) * 100; // 0..100
+            // línea horizontal centrada en el punto
+            const line = (
+              <div key={`line-${i}`} style={{ position: 'absolute', left: 0, right: 0, top: `${percent}%`, transform: 'translateY(-50%)', height: 0, borderTop: '1px solid rgba(0,0,0,0.25)' }} />
+            );
+            return line;
+          })}
+
+          {/* etiquetas numéricas centradas en las mismas posiciones, a la derecha de la barra */}
+          {numbers.map((n, idx) => {
+            const percent = (idx / max) * 100;
+            return (
+              <div key={`label-${n}`} style={{ position: 'absolute', right: -44, top: `${percent}%`, transform: 'translateY(-50%)', fontSize: 14 }}>{n}</div>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
 
   const currentPhase = gameState.turnOrder[gameState.currentPhaseIndex];
 
@@ -68,6 +108,19 @@ export default function Game() {
     setMoveAmount(1);
   };
 
+  const handleBackToMenu = () => {
+    if (onBackToMenu) {
+      onBackToMenu();
+    } else {
+      navigate('/');
+    }
+  }
+
+  const handleExit = () => {
+    setExitGame(null)
+    handleBackToMenu()
+  }
+
   useEffect(() => {
     if (!gameState.winner) {
       if (gameState.players[0].score >= 9) {
@@ -78,40 +131,53 @@ export default function Game() {
     }
   }, [gameState.players[0].score, gameState.players[1].score, gameState.winner]);
 
-  const demoContainerStyle = {
-    display: 'grid',
-    gridTemplateColumns: '1fr 2fr 2fr 1fr',
-    gap: '0.5rem',
-    alignItems: 'start',
-    fontFamily: 'Poppins, Arial, sans-serif',
-    fontSize: '0.85rem' 
-  };
-
   const centerColumnStyle = {
     display: 'flex',
     flexDirection: 'column',
-    gap: '1rem'
+    gap: '1rem',
+    width: '70%',
+    boxSizing: 'border-box',
+    margin: '0 auto'
   };
 
-  // backgrounds: center pistachio, left overlay, right light gray
-  const pistachio = '#cfeecf';
-  const leftOverlay = 'rgba(0,0,0,0.25)';
-  const rightGray = '#f5f5f649';
-
   return (
-    <div style={demoContainerStyle}>
-      <div style={{ background: pistachio, position: 'relative' }}>
-        <div style={{ position: 'absolute', inset: 0, background: leftOverlay }} />
+    <div className="gameScreenContainer">
+      <div style={{ position: 'relative' }}>
+        <div style={{ position: 'absolute', inset: 0 }} />
       </div>
-      <div style={{ ...centerColumnStyle, gridColumn: '2 / span 2', background: pistachio, padding: 12 }}>
-        {/* Estado superior */}
+      <ExitModal 
+              text='¿Seguro que quieres abandonar la partida?'
+              isVisible={exitGame !== null}
+              onConfirm={() => {
+                handleExit()
+              }}
+              onCancel={() => {setExitGame(null)}}>
+      </ExitModal>
+
+      <div className="chatPanel">
+        <div className="chatTitle">CHAT</div>
+          <div style={{ textAlign: 'center' }}>
+            <p style={{ margin: '0.5rem 0', fontSize: '0.9rem' }}>Código de partida:</p>
+            {/* <div className="roomCode">{roomCode}</div> */}
+            <p>Comparte este código para que se una otro jugador</p>
+          </div>
+      </div>
+
+      <div style={{ ...centerColumnStyle, background: '#cfeecf',  padding: 12 }}>
         <h1>
           {gameState.winner
             ? `Ganó ${gameState.winner}`
             : `Fase actual: ${currentPhase}`}
         </h1>
 
-        {/* Movimiento de bacterias UI */}
+        <div style={{ position: 'relative', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <span className="timer" style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>Tiempo</span>
+
+          <button className="back" onClick={() => { setExitGame(true) }}>
+            Volver al Menú
+          </button>
+        </div>
+
         <div style={{ marginBottom: '1rem', minHeight: 40 }}>
           {currentPlayer && selectedOrigin !== null && selectedDest === null && (
             <div style={{ color: '#333' }}>
@@ -145,14 +211,13 @@ export default function Game() {
           )}
         </div>
 
-        {/* Contenedor principal en dos columnas centrales */}
         <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ textAlign: 'center', width: '20%' }}>
+          <div style={{ textAlign: 'center', width: '15vw', minWidth: 120 }}>
             <h2 style={{ color: playerStyles[0].nameColor, margin: 0 }}>{gameState.players[0].name}</h2>
-            <p style={{ color: playerStyles[0].color, margin: 0 }}>Puntuación: {gameState.players[0].score}</p>
+            <ScoreBar score={gameState.players[0].score} color={playerStyles[0].color} />
           </div>
 
-          <div style={{ width: '60%', display: 'flex', justifyContent: 'center' }}>
+          <div style={{ width: '70vw', maxWidth: '70vw', display: 'flex', justifyContent: 'center' }}>
             <Board
               board={gameState.board}
               playerStyles={playerStyles}
@@ -168,9 +233,9 @@ export default function Game() {
             />
           </div>
 
-          <div style={{ textAlign: 'center', width: '20%' }}>
+          <div style={{ textAlign: 'center', width: '15vw', minWidth: 120 }}>
             <h2 style={{ color: playerStyles[1].nameColor, margin: 0 }}>{gameState.players[1].name}</h2>
-            <p style={{ color: playerStyles[1].color, margin: 0 }}>Puntuación: {gameState.players[1].score}</p>
+            <ScoreBar score={gameState.players[1].score} color={playerStyles[1].color} />
           </div>
         </div>
 
@@ -192,7 +257,12 @@ export default function Game() {
         </div>
       </div>
 
-      <div style={{ background: rightGray }} />
+      <div className="turnsPanel">
+        <div className="turnsTitle">Turnos</div>
+        <div className="turnsList">
+        </div>
+        <div className="turnsCount">1/4</div>
+      </div>
     </div>
   );
 }
