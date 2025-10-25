@@ -1,19 +1,17 @@
-package es.us.dp1.lx_xy_24_25.your_game_name.auth;
-
-import java.util.ArrayList;
+package es.us.dp1.l6_3_24_25.Petris.auth;
 
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import es.us.dp1.lx_xy_24_25.your_game_name.user.Authorities;
+import es.us.dp1.l6_3_24_25.Petris.user.Authorities;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import es.us.dp1.lx_xy_24_25.your_game_name.auth.payload.request.SignupRequest;
-import es.us.dp1.lx_xy_24_25.your_game_name.user.AuthoritiesService;
-import es.us.dp1.lx_xy_24_25.your_game_name.user.User;
-import es.us.dp1.lx_xy_24_25.your_game_name.user.UserService;
+import es.us.dp1.l6_3_24_25.Petris.auth.payload.request.SignupRequest;
+import es.us.dp1.l6_3_24_25.Petris.user.AuthoritiesService;
+import es.us.dp1.l6_3_24_25.Petris.user.User;
+import es.us.dp1.l6_3_24_25.Petris.user.UserService;
 
 @Service
 public class AuthService {
@@ -22,7 +20,7 @@ public class AuthService {
 	private final AuthoritiesService authoritiesService;
 	private final UserService userService;
 	//private final PlayerService playerService;
-	
+
 
 	@Autowired
 	public AuthService(PasswordEncoder encoder, AuthoritiesService authoritiesService, UserService userService
@@ -31,7 +29,7 @@ public class AuthService {
 		this.encoder = encoder;
 		this.authoritiesService = authoritiesService;
 		this.userService = userService;
-		//this.playerService = ownerService;		
+		//this.playerService = ownerService;
 	}
 
 	@Transactional

@@ -1,4 +1,4 @@
-package es.us.dp1.lx_xy_24_25.your_game_name.auth.payload.response;
+package es.us.dp1.l6_3_24_25.Petris.auth.payload.response;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package es.us.dp1.lx_xy_24_25.your_game_name.exceptions;
+package es.us.dp1.l6_3_24_25.Petris.exceptions;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -51,8 +51,8 @@ public class ExceptionHandlerController {
 //				request.getDescription(false));
 //
 //		return new ResponseEntity<ErrorMessage>(message, HttpStatus.FORBIDDEN);
-//	}	
-	
+//	}
+
 
 	@ExceptionHandler(value = MethodArgumentNotValidException.class)
 	public final ResponseEntity<ErrorMessage> handleMethodArgumentException(MethodArgumentNotValidException ex,

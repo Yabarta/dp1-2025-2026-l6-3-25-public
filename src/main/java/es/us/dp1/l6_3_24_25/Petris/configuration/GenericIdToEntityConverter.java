@@ -1,4 +1,4 @@
-package es.us.dp1.lx_xy_24_25.your_game_name.configuration;
+package es.us.dp1.l6_3_24_25.Petris.configuration;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -12,7 +12,7 @@ import org.springframework.core.convert.ConversionService;
 import org.springframework.core.convert.TypeDescriptor;
 import org.springframework.core.convert.converter.ConditionalGenericConverter;
 import org.springframework.core.convert.support.DefaultConversionService;
-import es.us.dp1.lx_xy_24_25.your_game_name.model.BaseEntity;
+import es.us.dp1.l6_3_24_25.Petris.model.BaseEntity;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -20,11 +20,11 @@ public final class GenericIdToEntityConverter implements ConditionalGenericConve
     private static final Logger log = LoggerFactory.getLogger(GenericIdToEntityConverter.class);
 
     private final ConversionService conversionService=new DefaultConversionService();
-    
+
     @Autowired(required = false)
     private EntityManager entityManager;
 
-        
+
 
     public Set<ConvertiblePair> getConvertibleTypes() {
     	Set<ConvertiblePair> result=new HashSet<>();

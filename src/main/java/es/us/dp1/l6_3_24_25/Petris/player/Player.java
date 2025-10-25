@@ -1,9 +1,9 @@
-package es.us.dp1.lx_xy_24_25.your_game_name.player;
+package es.us.dp1.l6_3_24_25.Petris.player;
 
 
-import es.us.dp1.lx_xy_24_25.your_game_name.game.Game;
-import es.us.dp1.lx_xy_24_25.your_game_name.model.BaseEntity;
-import es.us.dp1.lx_xy_24_25.your_game_name.user.User;
+import es.us.dp1.l6_3_24_25.Petris.game.Game;
+import es.us.dp1.l6_3_24_25.Petris.model.BaseEntity;
+import es.us.dp1.l6_3_24_25.Petris.user.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

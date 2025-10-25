@@ -1,4 +1,4 @@
-package es.us.dp1.lx_xy_24_25.your_game_name.auth;
+package es.us.dp1.l6_3_24_25.Petris.auth;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
@@ -21,9 +21,9 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.http.MediaType;
-import es.us.dp1.lx_xy_24_25.your_game_name.auth.payload.request.LoginRequest;
-import es.us.dp1.lx_xy_24_25.your_game_name.configuration.jwt.JwtUtils;
-import es.us.dp1.lx_xy_24_25.your_game_name.configuration.services.UserDetailsImpl;
+import es.us.dp1.l6_3_24_25.Petris.auth.payload.request.LoginRequest;
+import es.us.dp1.l6_3_24_25.Petris.configuration.jwt.JwtUtils;
+import es.us.dp1.l6_3_24_25.Petris.configuration.services.UserDetailsImpl;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
@@ -33,8 +33,8 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import es.us.dp1.lx_xy_24_25.your_game_name.auth.payload.request.SignupRequest;
-import es.us.dp1.lx_xy_24_25.your_game_name.user.UserService;
+import es.us.dp1.l6_3_24_25.Petris.auth.payload.request.SignupRequest;
+import es.us.dp1.l6_3_24_25.Petris.user.UserService;
 import io.qameta.allure.Epic;
 import io.qameta.allure.Feature;
 import io.qameta.allure.Owner;

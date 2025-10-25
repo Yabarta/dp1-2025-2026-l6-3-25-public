@@ -1,4 +1,4 @@
-package es.us.dp1.lx_xy_24_25.your_game_name.auth;
+package es.us.dp1.l6_3_24_25.Petris.auth;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -7,12 +7,12 @@ import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import es.us.dp1.lx_xy_24_25.your_game_name.auth.payload.response.JwtResponse;
+import es.us.dp1.l6_3_24_25.Petris.auth.payload.response.JwtResponse;
 
-import es.us.dp1.lx_xy_24_25.your_game_name.configuration.jwt.JwtUtils;
-import es.us.dp1.lx_xy_24_25.your_game_name.user.UserService;
+import es.us.dp1.l6_3_24_25.Petris.configuration.jwt.JwtUtils;
+import es.us.dp1.l6_3_24_25.Petris.user.UserService;
 
-import es.us.dp1.lx_xy_24_25.your_game_name.configuration.services.UserDetailsImpl;
+import es.us.dp1.l6_3_24_25.Petris.configuration.services.UserDetailsImpl;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -24,9 +24,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import es.us.dp1.lx_xy_24_25.your_game_name.auth.payload.request.LoginRequest;
-import es.us.dp1.lx_xy_24_25.your_game_name.auth.payload.request.SignupRequest;
-import es.us.dp1.lx_xy_24_25.your_game_name.auth.payload.response.MessageResponse;
+import es.us.dp1.l6_3_24_25.Petris.auth.payload.request.LoginRequest;
+import es.us.dp1.l6_3_24_25.Petris.auth.payload.request.SignupRequest;
+import es.us.dp1.l6_3_24_25.Petris.auth.payload.response.MessageResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import org.springframework.security.authentication.BadCredentialsException;
@@ -76,8 +76,8 @@ public class AuthController {
 		return ResponseEntity.ok(isValid);
 	}
 
-	
-	@PostMapping("/signup")	
+
+	@PostMapping("/signup")
 	public ResponseEntity<MessageResponse> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
 		if (userService.existsUser(signUpRequest.getUsername()).equals(true)) {
 			return ResponseEntity.badRequest().body(new MessageResponse("Error: Username is already taken!"));

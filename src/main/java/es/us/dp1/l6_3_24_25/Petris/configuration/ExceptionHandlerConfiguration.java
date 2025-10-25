@@ -1,4 +1,4 @@
-package es.us.dp1.lx_xy_24_25.your_game_name.configuration;
+package es.us.dp1.l6_3_24_25.Petris.configuration;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
  * It's not ideal, but at least we can use classic MockMvc tests for testing error response + document it.
  */
 //@ControllerAdvice
-public class ExceptionHandlerConfiguration 
+public class ExceptionHandlerConfiguration
 {
 	@SuppressWarnings("unused")
 	@Autowired

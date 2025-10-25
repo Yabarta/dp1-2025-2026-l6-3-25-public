@@ -1,4 +1,4 @@
-package es.us.dp1.lx_xy_24_25.your_game_name.auth;
+package es.us.dp1.l6_3_24_25.Petris.auth;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -9,10 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
-import es.us.dp1.lx_xy_24_25.your_game_name.auth.payload.request.SignupRequest;
-import es.us.dp1.lx_xy_24_25.your_game_name.user.AuthoritiesService;
-import es.us.dp1.lx_xy_24_25.your_game_name.user.User;
-import es.us.dp1.lx_xy_24_25.your_game_name.user.UserService;
+import es.us.dp1.l6_3_24_25.Petris.auth.payload.request.SignupRequest;
+import es.us.dp1.l6_3_24_25.Petris.user.AuthoritiesService;
+import es.us.dp1.l6_3_24_25.Petris.user.User;
+import es.us.dp1.l6_3_24_25.Petris.user.UserService;
 import io.qameta.allure.Epic;
 import io.qameta.allure.Feature;
 import io.qameta.allure.Owner;

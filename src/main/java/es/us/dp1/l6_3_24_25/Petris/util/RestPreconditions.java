@@ -1,9 +1,9 @@
-package es.us.dp1.lx_xy_24_25.your_game_name.util;
+package es.us.dp1.l6_3_24_25.Petris.util;
 
-import es.us.dp1.lx_xy_24_25.your_game_name.exceptions.ResourceNotFoundException;
+import es.us.dp1.l6_3_24_25.Petris.exceptions.ResourceNotFoundException;
 
 public final class RestPreconditions {
-	
+
 	private RestPreconditions() {
         throw new AssertionError();
     }
@@ -12,7 +12,7 @@ public final class RestPreconditions {
 
 //    /**
 //     * Check if some value was found, otherwise throw exception.
-//     * 
+//     *
 //     * @param expression
 //     *            has value true if found, otherwise false
 //     * @throws MyResourceNotFoundException
@@ -26,7 +26,7 @@ public final class RestPreconditions {
 //
 //    /**
 //     * Check if some value was found, otherwise throw exception.
-//     * 
+//     *
 //     * @param expression
 //     *            has value true if found, otherwise false
 //     * @throws MyResourceNotFoundException
@@ -39,7 +39,7 @@ public final class RestPreconditions {
 //
 //        return resource;
 //    }
-    
+
     public static <T> T checkNotNull(final T resource,String resourceName, String fieldName, Object fieldValue) {
         if (resource == null) {
             throw new ResourceNotFoundException(resourceName, fieldName, fieldValue);

@@ -1,4 +1,4 @@
-package es.us.dp1.lx_xy_24_25.your_game_name.configuration;
+package es.us.dp1.l6_3_24_25.Petris.configuration;
 import org.springframework.context.annotation.Configuration;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
@@ -30,5 +30,5 @@ import io.swagger.v3.oas.annotations.security.SecurityScheme;
     scheme = "bearer"
 )
 public class OpenApiConfiguration {
-    
+
 }

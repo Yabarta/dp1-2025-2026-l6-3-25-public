@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package es.us.dp1.lx_xy_24_25.your_game_name.util;
+package es.us.dp1.l6_3_24_25.Petris.util;
 
 import java.util.Collection;
 
 import org.springframework.orm.ObjectRetrievalFailureException;
-import es.us.dp1.lx_xy_24_25.your_game_name.model.BaseEntity;
+import es.us.dp1.l6_3_24_25.Petris.model.BaseEntity;
 
 /**
  * Utility methods for handling entities. Separate from the BaseEntity class mainly
@@ -27,7 +27,7 @@ import es.us.dp1.lx_xy_24_25.your_game_name.model.BaseEntity;
  *
  * @author Juergen Hoeller
  * @author Sam Brannen
- * @see es.us.dp1.lx_xy_24_25.your_game_name.model.BaseEntity
+ * @see BaseEntity
  * @since 29.10.2003
  */
 public abstract class EntityUtils {

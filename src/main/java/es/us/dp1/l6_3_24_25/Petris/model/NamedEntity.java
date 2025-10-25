@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package es.us.dp1.lx_xy_24_25.your_game_name.model;
+package es.us.dp1.l6_3_24_25.Petris.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;

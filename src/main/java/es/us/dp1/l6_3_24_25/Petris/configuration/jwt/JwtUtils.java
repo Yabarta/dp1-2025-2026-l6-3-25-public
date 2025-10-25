@@ -1,4 +1,4 @@
-package es.us.dp1.lx_xy_24_25.your_game_name.configuration.jwt;
+package es.us.dp1.l6_3_24_25.Petris.configuration.jwt;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -8,8 +8,8 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import es.us.dp1.lx_xy_24_25.your_game_name.configuration.services.UserDetailsImpl;
-import es.us.dp1.lx_xy_24_25.your_game_name.user.Authorities;
+import es.us.dp1.l6_3_24_25.Petris.configuration.services.UserDetailsImpl;
+import es.us.dp1.l6_3_24_25.Petris.user.Authorities;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 

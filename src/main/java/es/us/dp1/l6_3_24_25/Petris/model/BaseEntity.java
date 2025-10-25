@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package es.us.dp1.lx_xy_24_25.your_game_name.model;
+package es.us.dp1.l6_3_24_25.Petris.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -34,8 +34,8 @@ import jakarta.persistence.SequenceGenerator;
 public class BaseEntity {
 
 	@Id
-	@SequenceGenerator(name = "entity_seq", 
-        sequenceName = "entity_sequence", 
+	@SequenceGenerator(name = "entity_seq",
+        sequenceName = "entity_sequence",
         initialValue = 100)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE	, generator = "entity_seq")
 	protected Integer id;
