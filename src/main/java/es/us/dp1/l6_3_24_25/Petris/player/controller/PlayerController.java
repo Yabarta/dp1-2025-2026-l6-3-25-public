@@ -37,35 +37,35 @@ public class PlayerController {
     }
 
     @GetMapping
-    public List<Player> getAllPlayer() {
-        return playerservice.getAllPlayer();
+    public List<Player> getAllPlayers() {
+        return playerservice.getAllPlayers();
     }
-    
+
     @GetMapping("/{id}")
     public Player getPlayerById(@PathVariable("id") Integer id) {
-        return playerservice.getPlayerId(id);
+        return playerservice.getPlayerById(id);
     }
 
     @GetMapping("/{id}/statistics")
-    public Set<Statistics> getPlayerStatsById(@PathVariable("id") Integer id) {
-        return playerservice.getPlayerId(id).getStatistics();
+    public List<Statistics> getPlayerStatsById(@PathVariable("id") Integer id) {
+        return playerservice.getPlayerById(id).getStatistics();
     }
 
     @GetMapping("/{id}/achievement")
-    public Set<Achievement> getPlayerAchievementById(@PathVariable("id") Integer id) {
-        return playerservice.getPlayerId(id).getAchievements();
+    public List<Achievement> getPlayerAchievementById(@PathVariable("id") Integer id) {
+        return playerservice.getPlayerById(id).getAchievements();
     }
 
     @GetMapping("/{id}/game")
-    public Set<Match> getPlayerGameById(@PathVariable("id") Integer id) {
-        return playerservice.getPlayerId(id).getGame();
+    public List<Match> getPlayerGameById(@PathVariable("id") Integer id) {
+        return playerservice.getPlayerById(id).getGame();
     }
-    
+
     @GetMapping("/{username}")
-    public Player getByUsername(@PathVariable("username") String username) {
-        return playerservice.getByUsername(username);
+    public Player getPlayerByNickname(@PathVariable("username") String username) {
+        return playerservice.getPlayerByNickname(username);
     }
-    
+
     @PostMapping
     public ResponseEntity<Player> createPlayer(@Valid @RequestBody Player player) {
         playerservice.save(player);
@@ -83,7 +83,7 @@ public class PlayerController {
         Player playerToUpdate = getPlayerById(id);
         BeanUtils.copyProperties(player, playerToUpdate, "id");
         playerservice.save(playerToUpdate);
-        
+
         return ResponseEntity.noContent().build();
     }
 
@@ -94,5 +94,5 @@ public class PlayerController {
         }
         return ResponseEntity.noContent().build();
     }
-    
+
 }

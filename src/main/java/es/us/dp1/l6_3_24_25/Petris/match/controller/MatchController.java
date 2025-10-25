@@ -2,6 +2,7 @@ package es.us.dp1.l6_3_24_25.Petris.match.controller;
 
 import es.us.dp1.l6_3_24_25.Petris.exceptions.ResourceNotFoundException;
 import es.us.dp1.l6_3_24_25.Petris.match.model.Match;
+import es.us.dp1.l6_3_24_25.Petris.match.model.PetriDish;
 import es.us.dp1.l6_3_24_25.Petris.match.service.MatchService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -58,6 +59,13 @@ public class MatchController {
             throw new ResourceNotFoundException("Match", "code", code);
         }
         return match;
+    }
+
+    @GetMapping("/{id}/{dishIndex}")
+    public PetriDish getPetriDish(@PathVariable("id")Integer id,
+                                    @PathVariable("dishIndex")Integer index){
+        Match match = matchService.getMatchById(id);
+        return match.getPetriDish().get(index);
     }
 
     @PostMapping
