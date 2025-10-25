@@ -70,6 +70,12 @@ export default function Home(){
     setShowMainMenu(false);
     navigate('/gameScreen', { state: { roomCode: code } });
   };
+
+  const handleDemoGame = () => {  
+    setShowMainMenu(false);
+    navigate('/demo');
+  };
+
   if (showProfile) {
     return <ProfileScreen user={jwt} />
   }
@@ -92,6 +98,9 @@ export default function Home(){
               </button>
               <button className="menuButton" onClick={handleShowProfile}>
                 Ver Perfil
+              </button>
+              <button className="menuButton" onClick={handleDemoGame}>
+                Ver Demo
               </button>
               <button className="menuButton" onClick={() => toast.error('Funcionalidad pendiente')}>
                 Ajustes
