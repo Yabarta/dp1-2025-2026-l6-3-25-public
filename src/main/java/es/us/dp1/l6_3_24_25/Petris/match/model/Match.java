@@ -34,7 +34,7 @@ public class Match extends BaseEntity{
     @OneToMany(cascade = CascadeType.ALL)
     private List<PetriDish> petriDish;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     private Player player1;
 
     @ManyToOne()
