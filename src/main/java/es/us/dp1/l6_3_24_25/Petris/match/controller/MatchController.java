@@ -33,16 +33,6 @@ public class MatchController {
         return matchService.getAllMatches();
     }
 
-    @GetMapping("/current")
-    public List<Match> getCurrentMatches(){
-        return matchService.getCurrentMatches();
-    }
-
-    @GetMapping("/notStarted")
-    public List<Match> getNotStartedMatches(){
-        return matchService.getNotStartedMatches();
-    }
-
     @GetMapping("/{id}")
     public Match getMatchById(@PathVariable("id")Integer id){
         Match match = matchService.getMatchById(id);
@@ -52,13 +42,23 @@ public class MatchController {
         return match;
     }
 
-    @GetMapping("/{code}")
+    @GetMapping("/code/{code}")
     public Match getMatchByCode(@PathVariable("code")String code){
         Match match = matchService.getMatchByCode(code);
         if(match == null){
             throw new ResourceNotFoundException("Match", "code", code);
         }
         return match;
+    }
+
+    @GetMapping("/current")
+    public List<Match> getCurrentMatches(){
+        return matchService.getCurrentMatches();
+    }
+
+    @GetMapping("/notStarted")
+    public List<Match> getNotStartedMatches(){
+        return matchService.getNotStartedMatches();
     }
 
     @GetMapping("/{id}/{dishIndex}")
