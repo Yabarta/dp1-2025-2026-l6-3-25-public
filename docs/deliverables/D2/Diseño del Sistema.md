@@ -90,20 +90,20 @@ Por ejemplo, para la pantalla de visualización de métricas del usuario en un h
 ## Patrones de diseño y arquitectónicos aplicados
 En esta sección de especificar el conjunto de patrones de diseño y arquitectónicos aplicados durante el proyecto. Para especificar la aplicación de cada patrón puede usar la siguiente plantilla:
 
-### Patrón: < Nombre del patrón >
-*Tipo*: Arquitectónico | de Diseño
+### Patrón: Modelo Vista Controlador (MVC)
+*Tipo*: Arquitectónico 
 
 *Contexto de Aplicación*
 
-Describir las partes de la aplicación donde se ha aplicado el patrón. Si se considera oportuno especificar el paquete donde se han incluido los elementos asociados a la aplicación del patrón.
+Este patrón arquitectónico se ha usado para organizar y estructurar el backend. Para la capa de la lógica de negocios, primero se han creado clases Modelo para cada tabla que queremos en la base de datos, para más tarde crear los servicios, cuyas funciones se han adaptado a las necesidades que hemos establecido en el frontend. Para acceder a esas tablas hemos accedido a traves de los servicios, en la capa de recursos hemos elegido los repositorios. Finalmente para la capa de presentación tenemos los controladores para cada función establecida en los servicios, con su vista respectiva en el frontend
 
 *Clases o paquetes creados*
 
-Indicar las clases o paquetes creados como resultado de la aplicación del patrón.
+Hemos creado para las tablas User, Player, Achievement, Statistics, Match y PetriDish su modelo asociado con los atributos correspondientes establecidos en el diagrama de clases. Para todos los modelos les hemos creado sus servicios, repositorios y controladores
 
 *Ventajas alcanzadas al aplicar el patrón*
 
-Describir porqué era interesante aplicar el patrón.
+Es interesante usar este patrón porque nos permite tener un código mejor estructurado por función, separando las responsabilidades de cada componente.
 
 ## Decisiones de diseño
 _En esta sección describiremos las decisiones de diseño que se han tomado a lo largo del desarrollo de la aplicación que vayan más allá de la mera aplicación de patrones de diseño o arquitectónicos._
