@@ -36,7 +36,7 @@ function Disco({ disco, playerStyles = [{ color: '#c42323' }, { color: '#2333c4'
   const isSelected = selectedDisc === disco.id;
 
   const specialColor = disco.id === 2 ? playerStyles[0].color : disco.id === 4 ? playerStyles[1].color : null;
-  const hexSize = 200;
+  const hexSize = 170;
   const hexStyle = {
     width: hexSize,
     height: hexSize, 

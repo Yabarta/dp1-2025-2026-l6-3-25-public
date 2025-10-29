@@ -32,7 +32,7 @@ export default function Game({onBackToMenu}) {
     const numbers = Array.from({ length: max + 1 }, (_, i) => max - i); // 9..0
 
     return (
-      <div className="scoreBarContainer" style={{ display: 'flex', alignItems: 'center', gap: 12, paddingLeft: 48, paddingTop: 24 }}>
+      <div className="scoreBarContainer" style={{ display: 'flex', alignItems: 'center', gap: 12, paddingLeft: 30, paddingTop: 24 }}>
         <div className="scoreBar" style={{ position: 'relative', width: 56, height: 400, border: '2px solid #000', boxSizing: 'border-box', background: '#fff' }}>
           <div className="scoreFill" style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: `${fillPercent}%`, background: color, transition: 'height 300ms ease' }} />
 
@@ -57,6 +57,7 @@ export default function Game({onBackToMenu}) {
       </div>
     );
   };
+  
 
   const currentPhase = gameState.turnOrder[gameState.currentPhaseIndex];
 
@@ -134,7 +135,7 @@ export default function Game({onBackToMenu}) {
   const centerColumnStyle = {
     display: 'flex',
     flexDirection: 'column',
-    gap: '1rem',
+    gap: '0.5rem',
     width: '70%',
     boxSizing: 'border-box',
     margin: '0 auto'
@@ -178,7 +179,7 @@ export default function Game({onBackToMenu}) {
           </button>
         </div>
 
-        <div style={{ marginBottom: '1rem', minHeight: 40 }}>
+  <div style={{ marginBottom: '0.5rem', minHeight: 20 }}>
           {currentPlayer && selectedOrigin !== null && selectedDest === null && (
             <div style={{ color: '#333' }}>
               Selecciona disco destino para mover bacterias desde <b>{selectedOrigin}</b>.
