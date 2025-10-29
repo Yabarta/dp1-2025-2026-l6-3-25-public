@@ -20,3 +20,18 @@ INSERT INTO appusers(id,username,password,authority) VALUES (16,'BRD3895','$2a$1
 INSERT INTO appusers(id,username,password,authority) VALUES (17,'RXW1249','$2a$10$DaS6KIEfF5CRTFrxIoGc7emY3BpZZ0.fVjwA3NiJ.BjpGNmocaS3e',2);
 INSERT INTO appusers(id,username,password,authority) VALUES (18,'WHS7046','$2a$10$DaS6KIEfF5CRTFrxIoGc7emY3BpZZ0.fVjwA3NiJ.BjpGNmocaS3e',2);
 INSERT INTO appusers(id,username,password,authority) VALUES (19,'WTS5677','$2a$10$DaS6KIEfF5CRTFrxIoGc7emY3BpZZ0.fVjwA3NiJ.BjpGNmocaS3e',2);
+
+INSERT INTO players(id, nickname, email) VALUES(1, 'player1', 'hola@gmail.com');
+INSERT INTO players(id, nickname, email) VALUES(2, 'player2', 'adios@gmail.com');
+
+INSERT INTO statistics(id, name, valor) VALUES (1, 'games_played', 10);
+INSERT INTO statistics(id, name, valor) VALUES (2, 'games_won', 7);
+INSERT INTO statistics(id, name, valor) VALUES (3, 'highest_score', 150);
+
+INSERT INTO achievements(id, name, description, valor, statistic_name, image) VALUES (1, 'First Win', 'Win your first game', 1, 'games_won', 'imagelin.png');
+
+INSERT INTO matches(id, code, created_at, started_at, creator_id, player1_id, player2_id, turn, turn_type)
+    VALUES (1, 'TRJU', '2025-10-25 14:41:00', '2025-10-25 14:42:00',1, 1, 2, 3, 1),
+           (2, 'FNSW', '2025-10-25 14:50:00', '2025-10-25 14:50:10',2, 2, 1, 0, 0);
+
+
