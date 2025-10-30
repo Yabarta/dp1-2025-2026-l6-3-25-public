@@ -61,13 +61,6 @@ public class MatchController {
         return matchService.getNotStartedMatches();
     }
 
-    @GetMapping("/{id}/{dishIndex}")
-    public PetriDish getPetriDish(@PathVariable("id")Integer id,
-                                    @PathVariable("dishIndex")Integer index){
-        Match match = matchService.getMatchById(id);
-        return match.getPetriDish().get(index);
-    }
-
     @PostMapping
     public ResponseEntity<Match> createMatch(@Valid @RequestBody Match match){
         matchService.save(match);
