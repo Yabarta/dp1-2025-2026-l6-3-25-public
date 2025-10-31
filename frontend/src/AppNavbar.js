@@ -54,6 +54,9 @@ function AppNavbar() {
                 <NavItem>
                     <NavLink style={{ color: "white" }} id="login" tag={Link} to="/login">Login</NavLink>
                 </NavItem>
+                <NavItem>
+                    <NavLink style={{ color: "white" }} id="register" tag={Link} to="/register">Register</NavLink>
+                </NavItem>
             </>
         )
     } else {
