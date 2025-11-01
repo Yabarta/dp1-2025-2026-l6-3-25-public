@@ -59,15 +59,15 @@ public class MatchController {
 
     @GetMapping("/{id}")
     public Match getMatchById(@PathVariable("id") Integer id) throws ResourceNotFoundException {
-        // TODO permisos
         Match match = matchService.getMatchById(id);
         if (match == null) {
             throw new ResourceNotFoundException("Match", "id", id);
         }
         return match;
     }
-
-    @GetMapping("/{code}")
+    
+    // TODO ¿RequestParam en vez de PathVariable? (y no se necesitaría /code/{code}). En la uri de verdad quedaría /api/v1/matches?code={code}
+    @GetMapping("/code/{code}")
     public Match getMatchByCode(@PathVariable("code") String code) throws ResourceNotFoundException {
         Match match = matchService.getMatchByCode(code);
         if (match == null) {
@@ -76,7 +76,7 @@ public class MatchController {
         return match;
     }
 
-    // TODO ¿Pointless?
+    // TODO Eliminar ¿En qué situación necesitamos esta petición?
     @GetMapping("/{id}/{dishIndex}")
     public PetriDish getPetriDish(@PathVariable("id") Integer id, @PathVariable("dishIndex") Integer index) {
         Match match = matchService.getMatchById(id);

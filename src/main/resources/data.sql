@@ -30,5 +30,8 @@ INSERT INTO statistics(id, name, valor) VALUES (3, 'highest_score', 150);
 
 INSERT INTO achievements(id, name, description, valor, statistic_name, image) VALUES (1, 'First Win', 'Win your first game', 1, 'games_won', 'imagelin.png');
 
-INSERT INTO matches(id, code, created_at, creator_id) VALUES (1, 'TRJU', '2025-10-25 14:41:00', 1);
+INSERT INTO matches(id, code, created_at, started_at, creator_id, player1_id, player2_id, turn, turn_type)
+    VALUES (1, 'TRJU', '2025-10-25 14:41:00', '2025-10-25 14:42:00',1, 1, 2, 3, 1),
+           (2, 'FNSW', '2025-10-25 14:50:00', '2025-10-25 14:50:10',2, 2, 1, 0, 0);
+
 

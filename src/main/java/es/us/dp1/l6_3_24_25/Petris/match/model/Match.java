@@ -37,14 +37,13 @@ public class Match extends BaseEntity{
     @OneToOne(cascade = CascadeType.PERSIST)
     private Player creator;
 
-    @NotNull
     @OneToMany(cascade = CascadeType.ALL)
     private List<PetriDish> boardState;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Player player1;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     private Player player2;
 
 }
