@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import es.us.dp1.l6_3_24_25.Petris.player.model.Player;
 import es.us.dp1.l6_3_24_25.Petris.player.repository.PlayerRepository;
-import jakarta.validation.Valid;
+import es.us.dp1.l6_3_24_25.Petris.user.User;
 
 @Service
 public class PlayerService {
@@ -19,6 +19,11 @@ public class PlayerService {
     @Transactional(readOnly = true)
     public List<Player> getAllPlayers() {
         return playerRepository.findAll();
+    }
+
+    @Transactional(readOnly = true)
+    public Player getPlayerByUser(User user) {
+        return playerRepository.getByUser(user);
     }
 
     @Transactional(readOnly = true)
