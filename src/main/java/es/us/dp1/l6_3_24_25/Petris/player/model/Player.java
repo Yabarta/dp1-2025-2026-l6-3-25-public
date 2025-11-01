@@ -5,6 +5,7 @@ import es.us.dp1.l6_3_24_25.Petris.match.model.Match;
 import es.us.dp1.l6_3_24_25.Petris.model.BaseEntity;
 import es.us.dp1.l6_3_24_25.Petris.user.User;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import java.util.*;
@@ -17,6 +18,8 @@ public class Player extends BaseEntity{
 
     private String nickname;
     private String email;
+    @NotNull
+    private Boolean isCurrentlyInAMatch;
     @OneToOne(cascade = CascadeType.ALL)
     private User user;
     @OneToMany
