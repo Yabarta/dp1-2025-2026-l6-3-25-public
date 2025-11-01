@@ -17,6 +17,7 @@ public class PetriDishService {
         return pdRepository.findPetriDishByIndex(index);
     }
 
+    @Transactional
     public PetriDish save(PetriDish pd){
         return pdRepository.save(pd);
     }
