@@ -135,9 +135,49 @@ export default function ProfileScreen() {
     });
 
     const handleEditSubmit = (values) => {
-        setPlayerData(prevData => ({ ...prevData, ...values }));
+        const updatedPlayer = { ...playerData, ...values };
+        setPlayerData(updatedPlayer);
         setShowEditPopup(false);
-        alert('Perfil actualizado con éxito (simulación).');
+
+        fetch("/api/v1/players/" + (updatedPlayer.id || playerData.id), {
+            method: "PUT",
+            headers: {
+                Authorization: `Bearer ${jwt}`,
+                Accept: "application/json",
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(updatedPlayer),
+        })
+            .then((response) => {
+                if (!response.ok) {
+                    return response.json().then((json) => {
+                        const msg = (json && json.message) ? json.message : `Error ${response.status}`;
+                        setMessage(msg);
+                        setVisible(true);
+                        throw new Error(msg);
+                    }).catch(() => {
+                        const msg = `Error ${response.status}`;
+                        setMessage(msg);
+                        setVisible(true);
+                        throw new Error(msg);
+                    });
+                }
+                return response.json().catch(() => ({}));
+            })
+            .then((json) => {
+                if (json && json.message) {
+                    setMessage(json.message);
+                    setVisible(true);
+                } else {
+                    setPlayers(prev => prev.map(p => p.id === updatedPlayer.id ? updatedPlayer : p));
+                    window.location.reload();
+                }
+            })
+            .catch((err) => {
+                const msg = err && err.message ? err.message : 'Error updating profile';
+                setMessage(msg);
+                setVisible(true);
+            });
     };
     return (
         <div className="profileContainer">{modal}
