@@ -42,7 +42,7 @@ La duración de una partida es variable, pero ninguna suele superar los 10 minut
 En esta sección procesaremos el mockup del tablero de juego (o los mockups si el tablero cambia en las distintas fases del juego). Etiquetaremos las zonas de cada una de las pantallas para identificar componentes a implementar. Para cada mockup se especificará el árbol de jerarquía de componentes, así como, para cada componente el estado que necesita mantener, las llamadas a la API que debe realizar y los parámetros de configuración global que consideramos que necesita usar cada componente concreto. 
 Por ejemplo, para la pantalla de visualización de métricas del usuario en un hipotético módulo de juego social:
 
-![alt text](..\D1\ImagenesD1\m4.png)
+![alt text](ImagenesD2\m4.png)
 
   - App – Componente principal de la aplicación
     - $\color{orange}{\textsf{Chat – Barra lateral izquierda para ver la conversación con el rival.}}$
