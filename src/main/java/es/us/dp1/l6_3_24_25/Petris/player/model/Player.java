@@ -19,7 +19,7 @@ public class Player extends BaseEntity{
     private String nickname;
     private String email;
     @NotNull
-    private Boolean isCurrentlyInAMatch;
+    private Boolean isCurrentlyInMatch;
     @OneToOne(cascade = CascadeType.ALL)
     private User user;
     @OneToMany

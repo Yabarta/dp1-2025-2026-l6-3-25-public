@@ -66,7 +66,6 @@ public class MatchController {
         return match;
     }
     
-    // TODO ¿RequestParam en vez de PathVariable? (y no se necesitaría /code/{code}). En la uri de verdad quedaría /api/v1/matches?code={code}
     @GetMapping("/code/{code}")
     public Match getMatchByCode(@PathVariable("code") String code) throws ResourceNotFoundException {
         Match match = matchService.getMatchByCode(code);
@@ -89,7 +88,7 @@ public class MatchController {
             throws AccessDeniedException {
         User currentUser = userService.findCurrentUser();
         Player currentPlayer = playerService.getPlayerByUser(currentUser);
-        if (currentPlayer.getIsCurrentlyInAMatch()) {
+        if (currentPlayer.getIsCurrentlyInMatch()) {
             throw new AccessDeniedException("Already in a match");
         }
         Match match = new Match();
@@ -101,7 +100,7 @@ public class MatchController {
         match.setCreator(currentPlayer);
         match.setPlayer1(currentPlayer);
         matchService.createMatch(match);
-        currentPlayer.setIsCurrentlyInAMatch(true);
+        currentPlayer.setIsCurrentlyInMatch(true);
         playerService.save(currentPlayer);
         URI location = ServletUriComponentsBuilder
             .fromCurrentRequest()
@@ -126,13 +125,13 @@ public class MatchController {
         User currentUser = userService.findCurrentUser();
         Player currentPlayer = playerService.getPlayerByUser(currentUser);
         matchToUpdate.setPlayer2(currentPlayer);
-        currentPlayer.setIsCurrentlyInAMatch(true);
+        currentPlayer.setIsCurrentlyInMatch(true);
         playerService.save(currentPlayer);
             
         return new ResponseEntity<>(matchService.joinMatch(matchToUpdate), HttpStatus.OK);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{id}/nextTurn")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Match> nextTurn(@Valid @RequestParam Optional<List<PetriDish>> newBoardState, @PathVariable("id") Integer id)
             throws AccessDeniedException {
@@ -152,8 +151,8 @@ public class MatchController {
         if(updatedMatch.getEndedAt() != null) {
             Player player1 = updatedMatch.getPlayer1();
             Player player2 = updatedMatch.getPlayer2();
-            player1.setIsCurrentlyInAMatch(false);
-            player2.setIsCurrentlyInAMatch(false);
+            player1.setIsCurrentlyInMatch(false);
+            player2.setIsCurrentlyInMatch(false);
             playerService.save(player1);
             playerService.save(player2);
         }
@@ -161,7 +160,7 @@ public class MatchController {
         return new ResponseEntity<>(updatedMatch, HttpStatus.OK);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{id}/checkErrors")
     public List<String> getPropagationErrors(@PathVariable("id") Integer id, @Valid @RequestParam List<PetriDish> newBoardState) 
             throws AccessDeniedException{
         User currentUser = userService.findCurrentUser();
@@ -178,7 +177,7 @@ public class MatchController {
         return matchService.getPropagationErrors(match.getBoardState(), newBoardState, player);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{id}/endMatch")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Match> forceEndMatch(@PathVariable("id") Integer id)
             throws AccessDeniedException {
