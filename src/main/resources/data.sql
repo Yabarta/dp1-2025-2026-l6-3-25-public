@@ -21,8 +21,8 @@ INSERT INTO appusers(id,username,password,authority) VALUES (17,'RXW1249','$2a$1
 INSERT INTO appusers(id,username,password,authority) VALUES (18,'WHS7046','$2a$10$DaS6KIEfF5CRTFrxIoGc7emY3BpZZ0.fVjwA3NiJ.BjpGNmocaS3e',2);
 INSERT INTO appusers(id,username,password,authority) VALUES (19,'WTS5677','$2a$10$DaS6KIEfF5CRTFrxIoGc7emY3BpZZ0.fVjwA3NiJ.BjpGNmocaS3e',2);
 
-INSERT INTO players(id, user_id, nickname, email) VALUES(1, 4, 'player1', 'hola@gmail.com');
-INSERT INTO players(id, user_id, nickname, email) VALUES(2, 5, 'player2', 'adios@gmail.com');
+INSERT INTO players(id, user_id, nickname, email, is_currently_in_match) VALUES(1, 4, 'player1', 'hola@gmail.com', 0);
+INSERT INTO players(id, user_id, nickname, email, is_currently_in_match) VALUES(2, 5, 'player2', 'adios@gmail.com', 0);
 
 INSERT INTO statistics(id, name, valor) VALUES (1, 'games_played', 10);
 INSERT INTO statistics(id, name, valor) VALUES (2, 'games_won', 7);

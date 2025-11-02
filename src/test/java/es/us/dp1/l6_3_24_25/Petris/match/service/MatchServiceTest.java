@@ -100,7 +100,7 @@ class MatchServiceTest {
         match.setCreator(player1);
         match.setPlayer1(player1);
         */
-        Match createdMatch = matchService.save(match);
+        Match createdMatch = matchService.createMatch(match);
 
         assertEquals(createdMatch.getCode(), "HYMG", "Code doesnt match");
         assertEquals(createdMatch.getTurn(), 4, "Turn doesnt match");
