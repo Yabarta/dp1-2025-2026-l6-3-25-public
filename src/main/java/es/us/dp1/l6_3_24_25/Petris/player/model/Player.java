@@ -6,7 +6,12 @@ import java.util.List;
 import es.us.dp1.l6_3_24_25.Petris.match.model.Match;
 import es.us.dp1.l6_3_24_25.Petris.model.BaseEntity;
 import es.us.dp1.l6_3_24_25.Petris.user.User;
-import jakarta.persistence.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,7 +26,8 @@ public class Player extends BaseEntity{
     private String email;
     @NotNull
     private Boolean isCurrentlyInMatch;
-    @OneToOne(cascade = CascadeType.ALL)
+    @NotNull
+    @OneToOne()
     private User user;
     @OneToMany
     private List<Match> game;
