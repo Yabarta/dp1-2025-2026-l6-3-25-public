@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 public class PetriDishService {
 
@@ -15,5 +17,9 @@ public class PetriDishService {
     @Transactional
     public PetriDish save(PetriDish pd){
         return pdRepository.save(pd);
+    }
+
+    public void delete(Integer id){
+        pdRepository.deleteById(id);
     }
 }

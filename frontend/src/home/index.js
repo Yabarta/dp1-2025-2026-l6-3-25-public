@@ -4,7 +4,6 @@ import GameScreen from '../Game/gameScreen';
 import JoinGameScreen from './joinGameScreen';
 import logo from '../static/images/petris3D_recortado.png'
 import tokenService from 'frontend/src/services/token.service.js';
-import ProfileScreen from '../profile/profileScreen';
 import {ToastContainer, toast} from 'react-toastify';
 import { NavLink, NavItem, Nav, NavbarText, NavbarToggler } from 'reactstrap';
 import { Link, useNavigate } from 'react-router-dom';
@@ -13,7 +12,7 @@ export default function Home(){
   const navigate = useNavigate();
   const [showMainMenu, setShowMainMenu] = useState(false);
   const [showJoinGameScreen, setShowJoinGameScreen] = useState(false);
-  const [showProfile, setShowProfile] = useState(false);
+  // profile will be shown via a dedicated route /profile
   const jwt = tokenService.getLocalAccessToken();
   const [roomCode, setRoomCode] = useState('');
 
@@ -45,7 +44,7 @@ export default function Home(){
     if (jwt == null) {
       return toast.error("User not logged in")
     } else {
-      setShowProfile(true)
+        navigate('/profile');
     }
   }
 
@@ -76,9 +75,6 @@ export default function Home(){
     navigate('/demo');
   };
 
-  if (showProfile) {
-    return <ProfileScreen user={jwt} />
-  }
 
   return (
     <div className="homePageContainer">

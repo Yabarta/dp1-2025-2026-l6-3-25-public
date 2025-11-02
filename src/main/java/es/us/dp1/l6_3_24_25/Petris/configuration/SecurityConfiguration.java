@@ -75,6 +75,7 @@ public class SecurityConfiguration {
                 ).permitAll()
 
                 // API pública
+                .requestMatchers("/api/v1/profile").permitAll()
                 .requestMatchers("/api/v1/auth/**").permitAll()
                 .requestMatchers("/api/v1/developers").permitAll()
                 .requestMatchers("/api/v1/plan").permitAll()
