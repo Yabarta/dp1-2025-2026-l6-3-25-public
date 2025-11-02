@@ -14,21 +14,7 @@ public class PetriDishService {
     @Autowired
     private PetriDishRepository pdRepository;
 
-    @Transactional(readOnly = true)
-    public PetriDish getPetriDishByIndex(Integer index){
-        return pdRepository.findPetriDishByIndex(index);
-    }
-
-    @Transactional(readOnly = true)
-    public PetriDish getPetriDishById(Integer id){
-        return pdRepository.findById(id).orElse(null);
-    }
-
-    @Transactional(readOnly = true)
-    public List<PetriDish> getAllPetriDishes(){
-        return (List<PetriDish>) pdRepository.findAll();
-    }
-
+    @Transactional
     public PetriDish save(PetriDish pd){
         return pdRepository.save(pd);
     }
