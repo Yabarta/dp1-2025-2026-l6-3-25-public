@@ -21,16 +21,16 @@ INSERT INTO appusers(id,username,password,authority) VALUES (17,'RXW1248','$2a$1
 INSERT INTO appusers(id,username,password,authority) VALUES (18,'WHS7046','$2a$10$DaS6KIEfF5CRTFrxIoGc7emY3BpZZ0.fVjwA3NiJ.BjpGNmocaS3e',2);
 INSERT INTO appusers(id,username,password,authority) VALUES (19,'WTS5677','$2a$10$DaS6KIEfF5CRTFrxIoGc7emY3BpZZ0.fVjwA3NiJ.BjpGNmocaS3e',2);
 
-INSERT INTO players(id, user_id, nickname, email) VALUES(1, 4, 'player1', 'hola@gmail.com');
-INSERT INTO players(id, user_id, nickname, email) VALUES(2, 5, 'player2', 'adios@gmail.com');
-INSERT INTO players(id, user_id, nickname, email) VALUES(3, 6, 'player3', 'player3@gmail.com');
-INSERT INTO players(id, user_id, nickname, email) VALUES(4, 7, 'player4', 'player4@gmail.com');
-INSERT INTO players(id, user_id, nickname, email) VALUES(5, 8, 'player5', 'player5@gmail.com');
-INSERT INTO players(id, user_id, nickname, email) VALUES(6, 9, 'player6', 'player6@gmail.com');
-INSERT INTO players(id, user_id, nickname, email) VALUES(7, 10, 'player7', 'player7@gmail.com');
-INSERT INTO players(id, user_id, nickname, email) VALUES(8, 11, 'player8', 'player8@gmail.com');
-INSERT INTO players(id, user_id, nickname, email) VALUES(9, 12, 'player9', 'player9@gmail.com');
-INSERT INTO players(id, user_id, nickname, email) VALUES(10, 13, 'player10', 'player10@gmail.com');
+INSERT INTO players(id, is_currently_in_match, user_id, nickname, email) VALUES(1, false, 4, 'player1', 'hola@gmail.com');
+INSERT INTO players(id, is_currently_in_match, user_id, nickname, email) VALUES(2, false, 5, 'player2', 'adios@gmail.com');
+INSERT INTO players(id, is_currently_in_match, user_id, nickname, email) VALUES(3, false, 6, 'player3', 'player3@gmail.com');
+INSERT INTO players(id, is_currently_in_match, user_id, nickname, email) VALUES(4, false, 7, 'player4', 'player4@gmail.com');
+INSERT INTO players(id, is_currently_in_match, user_id, nickname, email) VALUES(5, false, 8, 'player5', 'player5@gmail.com');
+INSERT INTO players(id, is_currently_in_match, user_id, nickname, email) VALUES(6, false, 9, 'player6', 'player6@gmail.com');
+INSERT INTO players(id, is_currently_in_match, user_id, nickname, email) VALUES(7, false, 10, 'player7', 'player7@gmail.com');
+INSERT INTO players(id, is_currently_in_match, user_id, nickname, email) VALUES(8, false, 11, 'player8', 'player8@gmail.com');
+INSERT INTO players(id, is_currently_in_match, user_id, nickname, email) VALUES(9, false, 12, 'player9', 'player9@gmail.com');
+INSERT INTO players(id, is_currently_in_match, user_id, nickname, email) VALUES(10, false, 13, 'player10', 'player10@gmail.com');
 
 INSERT INTO statistics(id, name, valor) VALUES (1, 'games_played', 10);
 INSERT INTO statistics(id, name, valor) VALUES (2, 'games_won', 7);
@@ -44,7 +44,7 @@ INSERT INTO achievements(id, name, description, valor, statistic_name, image) VA
 INSERT INTO achievements(id, name, description, valor, statistic_name, image) VALUES (3, 'Line Master', 'Clear 500 lines', 500, 'lines_cleared', 'linemaster.png');
 INSERT INTO achievements(id, name, description, valor, statistic_name, image) VALUES (4, 'Power Up!', 'Use 25 power-ups', 25, 'power_ups_used', 'powerup.png');
 
-INSERT INTO matches(id, code, created_at, started_at, ended_at, creator_id, player1_id, player2_id, turn, turn_type, finalp1score, finalp2score, winner)
+INSERT INTO matches(id, code, created_at, started_at, ended_at, creator_id, player1_id, player2_id, turn, turn_type, player1score, player2score, winner)
     VALUES (1, 'TRJU', '2025-10-25 14:41:00', '2025-10-25 14:42:00', '2025-10-25 14:52:00', 1, 1, 2, 3, 1, 9, 5, 1),
            (2, 'FNSW', '2025-10-25 14:50:00', '2025-10-25 14:50:10', '2025-10-25 15:00:10', 2, 2, 1, 0, 0, 7, 9, 1),
            (3, 'ABCD', '2025-10-26 10:00:00', '2025-10-26 10:01:00', '2025-10-26 10:11:00', 3, 3, 4, 5, 0, 8, 0, 1),

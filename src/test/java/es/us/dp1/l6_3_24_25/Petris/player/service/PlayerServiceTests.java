@@ -22,7 +22,7 @@ public class PlayerServiceTests {
     @Test
     void testGetAllPlayers() {
         List<Player> players = this.playerService.getAllPlayers();
-        assertEquals(2, players.size(), "Incorrect number of players");
+        assertEquals(10, players.size(), "Incorrect number of players");
     }
 
     @Test
@@ -42,9 +42,10 @@ public class PlayerServiceTests {
         Integer count = this.playerService.getAllPlayers().size();
 
         Player newPlayer = new Player();
-        newPlayer.setUser(userService.findUser(6));
-        newPlayer.setEmail("email3@gmail.com");
-        newPlayer.setNickname("player3");
+        newPlayer.setUser(userService.findUser(15));
+        newPlayer.setEmail("kdr0901@gmail.com");
+        newPlayer.setNickname("kdr0901");
+        newPlayer.setIsCurrentlyInMatch(false);
 
         Player createdPlayer = this.playerService.save(newPlayer);
 
@@ -52,7 +53,7 @@ public class PlayerServiceTests {
         assertEquals(newPlayer.getUser(), createdPlayer.getUser(), "Incorrect user");
         assertEquals(newPlayer.getEmail(), createdPlayer.getEmail(), "Incorrect email");
         assertEquals(newPlayer.getNickname(), createdPlayer.getNickname(), "Incorrect nickname");
-        assertEquals(3, this.playerService.getAllPlayers().size());
+        assertEquals(11, this.playerService.getAllPlayers().size());
 
         Integer finalCount = this.playerService.getAllPlayers().size();
 		assertEquals(count + 1, finalCount);
@@ -64,9 +65,10 @@ public class PlayerServiceTests {
         Integer firstCount = this.playerService.getAllPlayers().size();
 
         Player newPlayer = new Player();
-        newPlayer.setUser(userService.findUser(7));
-        newPlayer.setEmail("email4@gmail.com");
-        newPlayer.setNickname("player4");
+        newPlayer.setUser(userService.findUser(14));
+        newPlayer.setEmail("fbn5868@gmail.com");
+        newPlayer.setNickname("fbn5868");
+        newPlayer.setIsCurrentlyInMatch(false);
         this.playerService.save(newPlayer);
 
 		Integer secondCount = playerService.getAllPlayers().size();
