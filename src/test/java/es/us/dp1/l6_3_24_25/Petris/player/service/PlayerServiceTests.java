@@ -31,12 +31,11 @@ public class PlayerServiceTests {
         List<Player> players = this.playerService.getAllPlayers();
         assertEquals(10, players.size(), "Incorrect number of players");
 
-        //  When running this test with the whole class -> players.size() = 11 (adds the kdr0901 one)
-        //  When running this test by itself -> players.size() = 10 (kdr0901 one not added)
-        //  REVIEW
+    Al ejecutarlo con todos los tests sale size = 11
+    Al ejecutarlo individualmente sale size = 10
+
     } */
 
-    
 
     @Test
     @DisplayName("getPlayerById Test")
@@ -64,16 +63,14 @@ public class PlayerServiceTests {
         assertThrows(ResourceNotFoundException.class, () -> this.playerService.getPlayerByNickname("nonExistingUsername"));
     }
 
-/*     @Test
+    @Test
     @DisplayName("getPlayerByUser Test")
     void testGetPlayerByUser() {
         User user = this.userService.findUser(4);
         Player player = this.playerService.getPlayerByUser(user);
-        assertEquals(user, player.getUser(), "Incorrect user");
+        assertEquals(user.getId(), player.getUser().getId(), "Incorrect user");
     }
 
-    Should be working? (Different hash code ¿?)
- */
     @Test
     @DisplayName("getPlayerByUser Test (Negative)")
     void shouldNotGetPlayerWithIncorrectUser() {
@@ -83,7 +80,7 @@ public class PlayerServiceTests {
 
 
     @Test
-    @DisplayName("Base save Test")
+    @DisplayName("save Test")
     void testSave() {
         Integer count = this.playerService.getAllPlayers().size();
 
@@ -107,7 +104,7 @@ public class PlayerServiceTests {
 
     
     @Test
-    @DisplayName("Base delete Test")
+    @DisplayName("delete Test")
     void testDelete() {
         Integer firstCount = this.playerService.getAllPlayers().size();
 
