@@ -31,40 +31,7 @@ La duración de una partida es variable, pero ninguna suele superar los 10 minut
 
 ### Diagrama de Dominio/Diseño
 
-_En esta sección debe proporcionar un diagrama UML de clases que describa el modelo de dominio, recuerda que debe estar basado en el diagrama conceptual del documento de análisis de requisitos del sistema pero que debe:_
-•	_Especificar la direccionalidad de las relaciones (a no ser que sean bidireccionales)_
-•	_Especificar la cardinalidad de las relaciones_
-•	_Especificar el tipo de los atributos_
-•	_Especificar las restricciones simples aplicadas a cada atributo de cada clase de domino_
-•	_Incluir las clases específicas de la tecnología usada, como por ejemplo BaseEntity, NamedEntity, etc._
-•	_Incluir los validadores específicos creados para las distintas clases de dominio (indicando en su caso una relación de uso con el estereotipo <<validates>>._
-
-_Un ejemplo de diagrama para los ejercicios planteados en los boletines de laboratorio sería (hemos omitido las generalizaciones hacia BaseEntity para simplificar el diagrama):_
-
-
-_Ej:_
-
-```mermaid
-classDiagram
-    note "From Duck till Zebra"
-    Animal <|-- Duck
-    note for Duck "can fly\ncan swim\ncan dive\ncan help in debugging"
-    Animal <|-- Fish
-    Animal <|-- Zebra
-    Animal : age
-    Animal : gender
-    class Duck{
-        beakColor        
-    }
-    class Fish{
-       sizeInFeet
-    }
-    class Zebra{
-        is_wild
-        
-    }
-```
-_En este caso hemos vuelto a usar mermaid para crear el diagrama de dominio/diseño, pero recuerda que puedes usar cualquier otra herramienta que consideres oportuno para crear tus diagramas e inclurlos en este document como imagen tal y como se explica en [este tutorial](https://www.baeldung.com/ops/github-readme-insert-image)_
+![alt text](ImagenesD2/DiagramaDominio.png)
 
 ### Diagrama de Capas (incluyendo Controladores, Servicios y Repositorios)
 ![alt text](ImagenesD2/Diagrama%20de%20capas.jpg)
@@ -72,20 +39,18 @@ _En este caso hemos vuelto a usar mermaid para crear el diagrama de dominio/dise
 
 ## Descomposición del mockups del tablero de juego en componentes
 
-En esta sección procesaremos el mockup del tablero de juego (o los mockups si el tablero cambia en las distintas fases del juego). Etiquetaremos las zonas de cada una de las pantallas para identificar componentes a implementar. Para cada mockup se especificará el árbol de jerarquía de componentes, así como, para cada componente el estado que necesita mantener, las llamadas a la API que debe realizar y los parámetros de configuración global que consideramos que necesita usar cada componente concreto. 
-Por ejemplo, para la pantalla de visualización de métricas del usuario en un hipotético módulo de juego social:
-
-![Descomposición en componentes de la interfaz de estadísticas](https://github.com/gii-is-DP1/react-petclinic/assets/756431/12b36c37-39ed-422e-b8d9-56c94753cbdc)
+![alt text](ImagenesD2/m4.png)
 
   - App – Componente principal de la aplicación
-    - $\color{orange}{\textsf{NavBar – Barra de navegación lateral}}$
-      - $\color{darkred}{\textsf{[ NavButton ]. Muestra un botón de navegación con un icono asociado.}}$
-    - $\color{darkblue}{\textsf{UserNotificationArea – Área de notificaciones e identificación del usuario actual}}$
-    - $\color{blue}{\textsf{MetricsBar – En este componente se muestran las métricas principales del juego. Se mostrarán 4 métricas: partidas jugadas, puntos logrados, tiempo total, y cartas jugadas.}}$
-      - $\color{darkgreen}{\textsf{[ MetricWell ] – Proporciona el valor y el incremento semanal de una métrica concreta. }}$
-    - $\color{purple}{\textsf{GamesEvolutionChart – Muestra la tendencia de evolución en ellos últimos 4 meses en cuanto a partida jugadas, ganadas, perdidas y abandonadas.}}$
-    - $\color{yellow}{\textsf{PopularCardsChart – Muestra la proporción de las N (parámetro de configuración) cartas más jugadas en el juego por el jugador.}}$
-    - $\color{red}{\textsf{FrequentCoPlayersTable – Muestra los jugadores  con los que más se  ha jugado (de M en M donde M es un parámetro definido por la configuración del componente). Concretamente, se mostrarán la el nombre, la fecha de la última partida, la localización del jugador el porcentaje de partidas jugadas por ambos en las que el usuario ha ganado y si el jugador es amigo o no del usuario.}}$
+    - $\color{orange}{\textsf{Chat – Barra lateral izquierda para ver la conversación con el rival.}}$
+      - $\color{darkred}{\textsf{[Escriba un mensaje... ]. Sitio para escribir el mensaje que quieras enviar.}}$
+    - $\color{cyan}{\textsf{Tablero – Área de juego donde serán mostradas la fichas.}}$
+    - $\color{lightblue}{\textsf{Turno – Barra lateral derecha donde ver a quién le toca/tocará los próximos turnos.}}$
+      - $\color{green}{\textsf{[ Número de turno ] – Marca en que turno vas, cuando llega a 4 es que es la última}}$
+    - $\color{purple}{\textsf{Temporizador – Arriba hay un temporizador que marca el tiempo restante en el turno.}}$
+    - $\color{yellow}{\textsf{TerminarTurno – Botón para finalizar turno.}}$
+    - $\color{red}{\textsf{Barra de puntuación – Barras laterales con el nombre del jugador arriba donde marca cuanto nivel de contaminación tiene.}}$
+    - $\color{pink}{\textsf{Abandonar partida – Botón para salir de la partida antes de que finalice.}}$
 
 ## Patrones de diseño y arquitectónicos aplicados
 En esta sección de especificar el conjunto de patrones de diseño y arquitectónicos aplicados durante el proyecto. Para especificar la aplicación de cada patrón puede usar la siguiente plantilla:
@@ -106,58 +71,77 @@ Hemos creado para las tablas User, Player, Achievement, Statistics, Match y Petr
 Es interesante usar este patrón porque nos permite tener un código mejor estructurado por función, separando las responsabilidades de cada componente.
 
 ## Decisiones de diseño
-_En esta sección describiremos las decisiones de diseño que se han tomado a lo largo del desarrollo de la aplicación que vayan más allá de la mera aplicación de patrones de diseño o arquitectónicos._
 
-### Decisión X
-#### Descripción del problema:*
+### Decisión 1: Creación de la tabla estadísticas.
+#### Descripción del problema:
 
-Describir el problema de diseño que se detectó, o el porqué era necesario plantearse las posibilidades de diseño disponibles para implementar la funcionalidad asociada a esta decisión de diseño.
+Como grupo nos gustaría poder guardar las estadísticas en una tabla del backend.
 
 #### Alternativas de solución evaluadas:
-Especificar las distintas alternativas que se evaluaron antes de seleccionar el diseño concreto implementado finalmente en el sistema. Si se considera oportuno se pude incluir las ventajas e inconvenientes de cada alternativa
+
+*Alternativa 1.a*: Que cada fila de la tabla sea una estadística con las propiedades nombre y valor.
+
+*Ventajas:*
+•	Sería más dinámica a la hora de añadir estadísticas nuevas en un futuro.
+*Inconvenientes:*
+•	Haría la tabla menos eficiente debido a que tendríamos un gran número de filas, mayor incluso al de jugadores.
+
+*Alternativa 1.b*: Que cada columna tenga una estadística a guardar.
+*Ventajas:*
+•	Se quedaría una tabla más reducida dado que sería unas fila igual al número de jugadores.
+*Inconvenientes:*
+•	Si queremos añadir una estadística nueva hay que editar la base de la tabla.
 
 #### Justificación de la solución adoptada
 
-Describir porqué se escogió la solución adoptada. Si se considera oportuno puede hacerse en función de qué  ventajas/inconvenientes de cada una de las soluciones consideramos más importantes.
-Os recordamos que la decisión sobre cómo implementar las distintas reglas de negocio, cómo informar de los errores en el frontend, y qué datos devolver u obtener a través de las APIs y cómo personalizar su representación en caso de que sea necesario son decisiones de diseño relevantes.
+Al revisar el problema nos dimos cuenta que al ser un trabajo que no se va a prolongar en el tiempo no va a hacer falta añadir más estadísticas haciendo que la mejor opción sea la 1.b.
 
-_Ejemplos de uso de la plantilla con otras decisiones de diseño:_
-
-### Decisión 1: Importación de datos reales para demostración
+### Decisión 2: Usuario
 #### Descripción del problema:
 
-Como grupo nos gustaría poder hacer pruebas con un conjunto de datos reales suficientes, porque resulta más motivador. El problema es al incluir todos esos datos como parte del script de inicialización de la base de datos, el arranque del sistema para desarrollo y pruebas resulta muy tedioso.
+A la hora de hacer la clase Usuario tener el problema de que los admin no pueden jugar partidas.
 
 #### Alternativas de solución evaluadas:
-
-*Alternativa 1.a*: Incluir los datos en el propio script de inicialización de la BD (data.sql).
-
-*Ventajas:*
-•	Simple, no requiere nada más que escribir el SQL que genere los datos.
-*Inconvenientes:*
-•	Ralentiza todo el trabajo con el sistema para el desarrollo. 
-•	Tenemos que buscar nosotros los datos reales
-
-*Alternativa 1.b*: Crear un script con los datos adicionales a incluir (extra-data.sql) y un controlador que se encargue de leerlo y lanzar las consultas a petición cuando queramos tener más datos para mostrar.
-*Ventajas:*
-•	Podemos reutilizar parte de los datos que ya tenemos especificados en (data.sql).
-•	No afecta al trabajo diario de desarrollo y pruebas de la aplicación
-*Inconvenientes:*
-•	Puede suponer saltarnos hasta cierto punto la división en capas si no creamos un servicio de carga de datos. 
-•	Tenemos que buscar nosotros los datos reales adicionales
-
-*Alternativa 1.c*: Crear un controlador que llame a un servicio de importación de datos, que a su vez invoca a un cliente REST de la API de datos oficiales de XXXX para traerse los datos, procesarlos y poder grabarlos desde el servicio de importación.
+*Alternativa 1.a*: Que se usara usuario para jugar la partida.
 
 *Ventajas:*
-•	No necesitamos inventarnos ni buscar nosotros lo datos.
-•	Cumple 100% con la división en capas de la aplicación.
-•	No afecta al trabajo diario de desarrollo y pruebas de la aplicación
+•	No habría que crear una clase intermedia.
 *Inconvenientes:*
-•	Supone mucho más trabajo. 
-•	Añade cierta complejidad al proyecto
+•	Habría que revisar si el usuario es admin o player.
 
-*Justificación de la solución adoptada*
-Como consideramos que la división en capas es fundamental y no queremos renunciar a un trabajo ágil durante el desarrollo de la aplicación, seleccionamos la alternativa de diseño 1.c.
+*Alternativa 1.b*: Crear una clase intermedia llamada player y solo estos pueden jugar.
+*Ventajas:*
+•	No habría que revisar el rol.
+• Se podría poner un nombre que se viera que no fuera el de usuario para iniciar sesión.
+*Inconvenientes:*
+•	Sería crear una tabla que tenga una relación 0..1 con usuario.
+
+#### Justificación de la solución adoptada
+
+Hemos optado por la opción 1.b porque la hemos valorado que la revisión si era admin o no a la hora de crear partidas podría dar problemas sumado a que nos daría más orden interno.
+
+### Decisión 3: Game
+#### Descripción del problema:
+
+Como actualizar los cambios que se hagan en cada turno.
+
+#### Alternativas de solución evaluadas:
+*Alternativa 1.a*: Que se cambie la tabla Game cuando se crea, se inicia y se finaliza.
+
+*Ventajas:*
+•	La tabla Game al ser importante solo se cambiaría 3 veces.
+*Inconvenientes:*
+•	Habría que crear otras tablas para guardar el tablero y el turno en el que va.
+
+*Alternativa 1.b*: Modificar Game cada turno.
+*Ventajas:*
+•	No habría que crear otras tablas para guardar datos.
+*Inconvenientes:*
+•	Existe la posibilidad de que al guardar datos de problemas.
+
+#### Justificación de la solución adoptada
+
+Hemos optado por la alternativa 1.b devido a que al ver el inconveniente que nos vino a la cabeza a la hora de ver opciones para crearlo nos dimos cuenta que no era tan necesario buscar que game solo se modificara 3 veces.
 
 ## Refactorizaciones aplicadas
 

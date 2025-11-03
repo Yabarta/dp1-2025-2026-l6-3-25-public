@@ -6,9 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import es.us.dp1.l6_3_24_25.Petris.exceptions.ResourceNotFoundException;
 import es.us.dp1.l6_3_24_25.Petris.player.model.Player;
 import es.us.dp1.l6_3_24_25.Petris.player.repository.PlayerRepository;
-import jakarta.validation.Valid;
+import es.us.dp1.l6_3_24_25.Petris.user.User;
 
 @Service
 public class PlayerService {
@@ -22,13 +23,21 @@ public class PlayerService {
     }
 
     @Transactional(readOnly = true)
+    public Player getPlayerByUser(User user) {
+        return playerRepository.getByUser(user)
+            .orElseThrow(() -> new ResourceNotFoundException("Player", "user", user));
+    }
+
+    @Transactional(readOnly = true)
     public Player getPlayerById(Integer id) {
-        return playerRepository.getById(id);
+        return playerRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Player", "id", id));
     }
 
     @Transactional(readOnly = true)
     public Player getPlayerByNickname(String username) {
-        return playerRepository.getByNickname(username);
+        return playerRepository.getByNickname(username)
+            .orElseThrow(() -> new ResourceNotFoundException("Player", "username", username));
     }
 
     @Transactional

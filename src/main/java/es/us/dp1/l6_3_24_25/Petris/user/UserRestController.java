@@ -22,6 +22,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 import es.us.dp1.l6_3_24_25.Petris.exceptions.AccessDeniedException;
 import es.us.dp1.l6_3_24_25.Petris.util.RestPreconditions;
@@ -72,6 +73,12 @@ class UserRestController {
 	@GetMapping(value = "{id}")
 	public ResponseEntity<User> findById(@PathVariable("id") Integer id) {
 		return new ResponseEntity<>(userService.findUser(id), HttpStatus.OK);
+	}
+	
+	@GetMapping("/current")
+	public ResponseEntity<User> findCurrentUser() {
+		User currentUser = userService.findCurrentUser();
+		return new ResponseEntity<>(currentUser, HttpStatus.OK);
 	}
 
 	@PostMapping

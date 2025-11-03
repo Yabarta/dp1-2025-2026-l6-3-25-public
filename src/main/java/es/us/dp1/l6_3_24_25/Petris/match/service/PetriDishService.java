@@ -6,18 +6,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 public class PetriDishService {
 
     @Autowired
     private PetriDishRepository pdRepository;
 
-    @Transactional(readOnly = true)
-    public PetriDish getPetriDish(Integer index){
-        return pdRepository.findPetriDishByIndex(index);
-    }
-
+    @Transactional
     public PetriDish save(PetriDish pd){
         return pdRepository.save(pd);
+    }
+
+    public void delete(Integer id){
+        pdRepository.deleteById(id);
     }
 }
