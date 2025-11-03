@@ -1,16 +1,20 @@
 # Plan de Pruebas
-
-**Asignatura:** Diseño y Pruebas (Grado en Ingeniería del Software, Universidad de Sevilla)  
-**Curso académico:** <!-- p.ej., 2025/2026 -->  
-**Grupo/Equipo:** <!-- p.ej., L4-03 Equipo 33 -->  
-**Nombre del proyecto:** <!-- p. ej. Petris -->  
-**Repositorio:** <!-- URL del repo -->  
-**Integrantes (máx. 6):** <!-- Nombre Apellidos (US-Id / correo @us.es) -->
-
+**Asignatura:** Diseño y Pruebas 1 (Grado en Ingeniería del Software, Universidad de Sevilla)   
+**Curso académico:** 2025/2026  
+**Grupo/Equipo:** L6-03     
+**Nombre del proyecto:** Petris  
+**Repositorio:** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25  
+**Integrantes (máx. 6):** 
+- David Lozano Acosta
+- Diego Vicente Cámara
+- José Ismael Barroso Delgado
+- Jose Antonio Aguadero García
+- Lu Dao Guerricabeitia Garzón
+- Pablo Pérez Sorni
 
 ## 1. Introducción
 
-Este documento describe el plan de pruebas para el proyecto **[Nombre del Proyecto]** desarrollado en el marco de la asignatura **Diseño y Pruebas 1** por el grupo **LX-XY**. El objetivo del plan de pruebas es garantizar que el software desarrollado cumple con los requisitos especificados en las historias de usuario y que se han realizado las pruebas necesarias para validar su funcionamiento.
+Este documento describe el plan de pruebas para el proyecto **Petris** desarrollado en el marco de la asignatura **Diseño y Pruebas 1** por el grupo **L6-03**. El objetivo del plan de pruebas es garantizar que el software desarrollado cumple con los requisitos especificados en las historias de usuario y que se han realizado las pruebas necesarias para validar su funcionamiento.
 
 ## 2. Alcance
 
@@ -19,7 +23,7 @@ El alcance de este plan de pruebas incluye:
 - Pruebas unitarias.
   - Pruebas unitarias de backend incluyendo pruebas servicios o repositorios
   - Pruebas unitarias de frontend: pruebas de las funciones javascript creadas en frontend.
-  - Pruebas unitarias de interfaz de usuario. Usan la interfaz de  usuario de nuestros componentes frontend.
+  - Pruebas unitarias de interfaz de usuario. Usan la interfaz de usuario de nuestros componentes frontend.
 - Pruebas de integración.  En nuestro caso principalmente son pruebas de controladores que también se ejecutarán mediante JUnit.
 
 ## 3. Estrategia de Pruebas
