@@ -12,6 +12,9 @@ import lombok.Setter;
 @Table(name = "achievements")
 public class Achievement extends NamedEntity {
     @NotNull
+    private String name;
+
+    @NotNull
     private String description;
 
     @NotNull
