@@ -1,6 +1,5 @@
 package es.us.dp1.l6_3_24_25.Petris.player.controller;
 
-import io.micrometer.core.instrument.Statistic;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
@@ -17,11 +16,8 @@ import es.us.dp1.l6_3_24_25.Petris.player.model.Statistics;
 
 import java.net.URI;
 import java.util.List;
-import java.util.Set;
 
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-
 
 
 
