@@ -31,7 +31,7 @@ La duración de una partida es variable, pero ninguna suele superar los 10 minut
 
 ### Diagrama de Dominio/Diseño
 
-![alt text](ImagenesD2/DiagramaDominio.png)
+![alt text](ImagenesD2/DiagramDominio.jpg)
 
 ### Diagrama de Capas (incluyendo Controladores, Servicios y Repositorios)
 ![alt text](ImagenesD2/Diagrama%20de%20capas.jpg)
