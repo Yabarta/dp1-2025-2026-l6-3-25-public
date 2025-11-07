@@ -1,0 +1,36 @@
+.listing-page-container{
+    position: absolute;
+    top: 60px;
+    left: 0;    
+    right: 0;
+    bottom: 0;
+    z-index: -1;
+    background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url('../../images/home_background2.jpg');
+    background-size: cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.join-game {
+    width: 600px; /* Ancho ajustado */
+    padding: 15px 25px; 
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Mantiene el espacio entre el nombre y el botón */
+    align-items: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+    margin: 20px;
+    backdrop-filter: blur(10px);
+}
+
+/* --- Estilo del Nombre del Creador --- */
+.creator-name {
+    font-size: 32px; /* Un poco más pequeño que el título anterior */
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: white;
+    /* Mantenemos el resplandor sutil */
+
+}
