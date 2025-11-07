@@ -8,12 +8,14 @@ import {ToastContainer, toast} from 'react-toastify';
 import { NavLink, NavItem, Nav, NavbarText, NavbarToggler } from 'reactstrap';
 import { Link, useNavigate } from 'react-router-dom';
 
+const jwt = tokenService.getLocalAccessToken();
+
 export default function Home(){
   const navigate = useNavigate();
   const [showMainMenu, setShowMainMenu] = useState(false);
   const [showJoinGameScreen, setShowJoinGameScreen] = useState(false);
   // profile will be shown via a dedicated route /profile
-  const jwt = tokenService.getLocalAccessToken();
+
   const [roomCode, setRoomCode] = useState('');
 
   const handlePlayButtonClick = () => {
@@ -75,6 +77,11 @@ export default function Home(){
     navigate('/demo');
   };
 
+  const handleSearchGame = () => {
+    setShowMainMenu(false);
+    navigate('/notStarted')
+  }
+
 
   return (
     <div className="homePageContainer">
@@ -83,7 +90,7 @@ export default function Home(){
           <div className="mainMenu">
             <h1>Menú Principal</h1>
             <div className="menuButtons">
-              <button className="menuButton" onClick={() => toast.error('Funcionalidad pendiente')}>
+              <button className="menuButton" onClick={handleSearchGame}>
                 Buscar Partida
               </button>
               <button className="menuButton" onClick={handleJoinPrivateGame}>
