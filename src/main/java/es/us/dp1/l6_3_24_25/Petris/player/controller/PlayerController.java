@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.http.HttpStatus;
 
 
 
@@ -49,6 +50,15 @@ public class PlayerController {
     @GetMapping("/{id}/statistics")
     public List<Statistics> getPlayerStatsById(@PathVariable("id") Integer id) {
         return playerservice.getPlayerById(id).getStatistics();
+    }
+
+    @GetMapping("/{id}/statistics/{statId}")
+    public Statistics getPlayerSpecificStatById(@PathVariable("id") Integer id, @PathVariable("statId") Integer statId) {
+        Player player = playerservice.getPlayerById(id);
+        return player.getStatistics().stream()
+                .filter(stat -> stat.getId().equals(statId))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Statistic not found"));
     }
 
     @GetMapping("/{id}/achievement")
@@ -85,6 +95,18 @@ public class PlayerController {
         playerservice.save(playerToUpdate);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{id}/statistics/{statId}")
+    @ResponseStatus(HttpStatus.OK)
+    public void updatePlayerStat(@PathVariable("id") Integer id, @PathVariable("statId") Integer statId, @Valid @RequestBody Statistics stat) {
+        Player player = playerservice.getPlayerById(id);
+        Statistics statToUpdate = player.getStatistics().stream()
+                .filter(s -> s.getId().equals(statId))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Statistic not found"));
+        BeanUtils.copyProperties(stat, statToUpdate, "id");
+        playerservice.save(player);
     }
 
     @DeleteMapping("/{id}")
