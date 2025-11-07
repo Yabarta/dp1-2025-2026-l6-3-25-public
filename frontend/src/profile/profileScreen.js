@@ -62,7 +62,7 @@ export default function ProfileScreen() {
         setUsername(userName);
         const player = players.filter((player) => player.user.username === userName)[0] || {};
         setPlayerData(player);
-        const userGamesFiltered = games.filter((game) => game.player1.id === player.id || game.player2.id === player.id);
+        const userGamesFiltered = games.filter((game) => game.endedAt ? (game.player1.id === player.id || game.player2.id === player.id) : false);
         setUserGames(userGamesFiltered);
         setUserStats(
             { gamesPlayed: userGamesFiltered.length, gamesWon: userGamesFiltered.filter((game) => {

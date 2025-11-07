@@ -82,10 +82,11 @@ public class SecurityConfiguration {
                 .requestMatchers("/api/v1/matches/**").permitAll()
                 .requestMatchers("/api/v1/players/**").permitAll()
                 .requestMatchers("/api/v1/achievements").permitAll()
+                .requestMatchers("/api/v1/users/**").permitAll()
 
 
                 // API restringida para administradores
-                .requestMatchers("/api/v1/users/**").hasAuthority(ADMIN)
+                .requestMatchers("/api/v1/users").hasAuthority(ADMIN)
 
                 // El resto denegado
                 .anyRequest().denyAll()
