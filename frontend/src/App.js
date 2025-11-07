@@ -17,6 +17,7 @@ import UserEditAdmin from "./admin/users/UserEditAdmin";
 import SwaggerDocs from "./public/swagger";
 import CurrentGames from "./currentGames";
 import ProfileScreen from "./profile/profileScreen";
+import NotStartedGames from "./home/NotStartedGameList"; 
 
 function ErrorFallback({ error, resetErrorBoundary }) {
   return (
@@ -51,13 +52,14 @@ function App() {
         <>
           <Route path="/users" exact={true} element={<PrivateRoute><UserListAdmin /></PrivateRoute>} />
           <Route path="/users/:username" exact={true} element={<PrivateRoute><UserEditAdmin /></PrivateRoute>} />
-          <Route path="/currentGames" element={<CurrentGames />} />    
+          <Route path="/currentGames" element={<CurrentGames />} />
         </>)
     }
     if (role === "PLAYER") {
       ownerRoutes = (
         <>
           <Route path="/gameScreen" element={<GameScreen />} />
+          <Route path="/notStarted" element={<NotStartedGames/>}/>
         </>)
     }    
   })
