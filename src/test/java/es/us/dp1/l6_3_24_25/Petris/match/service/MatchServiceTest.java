@@ -5,6 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+
+import es.us.dp1.l6_3_24_25.Petris.exceptions.ResourceNotFoundException;
+import io.qameta.allure.Epic;
+import io.qameta.allure.Feature;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +22,8 @@ import io.qameta.allure.Description;
 import io.qameta.allure.Owner;
 
 
-
+@Epic("Match module")
+@Feature("Match Service")
 @SpringBootTest
 class MatchServiceTest {
 
@@ -41,17 +46,35 @@ class MatchServiceTest {
     @Owner("dlozaco(FBN5868)")
     void testGetMatchById() {
         Match match = matchService.getMatchById(1);
-        assertNotNull(match, "Should return a match");
+        assertEquals(1, match.getId());
         System.out.println(match.getId());
     }
 
     @Test
-    @DisplayName("Obtener partida por ID")
-    @Description("Método para obtener partida por código")
+    @DisplayName("Obtener partida por ID incorrecto")
+    @Description("Método para obtener partida por ID incorrecto")
+    @Owner("dlozaco(FBN5868)")
+    void testGetMatchByWrongId() {
+        Exception ex = assertThrows(ResourceNotFoundException.class, () -> matchService.getMatchById(100));
+        assertEquals("Match not found with Id: '100'", ex.getMessage());
+    }
+
+    @Test
+    @DisplayName("Obtener partida por code incorrecto")
+    @Description("Método para obtener partida por código no existente")
+    @Owner("dlozaco(FBN5868)")
+    void testGetMatchByWrongCode() {
+        Exception ex = assertThrows(ResourceNotFoundException.class, ()-> matchService.getMatchByCode("GBNW"));
+        assertEquals("Match not found with Code: 'GBNW'", ex.getMessage());
+    }
+
+    @Test
+    @DisplayName("Obtener partida por code")
+    @Description("Método para obtener partida por código no existente")
     @Owner("dlozaco(FBN5868)")
     void testGetMatchByCode() {
-        Match match = matchService.getMatchByCode("GBNW");
-        assertNotNull(match, "Should return a match");
+        Match match = matchService.getMatchByCode("TRJU");
+        assertEquals("TRJU", match.getCode());
         System.out.println(match.getCode());
     }
 
@@ -62,7 +85,6 @@ class MatchServiceTest {
     void testGetCurrentMatches() {
         List<Match> currentMatches = matchService.getCurrentMatches();
         assertNotNull(currentMatches, "List of current matches can not be null");
-        System.out.println(currentMatches.getFirst().getStartedAt());
     }
 
     @Test
@@ -72,9 +94,9 @@ class MatchServiceTest {
     void testGetNotStartedMatches() {
         List<Match> notStartedMatches = matchService.getNotStartedMatches();
         assertNotNull(notStartedMatches, "List of not started matches can not be null");
-        System.out.println(notStartedMatches.getFirst().getCreatedAt());
     }
 
+    /*
     @Test
     @DisplayName("Crear partida")
     @Description("Metodo para crear una partida")
@@ -90,7 +112,7 @@ class MatchServiceTest {
             petri.setMovements(List.of(1,2,3,4,5));
             dishes.add(petri);
         }
-         */
+
         LocalDateTime fecha = LocalDateTime.now();
         match.setCode("HYMG");
         match.setTurn(4);
@@ -99,7 +121,7 @@ class MatchServiceTest {
         match.setPetriDish(dishes);
         match.setCreator(player1);
         match.setPlayer1(player1);
-        */
+
         Match createdMatch = matchService.createMatch(match);
 
         assertEquals(createdMatch.getCode(), "HYMG", "Code doesnt match");
@@ -107,7 +129,7 @@ class MatchServiceTest {
         assertEquals(createdMatch.getCreatedAt(), fecha, "CreatedAt doesn't match");
 
     }
-    /*
+
     @Test
     @DisplayName("Borrar partida")
     @Description("Metodo para borrar una partida")

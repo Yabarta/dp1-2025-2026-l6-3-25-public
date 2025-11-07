@@ -1,22 +1,94 @@
 // Game/Game.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { initialGameState, turnOrder, nextPhase } from "./demoLogic";
 import { useLocation, useNavigate } from 'react-router-dom';
 import Board from "./demoBoard";
 import '../static/css/game/gameScreen.css';
 import ExitModal from '../components/modal/ExitModal';
+import tokenService from '../services/token.service';
+import jwt_decode from "jwt-decode";
 
 export default function Game({onBackToMenu}) {
   const [gameState, setGameState] = useState({
     ...initialGameState,
     turnOrder: turnOrder,
   });
+  const [username, setUsername] = useState("");
+  const [message, setMessage] = useState(null);
+  const [visible, setVisible] = useState(false);
+
   const [selectedOrigin, setSelectedOrigin] = useState(null);
   const [selectedDest, setSelectedDest] = useState(null);
   const [moveAmount, setMoveAmount] = useState(1);
   const [exitGame, setExitGame] = useState(null);
   const location = useLocation();
   const navigate = useNavigate();
+
+    //contador
+  const TIEMPO_INICIAL = 10
+  const [timeLeft, setTimeLeft] = useState(TIEMPO_INICIAL)
+  const [running, setRunning] = useState(true)
+  const intervaloRef = useRef(null)
+
+    const jwt = tokenService.getLocalAccessToken();
+      useEffect(() => {
+          if (jwt) {
+              setUsername(jwt_decode(jwt).sub);
+          }
+      }, [jwt])
+
+  //comprobar que timeLeft no sea 0
+    useEffect(() => {
+      if(timeLeft === 0){
+        handleTimeUp()
+      }
+    }, [timeLeft])
+
+    // logica del contador
+    useEffect(() => {
+      if (!running) {
+        clearInterval(intervaloRef.current);
+        return;
+      }
+  
+      // Si 'reset' es true (asumiendo que significa CORRIENDO), establece el intervalo
+      intervaloRef.current = setInterval(() => {
+        setTimeLeft((prev) => {
+          if (prev <= 1) {
+            clearInterval(intervaloRef.current);
+            setRunning(false); // Detiene el timer (reset = false)
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+  
+      return () => clearInterval(intervaloRef.current);
+    }, [running]);
+  
+    const handleTimeUp = (values) => {
+      /*
+      fetch('/api/v1/matches/' + gameState.id + '/endMatch',{
+        
+        method: gameState.id ? "PUT" : "POST",
+      headers: {
+        Authorization: `Bearer ${jwt}`,
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(gameState),
+    })
+      .then((response) => response.json())
+      .then((json) => {
+        if (json.message) {
+          setMessage(json.message);
+          setVisible(true);
+        } else window.location.href = "/users";
+      })
+      .catch((message) => alert(message));
+      */
+      alert("Falta que la partida tenga un id y se envie al backend")
+    }
 
   // estilos por jugador (puedes cambiarlos aquí)
   const playerStyles = [
@@ -172,7 +244,7 @@ export default function Game({onBackToMenu}) {
         </h1>
 
         <div style={{ position: 'relative', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <span className="timer" style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>Tiempo</span>
+          <span className="timer" style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>{ timeLeft }</span>
 
           <button className="back" onClick={() => { setExitGame(true) }}>
             Volver al Menú

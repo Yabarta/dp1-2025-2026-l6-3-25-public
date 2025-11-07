@@ -80,6 +80,7 @@ public class SecurityConfiguration {
                 .requestMatchers("/api/v1/developers").permitAll()
                 .requestMatchers("/api/v1/plan").permitAll()
                 .requestMatchers("/api/v1/matches/**").permitAll()
+                .requestMatchers("/api/v1/players/**").permitAll()
 
 
                 // API restringida para administradores

@@ -13,6 +13,9 @@ import es.us.dp1.l6_3_24_25.Petris.user.User;
 import es.us.dp1.l6_3_24_25.Petris.user.UserService;
 import io.qameta.allure.Epic;
 import io.qameta.allure.Feature;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Epic("Player Module")
 @Feature("Player Service")
@@ -25,20 +28,17 @@ public class PlayerServiceTests {
     @Autowired
 	private UserService userService;
 
-/*     @Test
+    @Test
+    @Transactional
     @DisplayName("getAllPlayers Test")
     void shouldGetAllPlayers() {
         List<Player> players = this.playerService.getAllPlayers();
         assertEquals(10, players.size(), "Incorrect number of players");
 
-        //  When running this test with the whole class -> players.size() = 11 (adds the kdr0901 one)
-        //  When running this test by itself -> players.size() = 10 (kdr0901 one not added)
-        //  REVIEW
-    } */
-
-    
+    }
 
     @Test
+    @Transactional
     @DisplayName("getPlayerById Test")
     void testGetPlayerById() {
         Player player = this.playerService.getPlayerById(1);
@@ -46,12 +46,14 @@ public class PlayerServiceTests {
     }
 
     @Test
+    @Transactional
     @DisplayName("getPlayerById Test (Negative)")
     void shouldNotGetPlayerByIncorrectId() {
         assertThrows(ResourceNotFoundException.class, () -> this.playerService.getPlayerById(50));
-    }    
+    }
 
     @Test
+    @Transactional
     @DisplayName("getPlayerByNickname Test")
     void testGetPlayerByNickname() {
         Player player = this.playerService.getPlayerByNickname("player1");
@@ -59,22 +61,22 @@ public class PlayerServiceTests {
     }
 
     @Test
+    @Transactional
     @DisplayName("getPlayerByNickname Test (Negative)")
     void shouldNotGetPlayerByIncorrectNickname() {
         assertThrows(ResourceNotFoundException.class, () -> this.playerService.getPlayerByNickname("nonExistingUsername"));
     }
 
-/*     @Test
+    @Test
     @DisplayName("getPlayerByUser Test")
     void testGetPlayerByUser() {
         User user = this.userService.findUser(4);
         Player player = this.playerService.getPlayerByUser(user);
-        assertEquals(user, player.getUser(), "Incorrect user");
+        assertEquals(user.getId(), player.getUser().getId(), "Incorrect user");
     }
 
-    Should be working? (Different hash code ¿?)
- */
     @Test
+    @Transactional
     @DisplayName("getPlayerByUser Test (Negative)")
     void shouldNotGetPlayerWithIncorrectUser() {
         User user = this.userService.findUser(1);
@@ -83,6 +85,7 @@ public class PlayerServiceTests {
 
 
     @Test
+    @Transactional
     @DisplayName("Base save Test")
     void testSave() {
         Integer count = this.playerService.getAllPlayers().size();
@@ -105,8 +108,9 @@ public class PlayerServiceTests {
 		assertEquals(count + 1, finalCount);
     }
 
-    
+
     @Test
+    @Transactional
     @DisplayName("Base delete Test")
     void testDelete() {
         Integer firstCount = this.playerService.getAllPlayers().size();

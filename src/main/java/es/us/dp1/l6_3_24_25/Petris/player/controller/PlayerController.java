@@ -1,11 +1,11 @@
 package es.us.dp1.l6_3_24_25.Petris.player.controller;
 
-import io.micrometer.core.instrument.Statistic;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import es.us.dp1.l6_3_24_25.Petris.player.service.PlayerService;
@@ -16,12 +16,9 @@ import es.us.dp1.l6_3_24_25.Petris.player.model.Statistics;
 
 import java.net.URI;
 import java.util.List;
-import java.util.Set;
 
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.http.HttpStatus;
-
-
 
 
 
@@ -38,18 +35,18 @@ public class PlayerController {
     }
 
     @GetMapping
-    public List<Player> getAllPlayers() {
-        return playerservice.getAllPlayers();
+    public ResponseEntity<List<Player>> getAllPlayers() {
+        return new ResponseEntity<>(playerservice.getAllPlayers(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public Player getPlayerById(@PathVariable("id") Integer id) {
-        return playerservice.getPlayerById(id);
+    public ResponseEntity<Player> getPlayerById(@PathVariable("id") Integer id) {
+        return new ResponseEntity<>(playerservice.getPlayerById(id) , HttpStatus.OK);
     }
 
     @GetMapping("/{id}/statistics")
-    public List<Statistics> getPlayerStatsById(@PathVariable("id") Integer id) {
-        return playerservice.getPlayerById(id).getStatistics();
+    public ResponseEntity<List<Statistics>> getPlayerStatsById(@PathVariable("id") Integer id) {
+        return new ResponseEntity<>(playerservice.getPlayerById(id).getStatistics(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}/statistics/{statId}")
@@ -62,21 +59,22 @@ public class PlayerController {
     }
 
     @GetMapping("/{id}/achievement")
-    public List<Achievement> getPlayerAchievementById(@PathVariable("id") Integer id) {
-        return playerservice.getPlayerById(id).getAchievements();
+    public ResponseEntity<List<Achievement>> getPlayerAchievementById(@PathVariable("id") Integer id) {
+        return new ResponseEntity<>(playerservice.getPlayerById(id).getAchievements(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}/game")
-    public List<Match> getPlayerGameById(@PathVariable("id") Integer id) {
-        return playerservice.getPlayerById(id).getGame();
+    public ResponseEntity<List<Match>> getPlayerGameById(@PathVariable("id") Integer id) {
+        return new ResponseEntity<>(playerservice.getPlayerById(id).getGame(), HttpStatus.OK);
     }
 
     @GetMapping("/{username}")
-    public Player getPlayerByNickname(@PathVariable("username") String username) {
-        return playerservice.getPlayerByNickname(username);
+    public ResponseEntity<Player> getPlayerByNickname(@PathVariable("username") String username) {
+        return new ResponseEntity<>(playerservice.getPlayerByNickname(username), HttpStatus.OK);
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<Player> createPlayer(@Valid @RequestBody Player player) {
         playerservice.save(player);
         URI location = ServletUriComponentsBuilder
@@ -90,7 +88,7 @@ public class PlayerController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Void> updatePlayer(@Valid @RequestBody Player player, @PathVariable("id") Integer id) {
-        Player playerToUpdate = getPlayerById(id);
+        Player playerToUpdate = getPlayerById(id).getBody();
         BeanUtils.copyProperties(player, playerToUpdate, "id");
         playerservice.save(playerToUpdate);
 

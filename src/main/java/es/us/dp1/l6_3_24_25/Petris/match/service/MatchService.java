@@ -1,5 +1,6 @@
 package es.us.dp1.l6_3_24_25.Petris.match.service;
 
+import es.us.dp1.l6_3_24_25.Petris.exceptions.ResourceNotFoundException;
 import es.us.dp1.l6_3_24_25.Petris.match.model.Match;
 import es.us.dp1.l6_3_24_25.Petris.match.model.PetriDish;
 import es.us.dp1.l6_3_24_25.Petris.match.model.TurnType;
@@ -56,7 +57,7 @@ public class MatchService {
         TurnType.P2_PROPAGATION,
         TurnType.BINARY_FISSION,
         TurnType.CONTAMINATION,
-        
+
         TurnType.P2_PROPAGATION,
         TurnType.P1_PROPAGATION,
         TurnType.BINARY_FISSION,
@@ -89,12 +90,14 @@ public class MatchService {
 
     @Transactional(readOnly = true)
     public Match getMatchById(Integer id){
-        return matchRepository.findById(id).orElse(null);
+        return matchRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Match", "Id", id));
     }
 
     @Transactional(readOnly = true)
     public Match getMatchByCode(String code){
-        return matchRepository.findByCode(code);
+        return matchRepository.findByCode(code)
+            .orElseThrow(() -> new ResourceNotFoundException("Match", "Code", code));
     }
 
     @Transactional(readOnly = true)
