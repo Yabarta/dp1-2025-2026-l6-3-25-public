@@ -174,8 +174,49 @@ export default function Game({onBackToMenu}) {
     setMoveAmount(1);
   };
 
-  const handleEndTurn = () => {
-    setGameState((prev) => nextPhase(prev));
+  const handleEndTurn = async () => {
+    // If the match has an id, call the backend to compute nextTurn and updated scores.
+    if (gameState.id && jwt) {
+      try {
+        const response = await fetch(`/api/v1/matches/${gameState.id}/nextTurn`, {
+          method: 'PUT',
+          headers: {
+            Authorization: `Bearer ${jwt}`,
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+          // send the current board state as JSON in the request body (controller expects @RequestBody List<PetriDish>)
+          body: JSON.stringify(gameState.board),
+        });
+
+        if (response.ok) {
+          const updated = await response.json();
+          // update local scores and board from the server response
+          setGameState((prev) => {
+            const p0 = { ...prev.players[0], score: (updated.player1Score ?? prev.players[0].score) };
+            const p1 = { ...prev.players[1], score: (updated.player2Score ?? prev.players[1].score) };
+            return {
+              ...prev,
+              board: updated.boardState ? updated.boardState : prev.board,
+              players: [p0, p1],
+            };
+          });
+
+          setGameState((prev) => nextPhase(prev));
+        } else {
+          console.error('nextTurn failed', response.status);
+          setGameState((prev) => nextPhase(prev));
+        }
+      } catch (err) {
+        console.error('Error calling nextTurn', err);
+        setGameState((prev) => nextPhase(prev));
+      }
+    } else {
+      //esto es solo para el demo sin backend
+      console.log("No hay id de partida, siguiente fase local")
+      setGameState((prev) => nextPhase(prev));
+    }
+
     setSelectedOrigin(null);
     setSelectedDest(null);
     setMoveAmount(1);

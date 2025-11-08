@@ -139,7 +139,7 @@ public class MatchController {
 
     @PutMapping("/{id}/nextTurn")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<Match> nextTurn(@Valid @RequestParam Optional<List<PetriDish>> newBoardState, @PathVariable("id") Integer id)
+    public ResponseEntity<Match> nextTurn(@Valid @RequestBody(required = false) List<PetriDish> newBoardState, @PathVariable("id") Integer id)
             throws AccessDeniedException {
         Match matchToUpdate = getMatchById(id).getBody();
         if(matchToUpdate.getEndedAt() != null) {
@@ -152,8 +152,9 @@ public class MatchController {
             !currentPlayer.equals(matchToUpdate.getPlayer2()) && matchToUpdate.getTurnType().equals(TurnType.P2_PROPAGATION)) {
                 throw new AccessDeniedException("It's not your turn");
         }
-
-        Match updatedMatch = matchService.nextTurn(matchToUpdate, newBoardState);
+        
+    Optional<List<PetriDish>> optBoard = Optional.ofNullable(newBoardState);
+    Match updatedMatch = matchService.nextTurn(matchToUpdate, optBoard);
         if(updatedMatch.getEndedAt() != null) {
             Player player1 = updatedMatch.getPlayer1();
             Player player2 = updatedMatch.getPlayer2();
