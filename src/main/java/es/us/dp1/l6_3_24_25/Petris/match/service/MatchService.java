@@ -20,8 +20,12 @@ import java.util.Set;
 @Service
 public class MatchService {
 
-    @Autowired
     private MatchRepository matchRepository;
+
+    @Autowired
+    public MatchService(MatchRepository mr) {
+        this.matchRepository = mr;
+    }
 
     public static final List<TurnType> turnTypes = List.of(
         TurnType.P1_PROPAGATION,

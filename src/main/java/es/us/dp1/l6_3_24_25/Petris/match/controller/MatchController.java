@@ -31,9 +31,9 @@ import java.util.UUID;
 @SecurityRequirement(name = "bearerAuth")
 public class MatchController {
 
-    MatchService matchService;
-    UserService userService;
-    PlayerService playerService;
+    private MatchService matchService;
+    private UserService userService;
+    private PlayerService playerService;
 
     @Autowired
     public MatchController(MatchService ms, UserService us, PlayerService ps) {
@@ -43,21 +43,25 @@ public class MatchController {
     }
 
     @GetMapping
+    @ResponseStatus(HttpStatus.OK)
     public List<Match> getAllMatches() {
         return matchService.getAllMatches();
     }
 
     @GetMapping("/current")
+    @ResponseStatus(HttpStatus.OK)
     public List<Match> getCurrentMatches() {
         return matchService.getCurrentMatches();
     }
 
     @GetMapping("/notStarted")
+    @ResponseStatus(HttpStatus.OK)
     public List<Match> getNotStartedMatches() {
         return matchService.getNotStartedMatches();
     }
 
     @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
     public Match getMatchById(@PathVariable("id") Integer id) throws ResourceNotFoundException {
         Match match = matchService.getMatchById(id);
         if (match == null) {
@@ -67,6 +71,7 @@ public class MatchController {
     }
     
     @GetMapping("/code/{code}")
+    @ResponseStatus(HttpStatus.OK)
     public Match getMatchByCode(@PathVariable("code") String code) throws ResourceNotFoundException {
         Match match = matchService.getMatchByCode(code);
         if (match == null) {
@@ -77,6 +82,7 @@ public class MatchController {
 
     // TODO Eliminar ¿En qué situación necesitamos esta petición?
     @GetMapping("/{id}/{dishIndex}")
+    @ResponseStatus(HttpStatus.OK)
     public PetriDish getPetriDish(@PathVariable("id") Integer id, @PathVariable("dishIndex") Integer index) {
         Match match = matchService.getMatchById(id);
         return match.getBoardState().get(index);
@@ -161,6 +167,7 @@ public class MatchController {
     }
 
     @GetMapping("/{id}/checkErrors")
+    @ResponseStatus(HttpStatus.OK)
     public List<String> getPropagationErrors(@PathVariable("id") Integer id, @Valid @RequestParam List<PetriDish> newBoardState) 
             throws AccessDeniedException{
         User currentUser = userService.findCurrentUser();
