@@ -91,30 +91,15 @@ public class MatchController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<Match> createMatch(@RequestParam(value = "isPrivate", defaultValue = "false") Boolean isPrivate)
-            throws AccessDeniedException {
+    public ResponseEntity<Match> createMatch(@RequestParam(value = "isPrivate", defaultValue = "false") Boolean isPrivate) {
         User currentUser = userService.findCurrentUser();
         Player currentPlayer = playerService.getPlayerByUser(currentUser);
-        if (currentPlayer.getIsCurrentlyInMatch()) {
-            throw new AccessDeniedException("Already in a match");
-        }
-        Match match = new Match();
-        String code = null;
-        if (isPrivate) {
-            code = UUID.randomUUID().toString();
-        }
-        match.setCode(code);
-        match.setCreator(currentPlayer);
-        match.setPlayer1(currentPlayer);
-        matchService.createMatch(match);
+        Match createdMatch = matchService.createMatch(currentPlayer, isPrivate);
+
         currentPlayer.setIsCurrentlyInMatch(true);
         playerService.save(currentPlayer);
-        URI location = ServletUriComponentsBuilder
-            .fromCurrentRequest()
-            .path("/{id}")
-            .buildAndExpand(match.getId())
-            .toUri();
-        return ResponseEntity.created(location).body(match);
+        
+        return new ResponseEntity<>(createdMatch, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")

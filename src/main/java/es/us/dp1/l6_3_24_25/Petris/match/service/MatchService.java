@@ -1,10 +1,12 @@
 package es.us.dp1.l6_3_24_25.Petris.match.service;
 
+import es.us.dp1.l6_3_24_25.Petris.exceptions.AccessDeniedException;
 import es.us.dp1.l6_3_24_25.Petris.exceptions.ResourceNotFoundException;
 import es.us.dp1.l6_3_24_25.Petris.match.model.Match;
 import es.us.dp1.l6_3_24_25.Petris.match.model.PetriDish;
 import es.us.dp1.l6_3_24_25.Petris.match.model.TurnType;
 import es.us.dp1.l6_3_24_25.Petris.match.repository.MatchRepository;
+import es.us.dp1.l6_3_24_25.Petris.player.model.Player;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 @Service
 public class MatchService {
@@ -114,14 +117,28 @@ public class MatchService {
         return matchRepository.findByStartedAtNull();
     }
 
-    @Transactional
-    public Match createMatch(Match match){
+    @Transactional(rollbackFor = {AccessDeniedException.class})
+    public Match createMatch(Player creator, Boolean isPrivate) throws AccessDeniedException{
+        Match match = new Match();
+        if (creator.getIsCurrentlyInMatch()) {
+            throw new AccessDeniedException("Already in a match");
+        }
+        match.setCreator(creator);
+        match.setPlayer1(creator);
+
+        String code = null;
+        if (isPrivate) {
+            code = UUID.randomUUID().toString();
+        }
+        match.setCode(code);
+
         match.setCreatedAt(LocalDateTime.now());
         match.setStartedAt(null);
         match.setEndedAt(null);
         match.setPlayer1Score(0);
         match.setPlayer2Score(0);
         match.setWinner(null);
+
         Integer turn = 0;
         match.setTurn(turn);
         match.setTurnType(turnTypes.get(turn));
@@ -136,6 +153,7 @@ public class MatchService {
             initialBoardState.add(pd);
         }
         match.setBoardState(initialBoardState);
+
         return matchRepository.save(match);
     }
 

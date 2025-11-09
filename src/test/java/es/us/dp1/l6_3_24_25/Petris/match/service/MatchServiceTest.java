@@ -1,35 +1,52 @@
 package es.us.dp1.l6_3_24_25.Petris.match.service;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+import static org.mockito.AdditionalAnswers.returnsFirstArg;
 
+import es.us.dp1.l6_3_24_25.Petris.exceptions.AccessDeniedException;
 import es.us.dp1.l6_3_24_25.Petris.exceptions.ResourceNotFoundException;
 import io.qameta.allure.Epic;
 import io.qameta.allure.Feature;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpStatus;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import es.us.dp1.l6_3_24_25.Petris.match.model.Match;
-import es.us.dp1.l6_3_24_25.Petris.match.model.PetriDish;
+import es.us.dp1.l6_3_24_25.Petris.match.repository.MatchRepository;
 import es.us.dp1.l6_3_24_25.Petris.player.model.Player;
 import io.qameta.allure.Description;
 import io.qameta.allure.Owner;
 
-
-@Epic("Match module")
-@Feature("Match Service")
-@SpringBootTest
+@Epic("Game")
+@Feature("Match management")
+@Owner("josbardel1")
+@ExtendWith(MockitoExtension.class)
 class MatchServiceTest {
 
-    @Autowired
-    MatchService matchService;
+    @Mock
+    private MatchRepository matchRepository;
 
+    protected MatchService matchService;
+
+    @BeforeEach
+    void setup() {
+        matchService = new MatchService(matchRepository);
+    }
+    
     @Test
     @DisplayName("Obtener todos las partidas")
     @Description("Método para obtener la lista de partidas")
@@ -96,49 +113,33 @@ class MatchServiceTest {
         assertNotNull(notStartedMatches, "List of not started matches can not be null");
     }
 
-    /*
     @Test
-    @DisplayName("Crear partida")
-    @Description("Metodo para crear una partida")
-    @Owner("dlozaco(FBN5868)")
-    void testSave() {
-        Match match = new Match();
-        /*Player player1 = new Player();
+    @DisplayName("Should not create match with creator already in a match")
+    @Description("Test that if a player that is currently in a match attempts to create a match, AccessDeniedException is thrown and the match is not created")
+    @Owner("josbardel1(WHS7046)")
+    void testCreateMatchNegative() {
+        verify(matchRepository, never()).save(any(Match.class));
+        verifyNoMoreInteractions(matchRepository);
 
-        List<PetriDish> dishes = new ArrayList<>();
+        Boolean isPrivate = false;
+        Player creator = new Player();
+        creator.setIsCurrentlyInMatch(true);
 
-        for(int i = 0; i <= 6; i++){
-            PetriDish petri = new PetriDish();
-            petri.setMovements(List.of(1,2,3,4,5));
-            dishes.add(petri);
-        }
-
-        LocalDateTime fecha = LocalDateTime.now();
-        match.setCode("HYMG");
-        match.setTurn(4);
-        match.setCreatedAt(fecha);
-        /* Implementar cuando se haga la relación con Player
-        match.setPetriDish(dishes);
-        match.setCreator(player1);
-        match.setPlayer1(player1);
-
-        Match createdMatch = matchService.createMatch(match);
-
-        assertEquals(createdMatch.getCode(), "HYMG", "Code doesnt match");
-        assertEquals(createdMatch.getTurn(), 4, "Turn doesnt match");
-        assertEquals(createdMatch.getCreatedAt(), fecha, "CreatedAt doesn't match");
-
+        assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(() -> matchService.createMatch(creator, isPrivate))
+            .withMessage("Already in a match");
     }
 
     @Test
-    @DisplayName("Borrar partida")
-    @Description("Metodo para borrar una partida")
-    @Owner("dlozaco(FBN5868)")
-    void testDelete() {
-        matchService.delete(1);
-        assertEquals(response.getStatusCode(), HttpStatus.NO_CONTENT, "Wrong status code");
+    @DisplayName("Should create match with creator not already in a match")
+    @Description("Test that if a player that is not currently in a match attempts to create a match, the match is created with that player as creator")
+    @Owner("josbardel1(WHS7046)")
+    void testCreateMatchPositive() {
+        lenient().when(matchRepository.save(any(Match.class))).then(returnsFirstArg());
 
+        Boolean isPrivate = false;
+        Player creator = new Player();
+        creator.setIsCurrentlyInMatch(false);
+
+        assertThat(matchService.createMatch(creator, isPrivate));
     }
-    */
-
 }
