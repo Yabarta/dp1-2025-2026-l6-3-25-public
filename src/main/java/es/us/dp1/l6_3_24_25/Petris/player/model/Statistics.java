@@ -13,5 +13,8 @@ import lombok.Setter;
 public class Statistics extends NamedEntity {
 
     @NotNull
+    private String name;
+
+    @NotNull
     private Integer valor;
 }

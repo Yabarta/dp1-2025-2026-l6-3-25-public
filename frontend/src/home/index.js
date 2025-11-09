@@ -4,17 +4,18 @@ import GameScreen from '../Game/gameScreen';
 import JoinGameScreen from './joinGameScreen';
 import logo from '../static/images/petris3D_recortado.png'
 import tokenService from 'frontend/src/services/token.service.js';
-import ProfileScreen from '../profile/profileScreen';
 import {ToastContainer, toast} from 'react-toastify';
 import { NavLink, NavItem, Nav, NavbarText, NavbarToggler } from 'reactstrap';
 import { Link, useNavigate } from 'react-router-dom';
+
+const jwt = tokenService.getLocalAccessToken();
 
 export default function Home(){
   const navigate = useNavigate();
   const [showMainMenu, setShowMainMenu] = useState(false);
   const [showJoinGameScreen, setShowJoinGameScreen] = useState(false);
-  const [showProfile, setShowProfile] = useState(false);
-  const jwt = tokenService.getLocalAccessToken();
+  // profile will be shown via a dedicated route /profile
+
   const [roomCode, setRoomCode] = useState('');
 
   const handlePlayButtonClick = () => {
@@ -45,7 +46,7 @@ export default function Home(){
     if (jwt == null) {
       return toast.error("User not logged in")
     } else {
-      setShowProfile(true)
+        navigate('/profile');
     }
   }
 
@@ -76,9 +77,11 @@ export default function Home(){
     navigate('/demo');
   };
 
-  if (showProfile) {
-    return <ProfileScreen user={jwt} />
+  const handleSearchGame = () => {
+    setShowMainMenu(false);
+    navigate('/notStarted')
   }
+
 
   return (
     <div className="homePageContainer">
@@ -87,7 +90,7 @@ export default function Home(){
           <div className="mainMenu">
             <h1>Menú Principal</h1>
             <div className="menuButtons">
-              <button className="menuButton" onClick={() => toast.error('Funcionalidad pendiente')}>
+              <button className="menuButton" onClick={handleSearchGame}>
                 Buscar Partida
               </button>
               <button className="menuButton" onClick={handleJoinPrivateGame}>

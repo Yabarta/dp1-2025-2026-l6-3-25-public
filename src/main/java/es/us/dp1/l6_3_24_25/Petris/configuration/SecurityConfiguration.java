@@ -75,14 +75,18 @@ public class SecurityConfiguration {
                 ).permitAll()
 
                 // API pública
+                .requestMatchers("/api/v1/profile").permitAll()
                 .requestMatchers("/api/v1/auth/**").permitAll()
                 .requestMatchers("/api/v1/developers").permitAll()
                 .requestMatchers("/api/v1/plan").permitAll()
                 .requestMatchers("/api/v1/matches/**").permitAll()
+                .requestMatchers("/api/v1/players/**").permitAll()
+                .requestMatchers("/api/v1/achievements").permitAll()
+                .requestMatchers("/api/v1/users/**").permitAll()
 
 
                 // API restringida para administradores
-                .requestMatchers("/api/v1/users/**").hasAuthority(ADMIN)
+                .requestMatchers("/api/v1/users").hasAuthority(ADMIN)
 
                 // El resto denegado
                 .anyRequest().denyAll()

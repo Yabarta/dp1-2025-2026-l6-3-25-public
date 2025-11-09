@@ -12,6 +12,7 @@
 
 .chatPanel {
   width: 15%;
+  height: 100%;
   border-right: 3px solid #000;
   display: flex;
   flex-direction: column;
@@ -180,6 +181,7 @@
 
 .turnsPanel {
   width: 15%;
+  height: 100%;
   border-left: 3px solid #000;
   display: flex;
   flex-direction: column;

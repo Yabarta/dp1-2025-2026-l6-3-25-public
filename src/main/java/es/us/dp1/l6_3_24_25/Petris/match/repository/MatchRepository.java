@@ -5,6 +5,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface MatchRepository extends CrudRepository<Match, Integer> {
@@ -12,7 +13,7 @@ public interface MatchRepository extends CrudRepository<Match, Integer> {
 
     List<Match> findByStartedAtNull();
 
-    Match findByCode(String code);
+    Optional<Match> findByCode(String code);
 
     List<Match> findByEndedAtNullAndStartedAtNotNull();
 }

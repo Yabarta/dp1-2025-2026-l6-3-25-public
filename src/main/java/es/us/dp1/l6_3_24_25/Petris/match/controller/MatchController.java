@@ -12,6 +12,7 @@ import es.us.dp1.l6_3_24_25.Petris.user.User;
 import es.us.dp1.l6_3_24_25.Petris.user.UserService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+
 import jakarta.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,40 +45,40 @@ public class MatchController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<Match> getAllMatches() {
-        return matchService.getAllMatches();
+    public ResponseEntity<List<Match>> getAllMatches() {
+        return new ResponseEntity<>(matchService.getAllMatches(), HttpStatus.OK);
     }
 
     @GetMapping("/current")
     @ResponseStatus(HttpStatus.OK)
-    public List<Match> getCurrentMatches() {
-        return matchService.getCurrentMatches();
+    public ResponseEntity<List<Match>> getCurrentMatches() {
+        return new ResponseEntity<>(matchService.getCurrentMatches(), HttpStatus.OK);
     }
 
     @GetMapping("/notStarted")
     @ResponseStatus(HttpStatus.OK)
-    public List<Match> getNotStartedMatches() {
-        return matchService.getNotStartedMatches();
+    public ResponseEntity<List<Match>> getNotStartedMatches() {
+        return new ResponseEntity<>(matchService.getNotStartedMatches(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Match getMatchById(@PathVariable("id") Integer id) throws ResourceNotFoundException {
+    public ResponseEntity<Match> getMatchById(@PathVariable("id") Integer id) throws ResourceNotFoundException {
         Match match = matchService.getMatchById(id);
         if (match == null) {
             throw new ResourceNotFoundException("Match", "id", id);
         }
-        return match;
+        return new ResponseEntity<>(match, HttpStatus.OK);
     }
-    
+
     @GetMapping("/code/{code}")
     @ResponseStatus(HttpStatus.OK)
-    public Match getMatchByCode(@PathVariable("code") String code) throws ResourceNotFoundException {
+    public ResponseEntity<Match> getMatchByCode(@PathVariable("code") String code) throws ResourceNotFoundException {
         Match match = matchService.getMatchByCode(code);
         if (match == null) {
             throw new ResourceNotFoundException("Match", "code", code);
         }
-        return match;
+        return new ResponseEntity<>(match, HttpStatus.OK);
     }
 
     // TODO Eliminar ¿En qué situación necesitamos esta petición?
@@ -120,7 +121,7 @@ public class MatchController {
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Match> joinMatch(@PathVariable("id") Integer id, @RequestParam("code") Optional<String> code)
             throws AccessDeniedException {
-        Match matchToUpdate = getMatchById(id);
+        Match matchToUpdate = getMatchById(id).getBody();
         if(matchToUpdate.getEndedAt() != null) {
             throw new AccessDeniedException("The match has already ended");
         }
@@ -133,15 +134,15 @@ public class MatchController {
         matchToUpdate.setPlayer2(currentPlayer);
         currentPlayer.setIsCurrentlyInMatch(true);
         playerService.save(currentPlayer);
-            
+
         return new ResponseEntity<>(matchService.joinMatch(matchToUpdate), HttpStatus.OK);
     }
 
     @PutMapping("/{id}/nextTurn")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<Match> nextTurn(@Valid @RequestParam Optional<List<PetriDish>> newBoardState, @PathVariable("id") Integer id)
+    public ResponseEntity<Match> nextTurn(@Valid @RequestBody(required = false) List<PetriDish> newBoardState, @PathVariable("id") Integer id)
             throws AccessDeniedException {
-        Match matchToUpdate = getMatchById(id);
+        Match matchToUpdate = getMatchById(id).getBody();
         if(matchToUpdate.getEndedAt() != null) {
             throw new AccessDeniedException("The match has already ended");
         }
@@ -152,8 +153,9 @@ public class MatchController {
             !currentPlayer.equals(matchToUpdate.getPlayer2()) && matchToUpdate.getTurnType().equals(TurnType.P2_PROPAGATION)) {
                 throw new AccessDeniedException("It's not your turn");
         }
-
-        Match updatedMatch = matchService.nextTurn(matchToUpdate, newBoardState);
+        
+    Optional<List<PetriDish>> optBoard = Optional.ofNullable(newBoardState);
+    Match updatedMatch = matchService.nextTurn(matchToUpdate, optBoard);
         if(updatedMatch.getEndedAt() != null) {
             Player player1 = updatedMatch.getPlayer1();
             Player player2 = updatedMatch.getPlayer2();
@@ -167,12 +169,11 @@ public class MatchController {
     }
 
     @GetMapping("/{id}/checkErrors")
-    @ResponseStatus(HttpStatus.OK)
-    public List<String> getPropagationErrors(@PathVariable("id") Integer id, @Valid @RequestParam List<PetriDish> newBoardState) 
+    public List<String> getPropagationErrors(@PathVariable("id") Integer id, @Valid @RequestParam List<PetriDish> newBoardState)
             throws AccessDeniedException{
         User currentUser = userService.findCurrentUser();
         Player currentPlayer = playerService.getPlayerByUser(currentUser);
-        Match match = getMatchById(id);
+        Match match = getMatchById(id).getBody();
         int player;
         if(currentPlayer.equals(match.getPlayer1())) {
             player = 1;
@@ -190,7 +191,7 @@ public class MatchController {
             throws AccessDeniedException {
         User currentUser = userService.findCurrentUser();
         Player currentPlayer = playerService.getPlayerByUser(currentUser);
-        Match matchToUpdate = getMatchById(id);
+        Match matchToUpdate = getMatchById(id).getBody();
         if(currentPlayer.equals(matchToUpdate.getPlayer1())) {
             matchToUpdate.setWinner(2);
         } else if(currentPlayer.equals(matchToUpdate.getPlayer2())) {

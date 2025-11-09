@@ -108,7 +108,7 @@ A continuación se definen  todas las historias de usuario a implementar:
     - Como jugador quiero cerrar sesión para poder jugar con otra cuenta.
     - _Se requiere una opción para que el jugador pueda cerrar sesión. De esta manera no podrá jugar si no inicia sesión de nuevo._
 
-- HU-(ISSUE#ID): **Editar perfil (jugador)**
+- HU-(ISSUE#64): **Editar perfil (jugador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/64
     - Como jugador quiero editar mi perfil para poder cambiar mis datos en caso de que lo considere necesario.
     - _Se requiere una opción para que el jugador pueda cambiar cosas sobre su perfil tales como su nombre de usuario o su contraseña._
 
@@ -139,11 +139,11 @@ A continuación se definen  todas las historias de usuario a implementar:
 ---
 ### **Módulo de estadísticas (opcional)**
 
-- HU-(ISSUE#ID): **Ver estadísticas personales (jugador)**
+- HU-(ISSUE#65): **Ver estadísticas personales (jugador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/65
     - Como jugador quiero ver mis estadísticas para poder llevar actualizado mi progreso.
     - _Se requiere una pantalla donde se muestren las estadísticas del jugador tales como el total de partidas jugadas, partidas ganadas, porcentaje de victorias, promedio de tiempo por partida o días desde la creación de la cuenta._
 
-- HU-(ISSUE#ID): **Ver logros (jugador)**
+- HU-(ISSUE#66): **Ver logros (jugador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/66
     - Como jugador quiero ver mis logros para poder ver mis avances.
     - _Se requiere un sistema de objetivos para que los jugadores cumplan y vean su progreso en forma de medallas._
 
@@ -345,7 +345,7 @@ A continuación se definen  todas las historias de usuario a implementar:
 # Diagrama conceptual del sistema
 
 ### Diagrama de clases UML
-![alt text](ImagenesD1/classDiagram.jpg)
+![alt text](ImagenesD1/DiagramDominio.jpg)
 
 ----
 ## Reglas de Negocio
