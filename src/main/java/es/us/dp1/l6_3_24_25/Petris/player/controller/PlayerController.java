@@ -58,7 +58,7 @@ public class PlayerController {
                 .orElseThrow(() -> new RuntimeException("Statistic not found"));
     }
 
-    @GetMapping("/{id}/achievement")
+    @GetMapping("/{id}/achievements")
     public ResponseEntity<List<Achievement>> getPlayerAchievementById(@PathVariable("id") Integer id) {
         return new ResponseEntity<>(playerservice.getPlayerById(id).getAchievements(), HttpStatus.OK);
     }
@@ -71,6 +71,11 @@ public class PlayerController {
     @GetMapping("/{username}")
     public ResponseEntity<Player> getPlayerByNickname(@PathVariable("username") String username) {
         return new ResponseEntity<>(playerservice.getPlayerByNickname(username), HttpStatus.OK);
+    }
+
+    @GetMapping("/user/{username}")
+    public ResponseEntity<Player> getPlayerByUsername(@PathVariable("username") String username) {
+        return new ResponseEntity<>(playerservice.getPlayerByUsername(username), HttpStatus.OK);
     }
 
     @PostMapping

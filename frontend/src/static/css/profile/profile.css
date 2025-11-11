@@ -12,30 +12,25 @@
     margin: 0.5rem;
     border-bottom: 1px solid #444;
 }
-
 .achievementHeader {
     display: flex;
     flex-direction: row;
     align-items: center; 
 }
-
 .achievementIcon {
     width: 3rem;
     height: 3rem;
     border-radius: 50%;
     margin: 0.5rem;
 }
-
 .achievementName {
     margin: 0.5rem;
 }
-
 .achievementProgress {
     font-weight: bold;
     font-size: 0.9rem;
     margin: 0.2rem 0;
 }
-
 .bg {
     background-color: #153215;
     margin: 1rem;
@@ -47,7 +42,6 @@
     align-items: flex-start;
     width: 100%;
 }
-
 .closePopupButton {
     position: absolute;
     top: 15px;
@@ -65,13 +59,21 @@
     justify-content: center;
     align-items: center;
 }
-
+.debugBox {
+    margin-top: 0.75rem;
+    background: #222;
+    color: #eee;
+    padding: 0.75rem;
+    border-radius: 6px;
+}
+.debugControls {
+    margin-top: 0.5rem;
+}
 .editIcon {
     cursor: pointer;
     margin-right: 1rem;
     font-size: 1.5rem;
 }
-
 .editProfileButton {
     padding: 0.5rem 1rem;
     font-size: 1rem;
@@ -84,19 +86,16 @@
     align-self: center;
     margin-top: 1rem;
 }
-
 .error {
     color: #f44336;
     font-size: 0.8rem;
     margin-top: 0.2rem;
 }
-
 .formButtons {
     display: flex;
     justify-content: space-around;
     margin-top: 1rem;
 }
-
 .formControl {
     width: 100%;
     padding: 0.5rem;
@@ -105,33 +104,27 @@
     background-color: #333;
     color: #e0e0e0;
 }
-
 .formGroup {
     margin-bottom: 1rem;
 }
-
 .formGroup label {
     display: block;
     margin-bottom: 0.5rem;
 }
-
 .gameDetail {
     font-size: 0.8rem;
     margin: 0.5rem;
     padding-left: 0.5rem;
 }
-
 .gameDetailsContainer {
     margin-top: 0.5rem;
 }
-
 .gameHeader, .gamePlayersContainer, .gameDetailsContainer {
     display: flex;
     justify-content: space-between;
     width: 100%;
     align-items: center;
 }
-
 .gameLoseBg {
     background-color: rgba(139, 69, 69, 0.6);
     border-radius: 15px;
@@ -143,37 +136,30 @@
     padding: 1rem !important;
 
 }
-
 .gamePlayerInfo {
     display: flex;
     align-items: center;
 }
-
 .gamePlayerPic {
     width: 3rem;
     height: 3rem;
     border-radius: 50%;
     margin: 0.5rem;
 }
-
 .gamePlayersContainer {
     margin-top: 0.5rem;
     font-size: 1.2rem;
 }
-
 .gameResult, .gameDate {
     font-size: 1.2rem;
 }
-
 .gameTurns {
     margin: 0.5rem;
     font-size: 0.8rem;
 }
-
 .gameVs {
     margin: 0.5rem;
 }
-
 .gameWinBg {
     background-color: rgba(74, 117, 74, 0.6);
     border-radius: 15px;
@@ -184,7 +170,6 @@
     width: 100%;
     padding: 1rem !important;
 }
-
 .gamesList {
     overflow-y: auto;
     display: flex;
@@ -193,7 +178,9 @@
     margin-top: 1rem;
     padding-right: 1rem;
 }
-
+.hiddenFileInput {
+    display: none;
+}
 .left {
     display: flex;
     flex-direction: column;
@@ -203,7 +190,139 @@
     width: 30%;
     height: auto;
 }
+.loadingBackdropBlur {
+    position: relative;
+    padding: 1.25rem 2rem;
+    overflow: hidden;
+}
 
+.loadingBackdropBlur::before{
+    /* composited background to resemble the screenshot: large left panel + darker right area */
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background-image:
+        radial-gradient(circle at 15% 25%, rgba(200,210,205,0.22), rgba(200,210,205,0.06) 8%, transparent 12%),
+        linear-gradient(90deg, rgba(40,70,50,0.85) 0%, rgba(22,40,30,0.95) 30%, rgba(10,20,18,0.95) 100%);
+    background-size: cover;
+    filter: blur(14px) brightness(0.6) saturate(0.6);
+    transform: scale(1.02);
+}
+
+.loadingBackdropBlur > * {
+    position: relative; /* ensure content renders above the pseudo-bg */
+    z-index: 1;
+}
+.loadingCard {
+    background: #2b6f3a;
+    color: #f6fff6;
+    padding: 1.25rem 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+    min-width: 280px;
+    max-width: 80%;
+    text-align: center;
+    border: 1px solid rgba(255,255,255,0.06);
+}
+
+.loadingCard::before{
+    content: '';
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    margin-right: 10px;
+    vertical-align: middle;
+    border-radius: 50%;
+    border: 3px solid rgba(255,255,255,0.25);
+    border-top-color: rgba(255,255,255,0.9);
+    animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+/* skeleton placeholders to resemble the real layout while blurred */
+.bg.skeletonBox.small {
+    background: linear-gradient(180deg,#ececec,#dcdcdc);
+    border-radius: 10px;
+    position: relative;
+    overflow: hidden;
+}
+.bg.skeletonBox.small::before{
+    content: '';
+    display: block;
+    width: 70%;
+    height: 58%;
+    background: linear-gradient(90deg,#d0d4d8 0%, #e6e6e6 50%, #d0d4d8 100%);
+    background-size: 200% 100%;
+    animation: shimmer 1.6s linear infinite;
+    border-radius: 6px;
+    margin: 18px auto 12px;
+}
+.bg.skeletonBox.small::after{
+    content: '';
+    display: block;
+    height: 10%;
+    width: 80%;
+    background: linear-gradient(90deg,#cfcfcf 0%, #e6e6e6 50%, #cfcfcf 100%);
+    background-size: 200% 100%;
+    animation: shimmer 1.6s linear infinite;
+    margin: 6px auto;
+    border-radius: 4px;
+}
+
+.bg.skeletonBox.large {
+    background: linear-gradient(180deg,#ececec,#dcdcdc);
+    border-radius: 10px;
+    position: relative;
+    overflow: hidden;
+}
+.bg.skeletonBox.large::before,
+.bg.skeletonBox.large::after{
+    content: '';
+    display: block;
+    width: 92%;
+    height: 40%;
+    background: linear-gradient(90deg,#d0d4d8 0%, #e6e6e6 50%, #d0d4d8 100%);
+    background-size: 200% 100%;
+    animation: shimmer 1.6s linear infinite;
+    border-radius: 14px;
+    margin: 16px auto;
+}
+
+/* extra small rectangles on the right to emulate recent cards and achievements */
+.bg.skeletonBox.large::after{
+    height: 32%;
+}
+.bg.skeletonBox.large .placeholder-row {
+    display: none; /* optional hook if we later want JSX placeholders */
+}
+.loadingOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgb(5, 23, 11);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+.loadingSubtitle {
+    font-size: 0.95rem;
+    opacity: 0.95;
+}
+.loadingTitle {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
 .mainStatContainer {
     font-size: 1rem;
     display: flex;
@@ -212,7 +331,6 @@
     width: 90%;
     margin: 1.25rem;
 }
-
 .mainStatContainerSubText {
     margin-left: 5rem;
     font-size: 1rem;
@@ -222,15 +340,17 @@
     gap: 0.5rem;
     width: 100%;
 }
-
 .player1Info {
     margin-right: 16rem;
 }
-
 .player2Info {
     margin-left: 16rem;
 }
-
+.preDebug {
+    max-height: 200px;
+    overflow: auto;
+    white-space: pre-wrap;
+}
 .popupContent {
     background-color: #2a2e2a;
     color: #e0e0e0;
@@ -243,7 +363,6 @@
     flex-direction: column;
     position: relative;
 }
-
 .popupOverlay {
     position: fixed;
     top: 0;
@@ -257,7 +376,6 @@
     z-index: 1000;
     width: 100%;
 }
-
 .profileContainer{
     position: absolute;
     top: 60px;
@@ -273,7 +391,6 @@
     padding-top: 2rem;
     overflow-y: auto;
 }
-
 .profileHeader {
     background-color: #2e442e;
     border-radius: 15px;
@@ -286,11 +403,9 @@
     margin-bottom: 0.5rem;
     margin-top: 0.5rem;
 }
-
 .profileHeaderBg {
     background-color: #2e442e;
 }
-
 .profileHeaderEmail {
     background-color: #445044;
     border-radius: 15px;
@@ -302,7 +417,10 @@
     margin-top: 0.5rem;
     padding: 0.6rem 1rem;
 }
-
+.profileNickname {
+    margin-left: 1rem;
+    margin-top: 0.5rem;
+}
 .profilePicture {
     width: 100%;
     height: auto;
@@ -310,7 +428,6 @@
     border-radius: 5px;
     margin-bottom: 1rem;
 }
-
 .recentGamesContainer {
     display: flex;
     flex-direction: column;
@@ -318,7 +435,6 @@
     width: 100%;
     max-height: fit-content;
 }
-
 .right {
     display: flex;
     flex-direction: column;
@@ -333,19 +449,22 @@
     margin: 0.5rem;
     padding-left: 0.5rem;
 }
-
 .scorePlayer1 {
     display: flex;
     flex-direction: column;
     align-items: flex-end;
 }
-
 .scorePlayer2 {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
 }
-
+.skeletonBox.large {
+    height: 600px;
+}
+.skeletonBox.small {
+    height: 300px;
+}
 .statItem {
     display: flex;
     justify-content: space-between;
@@ -353,16 +472,13 @@
     border-top: 1px solid #444;
     padding: 0.5rem 0;
 }
-
 .statLabel {
     color: #aaa;
     text-transform: uppercase;
 }
-
 .statValue {
     font-weight: bold;
 }
-
 .title {
     background-color: #235623;
     font-size: 1.2rem;
@@ -374,7 +490,6 @@
     border-left: 3px solid #6c6;
     padding-left: 0.5rem;
 }
-
 .watchHistoryButton{
     padding: 0.5rem 1rem;
     font-size: 1rem;
@@ -386,7 +501,6 @@
     cursor: pointer;
     margin-top: 0.5rem;
 }
-
 .watchHistoryContainer {
     align-self: flex-start;
     margin-top: 1rem;

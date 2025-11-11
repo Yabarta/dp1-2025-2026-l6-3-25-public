@@ -40,6 +40,12 @@ public class PlayerService {
             .orElseThrow(() -> new ResourceNotFoundException("Player", "username", username));
     }
 
+    @Transactional(readOnly = true)
+    public Player getPlayerByUsername(String username) {
+        return playerRepository.getByUsername(username)
+            .orElseThrow(() -> new ResourceNotFoundException("Player", "username", username));
+    }
+
     @Transactional
     public Player save(Player player) {
         return playerRepository.save(player);

@@ -1,8 +1,7 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import jwt_decode from "jwt-decode";
 import tokenService from "../services/token.service";
 import '../static/css/profile/profile.css';
-import { useNavigate } from "react-router-dom";
 import useFetchState from "../util/useFetchState";
 import getErrorModal from "../util/getErrorModal";
 import { Formik, Form, Field, ErrorMessage } from 'formik';
@@ -10,24 +9,16 @@ import * as Yup from 'yup';
 
 export default function ProfileScreen() {
     const jwt = tokenService.getLocalAccessToken();
-    const navigate = useNavigate();
+    
     const imageInputRef = useRef(null);
     const [showEditPopup, setShowEditPopup] = useState(false);
     const [message, setMessage] = useState(null);
     const [visible, setVisible] = useState(false);
-    const [username, setUsername] = useState("");
+    const [username] = useState(() => jwt ? jwt_decode(jwt).sub : "");
 
-    
-    const [players, setPlayers] =useFetchState(
-        [],
-        `/api/v1/players`,
-        jwt,
-        setMessage,
-        setVisible,
-    );
-
-    const [playerData, setPlayerData] = useState({});
-    const [games, setGames] = useFetchState(
+    const playerUrl = username ? `/api/v1/players/user/${encodeURIComponent(username)}` : "";
+    const [playerData, setPlayerData, playerLoading] = useFetchState({}, playerUrl, jwt, setMessage, setVisible);
+    const [games, , gamesLoading] = useFetchState(
         [],
         `/api/v1/matches`,
         jwt,
@@ -35,46 +26,35 @@ export default function ProfileScreen() {
         setVisible,
     );
     const [userGames, setUserGames] = useState([]);
-    const [userStats, setUserStats] = useState({});
-    
-    //No puedo probar los logros bien porque el backend no los tiene implementados todavía
-    const [Achievements, setAchievements] = useFetchState(
-        [{ id: 1, name: "Primera Victoria", description: "Gana tu primera partida.", icon: "https://example.com/icons/first_win.png", StatisticValueName: "gamesWon", value: 1 },
-        { id: 2, name: "Veterano", description: "Juega 50 partidas.", icon: "https://example.com/icons/veteran.png", StatisticValueName: "gamesPlayed", value: 50 },
+
+    const [Achievements, , achievementsLoading] = useFetchState(
+        [{ id: 1, name: "Primera Victoria", description: "Gana tu primera partida.", icon: "https://example.com/icons/first_win.png", StatisticValueName: "gamesWon", valor: 1 },
+        { id: 2, name: "Veterano", description: "Juega 50 partidas.", icon: "https://example.com/icons/veteran.png", StatisticValueName: "gamesPlayed", valor: 50 },
         ],
-        //`/api/v1/players/{playerData.id}/achievements`
-        "",
+        `/api/v1/achievements`,
         jwt,
         setMessage,
         setVisible,
     );
-    const [UserAchievements, setUserAchievements] = useFetchState(
-        [{ id: 1, name: "Primera Victoria", description: "Gana tu primera partida.", icon: "https://example.com/icons/first_win.png", StatisticValueName: "gamesWon", value: 1 },],
-        //`/api/v1/achievements`
-        "",
-        jwt,
-        setMessage,
-        setVisible,
-    );
+
+    const userAchievementsUrl = playerData && playerData.id ? `/api/v1/players/${playerData.id}/achievements` : "";
+    const [UserAchievements, , userAchievementsLoading] = useFetchState([], userAchievementsUrl, jwt, setMessage, setVisible, playerData && playerData.id ? playerData.id : null);
 
     useEffect(() => {
-        const userName = jwt_decode(jwt).sub;
-        setUsername(userName);
-        const player = players.filter((player) => player.user.username === userName)[0] || {};
-        setPlayerData(player);
-        const userGamesFiltered = games.filter((game) => game.endedAt ? (game.player1.id === player.id || game.player2.id === player.id) : false);
+        const userGamesFiltered = games.filter(game => game.endedAt ? (game.player1.id === playerData.id || game.player2.id === playerData.id) : false);
         setUserGames(userGamesFiltered);
-        setUserStats(
-            { gamesPlayed: userGamesFiltered.length, gamesWon: userGamesFiltered.filter((game) => {
-        const isPlayer1 = game.player1.id === player.id;
-        return (game.winner === 1 && isPlayer1) || (game.winner === 2 && !isPlayer1)}).length, hoursPlayed: userGamesFiltered.reduce((total, game) => total + duracion(game), 0) / 60 }
-        );
-        }, [players, games, jwt]);
+    }, [games, playerData]);
 
+    const statsUrl = playerData && playerData.id ? `/api/v1/players/${playerData.id}/statistics` : "";
+    const [playerStats, , statsLoading] = useFetchState([], statsUrl, jwt, setMessage, setVisible, playerData && playerData.id ? playerData.id : null);
     
-
+    useEffect(() => {
+        setProfilePic(playerData.profilePicture || "https://www.dsac.gov/image-repository/blank-profile-picuture.png/@@images/image.png");
+    }, [playerData]);
 
     const modal = getErrorModal(setVisible, visible, message);
+
+    
 
     const getPlayerProfilePic = (player) => {
         return player.profilePicture || "https://www.dsac.gov/image-repository/blank-profile-picuture.png/@@images/image.png";
@@ -82,20 +62,35 @@ export default function ProfileScreen() {
     const duracion = (game) => {
         const createdAt = new Date(game.createdAt);
         const endedAt = new Date(game.endedAt);
-        return Math.floor((endedAt.getTime() - createdAt.getTime()) / 60000); // Duración en minutos
+        return Math.floor((endedAt.getTime() - createdAt.getTime()) / 60000);
     }
+
+    const hoursPlayed = userGames && userGames.length ? userGames.reduce((total, game) => total + duracion(game), 0) / 60 : 0;
+
     const isWinner = (game) => {
         const isPlayer1 = game.player1.id === playerData.id;
         return (game.winner === 1 && isPlayer1) || (game.winner === 2 && !isPlayer1);
     };
-    
-    const achievementProgress = (achievement, stats) => {
-        if (!stats) return '0';
-        const progress = Math.round(userStats[achievement.StatisticValueName]);
-        return `${progress >= achievement.value ? achievement.value : progress}/${achievement.value}`;
-    };
-    
 
+    const getStatValue = useCallback((name) => {
+        const key = name;
+        if (playerStats) {
+            const stat = playerStats.find(s => 
+                {
+                    const props = [s.name].filter(Boolean).map(p => String(p).toLowerCase());
+                    return props.includes(key);
+                });
+            if (stat) return stat.valor;
+        }
+        return 0;
+    }, [playerStats]);
+
+    const achievementProgress = (achievement) => {
+        const statName = achievement.statisticName;
+        const raw = getStatValue(statName);
+        const progress = Math.round(raw ?? 0);
+        return `${progress >= (achievement.valor) ? (achievement.valor) : progress}/${achievement.valor}`;
+    };
 
     const [profilePic, setProfilePic] = useState(playerData.profilePicture || "https://www.dsac.gov/image-repository/blank-profile-picuture.png/@@images/image.png");
     const [showHistoryPopup, setShowHistoryPopup] = useState(false);
@@ -106,23 +101,7 @@ export default function ProfileScreen() {
 
     const handleFileChange = async (event) => {
         const image = event.target.files[0];
-        if (image) {
-            alert(`Archivo seleccionado: ${image.name}. Aún no está implementado xd.`);
-            // Aquí se implementaría la lógica para subir la imagen al servidor y actualizar la foto de perfil del usuario
-            // Seria de la siguiente manera(Obviamente llamando al backend con sus funciones correspondientes)
-            //     const formData = new FormData();
-            //     formData.append('profilePicture', image);
-            //     try {
-            //         const response = await updateUserProfilePicture(playerData.id, formData);
-            //         const updatedUser = await response.json();
-            //         setProfilePic(updatedUser.profilePicture);
-            //         alert('Imagen de perfil actualizada con éxito.');
-
-            //     } catch (error) {
-            //         console.error('Error:', error);
-            //         alert(error.message);
-            //     }
-        }
+        if (image) alert(`Archivo seleccionado: ${image.name}. Aún no está implementado xd.`);
     };
 
     const validationSchema = Yup.object().shape({
@@ -169,7 +148,6 @@ export default function ProfileScreen() {
                     setMessage(json.message);
                     setVisible(true);
                 } else {
-                    setPlayers(prev => prev.map(p => p.id === updatedPlayer.id ? updatedPlayer : p));
                     window.location.reload();
                 }
             })
@@ -179,12 +157,27 @@ export default function ProfileScreen() {
                 setVisible(true);
             });
     };
+    const requiresStats = !!(playerData && playerData.id);
+    const isLoading = (playerLoading || gamesLoading || achievementsLoading || userAchievementsLoading || (requiresStats && statsLoading));
+
+    if (isLoading) {
+        return (
+            <div className="loadingOverlay">
+                {modal}
+                <div className="loadingCard">
+                    <div className="loadingTitle">Cargando datos del perfil</div>
+                    <div className="loadingSubtitle">Un momento, estamos cargando tu información personal y logros… ⏳</div>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="profileContainer">{modal}
             <div className="left">
                 <div>
                     <div className="profileHeader">
-                        <span style={{ marginLeft: '1rem', marginTop: '0.5rem' }}>{playerData.nickname}</span>
+                        <span className="profileNickname">{playerData.nickname}</span>
                         <span onClick={() => setShowEditPopup(true)} className="editIcon">✏️</span>
                     </div>
                     <div className="profileHeaderEmail">{playerData.email}</div>
@@ -198,7 +191,7 @@ export default function ProfileScreen() {
                         type="file"
                         ref={imageInputRef}
                         onChange={handleFileChange}
-                        style={{ display: 'none' }}
+                        className="hiddenFileInput"
                         accept="image/*"
                     />
                     <div className="mainStatContainer">
@@ -208,7 +201,7 @@ export default function ProfileScreen() {
                         </div>
                         <div className="statItem">
                             <span className="statLabel">Tiempo de Juego</span>
-                            <span className="statValue">{Math.floor(userStats.hoursPlayed || 0) || 0} horas y {Math.round((userStats.hoursPlayed - Math.floor(userStats.hoursPlayed)) * 60) || 0} minutos</span>
+                            <span className="statValue">{Math.floor(hoursPlayed) || 0} horas y {Math.round((hoursPlayed - Math.floor(hoursPlayed)) * 60) || 0} minutos</span>
                         </div>
                         <div className="statItem">
                             <span className="statLabel">Partidas Online</span>
@@ -216,18 +209,20 @@ export default function ProfileScreen() {
                         </div>
                         <div className="statItem">
                             <span className="statLabel">Victorias</span>
-                            <span className="statValue">{userStats.gamesWon || userGames.filter(isWinner).length || 0}</span>
+                            <span className="statValue">{getStatValue('games_won')
+                                }</span>
                         </div>
                         <div className="statItem">
                             <span className="statLabel">Derrotas</span>
-                            <span className="statValue">{userStats.gamesLost || userGames.filter((game) => !isWinner(game)).length || 0}</span>
+                            <span className="statValue">{userGames.filter((game) => !isWinner(game)).length || 0}</span>
                         </div>
                         <div className="statItem">
                             <span className="statLabel">Sarcinas</span>
-                            <span className="statValue">{userStats.sarcinasCol || 0}</span>
+                            <span className="statValue">{getStatValue('sarcines_created') || 0
+                            }</span>
                         </div>
                     </div>
-                    {/* El botón de editar perfil se ha movido al lado del nombre de usuario */}
+                    
                 </div>
             </div>
             <div className="right">
@@ -297,7 +292,7 @@ export default function ProfileScreen() {
                                         <img src={achievement.icon} alt={achievement.name} className="achievementIcon" />
                                         <h3 className="achievementName">{achievement.name}</h3>
                                         <p className="achievementProgress">
-                                            {achievementProgress(achievement, userStats)}
+                                            {achievementProgress(achievement)}
                                         </p>
                                     </div>
                                     <div className="achievementInfo">
