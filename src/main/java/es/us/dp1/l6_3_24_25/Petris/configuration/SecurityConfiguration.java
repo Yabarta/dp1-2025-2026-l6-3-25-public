@@ -77,13 +77,18 @@ public class SecurityConfiguration {
                 // API pública
                 .requestMatchers("/api/v1/profile").permitAll()
                 .requestMatchers("/api/v1/auth/**").permitAll()
-                .requestMatchers("/api/v1/developers").permitAll()
+                .requestMatchers("/api/v1/users/authorities").permitAll()
+                .requestMatchers("/api/v1/plans/**").permitAll()
                 .requestMatchers("/api/v1/plan").permitAll()
                 .requestMatchers("/api/v1/matches/**").permitAll()
                 .requestMatchers("/api/v1/players/**").permitAll()
                 .requestMatchers("/api/v1/achievements").permitAll()
                 .requestMatchers("/api/v1/users/**").permitAll()
-
+                .requestMatchers("/api/salas").permitAll()
+                .requestMatchers("/api/salas/**").permitAll()
+                .requestMatchers("/ws/**").permitAll()
+                .requestMatchers("/api/v1/statistics/achievements").permitAll()
+                .requestMatchers("/api/v1/statistics/ranking").permitAll()
 
                 // API restringida para administradores
                 .requestMatchers("/api/v1/users").hasAuthority(ADMIN)

@@ -17,7 +17,9 @@ import UserEditAdmin from "./admin/users/UserEditAdmin";
 import SwaggerDocs from "./public/swagger";
 import CurrentGames from "./currentGames";
 import ProfileScreen from "./profile/profileScreen";
+import Lobby from "./Game/Lobby";
 import NotStartedGames from "./home/NotStartedGameList"; 
+import LobbyScreen from "./Game/LobbyScreen"; 
 
 function ErrorFallback({ error, resetErrorBoundary }) {
   return (
@@ -73,7 +75,9 @@ function App() {
   } else {
     userRoutes = (
       <>
-        {/* <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} /> */}        
+        {/* <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} /> */} 
+        <Route path="/lobby/:id" element={<PrivateRoute><LobbyScreen /></PrivateRoute>} />       
+        <Route path="/lobby" element={<PrivateRoute><Lobby /></PrivateRoute>} />       
         <Route path="/profile" element={<ProfileScreen />} />
         <Route path="/logout" element={<Logout />} />
         <Route path="/login" element={<Login />} />

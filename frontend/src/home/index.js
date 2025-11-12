@@ -66,10 +66,7 @@ export default function Home(){
   };
 
   const handleCreatePrivateGame = () => {
-    const code = generateRoomCode();
-    setRoomCode(code);
-    setShowMainMenu(false);
-    navigate('/gameScreen', { state: { roomCode: code } });
+    navigate('/lobby');
   };
 
   const handleDemoGame = () => {  
