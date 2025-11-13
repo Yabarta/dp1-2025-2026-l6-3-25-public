@@ -18,7 +18,13 @@ import java.net.URI;
 import java.util.List;
 
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import org.springframework.http.HttpStatus;
+import org.springframework.web.multipart.MultipartFile;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.UUID;
+import jakarta.annotation.PostConstruct;
 
 
 
@@ -32,6 +38,26 @@ public class PlayerController {
     @Autowired
     public PlayerController(PlayerService ps){
         this.playerservice = ps;
+    }
+    //Cada vez que que arranca la aplicación, se borran las imágenes antiguas de la carpeta uploads
+    @PostConstruct
+    public void init() {
+        try {
+            Path uploadsPath = Paths.get("uploads");
+            if (Files.exists(uploadsPath) && Files.isDirectory(uploadsPath)) {
+                try (var paths = Files.walk(uploadsPath)) {
+                    paths.filter(Files::isRegularFile).forEach(path -> {
+                        try {
+                            Files.delete(path);
+                        } catch (IOException e) {
+                            // Log or ignore
+                        }
+                    });
+                }
+            }
+        } catch (IOException e) {
+            // Handle exception
+        }
     }
 
     @GetMapping
@@ -98,6 +124,45 @@ public class PlayerController {
         playerservice.save(playerToUpdate);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping(value = "/{id}", consumes = "multipart/form-data")
+    public ResponseEntity<Player> updatePlayerWithImage(@PathVariable("id") Integer id, 
+                                                        @RequestParam(value = "profilePicture", required = false) MultipartFile file,
+                                                        @RequestParam(value = "nickname", required = false) String nickname,
+                                                        @RequestParam(value = "email", required = false) String email) {
+        Player playerToUpdate = playerservice.getPlayerById(id);
+
+        if (nickname != null) playerToUpdate.setNickname(nickname);
+        if (email != null) playerToUpdate.setEmail(email);
+
+        if (file != null && !file.isEmpty()) {
+            try {
+                deleteOldProfilePicture(playerToUpdate);
+                Path uploadDir = Paths.get("uploads");
+                if (!Files.exists(uploadDir)) {
+                    Files.createDirectories(uploadDir);
+                }
+                String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+                Path filePath = uploadDir.resolve(fileName);
+                Files.copy(file.getInputStream(), filePath);
+                playerToUpdate.setProfilePicture("/uploads/" + fileName);
+            } catch (IOException e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            }
+        }
+
+        playerservice.save(playerToUpdate);
+        return ResponseEntity.ok(playerToUpdate);
+    }
+
+    private void deleteOldProfilePicture(Player player) throws IOException {
+        String oldProfilePicture = player.getProfilePicture();
+        if (oldProfilePicture != null && oldProfilePicture.startsWith("/uploads/")) {
+            String oldFileName = oldProfilePicture.substring("/uploads/".length());
+            Path oldFilePath = Paths.get("uploads").resolve(oldFileName);
+            Files.deleteIfExists(oldFilePath);
+        }
     }
 
     @PutMapping("/{id}/statistics/{statId}")

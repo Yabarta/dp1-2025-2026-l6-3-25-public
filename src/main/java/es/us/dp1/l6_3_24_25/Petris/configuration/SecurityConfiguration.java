@@ -59,6 +59,7 @@ public class SecurityConfiguration {
             .authorizeHttpRequests(auth -> auth
                 // Recursos estáticos comunes (css, js, images, webjars…) públicos
                 .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
+                .requestMatchers("/uploads/**").permitAll()
                 // H2 Console accesible
                 .requestMatchers(PathRequest.toH2Console()).permitAll()
                 .requestMatchers("/h2-console/**").permitAll()
@@ -87,6 +88,8 @@ public class SecurityConfiguration {
                 .requestMatchers("/api/salas").permitAll()
                 .requestMatchers("/api/salas/**").permitAll()
                 .requestMatchers("/ws/**").permitAll()
+                .requestMatchers("/app/**").permitAll()
+                .requestMatchers("/topic/**").permitAll()
                 .requestMatchers("/api/v1/statistics/achievements").permitAll()
                 .requestMatchers("/api/v1/statistics/ranking").permitAll()
 

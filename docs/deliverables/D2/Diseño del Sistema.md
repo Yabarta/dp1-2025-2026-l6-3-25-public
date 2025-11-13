@@ -143,6 +143,31 @@ Como actualizar los cambios que se hagan en cada turno.
 
 Hemos optado por la alternativa 1.b devido a que al ver el inconveniente que nos vino a la cabeza a la hora de ver opciones para crearlo nos dimos cuenta que no era tan necesario buscar que game solo se modificara 3 veces.
 
+### Decisión 4: Uso de una pantalla de carga en la pagina del perfil.
+#### Descripción del problema:
+
+Como poder mirar las estadisticas, logros y historial de manera que sea atractivo a la vista y no vaya pegando tirones hasta que cargue toda la pagina.
+
+#### Alternativas de solución evaluadas:
+
+*Alternativa 1.a*: Poner una pantalla de carga que espere a todas las llamadas al backend.
+
+*Ventajas:*
+•	Sería más limpio y es un patrón de diseño bastamente extendido y utilzado.
+*Inconvenientes:*
+•	Haría que los jugadores no pudieran mirar los datos directamente.
+
+*Alternativa 1.b*: Que todo vaya cargando de manera asíncrona cargando esperando al backend para cargar de una en una.
+
+*Ventajas:*
+•	Haría que los jugadores pudieran mirar los datos directamente.
+*Inconvenientes:*
+•	Da la sensacion de un producto inacabado y poco eficiente al ver como no todo está cargado cuando se entra a la página.
+
+#### Justificación de la solución adoptada
+
+Al revisar el problema nos decidimos por la primera alternativa ya que nos ayuda a entregar un producto con una apariencia más limpia y tambíen exime la necesidad de que todas las llamadas al backend sean instantaneas.
+
 ## Refactorizaciones aplicadas
 
 Si ha hecho refactorizaciones en su código, puede documentarlas usando el siguiente formato:
