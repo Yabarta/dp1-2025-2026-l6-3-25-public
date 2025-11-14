@@ -76,6 +76,7 @@ function App() {
     userRoutes = (
       <>
         {/* <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} /> */} 
+        <Route path="/game/:id" element={<PrivateRoute><GameScreen /></PrivateRoute>} />
         <Route path="/lobby/:id" element={<PrivateRoute><LobbyScreen /></PrivateRoute>} />       
         <Route path="/lobby" element={<PrivateRoute><Lobby /></PrivateRoute>} />       
         <Route path="/profile" element={<ProfileScreen />} />

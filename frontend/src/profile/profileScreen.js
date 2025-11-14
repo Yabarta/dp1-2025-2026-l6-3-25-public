@@ -121,6 +121,7 @@ export default function ProfileScreen() {
             setProfilePic(updatedPlayer.profilePicture || DEFAULT_PROFILE_PIC);
             setMessage('Foto de perfil actualizada exitosamente.');
             setVisible(true);
+            window.location.reload();
         } catch (error) {
             setMessage('Error al subir la imagen. Inténtalo de nuevo.');
             setVisible(true);
