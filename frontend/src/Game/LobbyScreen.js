@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import useWebSocket from '../hooks/useWebSocket';
 import api from '../services/api';
@@ -15,6 +15,12 @@ export default function LobbyScreen() {
     const [isBusy, setIsBusy] = useState(false);
     const [canStart, setCanStart] = useState(false);
     const lobbyUpdate = useWebSocket('/app/lobbies/watch', `/topic/lobby/${id}`, Number(id));
+    const skipCleanupRef = useRef(false);
+    const latestLobbyRef = useRef(null);
+
+    useEffect(() => {
+        latestLobbyRef.current = lobby;
+    }, [lobby]);
 
     useEffect(() => {
         const fetchLobby = async () => {
@@ -50,15 +56,54 @@ export default function LobbyScreen() {
 
     useEffect(() => {
         if (lobby?.startedAt) {
+            skipCleanupRef.current = true;
             navigate(`/game/${id}`);
         }
     }, [lobby, id, navigate]);
+
+    const leaveLobbySilently = useCallback(() => {
+        const snapshot = latestLobbyRef.current;
+        if (!snapshot || snapshot.startedAt) {
+            return;
+        }
+        if (currentUser) {
+            const isParticipant = snapshot.players.some((player) => {
+                if (!player) {
+                    return false;
+                }
+                const sameId = currentUser.id && player.id === currentUser.id;
+                const sameUsername = currentUser.username && player.username === currentUser.username;
+                const sameNickname = currentUser.nickname && player.nickname === currentUser.nickname;
+                return Boolean(sameId || sameUsername || sameNickname);
+            });
+            if (!isParticipant) {
+                return;
+            }
+        }
+        (async () => {
+            try {
+                await api.put(`/api/v1/matches/${id}/leave`);
+            } catch (err) {
+                console.error('Unable to auto-abandon lobby on navigation', err);
+            }
+        })();
+    }, [id]);
+
+    useEffect(() => {
+        return () => {
+            if (skipCleanupRef.current) {
+                return;
+            }
+            leaveLobbySilently();
+        };
+    }, [leaveLobbySilently]);
 
     const handleLeaveLobby = async () => {
         setError(null);
         setIsBusy(true);
         try {
             await api.put(`/api/v1/matches/${id}/leave`);
+            skipCleanupRef.current = true;
             navigate('/lobby');
         } catch (err) {
             console.error('Unable to leave lobby', err);
@@ -73,6 +118,7 @@ export default function LobbyScreen() {
         setIsBusy(true);
         try {
             await api.put(`/api/v1/matches/${id}/start`);
+            skipCleanupRef.current = true;
             navigate(`/game/${id}`);
         } catch (err) {
             console.error('Unable to start match', err);

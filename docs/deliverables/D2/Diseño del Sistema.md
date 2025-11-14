@@ -168,6 +168,31 @@ Como poder mirar las estadisticas, logros y historial de manera que sea atractiv
 
 Al revisar el problema nos decidimos por la primera alternativa ya que nos ayuda a entregar un producto con una apariencia más limpia y tambíen exime la necesidad de que todas las llamadas al backend sean instantaneas.
 
+### Decisión 5: Disposición del lobby
+#### Descripción del problema:
+
+Como hacer el lobby en el que esperan los jugadores justo antes de empezar a jugar
+
+#### Alternativas de solución evaluadas:
+
+*Alternativa 1.a*: Poner el lobby directamente en la pantalla de la partida.
+
+*Ventajas:*
+•	Directamente empezaria la partida sin tener que cambiar de pantalla.
+*Inconvenientes:*
+•	La partida empezaria directamente cuando otro jugador se uniese, lo cual no da margen al jugador que se une para escoger una sala equivocada o la partida empezaaria dandole a un boton lo que iria un poco en contra de la filosofia utilizada para escoger esta alternativa ya que no seempezaria rapidamente la partida.
+
+*Alternativa 1.b*: Que haya una pantalla de lobby de partida y luego al iniciar te redirija a la pantalla de la misma.
+
+*Ventajas:*
+•	Haría que los jugadores pudieran fallar de sala y salirse sin tener que estar abandonando una partida, además seguiria con la estetica de la pantalla de elección de sala en vez de tener un cambio muy abruto entre los estilos de la pagina de elección y la pantalla de la partida.
+*Inconvenientes:*
+•	Se reduce la fluidez de la página ya que hay que pasar por una pantalla intermedia para poder comenzar una partida.
+
+#### Justificación de la solución adoptada
+
+Al revisar el problema nos decidimos por la segunda alternativa ya que nos gustó como quedaba y nos resultó más comodo para el usuario y bonito de ver, ademas así reducimos la complejidad del trabajo dividiendolo en una pagina para cada cosa en vez de tener una pantalla de partida que maneja tanto todo a lo que la partida se refiere(logica de juego, usuarios, estilos propios) como, además, la parte de crear un lobby funcional.
+
 ## Refactorizaciones aplicadas
 
 Si ha hecho refactorizaciones en su código, puede documentarlas usando el siguiente formato:
