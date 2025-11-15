@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import es.us.dp1.l6_3_24_25.Petris.match.model.TurnType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -39,6 +40,16 @@ class MatchServiceTest {
 
     @Autowired
     MatchService matchService;
+
+    private MatchRepository matchRepository;
+
+    private SimpMessagingTemplate messagingTemplate;
+
+    private ObjectProvider<SimpMessagingTemplate> messagingTemplateProvider;
+
+    private MatchService behaviourService;
+
+    private MatchServiceHelper matchServiceHelper;
 
     @Test
     @DisplayName("Obtener todos las partidas")
@@ -107,22 +118,59 @@ class MatchServiceTest {
     }
 
 
-
-    private MatchRepository matchRepository;
-
-    private SimpMessagingTemplate messagingTemplate;
-
-    private ObjectProvider<SimpMessagingTemplate> messagingTemplateProvider;
-
-    private MatchService behaviourService;
-
     @BeforeEach
     void setupMocks() {
         matchRepository = mock(MatchRepository.class);
         messagingTemplate = mock(SimpMessagingTemplate.class);
         messagingTemplateProvider = mockMessagingTemplateProvider();
+        matchServiceHelper = mock(MatchServiceHelper.class);
         when(messagingTemplateProvider.getIfAvailable()).thenReturn(messagingTemplate);
         behaviourService = new MatchService(matchRepository, messagingTemplateProvider);
+        when(matchServiceHelper.getTurnTypeList()).thenReturn(List.of(
+            TurnType.P1_PROPAGATION,
+            TurnType.P2_PROPAGATION,
+            TurnType.BINARY_FISSION,
+            TurnType.P2_PROPAGATION,
+            TurnType.P1_PROPAGATION,
+            TurnType.BINARY_FISSION,
+            TurnType.P1_PROPAGATION,
+            TurnType.P2_PROPAGATION,
+            TurnType.BINARY_FISSION,
+            TurnType.CONTAMINATION,
+
+            TurnType.P2_PROPAGATION,
+            TurnType.P1_PROPAGATION,
+            TurnType.BINARY_FISSION,
+            TurnType.P1_PROPAGATION,
+            TurnType.P2_PROPAGATION,
+            TurnType.BINARY_FISSION,
+            TurnType.P2_PROPAGATION,
+            TurnType.P1_PROPAGATION,
+            TurnType.BINARY_FISSION,
+            TurnType.CONTAMINATION,
+
+            TurnType.P1_PROPAGATION,
+            TurnType.P2_PROPAGATION,
+            TurnType.BINARY_FISSION,
+            TurnType.P2_PROPAGATION,
+            TurnType.P1_PROPAGATION,
+            TurnType.BINARY_FISSION,
+            TurnType.P1_PROPAGATION,
+            TurnType.P2_PROPAGATION,
+            TurnType.BINARY_FISSION,
+            TurnType.CONTAMINATION,
+
+            TurnType.P2_PROPAGATION,
+            TurnType.P1_PROPAGATION,
+            TurnType.BINARY_FISSION,
+            TurnType.P1_PROPAGATION,
+            TurnType.P2_PROPAGATION,
+            TurnType.BINARY_FISSION,
+            TurnType.P2_PROPAGATION,
+            TurnType.P1_PROPAGATION,
+            TurnType.BINARY_FISSION,
+            TurnType.CONTAMINATION
+        ));
     }
 
     @SuppressWarnings("unchecked")
@@ -254,7 +302,7 @@ class MatchServiceTest {
         match.setPlayer1Score(3);
         match.setPlayer2Score(5);
         match.setTurn(7);
-        match.setTurnType(MatchService.turnTypes.get(7));
+        match.setTurnType(matchServiceHelper.getTurnTypeList().get(7));
         List<PetriDish> board = new ArrayList<>();
         PetriDish dish0 = new PetriDish();
         dish0.setPlayer1Bacteria(2);
@@ -307,7 +355,7 @@ class MatchServiceTest {
         match.setPlayer1Score(0);
         match.setPlayer2Score(0);
         match.setTurn(0);
-        match.setTurnType(MatchService.turnTypes.get(0));
+        match.setTurnType(matchServiceHelper.getTurnTypeList().get(0));
         return match;
     }
 

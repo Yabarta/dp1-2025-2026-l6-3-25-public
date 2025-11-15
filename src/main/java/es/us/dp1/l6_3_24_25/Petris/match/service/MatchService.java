@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -43,7 +42,9 @@ public class MatchService {
                         final ObjectProvider<SimpMessagingTemplate> messagingTemplateProvider) {
         this.matchRepository = matchRepository;
         this.messagingTemplate = messagingTemplateProvider.getIfAvailable();
+        this.matchServiceHelper = new MatchServiceHelper();
     }
+
 
     @Transactional(readOnly = true)
     public List<Match> getAllMatches(){
