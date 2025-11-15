@@ -366,10 +366,10 @@ export default function GameScreen() {
     if (targetDish[currentPlayerKey] + amount > MAX_BACTERIA) {
       return false;
     }
-    if (targetDish[opponentPlayerKey] === amount) {
+    if (sourceDish[opponentPlayerKey] !== 0 && targetDish[opponentPlayerKey] === amount) {
       return false;
     }
-    if (sourceDish[currentPlayerKey] - amount === sourceDish[opponentPlayerKey]) {
+    if (sourceDish[opponentPlayerKey] !== 0 && sourceDish[currentPlayerKey] - amount === sourceDish[opponentPlayerKey]) {
       return false;
     }
     return true;
