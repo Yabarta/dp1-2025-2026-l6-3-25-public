@@ -216,3 +216,270 @@ código fuente en java, jsx o javascript
 _Ej: Era difícil añadir información para implementar la lógica de negocio en cada una de las fases del juego (en nuestro caso varía bastante)_
 #### Ventajas que presenta la nueva versión del código respecto de la versión original
 _Ej: Ahora podemos añadir arbitrariamente los datos que nos hagan falta al contexto de la partida para que sea más sencillo llevar a cabo los turnos y jugadas_
+
+
+### Refactorización 1: 
+#### Descomposición de Componentes de la Pantalla de Perfil (ProfileScreen)
+En esta refactorización, hemos extraido la lógica de renderizado de grandes secciones de la pantalla de perfil (como la cabecera, las estadísticas, las partidas recientes y los logros) en subcomponentes funcionales independientes. Además, se encapsularon los modales (HistoryPopup, EditPopup) dentro de sus propios componentes.
+
+### Estado inicial del código
+
+    <div className="profileContainer">{modal}
+            <div className="left">
+                <div>
+                    <div className="profileHeader">
+                        <span className="profileNickname">{playerData.nickname}</span>
+                        <span onClick={() => setShowEditPopup(true)} className="editIcon">✏️</span>
+                    </div>
+                    <div className="profileHeaderEmail">{playerData.email}</div>
+                </div>
+                <div className="bg">
+                    <img src={profilePic}
+                        onClick={handleChangeProfilePicture}
+                        alt="provisional"
+                        className="profilePicture" />
+                    <input
+                        type="file"
+                        ref={imageInputRef}
+                        onChange={handleFileChange}
+                        className="hiddenFileInput"
+                        accept="image/*"
+                    />
+                    <div className="mainStatContainer">
+                        <div className="statItem">
+                            <span className="statLabel">Fecha de Creación</span>
+                            <span className="statValue">{playerData.createdAt? new Date(playerData.createdAt).toLocaleDateString() : new Date().toLocaleDateString()}</span>
+                        </div>
+                        <div className="statItem">
+                            <span className="statLabel">Tiempo de Juego</span>
+                            <span className="statValue">{Math.floor(hoursPlayed) || 0} horas y {Math.round((hoursPlayed - Math.floor(hoursPlayed)) * 60) || 0} minutos</span>
+                        </div>
+                        <div className="statItem">
+                            <span className="statLabel">Partidas Online</span>
+                            <span className="statValue">{userGames.length || 0}</span>
+                        </div>
+                        <div className="statItem">
+                            <span className="statLabel">Victorias</span>
+                            <span className="statValue">{getStatValue('games_won')
+                                }</span>
+                        </div>
+                        <div className="statItem">
+                            <span className="statLabel">Derrotas</span>
+                            <span className="statValue">{userGames.filter((game) => !isWinner(game)).length || 0}</span>
+                        </div>
+                        <div className="statItem">
+                            <span className="statLabel">Sarcinas</span>
+                            <span className="statValue">{getStatValue('sarcines_created') || 0
+                            }</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div className="right">
+                <div className="bg">
+                    <h1 className="title">Partidas Recientes</h1>
+                    <div className="recentGamesContainer">
+                        {userGames.slice(0, 3).map(game => {
+                            return (
+                                <div key={game.id} className={isWinner(game) ? "gameWinBg" : "gameLoseBg"}>
+                                    <div className="gameHeader">
+                                        <div className="gameResult">
+                                            {isWinner(game) ? "Victoria" : "Derrota"}
+                                            <span className="gameTurns">
+                                                ({game.turn} turnos)
+                                            </span>
+                                        </div>
+                                        <span className="gameDate">
+                                            Fecha de creación: {new Date(game.createdAt).toLocaleDateString()}
+                                        </span>
+                                    </div>
+                                    <div className="gamePlayersContainer">
+                                        <div className="scorePlayer1">
+                                            <div className="gamePlayerInfo player2Info">
+                                                <img src={getPlayerProfilePic(game.player2)} alt={game.player2.nickname} className="gamePlayerPic" /> {game.player2.nickname}
+                                            </div>
+                                            <div className="score">
+                                                {game.finalP2Score}
+                                            </div>
+                                        </div>
+                                        <span className="gameVs">vs</span>
+                                        <div className="scorePlayer2">
+                                            <div className="gamePlayerInfo player1Info">
+                                                {game.player1.nickname} <img src={getPlayerProfilePic(game.player1)} alt={game.player1.nickname} className="gamePlayerPic" />
+                                            </div>
+                                            <div className="score">
+                                                {game.finalP1Score}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="gameDetailsContainer">
+                                        <div className="gameDetail">
+                                            Código de la partida: {game.code}
+                                        </div>
+                                        <div className="gameDetail">
+                                            Duración: {duracion(game)} mins
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                    <div className="watchHistoryContainer">
+                        <button className="watchHistoryButton" onClick={() => setShowHistoryPopup(true)}>
+                            Ver Historial
+                        </button>
+                    </div>
+                </div>
+                <div className="bg">
+                    <h1 className="title">Logros</h1>
+                    <h4>Completado {UserAchievements.length}/{Achievements.length}</h4>
+                    <div className="mainStatContainer">
+                        {Achievements.map(achievement => {
+                            const isCompleted = UserAchievements.some(a => a.id === achievement.id);
+                            return (
+                                <div key={achievement.id} className={`achievement ${isCompleted ? 'completed' : ''}`}>
+                                    <div className="achievementHeader">
+                                        <img src={achievement.icon} alt={achievement.name} className="achievementIcon" />
+                                        <h3 className="achievementName">{achievement.name}</h3>
+                                        <p className="achievementProgress">
+                                            {achievementProgress(achievement)}
+                                        </p>
+                                    </div>
+                                    <div className="achievementInfo">
+                                        <div>
+                                            <p className="achievementDescriptionContainer achievementDescription">
+                                                {achievement.description}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            </div>
+            {showHistoryPopup && (
+                <div className="popupOverlay">
+                    <div className="popupContent">
+                        <h2 className="title">Historial de Partidas</h2>
+                        <button onClick={() => setShowHistoryPopup(false)} className="closePopupButton">X</button>
+                        <div className="gamesList">
+                            {userGames.length > 0 ? (
+                                userGames.map(game => {
+                                    return (
+                                        <div key={game.id} className={isWinner(game) ? "gameWinBg" : "gameLoseBg"}>
+                                            <div className="gameHeader">
+                                                <div className="gameResult">
+                                                    {isWinner(game) ? "Victoria" : "Derrota"}
+                                                    <span className="gameTurns">
+                                                        ({game.turns} turnos)
+                                                    </span>
+                                                </div>
+                                                <span className="gameDate">
+                                                    Fecha de creación: {new Date(game.createdAt).toLocaleDateString()}
+                                                </span>
+                                            </div>
+                                            <div className="gamePlayersContainer">
+                                                <div className="gamePlayerInfo">
+                                                    <img src={getPlayerProfilePic(game.player2)} alt={game.player2.nickname} className="gamePlayerPic" /> {game.player2.nickname}
+                                                </div>
+                                                <span className="gameVs">vs</span>
+                                                <div className="gamePlayerInfo">
+                                                    {game.player1.nickname} <img src={getPlayerProfilePic(game.player1)} alt={game.player1.nickname} className="gamePlayerPic" />
+                                                </div>
+                                            </div>
+                                            <div className="gameDetailsContainer">
+                                                <div className="gameDetail">
+                                                    Código de la partida: {game.code}
+                                                </div>
+                                                <div className="gameDetail">
+                                                    Puntuación: {game.score}
+                                                </div>
+                                                <div className="gameDetail">
+                                                    Duración: {duracion(game)} mins
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })
+                            ) : (
+                                <p>No hay partidas para mostrar.</p>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
+            {showEditPopup && (
+                <div className="popupOverlay">
+                    <div className="popupContent">
+                        <h2 className="title">Editar Perfil</h2>
+                        <button onClick={() => setShowEditPopup(false)} className="closePopupButton">X</button>
+                        <Formik
+                            initialValues={{
+                                nickname: playerData.nickname,
+                                email: playerData.email,
+                            }}
+                            validationSchema={validationSchema}
+                            onSubmit={handleEditSubmit}
+                        >
+                            {({ isSubmitting }) => (
+                                <Form>
+                                    <div className="formGroup">
+                                        <label htmlFor="nickname">Nombre de usuario</label>
+                                        <Field name="nickname" type="text" className="formControl" />
+                                        <ErrorMessage name="nickname" component="div" className="error" />
+                                    </div>
+                                    <div className="formGroup">
+                                        <label htmlFor="email">Email</label>
+                                        <Field name="email" type="email" className="formControl" />
+                                        <ErrorMessage name="email" component="div" className="error" />
+                                    </div>
+                                    <div className="formButtons">
+                                        <button type="submit" className="editProfileButton" disabled={isSubmitting}>
+                                            Guardar Cambios
+                                        </button>
+                                        <button type="button" className="watchHistoryButton" onClick={() => setShowEditPopup(false)}>
+                                            Cancelar
+                                        </button>
+                                    </div>
+                                </Form>
+                            )}
+                        </Formik>
+                    </div>
+                </div>
+            )}
+        </div>
+
+### Estado del código refactorizado
+
+    <div className="profileContainer">
+        {modal}
+        <div className="left">
+            <ProfileHeader />
+            <div className="bg">
+                <img src={profilePic} onClick={handleChangeProfilePicture} alt="provisional" className="profilePicture" />
+                <input type="file" ref={imageInputRef} onChange={handleFileChange} className="hiddenFileInput" accept="image/*" />
+                <StatsSection />
+            </div>
+        </div>
+        <div className="right">
+            <RecentGames />
+            <AchievementsSection />
+        </div>
+        <HistoryPopup />
+        <EditPopup />
+    </div>
+### Problema que nos hizo realizar la refactorización
+Era difícil navegar, comprender y modificar el componente de perfil, ya que contenía cientos de líneas de código JSX y lógica de renderizado anidada. Un componente tan grande violaba el Principio de Responsabilidad Única (SRP), dificultando la identificación rápida de dónde se encontraba el código responsable de, por ejemplo, la lista de logros o el modal de edición.
+
+### Ventajas que presenta la nueva versión del código respecto de la versión original
+
+#### Legibilidad y Mantenibilidad: 
+El componente principal ProfileScreen se vuelve más limpia, haciendo obvia la estructura de la página. Es mucho más fácil localizar y modificar la lógica de renderizado de una sección específica (ej., StatsSection) sin afectar otras partes.
+
+#### Reutilización:
+Si en el futuro necesitas mostrar solo las estadísticas o el historial de partidas en otra parte de la aplicación, puedes reutilizar los componentes sin duplicar código.
+
+#### Aislamiento de Errores (Debugging):
+Si ocurre un error de renderizado solo en alguna sección en concreto, sabes exactamente qué subcomponente tienes que revisar, lo que acelera la depuración.
+

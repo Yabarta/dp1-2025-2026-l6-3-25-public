@@ -307,7 +307,7 @@ public class MatchService {
             PetriDish currentPd = currentBoardState.get(i);
             PetriDish newPd = newBoardState.get(i);
 
-            if(newPd.getPlayer1Bacteria().equals(currentPd.getPlayer2Bacteria())) {
+            if(currentPd.getPlayer2Bacteria() != 0 && newPd.getPlayer1Bacteria().equals(currentPd.getPlayer2Bacteria())) {
                 errors.add("Players can't have the same amount of bacteria on the same dish as another: " + "{" + i + "}");
             }
 
