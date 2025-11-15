@@ -87,7 +87,7 @@ function AppNavbar() {
     return (
         <div>
             <Navbar expand="md" dark color="dark">
-                <NavbarBrand href="/">
+                <NavbarBrand tag={Link} to="/">
                     <img alt="logo" src={mitosisImg} style={{ height: 40, width: 40, paddingRight: 8 }} />
                     Petris
                 </NavbarBrand>

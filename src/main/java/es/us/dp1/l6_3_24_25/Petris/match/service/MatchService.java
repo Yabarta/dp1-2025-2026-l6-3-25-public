@@ -1,30 +1,49 @@
 package es.us.dp1.l6_3_24_25.Petris.match.service;
 
-import es.us.dp1.l6_3_24_25.Petris.exceptions.ResourceNotFoundException;
-import es.us.dp1.l6_3_24_25.Petris.match.model.Match;
-import es.us.dp1.l6_3_24_25.Petris.match.model.PetriDish;
-import es.us.dp1.l6_3_24_25.Petris.match.model.TurnType;
-import es.us.dp1.l6_3_24_25.Petris.match.repository.MatchRepository;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.lang.NonNull;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import es.us.dp1.l6_3_24_25.Petris.exceptions.ResourceNotFoundException;
+import es.us.dp1.l6_3_24_25.Petris.match.dto.LobbyDTO;
+import es.us.dp1.l6_3_24_25.Petris.match.dto.MatchDTO;
+import es.us.dp1.l6_3_24_25.Petris.match.dto.PetriDishDTO;
+import es.us.dp1.l6_3_24_25.Petris.match.dto.PlayerSummaryDTO;
+import es.us.dp1.l6_3_24_25.Petris.match.model.Match;
+import es.us.dp1.l6_3_24_25.Petris.match.model.PetriDish;
+import es.us.dp1.l6_3_24_25.Petris.match.model.TurnType;
+import es.us.dp1.l6_3_24_25.Petris.match.repository.MatchRepository;
+import es.us.dp1.l6_3_24_25.Petris.player.model.Player;
 
 @Service
 public class MatchService {
+    private static final String CODE_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    private static final int CODE_LENGTH = 4;
 
-    @Autowired
-    private MatchRepository matchRepository;
+    private final MatchRepository matchRepository;
+    private final SimpMessagingTemplate messagingTemplate;
+    private final SecureRandom secureRandom = new SecureRandom();
 
     private MatchServiceHelper matchServiceHelper;
+
+    public MatchService(final MatchRepository matchRepository,
+                        final ObjectProvider<SimpMessagingTemplate> messagingTemplateProvider) {
+        this.matchRepository = matchRepository;
+        this.messagingTemplate = messagingTemplateProvider.getIfAvailable();
+    }
 
     @Transactional(readOnly = true)
     public List<Match> getAllMatches(){
@@ -32,13 +51,13 @@ public class MatchService {
     }
 
     @Transactional(readOnly = true)
-    public Match getMatchById(Integer id){
+    public Match getMatchById(@NonNull Integer id){
         return matchRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Match", "Id", id));
     }
 
     @Transactional(readOnly = true)
-    public Match getMatchByCode(String code){
+    public Match getMatchByCode(@NonNull String code){
         return matchRepository.findByCode(code)
             .orElseThrow(() -> new ResourceNotFoundException("Match", "Code", code));
     }
@@ -54,7 +73,7 @@ public class MatchService {
     }
 
     @Transactional
-    public Match createMatch(Match match){
+    public Match createMatch(@NonNull Match match){
         match.setCreatedAt(LocalDateTime.now());
         match.setStartedAt(null);
         match.setEndedAt(null);
@@ -75,17 +94,74 @@ public class MatchService {
             initialBoardState.add(pd);
         }
         match.setBoardState(initialBoardState);
-        return matchRepository.save(match);
+        Match created = matchRepository.save(match);
+        publishLobbySnapshot(created);
+        publishLobbyList();
+        return created;
     }
 
     @Transactional
-    public Match joinMatch(Match match) {
+    public Match joinMatch(@NonNull Match match) {
+        Match updated = matchRepository.save(match);
+        publishLobbySnapshot(updated);
+        publishLobbyList();
+        publishMatchSnapshot(updated);
+        return updated;
+    }
+
+    @Transactional
+    public Match startMatch(@NonNull Match match) {
         match.setStartedAt(LocalDateTime.now());
-        return matchRepository.save(match);
+        Match updated = matchRepository.save(match);
+        publishLobbySnapshot(updated);
+        publishLobbyList();
+        publishMatchSnapshot(updated);
+        return updated;
     }
 
     @Transactional
-    public Match nextTurn(Match matchToUpdate, Optional<List<PetriDish>> newBoardState) throws IllegalArgumentException {
+    public Optional<Match> leaveMatch(@NonNull Match match, @NonNull Player player) {
+        boolean changed = false;
+        if (player.equals(match.getPlayer1())) {
+            match.setPlayer1(null);
+            changed = true;
+        } else if (player.equals(match.getPlayer2())) {
+            match.setPlayer2(null);
+            changed = true;
+        }
+
+        if (!changed) {
+            return Optional.of(match);
+        }
+
+        if (player.equals(match.getCreator())) {
+            match.setCreator(null);
+        }
+
+        if (match.getPlayer1() == null && match.getPlayer2() != null) {
+            match.setPlayer1(match.getPlayer2());
+            match.setPlayer2(null);
+            if (match.getCreator() == null) {
+                match.setCreator(match.getPlayer1());
+            }
+        } else if (match.getPlayer1() == null && match.getPlayer2() == null) {
+            Integer matchId = match.getId();
+            matchRepository.delete(match);
+            publishLobbyList();
+            publishLobbyClosed(matchId);
+            return Optional.empty();
+        } else if (match.getCreator() == null) {
+            match.setCreator(match.getPlayer1());
+        }
+
+        Match saved = matchRepository.save(match);
+        publishLobbySnapshot(saved);
+        publishLobbyList();
+        return Optional.of(saved);
+    }
+
+    @Transactional
+    public Match nextTurn(@NonNull Match matchToUpdate, Optional<List<PetriDish>> newBoardState) throws IllegalArgumentException {
         Match updatedMatch = null;
         switch(matchToUpdate.getTurnType()) {
             case TurnType.P1_PROPAGATION:
@@ -109,7 +185,12 @@ public class MatchService {
                 updatedMatch = matchServiceHelper.contamination(matchToUpdate);
         }
 
-        int turn = matchToUpdate.getTurn() + 1;
+        if (updatedMatch == null) {
+            throw new IllegalStateException("Unsupported turn type: " + matchToUpdate.getTurnType());
+        }
+
+        Integer turn = matchToUpdate.getTurn() + 1;
+
         updatedMatch.setTurn(turn);
         updatedMatch.setTurnType(matchServiceHelper.getTurnTypeList().get(turn));
 
@@ -118,7 +199,9 @@ public class MatchService {
             updatedMatch.setEndedAt(LocalDateTime.now());
             updatedMatch.setWinner(winner);
         }
-        return matchRepository.save(updatedMatch);
+        Match saved = matchRepository.save(updatedMatch);
+        publishMatchSnapshot(saved);
+        return saved;
     }
 
     private Match propagation(Match matchToUpdate, List<PetriDish> newBoardState, int player) throws IllegalArgumentException{
@@ -143,7 +226,7 @@ public class MatchService {
             PetriDish currentPd = currentBoardState.get(i);
             PetriDish newPd = newBoardState.get(i);
 
-            if(newPd.getPlayer1Bacteria().equals(currentPd.getPlayer2Bacteria())) {
+            if(currentPd.getPlayer2Bacteria() != 0 && newPd.getPlayer1Bacteria().equals(currentPd.getPlayer2Bacteria())) {
                 errors.add("Players can't have the same amount of bacteria on the same dish as another: " + "{" + i + "}");
             }
 
@@ -198,13 +281,124 @@ public class MatchService {
     }
 
     @Transactional
-    public Match forceEndMatch(Match match) {
+    public Match forceEndMatch(@NonNull Match match) {
         match.setEndedAt(LocalDateTime.now());
-        return matchRepository.save(match);
+        Match saved = matchRepository.save(match);
+        publishMatchSnapshot(saved);
+        publishLobbyList();
+        return saved;
     }
 
     @Transactional
-    public void delete(Integer id){
+    public void delete(@NonNull Integer id){
         matchRepository.deleteById(id);
+        publishLobbyList();
+        publishLobbyClosed(id);
+    }
+
+    public void publishLobbyList() {
+        if (messagingTemplate == null) {
+            return;
+        }
+        List<LobbyDTO> lobbies = matchRepository.findByStartedAtNull().stream()
+            .map(this::toLobbyDTO)
+            .collect(Collectors.toList());
+        messagingTemplate.convertAndSend("/topic/lobbies", Objects.requireNonNull(lobbies));
+    }
+
+    public void publishLobbyClosed(Integer matchId) {
+        if (messagingTemplate == null) {
+            return;
+        }
+        messagingTemplate.convertAndSend("/topic/lobby/" + matchId, "LOBBY_CLOSED");
+    }
+
+    public void publishLobbySnapshot(Match match) {
+        if (messagingTemplate == null) {
+            return;
+        }
+        Match ensuredMatch = Objects.requireNonNull(match, "match");
+        messagingTemplate.convertAndSend("/topic/lobby/" + ensuredMatch.getId(), Objects.requireNonNull(toLobbyDTO(ensuredMatch)));
+    }
+
+    public void publishMatchSnapshot(Match match) {
+        if (messagingTemplate == null) {
+            return;
+        }
+        Match ensuredMatch = Objects.requireNonNull(match, "match");
+        messagingTemplate.convertAndSend("/topic/match/" + ensuredMatch.getId(), Objects.requireNonNull(toMatchDTO(ensuredMatch)));
+    }
+
+    public LobbyDTO toLobbyDTO(@NonNull Match match) {
+        LobbyDTO dto = new LobbyDTO();
+        dto.setId(match.getId());
+        dto.setCode(match.getCode());
+        dto.setPrivate(match.getCode() != null);
+        dto.setCreatorId(match.getCreator() != null ? match.getCreator().getId() : null);
+        dto.setCreatedAt(match.getCreatedAt());
+        dto.setStartedAt(match.getStartedAt());
+        dto.setPlayers(buildPlayerList(match));
+        return dto;
+    }
+
+    public MatchDTO toMatchDTO(@NonNull Match match) {
+        MatchDTO dto = new MatchDTO();
+        dto.setId(match.getId());
+        dto.setCode(match.getCode());
+        dto.setCreatedAt(match.getCreatedAt());
+        dto.setStartedAt(match.getStartedAt());
+        dto.setEndedAt(match.getEndedAt());
+        dto.setTurn(match.getTurn());
+        dto.setTurnType(match.getTurnType());
+        dto.setPlayer1Score(match.getPlayer1Score());
+        dto.setPlayer2Score(match.getPlayer2Score());
+        dto.setWinner(match.getWinner());
+        dto.setPlayer1(toPlayerSummary(match.getPlayer1()));
+        dto.setPlayer2(toPlayerSummary(match.getPlayer2()));
+        List<PetriDishDTO> board = new ArrayList<>();
+        List<PetriDish> dishes = match.getBoardState();
+        if (dishes != null) {
+            for (int i = 0; i < dishes.size(); i++) {
+                PetriDish dish = dishes.get(i);
+                PetriDishDTO dishDTO = new PetriDishDTO();
+                dishDTO.setIndex(i);
+                dishDTO.setPlayer1Bacteria(dish.getPlayer1Bacteria());
+                dishDTO.setPlayer2Bacteria(dish.getPlayer2Bacteria());
+                board.add(dishDTO);
+            }
+        }
+        dto.setBoard(board);
+        return dto;
+    }
+
+    public String generateLobbyCode() {
+        StringBuilder builder = new StringBuilder(CODE_LENGTH);
+        for (int i = 0; i < CODE_LENGTH; i++) {
+            int index = secureRandom.nextInt(CODE_ALPHABET.length());
+            builder.append(CODE_ALPHABET.charAt(index));
+        }
+        return builder.toString();
+    }
+
+    private List<PlayerSummaryDTO> buildPlayerList(Match match) {
+        List<PlayerSummaryDTO> players = new ArrayList<>();
+        if (match.getPlayer1() != null) {
+            players.add(toPlayerSummary(match.getPlayer1()));
+        }
+        if (match.getPlayer2() != null) {
+            players.add(toPlayerSummary(match.getPlayer2()));
+        }
+        return players;
+    }
+
+    private PlayerSummaryDTO toPlayerSummary(Player player) {
+        if (player == null) {
+            return null;
+        }
+        PlayerSummaryDTO dto = new PlayerSummaryDTO();
+        dto.setId(player.getId());
+        dto.setNickname(player.getNickname());
+        dto.setUsername(player.getUser() != null ? player.getUser().getUsername() : null);
+        return dto;
     }
 }
