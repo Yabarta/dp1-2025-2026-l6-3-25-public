@@ -5,6 +5,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import Board from "./demoBoard";
 import '../static/css/game/gameScreen.css';
 import ExitModal from '../components/modal/ExitModal';
+import ModalWinner from './modalWinner';
 import tokenService from '../services/token.service';
 import jwt_decode from "jwt-decode";
 
@@ -267,6 +268,8 @@ export default function Game({onBackToMenu}) {
               }}
               onCancel={() => {setExitGame(null)}}>
       </ExitModal>
+
+      <ModalWinner winner={gameState.winner} onGoToMenu={handleBackToMenu} />
 
       <div className="chatPanel">
         <div className="chatTitle">CHAT</div>
