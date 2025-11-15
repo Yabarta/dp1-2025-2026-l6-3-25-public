@@ -470,7 +470,7 @@ En esta refactorización, hemos extraido la lógica de renderizado de grandes se
         <EditPopup />
     </div>
 ### Problema que nos hizo realizar la refactorización
-Era difícil navegar, comprender y modificar el componente de perfil, ya que contenía cientos de líneas de código JSX y lógica de renderizado anidada. Un componente tan grande violaba el Principio de Responsabilidad Única (SRP), dificultando la identificación rápida de dónde se encontraba el código responsable de, por ejemplo, la lista de logros o el modal de edición.
+Era difícil navegar, comprender y modificar el componente de perfil, ya que contenía cientos de líneas de código JSX y lógica de renderizado anidada. Un componente tan grande, dificultabala identificación rápida de dónde se encontraba el código responsable de, por ejemplo, la lista de logros o el modal de edición.
 
 ### Ventajas que presenta la nueva versión del código respecto de la versión original
 
