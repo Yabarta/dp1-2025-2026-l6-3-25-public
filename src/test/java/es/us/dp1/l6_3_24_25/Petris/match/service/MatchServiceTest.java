@@ -106,50 +106,7 @@ class MatchServiceTest {
         assertNotNull(notStartedMatches, "List of not started matches can not be null");
     }
 
-    /*
-    @Test
-    @DisplayName("Crear partida")
-    @Description("Metodo para crear una partida")
-    @Owner("dlozaco(FBN5868)")
-    void testSave() {
-        Match match = new Match();
-        /*Player player1 = new Player();
 
-        List<PetriDish> dishes = new ArrayList<>();
-
-        for(int i = 0; i <= 6; i++){
-            PetriDish petri = new PetriDish();
-            petri.setMovements(List.of(1,2,3,4,5));
-            dishes.add(petri);
-        }
-
-        LocalDateTime fecha = LocalDateTime.now();
-        match.setCode("HYMG");
-        match.setTurn(4);
-        match.setCreatedAt(fecha);
-        /* Implementar cuando se haga la relación con Player
-        match.setPetriDish(dishes);
-        match.setCreator(player1);
-        match.setPlayer1(player1);
-
-        Match createdMatch = matchService.createMatch(match);
-
-        assertEquals(createdMatch.getCode(), "HYMG", "Code doesnt match");
-        assertEquals(createdMatch.getTurn(), 4, "Turn doesnt match");
-        assertEquals(createdMatch.getCreatedAt(), fecha, "CreatedAt doesn't match");
-
-    }
-
-    @Test
-    @DisplayName("Borrar partida")
-    @Description("Metodo para borrar una partida")
-    @Owner("dlozaco(FBN5868)")
-    void testDelete() {
-        matchService.delete(1);
-        assertEquals(response.getStatusCode(), HttpStatus.NO_CONTENT, "Wrong status code");
-
-    }
-    */
 
     private MatchRepository matchRepository;
 
