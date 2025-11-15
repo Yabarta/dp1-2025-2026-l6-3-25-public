@@ -1,15 +1,15 @@
 package es.us.dp1.l6_3_24_25.Petris.match.service;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import es.us.dp1.l6_3_24_25.Petris.match.model.Match;
 import es.us.dp1.l6_3_24_25.Petris.match.model.PetriDish;
 import es.us.dp1.l6_3_24_25.Petris.match.model.TurnType;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -17,14 +17,9 @@ public class MatchServiceHelper {
     private Match match;
     private List<PetriDish> boardState;
     private int player;
-    private List<TurnType> turnTypeList;
-    private Map<Integer, Set<Integer>> petriDishAdjacencies;
 
-    public MatchServiceHelper(Match m, List<PetriDish> boardState, int player) {
-        this.match = m;
-        this.boardState = boardState;
-        this.player = player;
-        this.turnTypeList = List.of(
+    public List<TurnType> getTurnTypeList() {
+        return List.of(
             TurnType.P1_PROPAGATION,
             TurnType.P2_PROPAGATION,
             TurnType.BINARY_FISSION,
@@ -69,7 +64,10 @@ public class MatchServiceHelper {
             TurnType.BINARY_FISSION,
             TurnType.CONTAMINATION
         );
-        this.petriDishAdjacencies = Map.of(
+    }
+
+    public Map<Integer, Set<Integer>> getPetriDishAdjacencies() {
+        return Map.of(
             0, Set.of(1, 2, 3),
             1, Set.of(0, 3, 4),
             2, Set.of(0, 3, 5),
@@ -78,6 +76,15 @@ public class MatchServiceHelper {
             5, Set.of(2, 3, 6),
             6, Set.of(3, 4, 5)
         );
+    }
+
+    public MatchServiceHelper() {
+    }
+
+    public MatchServiceHelper(Match m, List<PetriDish> boardState, int player) {
+        this.match = m;
+        this.boardState = boardState;
+        this.player = player;
     }
 
     public Match binaryFission(Match matchToUpdate) {
@@ -108,7 +115,7 @@ public class MatchServiceHelper {
 
     public Integer getWinner(Match match) {
         Integer winner = null;
-        if(match.getTurn().equals(turnTypeList.size() - 1)) {
+        if(match.getTurn().equals(getTurnTypeList().size() - 1)) {
             if(match.getPlayer1Score() < match.getPlayer2Score()) {
                 winner = 1;
             } else if(match.getPlayer1Score() > match.getPlayer2Score()) {
@@ -158,7 +165,7 @@ public class MatchServiceHelper {
             }
             if(bacteria != 0 && bacteria != 5) {
                 for(Integer bacteriaToMove = 1; bacteriaToMove <= bacteria; bacteriaToMove++) {
-                    for(Integer target : petriDishAdjacencies.get(i)) {
+                    for(Integer target : getPetriDishAdjacencies().get(i)) {
                         if(player == 1) {
                             res = res || (boardState.get(target).getPlayer1Bacteria() != 5 &&
                                 boardState.get(target).getPlayer2Bacteria() != bacteriaToMove &&
