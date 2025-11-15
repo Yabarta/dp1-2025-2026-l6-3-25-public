@@ -35,8 +35,9 @@ const buttonStyle = {
   fontSize: '1rem',
 };
 
-export default function ModalWinner({ winner, onGoToMenu }) {
+export default function ModalWinner({ winner, currentUser, onGoToMenu }) {
   const navigate = useNavigate();
+  const isWinner = winner === currentUser;
 
   const handleGoToMenu = () => {
     if (onGoToMenu) {
@@ -53,8 +54,13 @@ export default function ModalWinner({ winner, onGoToMenu }) {
   return (
     <div style={modalOverlayStyle}>
       <div style={modalContentStyle}>
-        <h2>¡Partida Terminada!</h2>
-        <p>Ha ganado el jugador: <strong>{winner}</strong></p>
+        <h1>¡Partida Terminada!</h1>
+        <h2>{isWinner ? '¡Has Ganado!' : '¡Has Perdido!'}</h2>
+        <p>
+            {isWinner 
+                ? '¡Felicidades, has dominado el tablero!' 
+                : <>Ha ganado el jugador: <strong>{winner}</strong></>}
+        </p>
         <button style={buttonStyle} onClick={handleGoToMenu}>
           Volver al Menú Principal
         </button>

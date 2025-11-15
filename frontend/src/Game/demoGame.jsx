@@ -38,6 +38,16 @@ export default function Game({onBackToMenu}) {
           }
       }, [jwt])
 
+  useEffect(() => {
+    if (username) {
+      setGameState(prev => {
+        const players = Array.isArray(prev.players) ? [...prev.players] : [{ name: 'Jugador 1' }, { name: 'Jugador 2' }];
+        players[0] = { ...players[0], name: username };
+        return { ...prev, players };
+      });
+    }
+  }, [username]);
+
   //comprobar que timeLeft no sea 0
     useEffect(() => {
       if(timeLeft === 0){
@@ -269,7 +279,7 @@ export default function Game({onBackToMenu}) {
               onCancel={() => {setExitGame(null)}}>
       </ExitModal>
 
-      <ModalWinner winner={gameState.winner} onGoToMenu={handleBackToMenu} />
+      <ModalWinner winner={gameState.winner} currentUser={username} onGoToMenu={handleBackToMenu} />
 
       <div className="chatPanel">
         <div className="chatTitle">CHAT</div>
