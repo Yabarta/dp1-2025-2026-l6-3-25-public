@@ -26,7 +26,7 @@ export default function Game({onBackToMenu}) {
   const navigate = useNavigate();
 
     //contador
-  const TIEMPO_INICIAL = 10
+  const TIEMPO_INICIAL = 5
   const [timeLeft, setTimeLeft] = useState(TIEMPO_INICIAL)
   const [running, setRunning] = useState(true)
   const intervaloRef = useRef(null)
@@ -47,13 +47,6 @@ export default function Game({onBackToMenu}) {
       });
     }
   }, [username]);
-
-  //comprobar que timeLeft no sea 0
-    useEffect(() => {
-      if(timeLeft === 0){
-        handleTimeUp()
-      }
-    }, [timeLeft])
 
     // logica del contador
     useEffect(() => {
@@ -78,29 +71,12 @@ export default function Game({onBackToMenu}) {
     }, [running]);
   
     const handleTimeUp = (values) => {
-      /*
-      fetch('/api/v1/matches/' + gameState.id + '/endMatch',{
-        
-        method: gameState.id ? "PUT" : "POST",
-      headers: {
-        Authorization: `Bearer ${jwt}`,
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(gameState),
-    })
-      .then((response) => response.json())
-      .then((json) => {
-        if (json.message) {
-          setMessage(json.message);
-          setVisible(true);
-        } else window.location.href = "/users";
-      })
-      .catch((message) => alert(message));
-      */
-      alert("Falta que la partida tenga un id y se envie al backend")
+      if(gameState.players[0] === jwt_decode(jwt).sub && turnOrder[gameState.currentPhaseIndex] == "J1"){
+        setGameState(prev => ({ ...prev, winner: gameState.players[1].name }));
+      } else if (gameState.players[1] === jwt_decode(jwt).sub && turnOrder[gameState.currentPhaseIndex] == "J2"){
+        setGameState(prev => ({ ...prev, winner: gameState.players[0].name }));
+      }
     }
-
   // estilos por jugador (puedes cambiarlos aquí)
   const playerStyles = [
     { color: '#c42323', nameColor: '#c42323' }, // jugador 1: rojo
@@ -186,6 +162,8 @@ export default function Game({onBackToMenu}) {
   };
 
   const handleEndTurn = async () => {
+    setTimeLeft(TIEMPO_INICIAL)
+    setRunning(true)
     // If the match has an id, call the backend to compute nextTurn and updated scores.
     if (gameState.id && jwt) {
       try {
@@ -212,7 +190,6 @@ export default function Game({onBackToMenu}) {
               players: [p0, p1],
             };
           });
-
           setGameState((prev) => nextPhase(prev));
         } else {
           console.error('nextTurn failed', response.status);
@@ -253,8 +230,16 @@ export default function Game({onBackToMenu}) {
       } else if (gameState.players[1].score >= 9) {
         setGameState(prev => ({ ...prev, winner: gameState.players[0].name }));
       }
+      if(timeLeft === 0){
+        console.log(gameState.players[0].name, jwt_decode(jwt).sub, turnOrder[gameState.currentPhaseIndex])
+        if(gameState.players[0].name === jwt_decode(jwt).sub && turnOrder[gameState.currentPhaseIndex] == "J1"){
+          setGameState(prev => ({ ...prev, winner: gameState.players[1].name }));
+        } else if (gameState.players[1].name === jwt_decode(jwt).sub && turnOrder[gameState.currentPhaseIndex] == "J2"){
+          setGameState(prev => ({ ...prev, winner: gameState.players[0].name }));
+        }
+      }
     }
-  }, [gameState.players[0].score, gameState.players[1].score, gameState.winner]);
+  }, [gameState.players[0].score, gameState.players[1].score, gameState.winner, timeLeft]);
 
   const centerColumnStyle = {
     display: 'flex',
