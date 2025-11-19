@@ -10,30 +10,34 @@ import org.springframework.stereotype.Controller;
 
 import es.us.dp1.l6_3_24_25.Petris.match.model.Match;
 import es.us.dp1.l6_3_24_25.Petris.match.service.MatchService;
+import es.us.dp1.l6_3_24_25.Petris.match.service.WebSocketMatchService;
 
 @Controller
 public class WebSocketMatchController {
 
     private final MatchService matchService;
+    private final WebSocketMatchService webSocketMatchService;
 
-    public WebSocketMatchController(final MatchService matchService) {
+    public WebSocketMatchController(final MatchService matchService,
+                                    final WebSocketMatchService webSocketMatchService) {
         this.matchService = matchService;
+        this.webSocketMatchService = webSocketMatchService;
     }
 
     @MessageMapping("/lobbies/watch")
     public void watchLobby(@Payload @NonNull Integer matchId) {
         Match match = Objects.requireNonNull(matchService.getMatchById(matchId));
-        matchService.publishLobbySnapshot(match);
+        webSocketMatchService.publishLobbySnapshot(match);
     }
 
     @MessageMapping("/lobbies/list")
     public void watchLobbyList() {
-        matchService.publishLobbyList();
+        webSocketMatchService.publishLobbyList();
     }
 
     @MessageMapping("/matches/watch/{matchId}")
     public void watchMatch(@DestinationVariable @NonNull Integer matchId) {
         Match match = Objects.requireNonNull(matchService.getMatchById(matchId));
-        matchService.publishMatchSnapshot(match);
+        webSocketMatchService.publishMatchSnapshot(match);
     }
 }
