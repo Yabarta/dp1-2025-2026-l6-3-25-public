@@ -41,6 +41,16 @@ class MatchServiceTest {
     @Autowired
     MatchService matchService;
 
+    private MatchRepository matchRepository;
+
+    private SimpMessagingTemplate messagingTemplate;
+
+    private ObjectProvider<SimpMessagingTemplate> messagingTemplateProvider;
+
+    private MatchService behaviourService;
+
+    private MatchServiceHelper matchServiceHelper;
+
     @Test
     @DisplayName("Obtener todos las partidas")
     @Description("Método para obtener la lista de partidas")
@@ -107,17 +117,8 @@ class MatchServiceTest {
         assertNotNull(notStartedMatches, "List of not started matches can not be null");
     }
 
-
-
-    private MatchRepository matchRepository;
-
-    private SimpMessagingTemplate messagingTemplate;
-
-    private ObjectProvider<SimpMessagingTemplate> messagingTemplateProvider;
-
     private ObjectProvider<MatchServiceHelper> matchServiceHelperProvider;
 
-    private MatchService behaviourService;
 
     private WebSocketMatchService webSocketService;
 
@@ -126,6 +127,7 @@ class MatchServiceTest {
         matchRepository = mock(MatchRepository.class);
         messagingTemplate = mock(SimpMessagingTemplate.class);
         messagingTemplateProvider = mockMessagingTemplateProvider();
+        matchServiceHelper = mock(MatchServiceHelper.class);
         when(messagingTemplateProvider.getIfAvailable()).thenReturn(messagingTemplate);
         matchServiceHelperProvider = mockMatchServiceHelperProvider();
         when(matchServiceHelperProvider.getIfAvailable()).thenReturn(null);
@@ -259,13 +261,14 @@ class MatchServiceTest {
 
     @Test
     void toMatchDTO_includesBoardAndPlayers() {
+        Integer TURN = 7;
         Player player1 = buildPlayer(41, "alpha", true);
         Player player2 = buildPlayer(42, "beta", true);
         Match match = buildMatch(21, player1, player2);
         match.setPlayer1Score(3);
         match.setPlayer2Score(5);
-        match.setTurn(7);
-        match.setTurnType(TurnType.BINARY_FISSION);
+        match.setTurn(TURN);
+        match.setTurnType(matchServiceHelper.getTurnTypeList().get(TURN));
         List<PetriDish> board = new ArrayList<>();
         PetriDish dish0 = new PetriDish();
         dish0.setPlayer1Bacteria(2);
@@ -309,6 +312,7 @@ class MatchServiceTest {
     }
 
     private @NonNull Match buildMatch(int id, Player player1, Player player2) {
+        Integer TURN = 0;
         Match match = new Match();
         match.setId(id);
         match.setCreator(player1);
@@ -317,8 +321,8 @@ class MatchServiceTest {
         match.setBoardState(new ArrayList<>());
         match.setPlayer1Score(0);
         match.setPlayer2Score(0);
-        match.setTurn(0);
-        match.setTurnType(TurnType.P1_PROPAGATION);
+        match.setTurn(TURN);
+        match.setTurnType(matchServiceHelper.getTurnTypeList().get(TURN));
         return match;
     }
 

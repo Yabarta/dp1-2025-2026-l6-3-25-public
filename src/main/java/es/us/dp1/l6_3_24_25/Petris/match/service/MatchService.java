@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import org.springframework.beans.factory.ObjectProvider;
@@ -40,6 +41,7 @@ public class MatchService {
             this.matchServiceHelper = new MatchServiceHelper(null, new ArrayList<>(), 1);
         }
     }
+
 
     @Transactional(readOnly = true)
     public List<Match> getAllMatches(){
