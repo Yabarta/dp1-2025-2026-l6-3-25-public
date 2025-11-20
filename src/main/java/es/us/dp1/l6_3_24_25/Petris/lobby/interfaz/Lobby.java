@@ -1,4 +1,4 @@
-package es.us.l6.interfaz;
+package es.us.dp1.l6_3_24_25.Petris.lobby.interfaz;
 
 import java.util.ArrayList;
 import java.util.List;

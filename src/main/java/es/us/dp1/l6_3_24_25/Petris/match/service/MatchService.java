@@ -8,11 +8,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.lang.NonNull;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,16 +30,16 @@ public class MatchService {
     private static final int CODE_LENGTH = 4;
 
     private final MatchRepository matchRepository;
-    private final SimpMessagingTemplate messagingTemplate;
     private final SecureRandom secureRandom = new SecureRandom();
-
     private MatchServiceHelper matchServiceHelper;
 
     public MatchService(final MatchRepository matchRepository,
-                        final ObjectProvider<SimpMessagingTemplate> messagingTemplateProvider) {
+                        final ObjectProvider<MatchServiceHelper> helperProvider) {
         this.matchRepository = matchRepository;
-        this.messagingTemplate = messagingTemplateProvider.getIfAvailable();
-        this.matchServiceHelper = new MatchServiceHelper();
+        this.matchServiceHelper = helperProvider.getIfAvailable();
+        if (this.matchServiceHelper == null) {
+            this.matchServiceHelper = new MatchServiceHelper(null, new ArrayList<>(), 1);
+        }
     }
 
 
@@ -95,29 +92,18 @@ public class MatchService {
             initialBoardState.add(pd);
         }
         match.setBoardState(initialBoardState);
-        Match created = matchRepository.save(match);
-        publishLobbySnapshot(created);
-        publishLobbyList();
-        return created;
+        return matchRepository.save(match);
     }
 
     @Transactional
     public Match joinMatch(@NonNull Match match) {
-        Match updated = matchRepository.save(match);
-        publishLobbySnapshot(updated);
-        publishLobbyList();
-        publishMatchSnapshot(updated);
-        return updated;
+        return matchRepository.save(match);
     }
 
     @Transactional
     public Match startMatch(@NonNull Match match) {
         match.setStartedAt(LocalDateTime.now());
-        Match updated = matchRepository.save(match);
-        publishLobbySnapshot(updated);
-        publishLobbyList();
-        publishMatchSnapshot(updated);
-        return updated;
+        return matchRepository.save(match);
     }
 
     @Transactional
@@ -146,18 +132,13 @@ public class MatchService {
                 match.setCreator(match.getPlayer1());
             }
         } else if (match.getPlayer1() == null && match.getPlayer2() == null) {
-            Integer matchId = match.getId();
             matchRepository.delete(match);
-            publishLobbyList();
-            publishLobbyClosed(matchId);
             return Optional.empty();
         } else if (match.getCreator() == null) {
             match.setCreator(match.getPlayer1());
         }
 
         Match saved = matchRepository.save(match);
-        publishLobbySnapshot(saved);
-        publishLobbyList();
         return Optional.of(saved);
     }
 
@@ -200,9 +181,7 @@ public class MatchService {
             updatedMatch.setEndedAt(LocalDateTime.now());
             updatedMatch.setWinner(winner);
         }
-        Match saved = matchRepository.save(updatedMatch);
-        publishMatchSnapshot(saved);
-        return saved;
+        return matchRepository.save(updatedMatch);
     }
 
     private Match propagation(Match matchToUpdate, List<PetriDish> newBoardState, int player) throws IllegalArgumentException{
@@ -284,50 +263,12 @@ public class MatchService {
     @Transactional
     public Match forceEndMatch(@NonNull Match match) {
         match.setEndedAt(LocalDateTime.now());
-        Match saved = matchRepository.save(match);
-        publishMatchSnapshot(saved);
-        publishLobbyList();
-        return saved;
+        return matchRepository.save(match);
     }
 
     @Transactional
     public void delete(@NonNull Integer id){
         matchRepository.deleteById(id);
-        publishLobbyList();
-        publishLobbyClosed(id);
-    }
-
-    public void publishLobbyList() {
-        if (messagingTemplate == null) {
-            return;
-        }
-        List<LobbyDTO> lobbies = matchRepository.findByStartedAtNull().stream()
-            .map(this::toLobbyDTO)
-            .collect(Collectors.toList());
-        messagingTemplate.convertAndSend("/topic/lobbies", Objects.requireNonNull(lobbies));
-    }
-
-    public void publishLobbyClosed(Integer matchId) {
-        if (messagingTemplate == null) {
-            return;
-        }
-        messagingTemplate.convertAndSend("/topic/lobby/" + matchId, "LOBBY_CLOSED");
-    }
-
-    public void publishLobbySnapshot(Match match) {
-        if (messagingTemplate == null) {
-            return;
-        }
-        Match ensuredMatch = Objects.requireNonNull(match, "match");
-        messagingTemplate.convertAndSend("/topic/lobby/" + ensuredMatch.getId(), Objects.requireNonNull(toLobbyDTO(ensuredMatch)));
-    }
-
-    public void publishMatchSnapshot(Match match) {
-        if (messagingTemplate == null) {
-            return;
-        }
-        Match ensuredMatch = Objects.requireNonNull(match, "match");
-        messagingTemplate.convertAndSend("/topic/match/" + ensuredMatch.getId(), Objects.requireNonNull(toMatchDTO(ensuredMatch)));
     }
 
     public LobbyDTO toLobbyDTO(@NonNull Match match) {

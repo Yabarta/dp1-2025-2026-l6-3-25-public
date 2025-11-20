@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import es.us.dp1.l6_3_24_25.Petris.match.model.TurnType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,6 +23,7 @@ import es.us.dp1.l6_3_24_25.Petris.match.dto.LobbyDTO;
 import es.us.dp1.l6_3_24_25.Petris.match.dto.MatchDTO;
 import es.us.dp1.l6_3_24_25.Petris.match.model.Match;
 import es.us.dp1.l6_3_24_25.Petris.match.model.PetriDish;
+import es.us.dp1.l6_3_24_25.Petris.match.model.TurnType;
 import es.us.dp1.l6_3_24_25.Petris.match.repository.MatchRepository;
 import es.us.dp1.l6_3_24_25.Petris.player.model.Player;
 import es.us.dp1.l6_3_24_25.Petris.user.Authorities;
@@ -117,6 +117,9 @@ class MatchServiceTest {
         assertNotNull(notStartedMatches, "List of not started matches can not be null");
     }
 
+    private ObjectProvider<MatchServiceHelper> matchServiceHelperProvider;
+
+    private WebSocketMatchService webSocketService;
 
     @BeforeEach
     void setupMocks() {
@@ -124,53 +127,13 @@ class MatchServiceTest {
         messagingTemplate = mock(SimpMessagingTemplate.class);
         messagingTemplateProvider = mockMessagingTemplateProvider();
         matchServiceHelper = mock(MatchServiceHelper.class);
+        when(matchServiceHelper.getTurnTypeList()).thenReturn(new MatchServiceHelper().getTurnTypeList());
+
         when(messagingTemplateProvider.getIfAvailable()).thenReturn(messagingTemplate);
-        behaviourService = new MatchService(matchRepository, messagingTemplateProvider);
-        when(matchServiceHelper.getTurnTypeList()).thenReturn(List.of(
-            TurnType.P1_PROPAGATION,
-            TurnType.P2_PROPAGATION,
-            TurnType.BINARY_FISSION,
-            TurnType.P2_PROPAGATION,
-            TurnType.P1_PROPAGATION,
-            TurnType.BINARY_FISSION,
-            TurnType.P1_PROPAGATION,
-            TurnType.P2_PROPAGATION,
-            TurnType.BINARY_FISSION,
-            TurnType.CONTAMINATION,
-
-            TurnType.P2_PROPAGATION,
-            TurnType.P1_PROPAGATION,
-            TurnType.BINARY_FISSION,
-            TurnType.P1_PROPAGATION,
-            TurnType.P2_PROPAGATION,
-            TurnType.BINARY_FISSION,
-            TurnType.P2_PROPAGATION,
-            TurnType.P1_PROPAGATION,
-            TurnType.BINARY_FISSION,
-            TurnType.CONTAMINATION,
-
-            TurnType.P1_PROPAGATION,
-            TurnType.P2_PROPAGATION,
-            TurnType.BINARY_FISSION,
-            TurnType.P2_PROPAGATION,
-            TurnType.P1_PROPAGATION,
-            TurnType.BINARY_FISSION,
-            TurnType.P1_PROPAGATION,
-            TurnType.P2_PROPAGATION,
-            TurnType.BINARY_FISSION,
-            TurnType.CONTAMINATION,
-
-            TurnType.P2_PROPAGATION,
-            TurnType.P1_PROPAGATION,
-            TurnType.BINARY_FISSION,
-            TurnType.P1_PROPAGATION,
-            TurnType.P2_PROPAGATION,
-            TurnType.BINARY_FISSION,
-            TurnType.P2_PROPAGATION,
-            TurnType.P1_PROPAGATION,
-            TurnType.BINARY_FISSION,
-            TurnType.CONTAMINATION
-        ));
+        matchServiceHelperProvider = mockMatchServiceHelperProvider();
+        when(matchServiceHelperProvider.getIfAvailable()).thenReturn(null);
+        behaviourService = new MatchService(matchRepository, matchServiceHelperProvider);
+        webSocketService = new WebSocketMatchService(messagingTemplateProvider, matchRepository, behaviourService);
     }
 
     @SuppressWarnings("unchecked")
@@ -178,42 +141,21 @@ class MatchServiceTest {
         return (ObjectProvider<SimpMessagingTemplate>) mock(ObjectProvider.class);
     }
 
+    @SuppressWarnings("unchecked")
+    private ObjectProvider<MatchServiceHelper> mockMatchServiceHelperProvider() {
+        return (ObjectProvider<MatchServiceHelper>) mock(ObjectProvider.class);
+    }
+
     @Test
-    void startMatch_setsTimestampAndPublishesNotifications() {
+    void startMatch_setsTimestampAndPersistsWithoutMessaging() {
         Match match = buildMatch(5, buildPlayer(10, "creator", true), buildPlayer(20, "guest", true));
-        when(matchRepository.findByStartedAtNull()).thenReturn(List.of(match));
         stubSaveReturnsArgument();
 
         Match result = behaviourService.startMatch(match);
 
         assertNotNull(result.getStartedAt(), "startMatch should stamp the start time");
         verify(matchRepository).save(match);
-
-        LobbyDTO expectedLobby = ensureNonNull(behaviourService.toLobbyDTO(match));
-        MatchDTO expectedMatch = ensureNonNull(behaviourService.toMatchDTO(match));
-        List<LobbyDTO> expectedLobbyList = List.of(expectedLobby);
-
-        List<org.mockito.invocation.Invocation> sends = mockingDetails(messagingTemplate)
-            .getInvocations()
-            .stream()
-            .filter(invocation -> invocation.getMethod().getName().equals("convertAndSend"))
-            .toList();
-
-        assertEquals(3, sends.size(), "startMatch should publish three messages");
-        List<String> destinations = sends.stream()
-            .map(invocation -> invocation.getArgument(0, String.class))
-            .toList();
-        assertEquals(List.of("/topic/lobby/5", "/topic/lobbies", "/topic/match/5"), destinations);
-
-        LobbyDTO lobbyPayload = assertInstanceOf(LobbyDTO.class, sends.get(0).getArgument(1));
-        assertEquals(expectedLobby, lobbyPayload);
-
-        @SuppressWarnings("unchecked")
-        List<LobbyDTO> lobbyListPayload = assertInstanceOf(List.class, sends.get(1).getArgument(1));
-        assertEquals(expectedLobbyList, lobbyListPayload);
-
-        MatchDTO matchPayload = assertInstanceOf(MatchDTO.class, sends.get(2).getArgument(1));
-        assertEquals(expectedMatch, matchPayload);
+        verifyNoInteractions(messagingTemplate);
     }
 
     @Test
@@ -232,28 +174,7 @@ class MatchServiceTest {
         assertNull(updated.getPlayer2(), "Lobby should have a single participant after promotion");
         assertSame(second, updated.getCreator(), "Creator should transfer to the remaining player");
         verify(matchRepository).save(match);
-
-        LobbyDTO expectedLobby = ensureNonNull(behaviourService.toLobbyDTO(match));
-        List<LobbyDTO> expectedLobbyList = List.of(expectedLobby);
-
-        List<org.mockito.invocation.Invocation> sends = mockingDetails(messagingTemplate)
-            .getInvocations()
-            .stream()
-            .filter(invocation -> invocation.getMethod().getName().equals("convertAndSend"))
-            .toList();
-
-        assertEquals(2, sends.size(), "leaveMatch should publish two messages when lobby remains");
-        List<String> destinations = sends.stream()
-            .map(invocation -> invocation.getArgument(0, String.class))
-            .toList();
-        assertEquals(List.of("/topic/lobby/9", "/topic/lobbies"), destinations);
-
-        LobbyDTO lobbyPayload = assertInstanceOf(LobbyDTO.class, sends.get(0).getArgument(1));
-        assertEquals(expectedLobby, lobbyPayload);
-
-        @SuppressWarnings("unchecked")
-        List<LobbyDTO> lobbyListPayload = assertInstanceOf(List.class, sends.get(1).getArgument(1));
-        assertEquals(expectedLobbyList, lobbyListPayload);
+        verifyNoInteractions(messagingTemplate);
     }
 
     @Test
@@ -266,17 +187,62 @@ class MatchServiceTest {
 
         assertTrue(optional.isEmpty(), "Lobby should be deleted when the last player leaves");
         verify(matchRepository).delete(match);
-        List<org.mockito.invocation.Invocation> sends = mockingDetails(messagingTemplate)
-            .getInvocations()
-            .stream()
-            .filter(invocation -> invocation.getMethod().getName().equals("convertAndSend"))
-            .toList();
+        verifyNoInteractions(messagingTemplate);
+    }
 
-        assertEquals(2, sends.size(), "leaveMatch should publish closure and list refresh");
+    @Test
+    void broadcastLobbyAndMatchState_publishesLobbySnapshotListAndMatchSnapshot() {
+        Player creator = buildPlayer(44, "creator", true);
+        Player guest = buildPlayer(55, "guest", true);
+        Match match = buildMatch(18, creator, guest);
+        match.setBoardState(List.of(new PetriDish()));
+        LobbyDTO expectedLobby = ensureNonNull(behaviourService.toLobbyDTO(match));
+        MatchDTO expectedMatch = ensureNonNull(behaviourService.toMatchDTO(match));
+        List<LobbyDTO> expectedLobbyList = List.of(expectedLobby);
+        when(matchRepository.findByStartedAtNull()).thenReturn(List.of(match));
+
+        webSocketService.broadcastLobbyAndMatchState(match);
+
+        List<org.mockito.invocation.Invocation> sends = mockingDetails(messagingTemplate)
+                .getInvocations()
+                .stream()
+                .filter(invocation -> invocation.getMethod().getName().equals("convertAndSend"))
+                .toList();
+
+        assertEquals(3, sends.size(), "broadcastLobbyAndMatchState should publish three messages");
         List<String> destinations = sends.stream()
-            .map(invocation -> invocation.getArgument(0, String.class))
-            .toList();
-        assertEquals(List.of("/topic/lobbies", "/topic/lobby/15"), destinations);
+                .map(invocation -> invocation.getArgument(0, String.class))
+                .toList();
+        assertEquals(List.of("/topic/lobby/18", "/topic/lobbies", "/topic/match/18"), destinations);
+
+        LobbyDTO lobbyPayload = assertInstanceOf(LobbyDTO.class, sends.get(0).getArgument(1));
+        assertEquals(expectedLobby, lobbyPayload);
+
+        @SuppressWarnings("unchecked")
+        List<LobbyDTO> lobbyListPayload = assertInstanceOf(List.class, sends.get(1).getArgument(1));
+        assertEquals(expectedLobbyList, lobbyListPayload);
+
+        MatchDTO matchPayload = assertInstanceOf(MatchDTO.class, sends.get(2).getArgument(1));
+        assertEquals(expectedMatch, matchPayload);
+    }
+
+    @Test
+    void broadcastLobbyClosed_publishesListRefreshAndClosure() {
+        when(matchRepository.findByStartedAtNull()).thenReturn(List.of());
+
+        webSocketService.broadcastLobbyClosed(27);
+
+        List<org.mockito.invocation.Invocation> sends = mockingDetails(messagingTemplate)
+                .getInvocations()
+                .stream()
+                .filter(invocation -> invocation.getMethod().getName().equals("convertAndSend"))
+                .toList();
+
+        assertEquals(2, sends.size(), "broadcastLobbyClosed should publish list refresh and closure");
+        List<String> destinations = sends.stream()
+                .map(invocation -> invocation.getArgument(0, String.class))
+                .toList();
+        assertEquals(List.of("/topic/lobbies", "/topic/lobby/27"), destinations);
 
         @SuppressWarnings("unchecked")
         List<LobbyDTO> lobbyListPayload = assertInstanceOf(List.class, sends.get(0).getArgument(1));
@@ -296,13 +262,14 @@ class MatchServiceTest {
 
     @Test
     void toMatchDTO_includesBoardAndPlayers() {
+        Integer TURN = 7;
         Player player1 = buildPlayer(41, "alpha", true);
         Player player2 = buildPlayer(42, "beta", true);
         Match match = buildMatch(21, player1, player2);
         match.setPlayer1Score(3);
         match.setPlayer2Score(5);
-        match.setTurn(7);
-        match.setTurnType(matchServiceHelper.getTurnTypeList().get(7));
+        match.setTurn(TURN);
+        match.setTurnType(matchServiceHelper.getTurnTypeList().get(TURN));
         List<PetriDish> board = new ArrayList<>();
         PetriDish dish0 = new PetriDish();
         dish0.setPlayer1Bacteria(2);
@@ -346,6 +313,7 @@ class MatchServiceTest {
     }
 
     private @NonNull Match buildMatch(int id, Player player1, Player player2) {
+        Integer TURN = 0;
         Match match = new Match();
         match.setId(id);
         match.setCreator(player1);
@@ -354,8 +322,8 @@ class MatchServiceTest {
         match.setBoardState(new ArrayList<>());
         match.setPlayer1Score(0);
         match.setPlayer2Score(0);
-        match.setTurn(0);
-        match.setTurnType(matchServiceHelper.getTurnTypeList().get(0));
+        match.setTurn(TURN);
+        match.setTurnType(matchServiceHelper.getTurnTypeList().get(TURN));
         return match;
     }
 
@@ -380,7 +348,8 @@ class MatchServiceTest {
 
     @SuppressWarnings("null")
     private void stubSaveReturnsArgument() {
-        when(matchRepository.save(any(Match.class))).thenAnswer(invocation -> ensureNonNull(invocation.getArgument(0, Match.class)));
+        when(matchRepository.save(any(Match.class)))
+                .thenAnswer(invocation -> ensureNonNull(invocation.getArgument(0, Match.class)));
     }
 
     private <T> T ensureNonNull(T value) {

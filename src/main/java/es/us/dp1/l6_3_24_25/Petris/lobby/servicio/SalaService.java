@@ -1,4 +1,4 @@
-package es.us.l6.servicio;
+package es.us.dp1.l6_3_24_25.Petris.lobby.servicio;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.stereotype.Service;
 
-import es.us.l6.interfaz.Lobby;
+import es.us.dp1.l6_3_24_25.Petris.lobby.interfaz.Lobby;
 
 @Service
 public class SalaService {
