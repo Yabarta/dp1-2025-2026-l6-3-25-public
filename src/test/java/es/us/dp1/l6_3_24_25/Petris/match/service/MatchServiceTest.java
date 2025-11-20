@@ -119,7 +119,6 @@ class MatchServiceTest {
 
     private ObjectProvider<MatchServiceHelper> matchServiceHelperProvider;
 
-
     private WebSocketMatchService webSocketService;
 
     @BeforeEach
@@ -128,6 +127,8 @@ class MatchServiceTest {
         messagingTemplate = mock(SimpMessagingTemplate.class);
         messagingTemplateProvider = mockMessagingTemplateProvider();
         matchServiceHelper = mock(MatchServiceHelper.class);
+        when(matchServiceHelper.getTurnTypeList()).thenReturn(new MatchServiceHelper().getTurnTypeList());
+
         when(messagingTemplateProvider.getIfAvailable()).thenReturn(messagingTemplate);
         matchServiceHelperProvider = mockMatchServiceHelperProvider();
         when(matchServiceHelperProvider.getIfAvailable()).thenReturn(null);
@@ -203,15 +204,15 @@ class MatchServiceTest {
         webSocketService.broadcastLobbyAndMatchState(match);
 
         List<org.mockito.invocation.Invocation> sends = mockingDetails(messagingTemplate)
-            .getInvocations()
-            .stream()
-            .filter(invocation -> invocation.getMethod().getName().equals("convertAndSend"))
-            .toList();
+                .getInvocations()
+                .stream()
+                .filter(invocation -> invocation.getMethod().getName().equals("convertAndSend"))
+                .toList();
 
         assertEquals(3, sends.size(), "broadcastLobbyAndMatchState should publish three messages");
         List<String> destinations = sends.stream()
-            .map(invocation -> invocation.getArgument(0, String.class))
-            .toList();
+                .map(invocation -> invocation.getArgument(0, String.class))
+                .toList();
         assertEquals(List.of("/topic/lobby/18", "/topic/lobbies", "/topic/match/18"), destinations);
 
         LobbyDTO lobbyPayload = assertInstanceOf(LobbyDTO.class, sends.get(0).getArgument(1));
@@ -232,15 +233,15 @@ class MatchServiceTest {
         webSocketService.broadcastLobbyClosed(27);
 
         List<org.mockito.invocation.Invocation> sends = mockingDetails(messagingTemplate)
-            .getInvocations()
-            .stream()
-            .filter(invocation -> invocation.getMethod().getName().equals("convertAndSend"))
-            .toList();
+                .getInvocations()
+                .stream()
+                .filter(invocation -> invocation.getMethod().getName().equals("convertAndSend"))
+                .toList();
 
         assertEquals(2, sends.size(), "broadcastLobbyClosed should publish list refresh and closure");
         List<String> destinations = sends.stream()
-            .map(invocation -> invocation.getArgument(0, String.class))
-            .toList();
+                .map(invocation -> invocation.getArgument(0, String.class))
+                .toList();
         assertEquals(List.of("/topic/lobbies", "/topic/lobby/27"), destinations);
 
         @SuppressWarnings("unchecked")
@@ -347,7 +348,8 @@ class MatchServiceTest {
 
     @SuppressWarnings("null")
     private void stubSaveReturnsArgument() {
-        when(matchRepository.save(any(Match.class))).thenAnswer(invocation -> ensureNonNull(invocation.getArgument(0, Match.class)));
+        when(matchRepository.save(any(Match.class)))
+                .thenAnswer(invocation -> ensureNonNull(invocation.getArgument(0, Match.class)));
     }
 
     private <T> T ensureNonNull(T value) {
