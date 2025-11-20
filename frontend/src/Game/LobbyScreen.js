@@ -212,7 +212,7 @@ export default function LobbyScreen() {
                         >
                             Abandonar sala
                         </button>
-                        {lobby.players.length === 2 && (
+                        {canStart && (
                             <button
                                 type="button"
                                 className="lobby-button lobby-button--highlight"
