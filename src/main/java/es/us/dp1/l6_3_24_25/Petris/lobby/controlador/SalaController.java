@@ -1,4 +1,4 @@
-package es.us.l6.controlador;
+package es.us.dp1.l6_3_24_25.Petris.lobby.controlador;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import es.us.l6.interfaz.Lobby;
-import es.us.l6.servicio.SalaService;
+import es.us.dp1.l6_3_24_25.Petris.lobby.interfaz.Lobby;
+import es.us.dp1.l6_3_24_25.Petris.lobby.servicio.SalaService;
 
 @RestController
 public class SalaController {

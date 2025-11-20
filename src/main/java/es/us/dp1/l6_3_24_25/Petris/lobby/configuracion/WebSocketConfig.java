@@ -1,4 +1,4 @@
-package es.us.l6.configuracion;
+package es.us.dp1.l6_3_24_25.Petris.lobby.configuracion;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
