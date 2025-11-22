@@ -26,6 +26,9 @@ import es.us.dp1.l6_3_24_25.Petris.player.model.Player;
 
 @Service
 public class MatchService {
+    private static final int NUM_PETRI_DISHES = 7;
+    private static final int MAX_BACTERIA_PER_PETRI_DISH = 5;
+    private static final int MAX_MOVABLE_BACTERIA = 4;
     private static final String CODE_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     private static final int CODE_LENGTH = 4;
 
@@ -144,17 +147,28 @@ public class MatchService {
 
     @Transactional
     public Match nextTurn(@NonNull Match matchToUpdate, Optional<List<PetriDish>> newBoardState) throws IllegalArgumentException {
+        List<TurnType> turnSequence = matchServiceHelper.getTurnTypeList();
+        Integer currentTurn = matchToUpdate.getTurn();
+        if (currentTurn == null) {
+            currentTurn = 0;
+            matchToUpdate.setTurn(currentTurn);
+        }
+        if (currentTurn >= turnSequence.size()) {
+            throw new IllegalStateException("No remaining turns to process");
+        }
+
         Match updatedMatch = null;
-        switch(matchToUpdate.getTurnType()) {
+        TurnType currentTurnType = matchToUpdate.getTurnType();
+        switch (currentTurnType) {
             case TurnType.P1_PROPAGATION:
-                if(newBoardState.isPresent()) {
+                if (newBoardState.isPresent()) {
                     updatedMatch = propagation(matchToUpdate, newBoardState.get(), 1);
                 } else {
                     throw new IllegalArgumentException("New board state not provided");
                 }
                 break;
             case TurnType.P2_PROPAGATION:
-                if(newBoardState.isPresent()) {
+                if (newBoardState.isPresent()) {
                     updatedMatch = propagation(matchToUpdate, newBoardState.get(), 2);
                 } else {
                     throw new IllegalArgumentException("New board state not provided");
@@ -165,19 +179,21 @@ public class MatchService {
                 break;
             case TurnType.CONTAMINATION:
                 updatedMatch = matchServiceHelper.contamination(matchToUpdate);
+                break;
+            default:
+                throw new IllegalStateException("Unsupported turn type: " + currentTurnType);
         }
 
-        if (updatedMatch == null) {
-            throw new IllegalStateException("Unsupported turn type: " + matchToUpdate.getTurnType());
+        int nextTurnIndex = currentTurn + 1;
+        updatedMatch.setTurn(nextTurnIndex);
+        if (nextTurnIndex < turnSequence.size()) {
+            updatedMatch.setTurnType(turnSequence.get(nextTurnIndex));
+        } else {
+            updatedMatch.setTurnType(null);
         }
-
-        Integer turn = matchToUpdate.getTurn() + 1;
-
-        updatedMatch.setTurn(turn);
-        updatedMatch.setTurnType(matchServiceHelper.getTurnTypeList().get(turn));
 
         Integer winner = matchServiceHelper.getWinner(updatedMatch);
-        if(matchServiceHelper.getWinner(updatedMatch) != null) {
+        if (winner != null) {
             updatedMatch.setEndedAt(LocalDateTime.now());
             updatedMatch.setWinner(winner);
         }
@@ -197,64 +213,100 @@ public class MatchService {
     @Transactional(readOnly = true)
     public List<String> getPropagationErrors(List<PetriDish> currentBoardState, List<PetriDish> newBoardState, int player) {
         List<String> errors = new ArrayList<>();
+        if (currentBoardState == null || newBoardState == null) {
+            errors.add("Board state is missing");
+            return errors;
+        }
+        if (currentBoardState.size() != NUM_PETRI_DISHES || newBoardState.size() != NUM_PETRI_DISHES) {
+            errors.add("Board state must contain exactly " + NUM_PETRI_DISHES + " dishes");
+            return errors;
+        }
 
         Set<Integer> movedBacteriaTo = new HashSet<>();
         Integer movedBacteriaFrom = null;
-        Integer movedInBacteriaNum = 0;
+        int movedInBacteriaNum = 0;
         int movedOutBacteriaNum = 0;
-        for(int i = 0; i < 7; i++) {
+
+        for (int i = 0; i < NUM_PETRI_DISHES; i++) {
             PetriDish currentPd = currentBoardState.get(i);
             PetriDish newPd = newBoardState.get(i);
-
-            if(currentPd.getPlayer2Bacteria() != 0 && newPd.getPlayer1Bacteria().equals(currentPd.getPlayer2Bacteria())) {
-                errors.add("Players can't have the same amount of bacteria on the same dish as another: " + "{" + i + "}");
+            if (currentPd == null || newPd == null) {
+                errors.add("Invalid dish data at index: {" + i + "}");
+                continue;
             }
 
-            int diffP1 = newPd.getPlayer1Bacteria() - currentPd.getPlayer1Bacteria();
-            if(diffP1 != 0 && player != 1) {
-                errors.add("Players can only move their own bacteria: " + "{" + i + "}");
+            int currentP1 = normalizeCount(currentPd.getPlayer1Bacteria());
+            int currentP2 = normalizeCount(currentPd.getPlayer2Bacteria());
+            int newP1 = normalizeCount(newPd.getPlayer1Bacteria());
+            int newP2 = normalizeCount(newPd.getPlayer2Bacteria());
+
+            if (!isValidCount(newP1) || !isValidCount(newP2)) {
+                errors.add("Bacteria count must stay between 0 and " + MAX_BACTERIA_PER_PETRI_DISH + ": {" + i + "}");
             }
-            if(diffP1 < 0){
-                if(movedBacteriaFrom != null) {
-                    errors.add("Players can't move bacteria from more than one petri dish: " + "{" + i + "}");
+
+            if (currentP2 > 0 && newP1 == currentP2) {
+                errors.add("Players can't have the same amount of bacteria on the same dish as another: {" + i + "}");
+            }
+            if (currentP1 > 0 && newP2 == currentP1) {
+                errors.add("Players can't have the same amount of bacteria on the same dish as another: {" + i + "}");
+            }
+
+            if (player == 1 && newP2 != currentP2) {
+                errors.add("Player 1 can't modify Player 2 bacteria: {" + i + "}");
+            }
+            if (player == 2 && newP1 != currentP1) {
+                errors.add("Player 2 can't modify Player 1 bacteria: {" + i + "}");
+            }
+
+            int diffForPlayer = player == 1 ? newP1 - currentP1 : newP2 - currentP2;
+            int opponentCount = player == 1 ? currentP2 : currentP1;
+
+            if (diffForPlayer < 0) {
+                int availableAtSource = player == 1 ? currentP1 : currentP2;
+                if ((player == 1 && currentP1 == MAX_BACTERIA_PER_PETRI_DISH) || (player == 2 && currentP2 == MAX_BACTERIA_PER_PETRI_DISH)) {
+                    errors.add("Sarcinas can't be moved: {" + i + "}");
                 }
-                if(currentPd.getPlayer1Bacteria() == 5) {
-                    errors.add("Sarcinas can't be moved: " + "{" + i + "}");
+                if (movedBacteriaFrom != null && !movedBacteriaFrom.equals(i)) {
+                    errors.add("Players can't move bacteria from more than one petri dish: {" + i + "}");
                 }
                 movedBacteriaFrom = i;
-                movedOutBacteriaNum = -diffP1;
-            } else if(diffP1 > 0) {
-                movedBacteriaTo.add(i);
-                movedInBacteriaNum += diffP1;
-            }
-
-            int diffP2 = newPd.getPlayer2Bacteria() - currentPd.getPlayer2Bacteria();
-            if(diffP2 != 0 && player != 2) {
-                errors.add("Players can only move their bacteria: " + "{" + i + "}");
-            }
-            if(diffP2 < 0){
-                if(movedBacteriaFrom != null) {
-                    errors.add("Players can't move bacteria from more than one petri dish: " + "{" + i + "}");
+                int amountMoved = Math.abs(diffForPlayer);
+                movedOutBacteriaNum += amountMoved;
+                if (amountMoved > availableAtSource) {
+                    errors.add("Players can't move more bacteria than available on the origin dish: {" + i + "}");
                 }
-                if(currentPd.getPlayer2Bacteria() == 5) {
-                    errors.add("Sarcinas can't be moved: " + "{" + i + "}");
+                if (amountMoved > MAX_MOVABLE_BACTERIA) {
+                    errors.add("Players can't move more than " + MAX_MOVABLE_BACTERIA + " bacteria per turn: {" + i + "}");
                 }
-                movedBacteriaFrom = i;
-                movedOutBacteriaNum = -diffP2;
-            } else if(diffP2 > 0) {
+                if (opponentCount > 0 && availableAtSource - amountMoved == opponentCount) {
+                    errors.add("Players can't leave the same amount of bacteria as the opponent on the origin dish: {" + i + "}");
+                }
+            } else if (diffForPlayer > 0) {
                 movedBacteriaTo.add(i);
-                movedInBacteriaNum += diffP2;
+                movedInBacteriaNum += diffForPlayer;
+                if (player == 1 && newP1 > MAX_BACTERIA_PER_PETRI_DISH || player == 2 && newP2 > MAX_BACTERIA_PER_PETRI_DISH) {
+                    errors.add("Players can't exceed the maximum number of bacteria per dish: {" + i + "}");
+                }
+                if (opponentCount > 0 && opponentCount == diffForPlayer) {
+                    errors.add("Players can't move the same amount of bacteria as the opponent has on the target dish: {" + i + "}");
+                }
             }
         }
 
-        if(movedBacteriaFrom == null) {
-            errors.add("Players must move at least one bacteria: " + "{atLeastOne}");
+        if (movedBacteriaFrom == null) {
+            errors.add("Players must move at least one bacteria: {atLeastOne}");
         }
-        if(!movedInBacteriaNum.equals(movedOutBacteriaNum)) {
-            errors.add("Inconsistency in the number of bacteria that moved: " + "{inconsistency}");
+        if (movedOutBacteriaNum != movedInBacteriaNum) {
+            errors.add("Inconsistency in the number of bacteria that moved: {inconsistency}");
         }
-        if(!matchServiceHelper.getPetriDishAdjacencies().get(movedBacteriaFrom).containsAll(movedBacteriaTo)) {
-            errors.add("Players can only move bacteria to adyacent dishes: " + "{adyacency}");
+        if (movedOutBacteriaNum > MAX_MOVABLE_BACTERIA) {
+            errors.add("Players can't move more than " + MAX_MOVABLE_BACTERIA + " bacteria per turn: {tooMany}");
+        }
+        if (movedBacteriaFrom != null) {
+            Set<Integer> allowedTargets = matchServiceHelper.getPetriDishAdjacencies().get(movedBacteriaFrom);
+            if (allowedTargets == null || !allowedTargets.containsAll(movedBacteriaTo)) {
+                errors.add("Players can only move bacteria to adyacent dishes: {adyacency}");
+            }
         }
 
         return errors;
@@ -342,5 +394,13 @@ public class MatchService {
         dto.setNickname(player.getNickname());
         dto.setUsername(player.getUser() != null ? player.getUser().getUsername() : null);
         return dto;
+    }
+
+    private static int normalizeCount(Integer value) {
+        return value == null ? 0 : value;
+    }
+
+    private static boolean isValidCount(int value) {
+        return value >= 0 && value <= MAX_BACTERIA_PER_PETRI_DISH;
     }
 }
