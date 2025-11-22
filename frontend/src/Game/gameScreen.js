@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import '../static/css/game/gameScreen.css';
-import ExitModal from '../components/modal/ExitModal';
+import ExitGameModal from '../components/modal/ExitGameModal';
 import useWebSocket from '../hooks/useWebSocket';
 import api from '../services/api';
 import tokenService from '../services/token.service';
@@ -842,7 +842,7 @@ function useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, currentTurnI
 
   return (
     <div className="gameScreenContainer">
-      <ExitModal
+      <ExitGameModal
         text="¿Seguro que quieres abandonar la partida?"
         isVisible={exitGame}
         onConfirm={handleExit}
