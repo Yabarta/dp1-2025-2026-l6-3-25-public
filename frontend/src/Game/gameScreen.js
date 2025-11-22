@@ -13,14 +13,33 @@ function ScoreBar({ score = 0, color = '#888' }) {
   const clamped = Math.max(0, Math.min(max, Number(score) || 0));
   const fillPercent = (clamped / max) * 100;
   const numbers = Array.from({ length: max + 1 }, (_, i) => max - i);
+  const getBarHeight = () => {
+    if (typeof window === 'undefined') {
+      return 330;
+    }
+    return Math.max(240, Math.min(340, window.innerHeight * 0.42));
+  };
+  const [barHeight, setBarHeight] = useState(getBarHeight);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return () => {};
+    }
+    const handleResize = () => {
+      setBarHeight(getBarHeight());
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 12, paddingTop: 12 }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 10, paddingTop: 8 }}>
       <div
         style={{
           position: 'relative',
-          width: 56,
-          height: 360,
+          width: 52,
+          height: '30rem',
           border: '2px solid #000',
           boxSizing: 'border-box',
           background: '#fff',
@@ -61,7 +80,7 @@ function ScoreBar({ score = 0, color = '#888' }) {
               key={`label-${n}`}
               style={{
                 position: 'absolute',
-                right: -44,
+                right: -38,
                 top: `${percent}%`,
                 transform: 'translateY(-50%)',
                 fontSize: 14,
@@ -88,6 +107,62 @@ const PETRI_ADJACENCIES = {
   6: [3, 4, 5],
 };
 
+const TURN_SEQUENCE = [
+  'P1_PROPAGATION',
+  'P2_PROPAGATION',
+  'BINARY_FISSION',
+  'P2_PROPAGATION',
+  'P1_PROPAGATION',
+  'BINARY_FISSION',
+  'P1_PROPAGATION',
+  'P2_PROPAGATION',
+  'BINARY_FISSION',
+  'CONTAMINATION',
+  'P2_PROPAGATION',
+  'P1_PROPAGATION',
+  'BINARY_FISSION',
+  'P1_PROPAGATION',
+  'P2_PROPAGATION',
+  'BINARY_FISSION',
+  'P2_PROPAGATION',
+  'P1_PROPAGATION',
+  'BINARY_FISSION',
+  'CONTAMINATION',
+  'P1_PROPAGATION',
+  'P2_PROPAGATION',
+  'BINARY_FISSION',
+  'P2_PROPAGATION',
+  'P1_PROPAGATION',
+  'BINARY_FISSION',
+  'P1_PROPAGATION',
+  'P2_PROPAGATION',
+  'BINARY_FISSION',
+  'CONTAMINATION',
+  'P2_PROPAGATION',
+  'P1_PROPAGATION',
+  'BINARY_FISSION',
+  'P1_PROPAGATION',
+  'P2_PROPAGATION',
+  'BINARY_FISSION',
+  'P2_PROPAGATION',
+  'P1_PROPAGATION',
+  'BINARY_FISSION',
+  'CONTAMINATION',
+];
+
+const ROUND_SIZE = 10;
+const TURN_ROUNDS = Array.from({ length: Math.ceil(TURN_SEQUENCE.length / ROUND_SIZE) }, (_, roundIndex) =>
+  TURN_SEQUENCE.slice(roundIndex * ROUND_SIZE, (roundIndex + 1) * ROUND_SIZE),
+);
+
+const TURN_PHASE_META = {
+  P1_PROPAGATION: { label: 'P1', description: 'Propagación jugador 1', className: 'turnPhase--p1' },
+  P2_PROPAGATION: { label: 'P2', description: 'Propagación jugador 2', className: 'turnPhase--p2' },
+  BINARY_FISSION: { label: 'F', description: 'Fisión binaria', className: 'turnPhase--binary' },
+  CONTAMINATION: { label: 'C', description: 'Contaminación', className: 'turnPhase--contamination' },
+};
+
+
 export default function GameScreen() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -104,9 +179,13 @@ export default function GameScreen() {
   const [boardFeedback, setBoardFeedback] = useState(null);
   const [currentUser] = useState(() => tokenService.getUser());
   const [lastMove, setLastMove] = useState({ source: null, target: null });
+  const [turnTrackOffset, setTurnTrackOffset] = useState(0);
   const timerRef = useRef(null);
   const lastTurnRef = useRef(null);
   const previousBoardRef = useRef([]);
+  const turnTrackRef = useRef(null);
+  const previousRoundRef = useRef(null);
+  const previousPhaseIndexRef = useRef(null);
 
   const matchUpdate = useWebSocket(`/app/matches/watch/${id}`, `/topic/match/${id}`);
 
@@ -265,6 +344,73 @@ export default function GameScreen() {
     });
   }, [editedBoard, match]);
   const isMyTurn = Boolean(match && !matchEnded && (isPropagationTurn ? isMyPropagationTurn : iAmParticipant));
+  const currentTurnIndex = match?.turn ?? -1;
+  const currentPhaseMeta = match?.turnType ? TURN_PHASE_META[match.turnType] : null;
+  const activeRoundIndex = currentTurnIndex >= 0
+    ? Math.min(Math.floor(currentTurnIndex / ROUND_SIZE), TURN_ROUNDS.length - 1)
+    : 0;
+  const activeRoundPhases = TURN_ROUNDS[activeRoundIndex] ?? TURN_ROUNDS[0];
+  const currentPhaseIndexInRound = currentTurnIndex >= 0
+    ? currentTurnIndex - activeRoundIndex * ROUND_SIZE
+    : 0;
+
+  useEffect(() => {
+    const trackElement = turnTrackRef.current;
+    if (!trackElement) {
+      previousRoundRef.current = activeRoundIndex;
+      previousPhaseIndexRef.current = currentPhaseIndexInRound;
+      setTurnTrackOffset(0);
+      return;
+    }
+
+    const phaseNodes = trackElement.querySelectorAll('.turnPhaseItem');
+    if (!phaseNodes.length) {
+      previousRoundRef.current = activeRoundIndex;
+      previousPhaseIndexRef.current = currentPhaseIndexInRound;
+      setTurnTrackOffset(0);
+      return;
+    }
+
+    const safeIndex = Math.min(Math.max(currentPhaseIndexInRound, 0), phaseNodes.length - 1);
+    const roundChanged = previousRoundRef.current !== null && previousRoundRef.current !== activeRoundIndex;
+    const waitingForTurn = currentTurnIndex < 0;
+
+    if (roundChanged || waitingForTurn) {
+      previousRoundRef.current = activeRoundIndex;
+      previousPhaseIndexRef.current = safeIndex;
+      setTurnTrackOffset(0);
+      return;
+    }
+
+    if (previousPhaseIndexRef.current === null) {
+      previousPhaseIndexRef.current = safeIndex;
+      previousRoundRef.current = activeRoundIndex;
+      setTurnTrackOffset(0);
+      return;
+    }
+
+    const previousIndex = previousPhaseIndexRef.current;
+    previousRoundRef.current = activeRoundIndex;
+
+    if (previousIndex === safeIndex) {
+      return;
+    }
+
+    const currentNode = phaseNodes[safeIndex];
+    const previousNode = phaseNodes[previousIndex];
+    previousPhaseIndexRef.current = safeIndex;
+
+    if (!currentNode || !previousNode) {
+      return;
+    }
+
+    const delta = currentNode.offsetTop - previousNode.offsetTop;
+    if (!Number.isFinite(delta) || delta === 0) {
+      return;
+    }
+
+    setTurnTrackOffset((prevOffset) => prevOffset - delta);
+  }, [activeRoundIndex, currentPhaseIndexInRound, currentTurnIndex]);
 
   const handleTimeUp = () => {
     alert('Sin tiempo, has perdido!');
@@ -472,18 +618,6 @@ export default function GameScreen() {
     setMoveAmount(clamped);
   };
 
-  const handleResetBoard = () => {
-    if (!match?.board) {
-      return;
-    }
-    setEditedBoard(match.board.map((dish) => ({ ...dish })));
-    setSelectedSource(null);
-    setSelectedTarget(null);
-    setMoveAmount(1);
-    setBoardFeedback(null);
-    setLastMove({ source: null, target: null });
-  };
-
   const boardInstruction = useMemo(() => {
     if (waitingForPlayer) {
       return 'Esperando a que llegue el segundo jugador.';
@@ -587,6 +721,7 @@ export default function GameScreen() {
       />
 
       <aside className="chatPanel">
+        <span className="">Tiempo Restante: {timeLeft} s</span>
         <div className="chatTitle">CHAT</div>
         {waitingForPlayer && (
           <div className="chatRoomInfo">
@@ -598,14 +733,6 @@ export default function GameScreen() {
       </aside>
 
       <main className="gameMainPanel">
-        <div className="gameHeader">
-          <div className="gameTurnIndicator">{match ? `Turno ${match.turn + 1}` : '—'}</div>
-          <span className="timer">{timeLeft}</span>
-          <button className="back" onClick={() => setExitGame(true)}>
-            Volver al Menú
-          </button>
-        </div>
-
         <div className={`gameStage ${waitingForPlayer ? 'gameStage--waiting' : ''}`}>
           <div className="playerColumn">
             <div className="playerName" style={{ color: playerStyles[0].nameColor }}>
@@ -638,7 +765,8 @@ export default function GameScreen() {
                   />
                 </div>
                 <div className="boardControls">
-                  <p className="boardInstruction">{boardInstruction}</p>
+                  {<p className="boardInstruction">{boardInstruction}</p>
+                  }
                   {canEditBoard && (
                     <>
                       <div className="controlRow">
@@ -688,9 +816,6 @@ export default function GameScreen() {
                         >
                           Cancelar selección
                         </button>
-                        <button type="button" onClick={handleResetBoard} disabled={!boardChanged}>
-                          Reiniciar cambios
-                        </button>
                       </div>
                     </>
                   )}
@@ -712,21 +837,6 @@ export default function GameScreen() {
           </div>
         </div>
 
-        <div className="gameFooter">
-          <div className="scoreBoard">
-            <span>P1: {match?.player1Score ?? 0}</span>
-            <span>P2: {match?.player2Score ?? 0}</span>
-          </div>
-          <button
-            className="endTurn"
-            onClick={handleEndTurn}
-            disabled={waitingForPlayer || isEndingTurn || !match || match.endedAt || !isMyTurn}
-            title={!isMyTurn ? 'Esperando al otro jugador' : undefined}
-          >
-            {isEndingTurn ? 'Enviando...' : 'Terminar turno'}
-          </button>
-        </div>
-
         {match?.endedAt && (
           <div className="game-result">
             <strong>Partida finalizada.</strong>{' '}
@@ -739,9 +849,66 @@ export default function GameScreen() {
       </main>
 
       <aside className="turnsPanel">
-        <div className="turnsTitle">Turnos</div>
-        <div className="turnsList"></div>
-        <div className="turnsCount">{match ? `Turno ${match.turn + 1}` : '—'}</div>
+        <button className="back" onClick={() => setExitGame(true)}>
+            Volver al Menú
+          </button>
+        <div className="turnsTitle"> Turnos</div>
+        {currentPhaseMeta && <small>{currentPhaseMeta.description}</small>}
+        <div className="turnsList">
+          <div className="turnTimeline">
+            <div className="turnRound" key={`round-${activeRoundIndex}`}>
+              <div className="turnRoundHeader">Ronda {activeRoundIndex + 1}</div>
+              <div
+                className="turnRoundTrack"
+                ref={turnTrackRef}
+                style={{ transform: `translateY(${turnTrackOffset}px)` }}
+              >
+                {activeRoundPhases.map((phase, phaseIdx) => {
+                  const globalIndex = activeRoundIndex * ROUND_SIZE + phaseIdx;
+                  const meta = TURN_PHASE_META[phase] || { label: '?', description: phase, className: 'turnPhase--default' };
+                  const circleClasses = ['turnPhase', meta.className];
+                  const wrapperClasses = ['turnPhaseItem'];
+                  if (currentTurnIndex > globalIndex) {
+                    circleClasses.push('is-complete');
+                    wrapperClasses.push('is-complete');
+                  } else if (currentTurnIndex === globalIndex) {
+                    circleClasses.push('is-current');
+                    wrapperClasses.push('is-current');
+                  }
+                  const showConnector = phaseIdx < activeRoundPhases.length - 1;
+                  return (
+                    <div
+                      key={`phase-${globalIndex}`}
+                      className={wrapperClasses.join(' ')}
+                      title={`Ronda ${activeRoundIndex + 1} · ${meta.description}`}
+                    >
+                      <div className={circleClasses.join(' ')}>
+                        <span className="turnPhaseLabel">
+                          {meta.label}
+                          <small>{globalIndex + 1}</small>
+                        </span>
+                      </div>
+                      {showConnector && <span className="turnPhaseConnector" />}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+          {match ? (
+            
+              <button
+            className="endTurn"
+            onClick={handleEndTurn}
+            disabled={waitingForPlayer || isEndingTurn || !match || match.endedAt || !isMyTurn}
+            title={!isMyTurn ? 'Esperando al otro jugador' : undefined}
+          >
+            {isEndingTurn ? 'Enviando...' : 'Terminar turno'}
+          </button>
+          ) : (
+            '—'
+          )}
       </aside>
     </div>
   );
