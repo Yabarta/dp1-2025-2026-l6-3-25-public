@@ -50,13 +50,11 @@ public class PlayerController {
                         try {
                             Files.delete(path);
                         } catch (IOException e) {
-                            // Log or ignore
                         }
                     });
                 }
             }
         } catch (IOException e) {
-            // Handle exception
         }
     }
 
