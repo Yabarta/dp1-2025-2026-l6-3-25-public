@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import '../static/css/game/gameScreen.css';
-import ExitModal from '../components/modal/ExitModal';
+import ExitGameModal from '../components/modal/ExitGameModal';
 import useWebSocket from '../hooks/useWebSocket';
 import api from '../services/api';
 import tokenService from '../services/token.service';
@@ -12,64 +12,22 @@ function ScoreBar({ score = 0, color = '#888' }) {
   const max = 9;
   const clamped = Math.max(0, Math.min(max, Number(score) || 0));
   const fillPercent = (clamped / max) * 100;
-  const numbers = Array.from({ length: max + 1 }, (_, i) => max - i);
+  const ticks = Array.from({ length: max + 1 }, (_, i) => i);
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 10, paddingTop: 8 }}>
-      <div
-        style={{
-          position: 'relative',
-          width: 52,
-          height: '32rem',
-          border: '2px solid #000',
-          boxSizing: 'border-box',
-          background: '#fff',
-        }}
-      >
-        <div
-          style={{
-            
-            left: 0,
-            right: 0,
-            bottom: 0,
-            height: `${fillPercent}%`,
-            background: color,
-            transition: 'height 240ms ease',
-          }}
-        />
-        {Array.from({ length: max + 1 }).map((_, i) => {
-          const percent = (i / max) * 100;
-          return (
-            <div
-              key={`line-${i}`}
-              style={{
-                position: 'absolute',
-                left: 0,
-                right: 0,
-                top: `${percent}%`,
-                transform: 'translateY(-50%)',
-                height: 0,
-                borderTop: '1px solid rgba(0,0,0,0.25)',
-              }}
-            />
-          );
+    <div className="scoreBarContainer">
+      <div className="scoreBarFrame">
+        <div className="scoreBarFill" style={{ height: `${fillPercent}%`, background: `linear-gradient(180deg, ${color} 0%, rgba(12, 24, 15, 0.9) 100%)` }} />
+        {ticks.map((value) => {
+          const percent = 100 - (value / max) * 100;
+          return <span key={`line-${value}`} className="scoreBarTick" style={{ top: `${percent}%` }} />;
         })}
-        {numbers.map((n, idx) => {
-          const percent = (idx / max) * 100;
+        {ticks.map((value) => {
+          const percent = 100 - (value / max) * 100;
           return (
-            <div
-              key={`label-${n}`}
-              style={{
-                position: 'absolute',
-                right: -38,
-                top: `${percent}%`,
-                transform: 'translateY(-50%)',
-                fontSize: 14,
-                fontWeight: 600,
-              }}
-            >
-              {n}
-            </div>
+            <span key={`label-${value}`} className="scoreBarLabel" style={{ top: `${percent}%` }}>
+              {value}
+            </span>
           );
         })}
       </div>
@@ -278,10 +236,12 @@ function TurnTimeline({
   turnTrackOffset,
   turnTrackRef,
 }) {
+  const totalTurns = TURN_SEQUENCE.length;
+  const safeDisplayTurn = currentTurnIndex < 0 ? 0 : Math.min(currentTurnIndex, totalTurns - 1);
+  const turnNumberLabel = currentTurnIndex < 0 ? 0 : safeDisplayTurn + 1;
   return (
     <>
-      
-      <div className="">Turno {currentTurnIndex + 1}/ Ronda {activeRoundIndex + 1}</div>
+      <div className="turnSummary">Turno {turnNumberLabel%10} · Ronda {activeRoundIndex + 1}</div>
       {currentPhaseMeta && <small>{currentPhaseMeta.description}</small>}
       <div className="turnsList">
         <div className="turnTimeline">
@@ -551,16 +511,22 @@ function useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, currentTurnI
     });
   }, [editedBoard, match]);
   const isMyTurn = Boolean(match && !matchEnded && (isPropagationTurn ? isMyPropagationTurn : iAmParticipant));
-  const currentTurnIndex = match?.turn ?? -1;
+  const totalTurnPhases = TURN_SEQUENCE.length;
+  const rawTurnIndex = typeof match?.turn === 'number' ? match.turn : -1;
+  const consumedAllPhases = rawTurnIndex >= totalTurnPhases;
+  const clampedTurnIndex = rawTurnIndex >= 0
+    ? Math.min(rawTurnIndex, totalTurnPhases - 1)
+    : rawTurnIndex;
+  const timelineTurnIndex = consumedAllPhases ? totalTurnPhases : clampedTurnIndex;
   const currentPhaseMeta = match?.turnType ? TURN_PHASE_META[match.turnType] : null;
-  const activeRoundIndex = currentTurnIndex >= 0
-    ? Math.min(Math.floor(currentTurnIndex / ROUND_SIZE), TURN_ROUNDS.length - 1)
+  const activeRoundIndex = clampedTurnIndex >= 0
+    ? Math.min(Math.floor(clampedTurnIndex / ROUND_SIZE), TURN_ROUNDS.length - 1)
     : 0;
   const activeRoundPhases = TURN_ROUNDS[activeRoundIndex] ?? TURN_ROUNDS[0];
-  const currentPhaseIndexInRound = currentTurnIndex >= 0
-    ? currentTurnIndex - activeRoundIndex * ROUND_SIZE
+  const currentPhaseIndexInRound = clampedTurnIndex >= 0
+    ? clampedTurnIndex - activeRoundIndex * ROUND_SIZE
     : 0;
-  const { turnTrackRef, turnTrackOffset } = useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, currentTurnIndex);
+  const { turnTrackRef, turnTrackOffset } = useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, timelineTurnIndex);
 
   const handleTimeUp = () => {
     alert('Sin tiempo, has perdido!');
@@ -876,7 +842,7 @@ function useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, currentTurnI
 
   return (
     <div className="gameScreenContainer">
-      <ExitModal
+      <ExitGameModal
         text="¿Seguro que quieres abandonar la partida?"
         isVisible={exitGame}
         onConfirm={handleExit}
@@ -965,7 +931,7 @@ function useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, currentTurnI
           currentPhaseMeta={currentPhaseMeta}
           activeRoundIndex={activeRoundIndex}
           activeRoundPhases={activeRoundPhases}
-          currentTurnIndex={currentTurnIndex}
+          currentTurnIndex={timelineTurnIndex}
           turnTrackOffset={turnTrackOffset}
           turnTrackRef={turnTrackRef}
         />

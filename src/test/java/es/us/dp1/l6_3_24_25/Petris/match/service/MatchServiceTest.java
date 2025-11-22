@@ -261,6 +261,149 @@ class MatchServiceTest {
     }
 
     @Test
+    void getPropagationErrors_validSingleMove_returnsEmptyList() {
+        MatchRepository repository = mock(MatchRepository.class);
+        MatchService service = buildServiceWithRealHelper(repository);
+        List<PetriDish> currentBoard = createEmptyBoard();
+        setCounts(currentBoard, 2, 3, 0);
+
+        List<PetriDish> proposedBoard = copyBoard(currentBoard);
+        setCounts(proposedBoard, 2, 2, 0);
+        setCounts(proposedBoard, 3, 1, 0);
+
+        List<String> errors = service.getPropagationErrors(currentBoard, proposedBoard, 1);
+
+        assertTrue(errors.isEmpty(), "Expected a valid move to produce no validation errors");
+    }
+
+    @Test
+    void getPropagationErrors_rejectsNonAdjacentMove() {
+        MatchRepository repository = mock(MatchRepository.class);
+        MatchService service = buildServiceWithRealHelper(repository);
+        List<PetriDish> currentBoard = createEmptyBoard();
+        setCounts(currentBoard, 2, 3, 0);
+
+        List<PetriDish> proposedBoard = copyBoard(currentBoard);
+        setCounts(proposedBoard, 2, 2, 0);
+        setCounts(proposedBoard, 4, 1, 0);
+
+        List<String> errors = service.getPropagationErrors(currentBoard, proposedBoard, 1);
+
+        assertTrue(errors.stream().anyMatch(msg -> msg.contains("adyacent")),
+            "Expected a non-adjacent move to be rejected");
+    }
+
+    @Test
+    @SuppressWarnings("null")
+    void nextTurn_advancesPropagationTurnAndPersistsBoard() {
+        MatchRepository repository = mock(MatchRepository.class);
+        MatchService service = buildServiceWithRealHelper(repository);
+
+        Match match = buildLogicMatch(0, TurnType.P1_PROPAGATION);
+        when(repository.save(match)).thenAnswer(invocation -> ensureNonNull(invocation.getArgument(0, Match.class)));
+        List<PetriDish> currentBoard = createEmptyBoard();
+        setCounts(currentBoard, 2, 3, 0);
+        match.setBoardState(currentBoard);
+
+        List<PetriDish> proposedBoard = copyBoard(currentBoard);
+        setCounts(proposedBoard, 2, 2, 0);
+        setCounts(proposedBoard, 3, 1, 0);
+
+        Match updated = service.nextTurn(match, Optional.of(proposedBoard));
+
+        assertEquals(proposedBoard.get(2).getPlayer1Bacteria(), updated.getBoardState().get(2).getPlayer1Bacteria());
+        assertEquals(proposedBoard.get(3).getPlayer1Bacteria(), updated.getBoardState().get(3).getPlayer1Bacteria());
+        assertEquals(Integer.valueOf(1), updated.getTurn());
+        assertEquals(TurnType.P2_PROPAGATION, updated.getTurnType());
+        verify(repository).save(match);
+    }
+
+    @Test
+    @SuppressWarnings("null")
+    void nextTurn_runsBinaryFissionWhenNoBoardProvided() {
+        MatchRepository repository = mock(MatchRepository.class);
+        MatchService service = buildServiceWithRealHelper(repository);
+
+        Match match = buildLogicMatch(2, TurnType.BINARY_FISSION);
+        when(repository.save(match)).thenAnswer(invocation -> ensureNonNull(invocation.getArgument(0, Match.class)));
+        List<PetriDish> board = createEmptyBoard();
+        setCounts(board, 0, 1, 0);
+        match.setBoardState(board);
+
+        Match updated = service.nextTurn(match, Optional.empty());
+
+        assertEquals(2, updated.getBoardState().get(0).getPlayer1Bacteria(),
+            "Binary fission should duplicate lone bacteria");
+        assertEquals(Integer.valueOf(3), updated.getTurn());
+        assertEquals(TurnType.P2_PROPAGATION, updated.getTurnType());
+    }
+
+    @Test
+    void nextTurn_requiresBoardStateForPropagationTurns() {
+        MatchRepository repository = mock(MatchRepository.class);
+        MatchService service = buildServiceWithRealHelper(repository);
+        Match match = buildLogicMatch(0, TurnType.P1_PROPAGATION);
+        match.setBoardState(createEmptyBoard());
+
+        assertThrows(IllegalArgumentException.class, () -> service.nextTurn(match, Optional.empty()));
+        verifyNoInteractions(repository);
+    }
+
+    @Test
+    void binaryFission_onlyGrowsIsolatedBacteria() {
+        MatchServiceHelper helper = new MatchServiceHelper();
+        Match match = new Match();
+        List<PetriDish> board = createEmptyBoard();
+        setCounts(board, 0, 1, 0);
+        setCounts(board, 1, 0, 2);
+        match.setBoardState(board);
+
+        helper.binaryFission(match);
+
+        assertEquals(2, match.getBoardState().get(0).getPlayer1Bacteria());
+        assertEquals(3, match.getBoardState().get(1).getPlayer2Bacteria());
+    }
+
+    @Test
+    void contamination_scoresHigherCountsAndClampsAtMax() {
+        MatchServiceHelper helper = new MatchServiceHelper();
+        Match match = new Match();
+        List<PetriDish> board = createEmptyBoard();
+        setCounts(board, 0, 2, 0);
+        setCounts(board, 1, 0, 3);
+        setCounts(board, 2, 4, 1);
+        match.setBoardState(board);
+        match.setPlayer1Score(8);
+        match.setPlayer2Score(1);
+
+        helper.contamination(match);
+
+        assertEquals(9, match.getPlayer1Score());
+        assertEquals(2, match.getPlayer2Score());
+    }
+
+    @Test
+    void hasPossibleMoves_returnsFalseWhenOnlySarcinas() {
+        MatchServiceHelper helper = new MatchServiceHelper();
+        List<PetriDish> board = createEmptyBoard();
+        for (int i = 0; i < board.size(); i++) {
+            setCounts(board, i, 5, 0);
+        }
+
+        assertFalse(helper.hasPossibleMoves(board, 1));
+    }
+
+    @Test
+    void hasPossibleMoves_detectsSimpleTransferOpportunity() {
+        MatchServiceHelper helper = new MatchServiceHelper();
+        List<PetriDish> board = createEmptyBoard();
+        setCounts(board, 2, 3, 0);
+        setCounts(board, 3, 0, 0);
+
+        assertTrue(helper.hasPossibleMoves(board, 1));
+    }
+
+    @Test
     void toMatchDTO_includesBoardAndPlayers() {
         Integer TURN = 7;
         Player player1 = buildPlayer(41, "alpha", true);
@@ -312,6 +455,13 @@ class MatchServiceTest {
         assertEquals("creator_user", dto.getPlayers().get(0).getUsername());
     }
 
+    private MatchService buildServiceWithRealHelper(MatchRepository repository) {
+        @SuppressWarnings("unchecked")
+        ObjectProvider<MatchServiceHelper> provider = (ObjectProvider<MatchServiceHelper>) mock(ObjectProvider.class);
+        when(provider.getIfAvailable()).thenReturn(new MatchServiceHelper());
+        return new MatchService(repository, provider);
+    }
+
     private @NonNull Match buildMatch(int id, Player player1, Player player2) {
         Integer TURN = 0;
         Match match = new Match();
@@ -344,6 +494,41 @@ class MatchServiceTest {
         player.setIsCurrentlyInMatch(inMatch);
         player.setUser(user);
         return player;
+    }
+
+    private Match buildLogicMatch(int turnIndex, TurnType turnType) {
+        Match match = new Match();
+        match.setTurn(turnIndex);
+        match.setTurnType(turnType);
+        match.setPlayer1Score(0);
+        match.setPlayer2Score(0);
+        match.setBoardState(new ArrayList<>());
+        return match;
+    }
+
+    private List<PetriDish> createEmptyBoard() {
+        List<PetriDish> board = new ArrayList<>();
+        for (int i = 0; i < 7; i++) {
+            board.add(new PetriDish());
+        }
+        return board;
+    }
+
+    private void setCounts(List<PetriDish> board, int index, int p1, int p2) {
+        PetriDish dish = board.get(index);
+        dish.setPlayer1Bacteria(p1);
+        dish.setPlayer2Bacteria(p2);
+    }
+
+    private List<PetriDish> copyBoard(List<PetriDish> original) {
+        List<PetriDish> copy = new ArrayList<>();
+        for (PetriDish source : original) {
+            PetriDish dish = new PetriDish();
+            dish.setPlayer1Bacteria(source.getPlayer1Bacteria());
+            dish.setPlayer2Bacteria(source.getPlayer2Bacteria());
+            copy.add(dish);
+        }
+        return copy;
     }
 
     @SuppressWarnings("null")
