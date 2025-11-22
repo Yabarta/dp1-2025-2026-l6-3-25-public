@@ -1150,3 +1150,55 @@ MatchService se habia convertido en un conglomerado de código con más de una f
 Los tests de negocio pueden usar `MatchService` sin preparar mocks de WebSocket, y las notificaciones se prueban aisladamente en el nuevo servicio.
 ##### Reutilización y coherencia:
 Cualquier controlador que deba notificar eventos reutiliza un punto único, `WebSocketMatchService`, lo que facilita mantener el protocolo de mensajes y ajustar destinos o cargas útiles en un solo lugar.
+
+### Refactorización 4:
+#### Descomposición de `GameScreen` en componentes especializados
+En esta refactorización dividimos el componente `GameScreen` en piezas más pequeñas para separar responsabilidades y facilitar su mantenimiento.
+
+#### Estado inicial del código
+Todo el JSX y la lógica de la pantalla estaban embebidos en un único componente de más de 1.000 líneas:
+```jsx
+export default function GameScreen() {
+    // decenas de estados y handlers...
+    return (
+        <div className="gameScreenContainer">
+            <aside className="chatPanel">...</aside>
+            <main>/* controles, inputs y tablero */</main>
+            <aside className="turnsPanel">/* timeline completo */</aside>
+        </div>
+    );
+}
+```
+
+#### Estado del código refactorizado
+Ahora extraemos piezas semánticas dentro del mismo archivo (`frontend/src/Game/gameScreen.js`), reutilizando props claros y handlers memoizados:
+```jsx
+return (
+    <div className="gameScreenContainer">
+        <aside className="chatPanel">...</aside>
+        <main className="gameMainPanel">
+            <div className="gameStage">
+                <PlayerColumn ... />
+                <BoardStage boardProps={...} controlsProps={...} />
+                <PlayerColumn ... />
+            </div>
+        </main>
+        <aside className="turnsPanel">
+            <TurnTimeline {...timelineProps} />
+            <button className="endTurn" ...>Terminar turno</button>
+        </aside>
+    </div>
+);
+```
+Cada subcomponente (`PlayerColumn`, `BoardStage`, `BoardControls` y `TurnTimeline`) encapsula únicamente la vista y se alimenta con props calculados en `GameScreen`.
+
+#### Problema que nos hizo realizar la refactorización
+`GameScreen` mezclaba en un solo bloque la lógica de negocio, la gestión del estado del tablero, la renderización del tablero, los controles y la línea de turnos. Esto hacía casi imposible localizar un comportamiento concreto, incrementaba el riesgo al modificar la UI y dificultaba las pruebas.
+
+#### Ventajas que presenta la nueva versión del código respecto de la versión original
+##### Mantenibilidad
+El componente principal ahora actúa como “coordinador” y delega la UI a subcomponentes autocontenidos. Esto reduce ruido y permite modificar secciones concretas sin romper el resto.
+##### Reutilización de lógica
+`BoardControls` y `BoardStage` reciben callbacks memoizados (`handleQuickAmountSelect`, `handleCancelSelection`, etc.), lo que facilita testearlos en aislamiento e incluso moverlos a otros contextos si fuera necesario.
+##### Claridad visual
+El JSX de alto nivel describe la estructura conceptual (dos columnas de jugadores, escenario central, panel lateral), lo que acelera la comprensión para nuevos desarrolladores.

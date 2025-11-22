@@ -13,25 +13,6 @@ function ScoreBar({ score = 0, color = '#888' }) {
   const clamped = Math.max(0, Math.min(max, Number(score) || 0));
   const fillPercent = (clamped / max) * 100;
   const numbers = Array.from({ length: max + 1 }, (_, i) => max - i);
-  const getBarHeight = () => {
-    if (typeof window === 'undefined') {
-      return 330;
-    }
-    return Math.max(240, Math.min(340, window.innerHeight * 0.42));
-  };
-  const [barHeight, setBarHeight] = useState(getBarHeight);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') {
-      return () => {};
-    }
-    const handleResize = () => {
-      setBarHeight(getBarHeight());
-    };
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 10, paddingTop: 8 }}>
@@ -39,7 +20,7 @@ function ScoreBar({ score = 0, color = '#888' }) {
         style={{
           position: 'relative',
           width: 52,
-          height: '30rem',
+          height: '32rem',
           border: '2px solid #000',
           boxSizing: 'border-box',
           background: '#fff',
@@ -47,7 +28,7 @@ function ScoreBar({ score = 0, color = '#888' }) {
       >
         <div
           style={{
-            position: 'absolute',
+            
             left: 0,
             right: 0,
             bottom: 0,
@@ -162,6 +143,8 @@ const TURN_PHASE_META = {
   CONTAMINATION: { label: 'C', description: 'Contaminación', className: 'turnPhase--contamination' },
 };
 
+const QUICK_AMOUNT_OPTIONS = [1, 2, 3, 4, 5];
+
 
 export default function GameScreen() {
   const { id } = useParams();
@@ -179,15 +162,239 @@ export default function GameScreen() {
   const [boardFeedback, setBoardFeedback] = useState(null);
   const [currentUser] = useState(() => tokenService.getUser());
   const [lastMove, setLastMove] = useState({ source: null, target: null });
-  const [turnTrackOffset, setTurnTrackOffset] = useState(0);
   const timerRef = useRef(null);
   const lastTurnRef = useRef(null);
   const previousBoardRef = useRef([]);
+
+  const matchUpdate = useWebSocket(`/app/matches/watch/${id}`, `/topic/match/${id}`);
+
+function PlayerColumn({ player, fallbackLabel, score, style }) {
+  const displayName = player?.nickname ?? player?.username ?? fallbackLabel;
+  const safeScore = score ?? 0;
+
+  return (
+    <div className="playerColumn">
+      <div className="playerName" style={{ color: style.nameColor }}>
+        {displayName}
+      </div>
+      <ScoreBar score={safeScore} color={style.color} />
+    </div>
+  );
+}
+
+function BoardStage({ waitingForPlayer, roomCode, boardProps, controlsProps }) {
+  if (waitingForPlayer) {
+    return (
+      <div className="waitingStage">
+        <h2>Esperando al segundo jugador...</h2>
+        <div className="loadingSpinner" />
+        <p>
+          Código: <strong>{roomCode}</strong>
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <div className="boardWrapper">
+        <Board {...boardProps} />
+      </div>
+      <BoardControls {...controlsProps} />
+    </>
+  );
+}
+
+function BoardControls({
+  boardInstruction,
+  canEditBoard,
+  moveAmountValue,
+  maxMoveForSource,
+  onMoveAmountChange,
+  quickAmountOptions,
+  moveAmount,
+  selectedSource,
+  sourceCapacity,
+  onQuickAmountClick,
+  onApplyMove,
+  applyDisabled,
+  onCancelSelection,
+  cancelDisabled,
+  boardFeedback,
+  lastMoveText,
+}) {
+  return (
+    <div className="boardControls">
+      <p className="boardInstruction">{boardInstruction}</p>
+      {canEditBoard && (
+        <>
+          <div className="controlRow">
+            <label htmlFor="move-amount">Unidades a mover:</label>
+            <input
+              id="move-amount"
+              type="number"
+              min="1"
+              max={maxMoveForSource}
+              value={moveAmountValue}
+              onChange={onMoveAmountChange}
+            />
+            <div className="quick-amounts">
+              {quickAmountOptions.map((value) => (
+                <button
+                  key={value}
+                  type="button"
+                  className={moveAmount === value ? 'active' : ''}
+                  disabled={selectedSource === null || value > sourceCapacity}
+                  onClick={() => onQuickAmountClick(value)}
+                >
+                  {value}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="controlRow controlRow--actions">
+            <button type="button" onClick={onApplyMove} disabled={applyDisabled}>
+              Aplicar movimiento
+            </button>
+            <button type="button" onClick={onCancelSelection} disabled={cancelDisabled}>
+              Cancelar selección
+            </button>
+          </div>
+        </>
+      )}
+      {boardFeedback && <div className="board-feedback">{boardFeedback}</div>}
+      <div className="last-move-info">
+        Último movimiento: <strong>{lastMoveText}</strong>
+      </div>
+    </div>
+  );
+}
+
+function TurnTimeline({
+  currentPhaseMeta,
+  activeRoundIndex,
+  activeRoundPhases,
+  currentTurnIndex,
+  turnTrackOffset,
+  turnTrackRef,
+}) {
+  return (
+    <>
+      
+      <div className="">Turno {currentTurnIndex + 1}/ Ronda {activeRoundIndex + 1}</div>
+      {currentPhaseMeta && <small>{currentPhaseMeta.description}</small>}
+      <div className="turnsList">
+        <div className="turnTimeline">
+          <div className="turnRound" key={`round-${activeRoundIndex}`}>
+            
+            <div
+              className="turnRoundTrack"
+              ref={turnTrackRef}
+              style={{ transform: `translateY(${turnTrackOffset}px)` }}
+            >
+              {activeRoundPhases.map((phase, phaseIdx) => {
+                const globalIndex = activeRoundIndex * ROUND_SIZE + phaseIdx;
+                const meta = TURN_PHASE_META[phase] || { label: '?', description: phase, className: 'turnPhase--default' };
+                const circleClasses = ['turnPhase', meta.className];
+                const wrapperClasses = ['turnPhaseItem'];
+                if (currentTurnIndex > globalIndex) {
+                  circleClasses.push('is-complete');
+                  wrapperClasses.push('is-complete');
+                } else if (currentTurnIndex === globalIndex) {
+                  circleClasses.push('is-current');
+                  wrapperClasses.push('is-current');
+                }
+                const showConnector = phaseIdx < activeRoundPhases.length - 1;
+                return (
+                  <div
+                    key={`phase-${globalIndex}`}
+                    className={wrapperClasses.join(' ')}
+                    title={`Ronda ${activeRoundIndex + 1} · ${meta.description}`}
+                  >
+                    <div className={circleClasses.join(' ')}>
+                      <span className="turnPhaseLabel">
+                        {meta.label}
+                        <small>{globalIndex + 1}</small>
+                      </span>
+                    </div>
+                    {showConnector && <span className="turnPhaseConnector" />}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+function useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, currentTurnIndex) {
   const turnTrackRef = useRef(null);
   const previousRoundRef = useRef(null);
   const previousPhaseIndexRef = useRef(null);
+  const [turnTrackOffset, setTurnTrackOffset] = useState(0);
 
-  const matchUpdate = useWebSocket(`/app/matches/watch/${id}`, `/topic/match/${id}`);
+  useEffect(() => {
+    const trackElement = turnTrackRef.current;
+    if (!trackElement) {
+      previousRoundRef.current = activeRoundIndex;
+      previousPhaseIndexRef.current = currentPhaseIndexInRound;
+      setTurnTrackOffset(0);
+      return;
+    }
+
+    const phaseNodes = trackElement.querySelectorAll('.turnPhaseItem');
+    if (!phaseNodes.length) {
+      previousRoundRef.current = activeRoundIndex;
+      previousPhaseIndexRef.current = currentPhaseIndexInRound;
+      setTurnTrackOffset(0);
+      return;
+    }
+
+    const safeIndex = Math.min(Math.max(currentPhaseIndexInRound, 0), phaseNodes.length - 1);
+    const roundChanged = previousRoundRef.current !== null && previousRoundRef.current !== activeRoundIndex;
+    const waitingForTurn = currentTurnIndex < 0;
+
+    if (roundChanged || waitingForTurn) {
+      previousRoundRef.current = activeRoundIndex;
+      previousPhaseIndexRef.current = safeIndex;
+      setTurnTrackOffset(0);
+      return;
+    }
+
+    if (previousPhaseIndexRef.current === null) {
+      previousPhaseIndexRef.current = safeIndex;
+      previousRoundRef.current = activeRoundIndex;
+      setTurnTrackOffset(0);
+      return;
+    }
+
+    const previousIndex = previousPhaseIndexRef.current;
+    previousRoundRef.current = activeRoundIndex;
+
+    if (previousIndex === safeIndex) {
+      return;
+    }
+
+    const currentNode = phaseNodes[safeIndex];
+    const previousNode = phaseNodes[previousIndex];
+    previousPhaseIndexRef.current = safeIndex;
+
+    if (!currentNode || !previousNode) {
+      return;
+    }
+
+    const delta = currentNode.offsetTop - previousNode.offsetTop;
+    if (!Number.isFinite(delta) || delta === 0) {
+      return;
+    }
+
+    setTurnTrackOffset((prevOffset) => prevOffset - delta);
+  }, [activeRoundIndex, currentPhaseIndexInRound, currentTurnIndex]);
+
+  return { turnTrackRef, turnTrackOffset };
+}
 
   useEffect(() => {
     const fetchMatch = async () => {
@@ -353,64 +560,7 @@ export default function GameScreen() {
   const currentPhaseIndexInRound = currentTurnIndex >= 0
     ? currentTurnIndex - activeRoundIndex * ROUND_SIZE
     : 0;
-
-  useEffect(() => {
-    const trackElement = turnTrackRef.current;
-    if (!trackElement) {
-      previousRoundRef.current = activeRoundIndex;
-      previousPhaseIndexRef.current = currentPhaseIndexInRound;
-      setTurnTrackOffset(0);
-      return;
-    }
-
-    const phaseNodes = trackElement.querySelectorAll('.turnPhaseItem');
-    if (!phaseNodes.length) {
-      previousRoundRef.current = activeRoundIndex;
-      previousPhaseIndexRef.current = currentPhaseIndexInRound;
-      setTurnTrackOffset(0);
-      return;
-    }
-
-    const safeIndex = Math.min(Math.max(currentPhaseIndexInRound, 0), phaseNodes.length - 1);
-    const roundChanged = previousRoundRef.current !== null && previousRoundRef.current !== activeRoundIndex;
-    const waitingForTurn = currentTurnIndex < 0;
-
-    if (roundChanged || waitingForTurn) {
-      previousRoundRef.current = activeRoundIndex;
-      previousPhaseIndexRef.current = safeIndex;
-      setTurnTrackOffset(0);
-      return;
-    }
-
-    if (previousPhaseIndexRef.current === null) {
-      previousPhaseIndexRef.current = safeIndex;
-      previousRoundRef.current = activeRoundIndex;
-      setTurnTrackOffset(0);
-      return;
-    }
-
-    const previousIndex = previousPhaseIndexRef.current;
-    previousRoundRef.current = activeRoundIndex;
-
-    if (previousIndex === safeIndex) {
-      return;
-    }
-
-    const currentNode = phaseNodes[safeIndex];
-    const previousNode = phaseNodes[previousIndex];
-    previousPhaseIndexRef.current = safeIndex;
-
-    if (!currentNode || !previousNode) {
-      return;
-    }
-
-    const delta = currentNode.offsetTop - previousNode.offsetTop;
-    if (!Number.isFinite(delta) || delta === 0) {
-      return;
-    }
-
-    setTurnTrackOffset((prevOffset) => prevOffset - delta);
-  }, [activeRoundIndex, currentPhaseIndexInRound, currentTurnIndex]);
+  const { turnTrackRef, turnTrackOffset } = useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, currentTurnIndex);
 
   const handleTimeUp = () => {
     alert('Sin tiempo, has perdido!');
@@ -697,6 +847,19 @@ export default function GameScreen() {
     : 0;
   const maxMoveForSource = Math.max(1, sourceCapacity || 1);
   const moveAmountValue = Math.min(moveAmount, maxMoveForSource);
+  const canApplyMove = canEditBoard && selectedSource !== null && selectedTarget !== null;
+  const canCancelSelection = canEditBoard && (selectedSource !== null || selectedTarget !== null);
+
+  const handleQuickAmountSelect = useCallback((value) => {
+    setMoveAmount(Math.min(value, maxMoveForSource));
+  }, [maxMoveForSource]);
+
+  const handleCancelSelection = useCallback(() => {
+    setSelectedSource(null);
+    setSelectedTarget(null);
+    setMoveAmount(1);
+    setBoardFeedback(null);
+  }, []);
 
   useEffect(() => {
     if (selectedSource === null) {
@@ -734,107 +897,53 @@ export default function GameScreen() {
 
       <main className="gameMainPanel">
         <div className={`gameStage ${waitingForPlayer ? 'gameStage--waiting' : ''}`}>
-          <div className="playerColumn">
-            <div className="playerName" style={{ color: playerStyles[0].nameColor }}>
-              {match?.player1?.nickname ?? match?.player1?.username ?? 'P1'}
-            </div>
-            <ScoreBar score={match?.player1Score ?? 0} color={playerStyles[0].color} />
-            <div className="playerScoreTag">P1: {match?.player1Score ?? 0}</div>
-          </div>
+          <PlayerColumn
+            player={match?.player1}
+            fallbackLabel="P1"
+            score={match?.player1Score ?? 0}
+            style={playerStyles[0]}
+          />
 
           <div className="boardStage">
-            {waitingForPlayer ? (
-              <div className="waitingStage">
-                <h2>Esperando al segundo jugador...</h2>
-                <div className="loadingSpinner"></div>
-                <p>
-                  Código: <strong>{roomCode}</strong>
-                </p>
-              </div>
-            ) : (
-              <>
-                <div className="boardWrapper">
-                  <Board
-                    board={hexBoard}
-                    onDiscoClick={handleBoardClick}
-                    selectedSource={selectedSourceId}
-                    selectedTarget={selectedTargetId}
-                    lastMove={lastMoveIds}
-                    disabled={!canEditBoard}
-                    playerStyles={playerStyles}
-                  />
-                </div>
-                <div className="boardControls">
-                  {<p className="boardInstruction">{boardInstruction}</p>
-                  }
-                  {canEditBoard && (
-                    <>
-                      <div className="controlRow">
-                        <label htmlFor="move-amount">Unidades a mover:</label>
-                        <input
-                          id="move-amount"
-                          type="number"
-                          min="1"
-                          max={maxMoveForSource}
-                          value={moveAmountValue}
-                          onChange={handleMoveAmountChange}
-                        />
-                        <div className="quick-amounts">
-                          {[1, 2, 3, 4, 5].map((value) => (
-                            <button
-                              key={value}
-                              type="button"
-                              className={moveAmount === value ? 'active' : ''}
-                              disabled={
-                                selectedSource === null ||
-                                value > sourceCapacity
-                              }
-                              onClick={() => setMoveAmount(Math.min(value, maxMoveForSource))}
-                            >
-                              {value}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                      <div className="controlRow controlRow--actions">
-                        <button
-                          type="button"
-                          onClick={handleConfirmMove}
-                          disabled={!canEditBoard || selectedSource === null || selectedTarget === null}
-                        >
-                          Aplicar movimiento
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setSelectedSource(null);
-                            setSelectedTarget(null);
-                            setMoveAmount(1);
-                            setBoardFeedback(null);
-                          }}
-                          disabled={!canEditBoard || (selectedSource === null && selectedTarget === null)}
-                        >
-                          Cancelar selección
-                        </button>
-                      </div>
-                    </>
-                  )}
-                  {boardFeedback && <div className="board-feedback">{boardFeedback}</div>}
-                  <div className="last-move-info">
-                    Último movimiento: <strong>{lastMoveText}</strong>
-                  </div>
-                </div>
-              </>
-            )}
+            <BoardStage
+              waitingForPlayer={waitingForPlayer}
+              roomCode={roomCode}
+              boardProps={{
+                board: hexBoard,
+                onDiscoClick: handleBoardClick,
+                selectedSource: selectedSourceId,
+                selectedTarget: selectedTargetId,
+                lastMove: lastMoveIds,
+                disabled: !canEditBoard,
+                playerStyles,
+              }}
+              controlsProps={{
+                boardInstruction,
+                canEditBoard,
+                moveAmountValue,
+                maxMoveForSource,
+                onMoveAmountChange: handleMoveAmountChange,
+                quickAmountOptions: QUICK_AMOUNT_OPTIONS,
+                moveAmount,
+                selectedSource,
+                sourceCapacity,
+                onQuickAmountClick: handleQuickAmountSelect,
+                onApplyMove: handleConfirmMove,
+                applyDisabled: !canApplyMove,
+                onCancelSelection: handleCancelSelection,
+                cancelDisabled: !canCancelSelection,
+                boardFeedback,
+                lastMoveText,
+              }}
+            />
           </div>
 
-          <div className="playerColumn">
-            <div className="playerName" style={{ color: playerStyles[1].nameColor }}>
-              {match?.player2?.nickname ?? match?.player2?.username ?? 'P2'}
-            </div>
-            <ScoreBar score={match?.player2Score ?? 0} color={playerStyles[1].color} />
-            <div className="playerScoreTag">P2: {match?.player2Score ?? 0}</div>
-          </div>
+          <PlayerColumn
+            player={match?.player2}
+            fallbackLabel="P2"
+            score={match?.player2Score ?? 0}
+            style={playerStyles[1]}
+          />
         </div>
 
         {match?.endedAt && (
@@ -852,50 +961,14 @@ export default function GameScreen() {
         <button className="back" onClick={() => setExitGame(true)}>
             Volver al Menú
           </button>
-        <div className="turnsTitle"> Turnos</div>
-        {currentPhaseMeta && <small>{currentPhaseMeta.description}</small>}
-        <div className="turnsList">
-          <div className="turnTimeline">
-            <div className="turnRound" key={`round-${activeRoundIndex}`}>
-              <div className="turnRoundHeader">Ronda {activeRoundIndex + 1}</div>
-              <div
-                className="turnRoundTrack"
-                ref={turnTrackRef}
-                style={{ transform: `translateY(${turnTrackOffset}px)` }}
-              >
-                {activeRoundPhases.map((phase, phaseIdx) => {
-                  const globalIndex = activeRoundIndex * ROUND_SIZE + phaseIdx;
-                  const meta = TURN_PHASE_META[phase] || { label: '?', description: phase, className: 'turnPhase--default' };
-                  const circleClasses = ['turnPhase', meta.className];
-                  const wrapperClasses = ['turnPhaseItem'];
-                  if (currentTurnIndex > globalIndex) {
-                    circleClasses.push('is-complete');
-                    wrapperClasses.push('is-complete');
-                  } else if (currentTurnIndex === globalIndex) {
-                    circleClasses.push('is-current');
-                    wrapperClasses.push('is-current');
-                  }
-                  const showConnector = phaseIdx < activeRoundPhases.length - 1;
-                  return (
-                    <div
-                      key={`phase-${globalIndex}`}
-                      className={wrapperClasses.join(' ')}
-                      title={`Ronda ${activeRoundIndex + 1} · ${meta.description}`}
-                    >
-                      <div className={circleClasses.join(' ')}>
-                        <span className="turnPhaseLabel">
-                          {meta.label}
-                          <small>{globalIndex + 1}</small>
-                        </span>
-                      </div>
-                      {showConnector && <span className="turnPhaseConnector" />}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-        </div>
+        <TurnTimeline
+          currentPhaseMeta={currentPhaseMeta}
+          activeRoundIndex={activeRoundIndex}
+          activeRoundPhases={activeRoundPhases}
+          currentTurnIndex={currentTurnIndex}
+          turnTrackOffset={turnTrackOffset}
+          turnTrackRef={turnTrackRef}
+        />
           {match ? (
             
               <button
