@@ -117,6 +117,7 @@ export default function GameScreen() {
   const [selectedSource, setSelectedSource] = useState(null);
   const [moveAmount, setMoveAmount] = useState(1);
   const [selectedTarget, setSelectedTarget] = useState(null);
+  const [selectionLocked, setSelectionLocked] = useState(false);
   const [boardFeedback, setBoardFeedback] = useState(null);
   const [currentUser] = useState(() => tokenService.getUser());
   const [lastMove, setLastMove] = useState({ source: null, target: null });
@@ -419,6 +420,7 @@ function useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, currentTurnI
     setSelectedSource(null);
     setSelectedTarget(null);
     setMoveAmount(1);
+    setSelectionLocked(false);
     setBoardFeedback(null);
     setLastMove(derivedLastMove);
     previousBoardRef.current = currentBoard.map((dish) => ({ ...dish }));
@@ -615,6 +617,7 @@ function useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, currentTurnI
       }
     } finally {
       setIsEndingTurn(false);
+      setSelectionLocked(false);
     }
   };
 
@@ -677,10 +680,11 @@ function useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, currentTurnI
       setMoveAmount(Math.min(moveAmount, remaining));
       setBoardFeedback('Movimiento aplicado. Puedes seguir repartiendo bacterias desde la misma placa.');
       setLastMove({ source: selectedSource, target: targetIndex });
+      setSelectionLocked(true);
     } else {
-      setSelectedSource(null);
       setMoveAmount(1);
-      setBoardFeedback('Movimiento aplicado.');
+      setBoardFeedback('Movimiento aplicado. No quedan bacterias en la placa origen. Pulsa "Terminar turno" para finalizar tu turno.');
+      setSelectionLocked(true);
       setLastMove({ source: selectedSource, target: targetIndex });
     }
   };
@@ -705,10 +709,12 @@ function useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, currentTurnI
       return;
     }
     if (selectedSource === index) {
-      setSelectedSource(null);
-      setSelectedTarget(null);
-      setMoveAmount(1);
-      setBoardFeedback(null);
+      if (!selectionLocked) {
+        setSelectedSource(null);
+        setSelectedTarget(null);
+        setMoveAmount(1);
+        setBoardFeedback(null);
+      }
       return;
     }
     if (!canMoveTo(index)) {
@@ -831,7 +837,7 @@ function useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, currentTurnI
   const maxMoveForSource = Math.max(1, sourceCapacity || 1);
   const moveAmountValue = Math.min(moveAmount, maxMoveForSource);
   const canApplyMove = canEditBoard && selectedSource !== null && selectedTarget !== null;
-  const canCancelSelection = canEditBoard && (selectedSource !== null || selectedTarget !== null);
+  const canCancelSelection = canEditBoard && (selectedSource !== null || selectedTarget !== null) && !selectionLocked;
 
   const handleQuickAmountSelect = useCallback((value) => {
     setMoveAmount(Math.min(value, maxMoveForSource));
@@ -842,6 +848,7 @@ function useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, currentTurnI
     setSelectedTarget(null);
     setMoveAmount(1);
     setBoardFeedback(null);
+    setSelectionLocked(false);
   }, []);
 
   useEffect(() => {
