@@ -648,6 +648,9 @@ function useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, currentTurnI
     if (targetDish[currentPlayerKey] + amount > MAX_BACTERIA) {
       return false;
     }
+    if ((targetDish[currentPlayerKey] + amount) === targetDish[opponentPlayerKey]) {
+      return false;
+    }
     if (sourceDish[opponentPlayerKey] !== 0 && targetDish[opponentPlayerKey] === amount) {
       return false;
     }
