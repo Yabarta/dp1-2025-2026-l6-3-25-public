@@ -542,7 +542,11 @@ function useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, currentTurnI
   const { turnTrackRef, turnTrackOffset } = useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, timelineTurnIndex);
 
   const handleTimeUp = () => {
-    alert('Sin tiempo, has perdido!');
+    try {
+      api.put(`/api/v1/matches/${id}/endMatch`);
+    } catch (err) {
+      console.error('Unable to end match cleanly', err);
+    } 
   };
 
   const handleBackToMenu = () => {
