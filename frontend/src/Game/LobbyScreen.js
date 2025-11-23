@@ -6,6 +6,7 @@ import tokenService from '../services/token.service';
 import '../static/css/lobby/lobby.css';
 
 const currentUser = tokenService.getUser();
+const player = (await api.get(`/api/v1/players/user/${currentUser.username}`)).data;
 
 export default function LobbyScreen() {
     const { id } = useParams();
@@ -32,7 +33,6 @@ export default function LobbyScreen() {
                 setError('No se pudo cargar la sala.');
             }
         };
-
         fetchLobby();
     }, [id]);
 
@@ -132,7 +132,7 @@ export default function LobbyScreen() {
         if (!lobby || !currentUser) {
             return false;
         }
-        return lobby.creatorId === currentUser.id;
+        return player.id === lobby.creatorId;
     }, [lobby]);
 
     useEffect(() => {
@@ -212,7 +212,7 @@ export default function LobbyScreen() {
                         >
                             Abandonar sala
                         </button>
-                        {lobby.players.length === 2 && (
+                        {canStart && (
                             <button
                                 type="button"
                                 className="lobby-button lobby-button--highlight"

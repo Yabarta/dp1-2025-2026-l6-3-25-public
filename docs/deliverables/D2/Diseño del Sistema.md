@@ -1066,3 +1066,139 @@ Al extraer la lógica de las reglas del juego, las validaciones de movimientos y
 ##### Tamaño
 La clase `MatchService` se había vuelto demasiado grande, acumulando responsabilidades que iban más allá de la gestión de la entidad `Match`. Contenía los datos iniciales y la lógica de negocio completa del juego, que dificultaba su mantenimiento y comprensión. Al mover la lógica y los datos específicos del juego a `MatchServiceHelper`, `MatchService` se simplificó, centrándose únicamente en las operaciones de alto nivel y la interacción con el repositorio, lo que reduce su tamaño y complejidad.
 
+### Refactorización 3: 
+#### Extracción de las responsabilidades de WebSocket de `MatchService`
+En esta refactorización movimos toda la lógica relacionada con WebSocket a un servicio dedicado (`WebSocketMatchService`) y adaptamos los controladores para usarlo.
+
+#### Estado inicial del código
+Este es un ejemplo de varias funciones que hacian uso de `publishLobbyList()` y de otras funciones similares
+```java
+@Service
+public class MatchService {
+
+    private final SimpMessagingTemplate messagingTemplate;
+
+    public MatchService(MatchRepository matchRepository,
+                        ObjectProvider<SimpMessagingTemplate> messagingTemplateProvider) {
+        this.matchRepository = matchRepository;
+        this.messagingTemplate = messagingTemplateProvider.getIfAvailable();
+    }
+
+    public Match createMatch(@NonNull Match match) {
+        Match created = matchRepository.save(match);
+        publishLobbySnapshot(created);
+        publishLobbyList();
+        return created;
+    }
+
+    public void publishLobbyList() {
+        if (messagingTemplate == null) {
+            return;
+        }
+        List<LobbyDTO> lobbies = matchRepository.findByStartedAtNull().stream()
+            .map(this::toLobbyDTO)
+            .toList();
+        messagingTemplate.convertAndSend("/topic/lobbies", lobbies);
+    }
+
+    public void publishLobbySnapshot(Match match) {
+        if (messagingTemplate == null) {
+            return;
+        }
+        messagingTemplate.convertAndSend("/topic/lobby/" + match.getId(), toLobbyDTO(match));
+    }
+}
+```
+#### Estado del código refactorizado
+Este es uno de los varios ejemplos que se podrian mostrar en lo que se ve como ahora `WebSocketMatchService` es el que alberga las funciones relacionadas con WebSocket y en vez de llamar a `MatchService` ahora llama a `WebSocketMatchService`
+```java
+@Service
+public class WebSocketMatchService {
+
+    private final SimpMessagingTemplate messagingTemplate;
+
+    public void broadcastLobbyState(@NonNull Match match) {
+        publishLobbySnapshot(match);
+        publishLobbyList();
+    }
+
+    public void publishLobbySnapshot(@NonNull Match match) {
+        LobbyDTO lobbySnapshot = Objects.requireNonNull(matchService.toLobbyDTO(match));
+        messagingTemplate.convertAndSend("/topic/lobby/" + match.getId(), lobbySnapshot);
+    }
+}
+
+@RestController
+public class MatchController {
+
+    @PostMapping
+    public ResponseEntity<Match> createMatch(@RequestParam(defaultValue = "false") Boolean isPrivate)
+            throws AccessDeniedException {
+        Match match = matchService.createMatch(newMatch);
+        webSocketMatchService.broadcastLobbyState(Objects.requireNonNull(match));
+        return ResponseEntity.created(location).body(match);
+    }
+}
+```
+
+#### Problema que nos hizo realizar la refactorización
+MatchService se habia convertido en un conglomerado de código con más de una función ocupandose tanto de los servicios normales como de los relacionados con WebSocket
+#### Ventajas que presenta la nueva versión del código respecto de la versión original
+##### Responsabilidad única:
+`MatchService` vuelve a centrarse en la gestión del dominio y la persistencia, mientras que `WebSocketMatchService` se ocupa exclusivamente de la mensajería proporcionada por WebSocket.
+##### Testabilidad:
+Los tests de negocio pueden usar `MatchService` sin preparar mocks de WebSocket, y las notificaciones se prueban aisladamente en el nuevo servicio.
+##### Reutilización y coherencia:
+Cualquier controlador que deba notificar eventos reutiliza un punto único, `WebSocketMatchService`, lo que facilita mantener el protocolo de mensajes y ajustar destinos o cargas útiles en un solo lugar.
+
+### Refactorización 4:
+#### Descomposición de `GameScreen` en componentes especializados
+En esta refactorización dividimos el componente `GameScreen` en piezas más pequeñas para separar responsabilidades y facilitar su mantenimiento.
+
+#### Estado inicial del código
+Todo el JSX y la lógica de la pantalla estaban embebidos en un único componente de más de 1.000 líneas:
+```jsx
+export default function GameScreen() {
+    // decenas de estados y handlers...
+    return (
+        <div className="gameScreenContainer">
+            <aside className="chatPanel">...</aside>
+            <main>/* controles, inputs y tablero */</main>
+            <aside className="turnsPanel">/* timeline completo */</aside>
+        </div>
+    );
+}
+```
+
+#### Estado del código refactorizado
+Ahora extraemos piezas semánticas dentro del mismo archivo (`frontend/src/Game/gameScreen.js`), reutilizando props claros y handlers memoizados:
+```jsx
+return (
+    <div className="gameScreenContainer">
+        <aside className="chatPanel">...</aside>
+        <main className="gameMainPanel">
+            <div className="gameStage">
+                <PlayerColumn ... />
+                <BoardStage boardProps={...} controlsProps={...} />
+                <PlayerColumn ... />
+            </div>
+        </main>
+        <aside className="turnsPanel">
+            <TurnTimeline {...timelineProps} />
+            <button className="endTurn" ...>Terminar turno</button>
+        </aside>
+    </div>
+);
+```
+Cada subcomponente (`PlayerColumn`, `BoardStage`, `BoardControls` y `TurnTimeline`) encapsula únicamente la vista y se alimenta con props calculados en `GameScreen`.
+
+#### Problema que nos hizo realizar la refactorización
+`GameScreen` mezclaba en un solo bloque la lógica de negocio, la gestión del estado del tablero, la renderización del tablero, los controles y la línea de turnos. Esto hacía casi imposible localizar un comportamiento concreto, incrementaba el riesgo al modificar la UI y dificultaba las pruebas.
+
+#### Ventajas que presenta la nueva versión del código respecto de la versión original
+##### Mantenibilidad
+El componente principal ahora actúa como “coordinador” y delega la UI a subcomponentes autocontenidos. Esto reduce ruido y permite modificar secciones concretas sin romper el resto.
+##### Reutilización de lógica
+`BoardControls` y `BoardStage` reciben callbacks memoizados (`handleQuickAmountSelect`, `handleCancelSelection`, etc.), lo que facilita testearlos en aislamiento e incluso moverlos a otros contextos si fuera necesario.
+##### Claridad visual
+El JSX de alto nivel describe la estructura conceptual (dos columnas de jugadores, escenario central, panel lateral), lo que acelera la comprensión para nuevos desarrolladores.

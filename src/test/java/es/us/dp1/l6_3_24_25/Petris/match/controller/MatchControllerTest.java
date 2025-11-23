@@ -24,6 +24,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import es.us.dp1.l6_3_24_25.Petris.exceptions.AccessDeniedException;
 import es.us.dp1.l6_3_24_25.Petris.match.model.Match;
 import es.us.dp1.l6_3_24_25.Petris.match.service.MatchService;
+import es.us.dp1.l6_3_24_25.Petris.match.service.WebSocketMatchService;
 import es.us.dp1.l6_3_24_25.Petris.player.model.Player;
 import es.us.dp1.l6_3_24_25.Petris.player.service.PlayerService;
 import es.us.dp1.l6_3_24_25.Petris.user.Authorities;
@@ -37,6 +38,9 @@ class MatchControllerTest {
     private MatchService matchService;
 
     @Mock
+    private WebSocketMatchService webSocketMatchService;
+
+    @Mock
     private UserService userService;
 
     @Mock
@@ -46,7 +50,7 @@ class MatchControllerTest {
 
     @BeforeEach
     void setup() {
-        matchController = new MatchController(matchService, userService, playerService);
+        matchController = new MatchController(matchService, webSocketMatchService, userService, playerService);
     }
 
     @AfterEach
@@ -80,6 +84,7 @@ class MatchControllerTest {
         assertEquals("ABCD", body.getCode());
         assertTrue(creator.getIsCurrentlyInMatch(), "Creator should be flagged as in match");
         verify(playerService).save(creator);
+        verify(webSocketMatchService).broadcastLobbyState(persisted);
         Match matchSentToService = matchCaptor.getValue();
         assertEquals("ABCD", matchSentToService.getCode());
         assertSame(creator, matchSentToService.getPlayer1());
@@ -98,6 +103,7 @@ class MatchControllerTest {
 
         assertThrows(AccessDeniedException.class, () -> matchController.createMatch(false));
         verify(matchService, never()).createMatch(any(Match.class));
+        verifyNoInteractions(webSocketMatchService);
     }
 
     @SuppressWarnings("null")
@@ -118,6 +124,7 @@ class MatchControllerTest {
         assertTrue(player2.getIsCurrentlyInMatch());
         verify(playerService).save(player2);
         verify(matchService).joinMatch(match);
+        verify(webSocketMatchService).broadcastLobbyAndMatchState(match);
     }
 
     @SuppressWarnings("null")
@@ -133,6 +140,7 @@ class MatchControllerTest {
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         verify(matchService, never()).joinMatch(any(Match.class));
+        verifyNoInteractions(webSocketMatchService);
     }
 
     @SuppressWarnings("null")
@@ -144,6 +152,7 @@ class MatchControllerTest {
         when(matchService.getMatchById(102)).thenReturn(match);
 
         assertThrows(AccessDeniedException.class, () -> matchController.joinMatch(102, Optional.of("WXYZ")));
+        verifyNoInteractions(webSocketMatchService);
     }
 
     @SuppressWarnings("null")
@@ -158,6 +167,7 @@ class MatchControllerTest {
         when(playerService.getPlayerByUser(intruder.getUser())).thenReturn(intruder);
 
         assertThrows(AccessDeniedException.class, () -> matchController.joinMatch(103, Optional.empty()));
+        verifyNoInteractions(webSocketMatchService);
     }
 
     @SuppressWarnings("null")
@@ -177,6 +187,26 @@ class MatchControllerTest {
         assertFalse(player2.getIsCurrentlyInMatch());
         verify(playerService).save(player2);
         verify(matchService).leaveMatch(match, player2);
+        verify(webSocketMatchService).broadcastLobbyState(match);
+    }
+
+    @SuppressWarnings("null")
+    @Test
+    void leaveMatch_closesLobbyWhenLastPlayerLeaves() throws Exception {
+        Player player1 = buildPlayer(29, "solo", true);
+        Match match = buildMatch(204, player1, null);
+        when(matchService.getMatchById(204)).thenReturn(match);
+        when(userService.findCurrentUser()).thenReturn(player1.getUser());
+        when(playerService.getPlayerByUser(player1.getUser())).thenReturn(player1);
+        when(matchService.leaveMatch(match, player1)).thenReturn(Optional.empty());
+
+        ResponseEntity<Void> response = matchController.leaveMatch(204);
+
+        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+        assertFalse(player1.getIsCurrentlyInMatch());
+        verify(playerService).save(player1);
+        verify(matchService).leaveMatch(match, player1);
+        verify(webSocketMatchService).broadcastLobbyClosed(204);
     }
 
     @SuppressWarnings("null")
@@ -190,6 +220,7 @@ class MatchControllerTest {
         when(playerService.getPlayerByUser(outsider.getUser())).thenReturn(outsider);
 
         assertThrows(AccessDeniedException.class, () -> matchController.leaveMatch(105));
+        verifyNoInteractions(webSocketMatchService);
     }
 
     @SuppressWarnings("null")
@@ -212,6 +243,7 @@ class MatchControllerTest {
         assertNotNull(body);
         assertNotNull(body.getStartedAt());
         verify(matchService).startMatch(match);
+        verify(webSocketMatchService).broadcastLobbyAndMatchState(started);
     }
 
     @SuppressWarnings("null")
@@ -226,6 +258,7 @@ class MatchControllerTest {
         when(playerService.getPlayerByUser(intruder.getUser())).thenReturn(intruder);
 
         assertThrows(AccessDeniedException.class, () -> matchController.startMatch(107));
+        verifyNoInteractions(webSocketMatchService);
     }
 
     @SuppressWarnings("null")
@@ -244,6 +277,7 @@ class MatchControllerTest {
         assertNotNull(body);
         assertSame(match, body);
         verify(matchService, never()).startMatch(any(Match.class));
+        verifyNoInteractions(webSocketMatchService);
     }
 
     private Match buildMatch(int id, Player player1, Player player2) {

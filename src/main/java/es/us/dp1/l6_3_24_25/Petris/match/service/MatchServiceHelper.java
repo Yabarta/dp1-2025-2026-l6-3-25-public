@@ -17,6 +17,12 @@ public class MatchServiceHelper {
     private Match match;
     private List<PetriDish> boardState;
     private int player;
+    private List<TurnType> turnTypeList;
+    private Map<Integer, Set<Integer>> petriDishAdjacencies;
+    private Integer NUM_PETRI_DISHES = 7;
+    private Integer MAX_BACTERIA_PER_PETRI_DISH = 5;
+    private Integer MAX_SCORE = 9;
+    private Integer MAX_MOVABLE_BACTERIA = 4;
 
     public List<TurnType> getTurnTypeList() {
         return List.of(
@@ -89,11 +95,11 @@ public class MatchServiceHelper {
 
     public Match binaryFission(Match matchToUpdate) {
         List<PetriDish> newBoardState = new ArrayList<>(matchToUpdate.getBoardState());
-        for(Integer i = 0; i < 7; i++) {
+        for(Integer i = 0; i < NUM_PETRI_DISHES; i++) {
             PetriDish newPd = newBoardState.get(i);
-            if(newPd.getPlayer1Bacteria() > 0 && newPd.getPlayer1Bacteria() < 5 && newPd.getPlayer2Bacteria() == 0) {
+            if(newPd.getPlayer1Bacteria() > 0 && newPd.getPlayer1Bacteria() < MAX_BACTERIA_PER_PETRI_DISH && newPd.getPlayer2Bacteria() == 0) {
                 newPd.setPlayer1Bacteria(newPd.getPlayer1Bacteria() + 1);
-            } else  if(newPd.getPlayer2Bacteria() > 0 && newPd.getPlayer2Bacteria() < 5 && newPd.getPlayer1Bacteria() == 0) {
+            } else  if(newPd.getPlayer2Bacteria() > 0 && newPd.getPlayer2Bacteria() < MAX_BACTERIA_PER_PETRI_DISH && newPd.getPlayer1Bacteria() == 0) {
                 newPd.setPlayer2Bacteria(newPd.getPlayer2Bacteria() + 1);
             }
         }
@@ -101,12 +107,14 @@ public class MatchServiceHelper {
     }
 
     public Match contamination(Match matchToUpdate) {
-        for(Integer i = 0; i < 7; i++) {
+        for(Integer i = 0; i < NUM_PETRI_DISHES; i++) {
             PetriDish pd = matchToUpdate.getBoardState().get(i);
             if(pd.getPlayer1Bacteria() > pd.getPlayer2Bacteria()) {
-                matchToUpdate.setPlayer1Score(matchToUpdate.getPlayer1Score() + 1);
+                int newScore = Math.min(MAX_SCORE, matchToUpdate.getPlayer1Score() + 1);
+                matchToUpdate.setPlayer1Score(newScore);
             } else if(pd.getPlayer1Bacteria() < pd.getPlayer2Bacteria()) {
-                matchToUpdate.setPlayer2Score(matchToUpdate.getPlayer2Score() + 1);
+                int newScore = Math.min(MAX_SCORE, matchToUpdate.getPlayer2Score() + 1);
+                matchToUpdate.setPlayer2Score(newScore);
             }
         }
         return matchToUpdate;
@@ -114,72 +122,91 @@ public class MatchServiceHelper {
 
 
     public Integer getWinner(Match match) {
-        Integer winner = null;
-        if(match.getTurn().equals(getTurnTypeList().size() - 1)) {
-            if(match.getPlayer1Score() < match.getPlayer2Score()) {
-                winner = 1;
-            } else if(match.getPlayer1Score() > match.getPlayer2Score()) {
-                winner = 2;
-            } else {
-                winner = tieBreak(match);
-            }
-            return winner;
+        if (match == null) {
+            return null;
         }
-        if(match.getTurnType().equals(TurnType.P1_PROPAGATION)) {
-            if(!hasPossibleMoves(match.getBoardState(), 1)) {
-                winner = 2;
-                return winner;
+        int currentTurn = match.getTurn() == null ? 0 : match.getTurn();
+        List<TurnType> sequence = getTurnTypeList();
+        if (currentTurn >= sequence.size()) {
+            int player1Score = safeScore(match.getPlayer1Score());
+            int player2Score = safeScore(match.getPlayer2Score());
+            if (player1Score < player2Score) {
+                return 1;
+            } else if (player1Score > player2Score) {
+                return 2;
             }
+            return tieBreak(match);
         }
-        if(match.getTurnType().equals(TurnType.P2_PROPAGATION)) {
-            if(!hasPossibleMoves(match.getBoardState(), 2)) {
-                winner = 1;
-                return winner;
-            }
+
+        TurnType turnType = match.getTurnType();
+        if (turnType == TurnType.P1_PROPAGATION && !hasPossibleMoves(match.getBoardState(), 1)) {
+            return 2;
         }
-        if(match.getPlayer1Score() == 9) {
-            if(match.getPlayer2Score() == 9) {
-                winner = tieBreak(match);
-            } else {
-                winner = 2;
-            }
-            return winner;
-        } else if(match.getPlayer2Score() == 9) {
-            winner = 1;
-            return winner;
+        if (turnType == TurnType.P2_PROPAGATION && !hasPossibleMoves(match.getBoardState(), 2)) {
+            return 1;
         }
-        return winner;
+
+        int player1Score = safeScore(match.getPlayer1Score());
+        int player2Score = safeScore(match.getPlayer2Score());
+        if (player1Score >= MAX_SCORE && player2Score >= MAX_SCORE) {
+            return tieBreak(match);
+        }
+        if (player1Score >= MAX_SCORE) {
+            return 2;
+        }
+        if (player2Score >= MAX_SCORE) {
+            return 1;
+        }
+        return null;
     }
 
     public Boolean hasPossibleMoves(List<PetriDish> boardState, int player) {
-        Boolean res = false;
-        for(Integer i = 0; i < 7; i++) {
+        if (boardState == null || boardState.size() < NUM_PETRI_DISHES) {
+            return false;
+        }
+        for (int i = 0; i < NUM_PETRI_DISHES; i++) {
             PetriDish pd = boardState.get(i);
-            int bacteria;
-            if(player == 1) {
-                bacteria = pd.getPlayer1Bacteria();
-            } else if(player == 2) {
-                bacteria = pd.getPlayer2Bacteria();
-            } else {
-                throw new IllegalArgumentException("player must be 1 or 2");
+            if (pd == null) {
+                continue;
             }
-            if(bacteria != 0 && bacteria != 5) {
-                for(Integer bacteriaToMove = 1; bacteriaToMove <= bacteria; bacteriaToMove++) {
-                    for(Integer target : getPetriDishAdjacencies().get(i)) {
-                        if(player == 1) {
-                            res = res || (boardState.get(target).getPlayer1Bacteria() != 5 &&
-                                boardState.get(target).getPlayer2Bacteria() != bacteriaToMove &&
-                                bacteria - bacteriaToMove != boardState.get(i).getPlayer2Bacteria());
-                        } else {
-                            res = res || (boardState.get(target).getPlayer2Bacteria() != 5 &&
-                                boardState.get(target).getPlayer1Bacteria() != bacteriaToMove &&
-                                bacteria - bacteriaToMove != boardState.get(i).getPlayer1Bacteria());
-                        }
+            int myBacteria = player == 1 ? safeCount(pd.getPlayer1Bacteria()) : safeCount(pd.getPlayer2Bacteria());
+            int opponentBacteria = player == 1 ? safeCount(pd.getPlayer2Bacteria()) : safeCount(pd.getPlayer1Bacteria());
+
+            if (myBacteria <= 0 || myBacteria == MAX_BACTERIA_PER_PETRI_DISH) {
+                continue;
+            }
+
+            int maxMovable = Math.min(myBacteria, MAX_MOVABLE_BACTERIA);
+            for (int amount = 1; amount <= maxMovable; amount++) {
+                if (opponentBacteria > 0 && myBacteria - amount == opponentBacteria) {
+                    continue;
+                }
+                Set<Integer> adjacencies = getPetriDishAdjacencies().get(i);
+                if (adjacencies == null) {
+                    continue;
+                }
+                for (Integer target : adjacencies) {
+                    PetriDish targetDish = boardState.get(target);
+                    if (targetDish == null) {
+                        continue;
                     }
+                    int targetMyCount = player == 1 ? safeCount(targetDish.getPlayer1Bacteria()) : safeCount(targetDish.getPlayer2Bacteria());
+                    int targetOpponentCount = player == 1 ? safeCount(targetDish.getPlayer2Bacteria()) : safeCount(targetDish.getPlayer1Bacteria());
+
+                    if (targetMyCount >= MAX_BACTERIA_PER_PETRI_DISH) {
+                        continue;
+                    }
+                    if (targetMyCount + amount > MAX_BACTERIA_PER_PETRI_DISH) {
+                        continue;
+                    }
+                    if (targetOpponentCount > 0 && targetOpponentCount == amount) {
+                        continue;
+                    }
+                    return true;
                 }
             }
         }
-        return res;
+        return false;
     }
 
     public Integer tieBreak(Match match) {
@@ -188,15 +215,15 @@ public class MatchServiceHelper {
         int player1Sarcinas = 0;
         int player2Tokens = 0;
         int player2Sarcinas = 0;
-        for(Integer i = 0; i < 7; i++) {
+        for(Integer i = 0; i < NUM_PETRI_DISHES; i++) {
             PetriDish pd = match.getBoardState().get(i);
-            if(pd.getPlayer1Bacteria() != 5) {
+            if(pd.getPlayer1Bacteria() != MAX_BACTERIA_PER_PETRI_DISH) {
                 player1Tokens += pd.getPlayer1Bacteria();
             } else {
                 player1Tokens += 1;
                 player1Sarcinas += 1;
             }
-            if(pd.getPlayer2Bacteria() != 5) {
+            if(pd.getPlayer2Bacteria() != MAX_BACTERIA_PER_PETRI_DISH) {
                 player2Tokens += pd.getPlayer2Bacteria();
             } else {
                 player2Tokens += 1;
@@ -213,5 +240,13 @@ public class MatchServiceHelper {
             winner = 2;
         }
         return winner;
+    }
+
+    private int safeCount(Integer value) {
+        return value == null ? 0 : value;
+    }
+
+    private int safeScore(Integer value) {
+        return value == null ? 0 : value;
     }
 }

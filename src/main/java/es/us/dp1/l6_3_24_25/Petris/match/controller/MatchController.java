@@ -6,6 +6,7 @@ import es.us.dp1.l6_3_24_25.Petris.match.model.Match;
 import es.us.dp1.l6_3_24_25.Petris.match.model.PetriDish;
 import es.us.dp1.l6_3_24_25.Petris.match.model.TurnType;
 import es.us.dp1.l6_3_24_25.Petris.match.service.MatchService;
+import es.us.dp1.l6_3_24_25.Petris.match.service.WebSocketMatchService;
 import es.us.dp1.l6_3_24_25.Petris.player.model.Player;
 import es.us.dp1.l6_3_24_25.Petris.player.service.PlayerService;
 import es.us.dp1.l6_3_24_25.Petris.user.User;
@@ -34,12 +35,17 @@ import java.util.Optional;
 public class MatchController {
 
     MatchService matchService;
+    WebSocketMatchService webSocketMatchService;
     UserService userService;
     PlayerService playerService;
 
     @Autowired
-    public MatchController(MatchService ms, UserService us, PlayerService ps) {
+    public MatchController(MatchService ms,
+                           WebSocketMatchService webSocketMatchService,
+                           UserService us,
+                           PlayerService ps) {
         this.matchService = ms;
+        this.webSocketMatchService = webSocketMatchService;
         this.userService = us;
         this.playerService = ps;
     }
@@ -101,6 +107,7 @@ public class MatchController {
         match.setCreator(currentPlayer);
         match.setPlayer1(currentPlayer);
         match = matchService.createMatch(match);
+        webSocketMatchService.broadcastLobbyState(Objects.requireNonNull(match));
         currentPlayer.setIsCurrentlyInMatch(true);
         playerService.save(currentPlayer);
         URI location = ServletUriComponentsBuilder
@@ -144,7 +151,9 @@ public class MatchController {
         currentPlayer.setIsCurrentlyInMatch(true);
         playerService.save(currentPlayer);
 
-        return new ResponseEntity<>(matchService.joinMatch(matchToUpdate), HttpStatus.OK);
+        Match joined = matchService.joinMatch(matchToUpdate);
+        webSocketMatchService.broadcastLobbyAndMatchState(Objects.requireNonNull(joined));
+        return new ResponseEntity<>(joined, HttpStatus.OK);
     }
 
     @PutMapping("/{id}/leave")
@@ -162,9 +171,14 @@ public class MatchController {
         if (!currentPlayer.equals(match.getPlayer1()) && !currentPlayer.equals(match.getPlayer2())) {
             throw new AccessDeniedException("You're not part of this lobby");
         }
-        matchService.leaveMatch(match, currentPlayer);
+        Optional<Match> optionalMatch = matchService.leaveMatch(match, currentPlayer);
         currentPlayer.setIsCurrentlyInMatch(false);
         playerService.save(currentPlayer);
+        if (optionalMatch.isPresent()) {
+            webSocketMatchService.broadcastLobbyState(Objects.requireNonNull(optionalMatch.get()));
+        } else {
+            webSocketMatchService.broadcastLobbyClosed(match.getId());
+        }
         return ResponseEntity.noContent().build();
     }
 
@@ -187,6 +201,7 @@ public class MatchController {
             throw new AccessDeniedException("Only the lobby creator can start the match");
         }
         Match started = matchService.startMatch(match);
+        webSocketMatchService.broadcastLobbyAndMatchState(Objects.requireNonNull(started));
         return new ResponseEntity<>(started, HttpStatus.OK);
     }
 
@@ -214,6 +229,9 @@ public class MatchController {
             player2.setIsCurrentlyInMatch(false);
             playerService.save(player1);
             playerService.save(player2);
+            webSocketMatchService.broadcastMatchEnded(updatedMatch);
+        } else {
+            webSocketMatchService.publishMatchSnapshot(updatedMatch);
         }
 
         return new ResponseEntity<>(updatedMatch, HttpStatus.OK);
@@ -250,13 +268,16 @@ public class MatchController {
         } else {
             throw new AccessDeniedException("You're not in the game");
         }
-        return new ResponseEntity<>(matchService.forceEndMatch(matchToUpdate), HttpStatus.OK);
+        Match ended = matchService.forceEndMatch(matchToUpdate);
+        webSocketMatchService.broadcastMatchEnded(Objects.requireNonNull(ended));
+        return new ResponseEntity<>(ended, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<Void> deleteMatch(@PathVariable("id") @NonNull Integer id) {
         matchService.delete(id);
+        webSocketMatchService.broadcastLobbyClosed(id);
         return ResponseEntity.noContent().build();
     }
 }

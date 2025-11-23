@@ -10,6 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import es.us.dp1.l6_3_24_25.Petris.match.model.Match;
 import es.us.dp1.l6_3_24_25.Petris.match.service.MatchService;
+import es.us.dp1.l6_3_24_25.Petris.match.service.WebSocketMatchService;
 
 @ExtendWith(MockitoExtension.class)
 class WebSocketMatchControllerTests {
@@ -17,11 +18,14 @@ class WebSocketMatchControllerTests {
     @Mock
     private MatchService matchService;
 
+    @Mock
+    private WebSocketMatchService webSocketMatchService;
+
     private WebSocketMatchController controller;
 
     @BeforeEach
     void setup() {
-        controller = new WebSocketMatchController(matchService);
+        controller = new WebSocketMatchController(matchService, webSocketMatchService);
     }
 
     @Test
@@ -31,14 +35,14 @@ class WebSocketMatchControllerTests {
 
         controller.watchLobby(55);
 
-        verify(matchService).publishLobbySnapshot(match);
+        verify(webSocketMatchService).publishLobbySnapshot(match);
     }
 
     @Test
     void watchLobbyList_publishesLobbyCollection() {
         controller.watchLobbyList();
 
-        verify(matchService).publishLobbyList();
+        verify(webSocketMatchService).publishLobbyList();
     }
 
     @Test
@@ -48,6 +52,6 @@ class WebSocketMatchControllerTests {
 
         controller.watchMatch(99);
 
-        verify(matchService).publishMatchSnapshot(match);
+        verify(webSocketMatchService).publishMatchSnapshot(match);
     }
 }

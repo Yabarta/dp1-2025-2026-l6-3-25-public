@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { matchPath, useNavigate, useParams } from 'react-router-dom';
 import '../static/css/game/gameScreen.css';
-import ExitModal from '../components/modal/ExitModal';
+import ExitGameModal from '../components/modal/ExitGameModal';
 import useWebSocket from '../hooks/useWebSocket';
 import api from '../services/api';
 import tokenService from '../services/token.service';
@@ -12,64 +12,22 @@ function ScoreBar({ score = 0, color = '#888' }) {
   const max = 9;
   const clamped = Math.max(0, Math.min(max, Number(score) || 0));
   const fillPercent = (clamped / max) * 100;
-  const numbers = Array.from({ length: max + 1 }, (_, i) => max - i);
+  const ticks = Array.from({ length: max + 1 }, (_, i) => i);
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 12, paddingTop: 12 }}>
-      <div
-        style={{
-          position: 'relative',
-          width: 56,
-          height: 360,
-          border: '2px solid #000',
-          boxSizing: 'border-box',
-          background: '#fff',
-        }}
-      >
-        <div
-          style={{
-            position: 'absolute',
-            left: 0,
-            right: 0,
-            bottom: 0,
-            height: `${fillPercent}%`,
-            background: color,
-            transition: 'height 240ms ease',
-          }}
-        />
-        {Array.from({ length: max + 1 }).map((_, i) => {
-          const percent = (i / max) * 100;
-          return (
-            <div
-              key={`line-${i}`}
-              style={{
-                position: 'absolute',
-                left: 0,
-                right: 0,
-                top: `${percent}%`,
-                transform: 'translateY(-50%)',
-                height: 0,
-                borderTop: '1px solid rgba(0,0,0,0.25)',
-              }}
-            />
-          );
+    <div className="scoreBarContainer">
+      <div className="scoreBarFrame">
+        <div className="scoreBarFill" style={{ height: `${fillPercent}%`, background: `linear-gradient(180deg, ${color} 0%, rgba(12, 24, 15, 0.9) 100%)` }} />
+        {ticks.map((value) => {
+          const percent = 100 - (value / max) * 100;
+          return <span key={`line-${value}`} className="scoreBarTick" style={{ top: `${percent}%` }} />;
         })}
-        {numbers.map((n, idx) => {
-          const percent = (idx / max) * 100;
+        {ticks.map((value) => {
+          const percent = 100 - (value / max) * 100;
           return (
-            <div
-              key={`label-${n}`}
-              style={{
-                position: 'absolute',
-                right: -44,
-                top: `${percent}%`,
-                transform: 'translateY(-50%)',
-                fontSize: 14,
-                fontWeight: 600,
-              }}
-            >
-              {n}
-            </div>
+            <span key={`label-${value}`} className="scoreBarLabel" style={{ top: `${percent}%` }}>
+              {value}
+            </span>
           );
         })}
       </div>
@@ -87,6 +45,64 @@ const PETRI_ADJACENCIES = {
   5: [2, 3, 6],
   6: [3, 4, 5],
 };
+
+const TURN_SEQUENCE = [
+  'P1_PROPAGATION',
+  'P2_PROPAGATION',
+  'BINARY_FISSION',
+  'P2_PROPAGATION',
+  'P1_PROPAGATION',
+  'BINARY_FISSION',
+  'P1_PROPAGATION',
+  'P2_PROPAGATION',
+  'BINARY_FISSION',
+  'CONTAMINATION',
+  'P2_PROPAGATION',
+  'P1_PROPAGATION',
+  'BINARY_FISSION',
+  'P1_PROPAGATION',
+  'P2_PROPAGATION',
+  'BINARY_FISSION',
+  'P2_PROPAGATION',
+  'P1_PROPAGATION',
+  'BINARY_FISSION',
+  'CONTAMINATION',
+  'P1_PROPAGATION',
+  'P2_PROPAGATION',
+  'BINARY_FISSION',
+  'P2_PROPAGATION',
+  'P1_PROPAGATION',
+  'BINARY_FISSION',
+  'P1_PROPAGATION',
+  'P2_PROPAGATION',
+  'BINARY_FISSION',
+  'CONTAMINATION',
+  'P2_PROPAGATION',
+  'P1_PROPAGATION',
+  'BINARY_FISSION',
+  'P1_PROPAGATION',
+  'P2_PROPAGATION',
+  'BINARY_FISSION',
+  'P2_PROPAGATION',
+  'P1_PROPAGATION',
+  'BINARY_FISSION',
+  'CONTAMINATION',
+];
+
+const ROUND_SIZE = 10;
+const TURN_ROUNDS = Array.from({ length: Math.ceil(TURN_SEQUENCE.length / ROUND_SIZE) }, (_, roundIndex) =>
+  TURN_SEQUENCE.slice(roundIndex * ROUND_SIZE, (roundIndex + 1) * ROUND_SIZE),
+);
+
+const TURN_PHASE_META = {
+  P1_PROPAGATION: { label: 'P1', description: 'Propagación jugador 1', className: 'turnPhase--p1' },
+  P2_PROPAGATION: { label: 'P2', description: 'Propagación jugador 2', className: 'turnPhase--p2' },
+  BINARY_FISSION: { label: 'F', description: 'Fisión binaria', className: 'turnPhase--binary' },
+  CONTAMINATION: { label: 'C', description: 'Contaminación', className: 'turnPhase--contamination' },
+};
+
+const QUICK_AMOUNT_OPTIONS = [1, 2, 3, 4, 5];
+
 
 export default function GameScreen() {
   const { id } = useParams();
@@ -110,6 +126,236 @@ export default function GameScreen() {
 
 
   const matchUpdate = useWebSocket(`/app/matches/watch/${id}`, `/topic/match/${id}`);
+
+function PlayerColumn({ player, fallbackLabel, score, style }) {
+  const displayName = player?.nickname ?? player?.username ?? fallbackLabel;
+  const safeScore = score ?? 0;
+
+  return (
+    <div className="playerColumn">
+      <div className="playerName" style={{ color: style.nameColor }}>
+        {displayName}
+      </div>
+      <ScoreBar score={safeScore} color={style.color} />
+    </div>
+  );
+}
+
+function BoardStage({ waitingForPlayer, roomCode, boardProps, controlsProps }) {
+  if (waitingForPlayer) {
+    return (
+      <div className="waitingStage">
+        <h2>Esperando al segundo jugador...</h2>
+        <div className="loadingSpinner" />
+        <p>
+          Código: <strong>{roomCode}</strong>
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <div className="boardWrapper">
+        <Board {...boardProps} />
+      </div>
+      <BoardControls {...controlsProps} />
+    </>
+  );
+}
+
+function BoardControls({
+  boardInstruction,
+  canEditBoard,
+  moveAmountValue,
+  maxMoveForSource,
+  onMoveAmountChange,
+  quickAmountOptions,
+  moveAmount,
+  selectedSource,
+  sourceCapacity,
+  onQuickAmountClick,
+  onApplyMove,
+  applyDisabled,
+  onCancelSelection,
+  cancelDisabled,
+  boardFeedback,
+  lastMoveText,
+}) {
+  return (
+    <div className="boardControls">
+      <p className="boardInstruction">{boardInstruction}</p>
+      {canEditBoard && (
+        <>
+          <div className="controlRow">
+            <label htmlFor="move-amount">Unidades a mover:</label>
+            <input
+              id="move-amount"
+              type="number"
+              min="1"
+              max={maxMoveForSource}
+              value={moveAmountValue}
+              onChange={onMoveAmountChange}
+            />
+            <div className="quick-amounts">
+              {quickAmountOptions.map((value) => (
+                <button
+                  key={value}
+                  type="button"
+                  className={moveAmount === value ? 'active' : ''}
+                  disabled={selectedSource === null || value > sourceCapacity}
+                  onClick={() => onQuickAmountClick(value)}
+                >
+                  {value}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="controlRow controlRow--actions">
+            <button type="button" onClick={onApplyMove} disabled={applyDisabled}>
+              Aplicar movimiento
+            </button>
+            <button type="button" onClick={onCancelSelection} disabled={cancelDisabled}>
+              Cancelar selección
+            </button>
+          </div>
+        </>
+      )}
+      {boardFeedback && <div className="board-feedback">{boardFeedback}</div>}
+      <div className="last-move-info">
+        Último movimiento: <strong>{lastMoveText}</strong>
+      </div>
+    </div>
+  );
+}
+
+function TurnTimeline({
+  currentPhaseMeta,
+  activeRoundIndex,
+  activeRoundPhases,
+  currentTurnIndex,
+  turnTrackOffset,
+  turnTrackRef,
+}) {
+  const totalTurns = TURN_SEQUENCE.length;
+  const safeDisplayTurn = currentTurnIndex < 0 ? 0 : Math.min(currentTurnIndex, totalTurns - 1);
+  const turnNumberLabel = currentTurnIndex < 0 ? 0 : safeDisplayTurn + 1;
+  return (
+    <>
+      <div className="turnSummary">Turno {turnNumberLabel%10} · Ronda {activeRoundIndex + 1}</div>
+      {currentPhaseMeta && <small>{currentPhaseMeta.description}</small>}
+      <div className="turnsList">
+        <div className="turnTimeline">
+          <div className="turnRound" key={`round-${activeRoundIndex}`}>
+            
+            <div
+              className="turnRoundTrack"
+              ref={turnTrackRef}
+              style={{ transform: `translateY(${turnTrackOffset}px)` }}
+            >
+              {activeRoundPhases.map((phase, phaseIdx) => {
+                const globalIndex = activeRoundIndex * ROUND_SIZE + phaseIdx;
+                const meta = TURN_PHASE_META[phase] || { label: '?', description: phase, className: 'turnPhase--default' };
+                const circleClasses = ['turnPhase', meta.className];
+                const wrapperClasses = ['turnPhaseItem'];
+                if (currentTurnIndex > globalIndex) {
+                  circleClasses.push('is-complete');
+                  wrapperClasses.push('is-complete');
+                } else if (currentTurnIndex === globalIndex) {
+                  circleClasses.push('is-current');
+                  wrapperClasses.push('is-current');
+                }
+                const showConnector = phaseIdx < activeRoundPhases.length - 1;
+                return (
+                  <div
+                    key={`phase-${globalIndex}`}
+                    className={wrapperClasses.join(' ')}
+                    title={`Ronda ${activeRoundIndex + 1} · ${meta.description}`}
+                  >
+                    <div className={circleClasses.join(' ')}>
+                      <span className="turnPhaseLabel">
+                        {meta.label}
+                        <small>{globalIndex + 1}</small>
+                      </span>
+                    </div>
+                    {showConnector && <span className="turnPhaseConnector" />}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+function useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, currentTurnIndex) {
+  const turnTrackRef = useRef(null);
+  const previousRoundRef = useRef(null);
+  const previousPhaseIndexRef = useRef(null);
+  const [turnTrackOffset, setTurnTrackOffset] = useState(0);
+
+  useEffect(() => {
+    const trackElement = turnTrackRef.current;
+    if (!trackElement) {
+      previousRoundRef.current = activeRoundIndex;
+      previousPhaseIndexRef.current = currentPhaseIndexInRound;
+      setTurnTrackOffset(0);
+      return;
+    }
+
+    const phaseNodes = trackElement.querySelectorAll('.turnPhaseItem');
+    if (!phaseNodes.length) {
+      previousRoundRef.current = activeRoundIndex;
+      previousPhaseIndexRef.current = currentPhaseIndexInRound;
+      setTurnTrackOffset(0);
+      return;
+    }
+
+    const safeIndex = Math.min(Math.max(currentPhaseIndexInRound, 0), phaseNodes.length - 1);
+    const roundChanged = previousRoundRef.current !== null && previousRoundRef.current !== activeRoundIndex;
+    const waitingForTurn = currentTurnIndex < 0;
+
+    if (roundChanged || waitingForTurn) {
+      previousRoundRef.current = activeRoundIndex;
+      previousPhaseIndexRef.current = safeIndex;
+      setTurnTrackOffset(0);
+      return;
+    }
+
+    if (previousPhaseIndexRef.current === null) {
+      previousPhaseIndexRef.current = safeIndex;
+      previousRoundRef.current = activeRoundIndex;
+      setTurnTrackOffset(0);
+      return;
+    }
+
+    const previousIndex = previousPhaseIndexRef.current;
+    previousRoundRef.current = activeRoundIndex;
+
+    if (previousIndex === safeIndex) {
+      return;
+    }
+
+    const currentNode = phaseNodes[safeIndex];
+    const previousNode = phaseNodes[previousIndex];
+    previousPhaseIndexRef.current = safeIndex;
+
+    if (!currentNode || !previousNode) {
+      return;
+    }
+
+    const delta = currentNode.offsetTop - previousNode.offsetTop;
+    if (!Number.isFinite(delta) || delta === 0) {
+      return;
+    }
+
+    setTurnTrackOffset((prevOffset) => prevOffset - delta);
+  }, [activeRoundIndex, currentPhaseIndexInRound, currentTurnIndex]);
+
+  return { turnTrackRef, turnTrackOffset };
+}
 
   useEffect(() => {
     const fetchMatch = async () => {
@@ -278,6 +524,22 @@ export default function GameScreen() {
     });
   }, [editedBoard, match]);
   const isMyTurn = Boolean(match && !matchEnded && (isPropagationTurn ? isMyPropagationTurn : iAmParticipant));
+  const totalTurnPhases = TURN_SEQUENCE.length;
+  const rawTurnIndex = typeof match?.turn === 'number' ? match.turn : -1;
+  const consumedAllPhases = rawTurnIndex >= totalTurnPhases;
+  const clampedTurnIndex = rawTurnIndex >= 0
+    ? Math.min(rawTurnIndex, totalTurnPhases - 1)
+    : rawTurnIndex;
+  const timelineTurnIndex = consumedAllPhases ? totalTurnPhases : clampedTurnIndex;
+  const currentPhaseMeta = match?.turnType ? TURN_PHASE_META[match.turnType] : null;
+  const activeRoundIndex = clampedTurnIndex >= 0
+    ? Math.min(Math.floor(clampedTurnIndex / ROUND_SIZE), TURN_ROUNDS.length - 1)
+    : 0;
+  const activeRoundPhases = TURN_ROUNDS[activeRoundIndex] ?? TURN_ROUNDS[0];
+  const currentPhaseIndexInRound = clampedTurnIndex >= 0
+    ? clampedTurnIndex - activeRoundIndex * ROUND_SIZE
+    : 0;
+  const { turnTrackRef, turnTrackOffset } = useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, timelineTurnIndex);
 
   const handleTimeUp = () => {
     alert('Sin tiempo, has perdido!');
@@ -485,18 +747,6 @@ export default function GameScreen() {
     setMoveAmount(clamped);
   };
 
-  const handleResetBoard = () => {
-    if (!match?.board) {
-      return;
-    }
-    setEditedBoard(match.board.map((dish) => ({ ...dish })));
-    setSelectedSource(null);
-    setSelectedTarget(null);
-    setMoveAmount(1);
-    setBoardFeedback(null);
-    setLastMove({ source: null, target: null });
-  };
-
   const boardInstruction = useMemo(() => {
     if (waitingForPlayer) {
       return 'Esperando a que llegue el segundo jugador.';
@@ -576,6 +826,19 @@ export default function GameScreen() {
     : 0;
   const maxMoveForSource = Math.max(1, sourceCapacity || 1);
   const moveAmountValue = Math.min(moveAmount, maxMoveForSource);
+  const canApplyMove = canEditBoard && selectedSource !== null && selectedTarget !== null;
+  const canCancelSelection = canEditBoard && (selectedSource !== null || selectedTarget !== null);
+
+  const handleQuickAmountSelect = useCallback((value) => {
+    setMoveAmount(Math.min(value, maxMoveForSource));
+  }, [maxMoveForSource]);
+
+  const handleCancelSelection = useCallback(() => {
+    setSelectedSource(null);
+    setSelectedTarget(null);
+    setMoveAmount(1);
+    setBoardFeedback(null);
+  }, []);
 
   useEffect(() => {
     if (selectedSource === null) {
@@ -592,7 +855,7 @@ export default function GameScreen() {
 
   return (
     <div className="gameScreenContainer">
-      <ExitModal
+      <ExitGameModal
         text="¿Seguro que quieres abandonar la partida?"
         isVisible={exitGame}
         onConfirm={handleExit}
@@ -600,139 +863,69 @@ export default function GameScreen() {
       />
 
       <aside className="chatPanel">
+        <span className="">Tiempo Restante: {timeLeft} s</span>
+        <div className="chatTitle">CHAT</div>
         <div className="chatList">
           <Chat nickname={nickname}/>
         </div>
+        {waitingForPlayer && (
+          <div className="chatRoomInfo">
+            <p>Código de partida:</p>
+            <div className="roomCode">{roomCode}</div>
+            <p>Comparte este código para que se una otro jugador</p>
+          </div>
+        )}
       </aside>
 
       <main className="gameMainPanel">
-        <div className="gameHeader">
-          <div className="gameTurnIndicator">{match ? `Turno ${match.turn + 1}` : '—'}</div>
-          <span className="timer">{timeLeft}</span>
-          <button className="back" onClick={() => setExitGame(true)}>
-            Volver al Menú
-          </button>
-        </div>
-
         <div className={`gameStage ${waitingForPlayer ? 'gameStage--waiting' : ''}`}>
-          <div className="playerColumn">
-            <div className="playerName" style={{ color: playerStyles[0].nameColor }}>
-              {match?.player1?.nickname ?? match?.player1?.username ?? 'P1'}
-            </div>
-            <ScoreBar score={match?.player1Score ?? 0} color={playerStyles[0].color} />
-            <div className="playerScoreTag">P1: {match?.player1Score ?? 0}</div>
-          </div>
+          <PlayerColumn
+            player={match?.player1}
+            fallbackLabel="P1"
+            score={match?.player1Score ?? 0}
+            style={playerStyles[0]}
+          />
 
           <div className="boardStage">
-            {waitingForPlayer ? (
-              <div className="waitingStage">
-                <h2>Esperando al segundo jugador...</h2>
-                <div className="loadingSpinner"></div>
-                <p>
-                  Código: <strong>{roomCode}</strong>
-                </p>
-              </div>
-            ) : (
-              <>
-                <div className="boardWrapper">
-                  <Board
-                    board={hexBoard}
-                    onDiscoClick={handleBoardClick}
-                    selectedSource={selectedSourceId}
-                    selectedTarget={selectedTargetId}
-                    lastMove={lastMoveIds}
-                    disabled={!canEditBoard}
-                    playerStyles={playerStyles}
-                  />
-                </div>
-                <div className="boardControls">
-                  <p className="boardInstruction">{boardInstruction}</p>
-                  {canEditBoard && (
-                    <>
-                      <div className="controlRow">
-                        <label htmlFor="move-amount">Unidades a mover:</label>
-                        <input
-                          id="move-amount"
-                          type="number"
-                          min="1"
-                          max={maxMoveForSource}
-                          value={moveAmountValue}
-                          onChange={handleMoveAmountChange}
-                        />
-                        <div className="quick-amounts">
-                          {[1, 2, 3, 4, 5].map((value) => (
-                            <button
-                              key={value}
-                              type="button"
-                              className={moveAmount === value ? 'active' : ''}
-                              disabled={
-                                selectedSource === null ||
-                                value > sourceCapacity
-                              }
-                              onClick={() => setMoveAmount(Math.min(value, maxMoveForSource))}
-                            >
-                              {value}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                      <div className="controlRow controlRow--actions">
-                        <button
-                          type="button"
-                          onClick={handleConfirmMove}
-                          disabled={!canEditBoard || selectedSource === null || selectedTarget === null}
-                        >
-                          Aplicar movimiento
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setSelectedSource(null);
-                            setSelectedTarget(null);
-                            setMoveAmount(1);
-                            setBoardFeedback(null);
-                          }}
-                          disabled={!canEditBoard || (selectedSource === null && selectedTarget === null)}
-                        >
-                          Cancelar selección
-                        </button>
-                        <button type="button" onClick={handleResetBoard} disabled={!boardChanged}>
-                          Reiniciar cambios
-                        </button>
-                      </div>
-                    </>
-                  )}
-                  {boardFeedback && <div className="board-feedback">{boardFeedback}</div>}
-                  <div className="last-move-info">
-                    Último movimiento: <strong>{lastMoveText}</strong>
-                  </div>
-                </div>
-              </>
-            )}
+            <BoardStage
+              waitingForPlayer={waitingForPlayer}
+              roomCode={roomCode}
+              boardProps={{
+                board: hexBoard,
+                onDiscoClick: handleBoardClick,
+                selectedSource: selectedSourceId,
+                selectedTarget: selectedTargetId,
+                lastMove: lastMoveIds,
+                disabled: !canEditBoard,
+                playerStyles,
+              }}
+              controlsProps={{
+                boardInstruction,
+                canEditBoard,
+                moveAmountValue,
+                maxMoveForSource,
+                onMoveAmountChange: handleMoveAmountChange,
+                quickAmountOptions: QUICK_AMOUNT_OPTIONS,
+                moveAmount,
+                selectedSource,
+                sourceCapacity,
+                onQuickAmountClick: handleQuickAmountSelect,
+                onApplyMove: handleConfirmMove,
+                applyDisabled: !canApplyMove,
+                onCancelSelection: handleCancelSelection,
+                cancelDisabled: !canCancelSelection,
+                boardFeedback,
+                lastMoveText,
+              }}
+            />
           </div>
 
-          <div className="playerColumn">
-            <div className="playerName" style={{ color: playerStyles[1].nameColor }}>
-              {match?.player2?.nickname ?? match?.player2?.username ?? 'P2'}
-            </div>
-            <ScoreBar score={match?.player2Score ?? 0} color={playerStyles[1].color} />
-            <div className="playerScoreTag">P2: {match?.player2Score ?? 0}</div>
-          </div>
-        </div>
-
-        <div className="gameFooter">
-          <div className="scoreBoard">
-            <span>P1: {match?.player1Score ?? 0}</span>
-            <span>P2: {match?.player2Score ?? 0}</span>
-          </div>
-          <button
-            className="endTurn"
-            onClick={handleEndTurn}
-            disabled={waitingForPlayer || isEndingTurn || !match || match.endedAt || !isMyTurn}
-            title={!isMyTurn ? 'Esperando al otro jugador' : undefined}
-          >
-            {isEndingTurn ? 'Enviando...' : 'Terminar turno'}
-          </button>
+          <PlayerColumn
+            player={match?.player2}
+            fallbackLabel="P2"
+            score={match?.player2Score ?? 0}
+            style={playerStyles[1]}
+          />
         </div>
 
         {match?.endedAt && (
@@ -747,9 +940,30 @@ export default function GameScreen() {
       </main>
 
       <aside className="turnsPanel">
-        <div className="turnsTitle">Turnos</div>
-        <div className="turnsList"></div>
-        <div className="turnsCount">{match ? `Turno ${match.turn + 1}` : '—'}</div>
+        <button className="back" onClick={() => setExitGame(true)}>
+            Volver al Menú
+          </button>
+        <TurnTimeline
+          currentPhaseMeta={currentPhaseMeta}
+          activeRoundIndex={activeRoundIndex}
+          activeRoundPhases={activeRoundPhases}
+          currentTurnIndex={timelineTurnIndex}
+          turnTrackOffset={turnTrackOffset}
+          turnTrackRef={turnTrackRef}
+        />
+          {match ? (
+            
+              <button
+            className="endTurn"
+            onClick={handleEndTurn}
+            disabled={waitingForPlayer || isEndingTurn || !match || match.endedAt || !isMyTurn}
+            title={!isMyTurn ? 'Esperando al otro jugador' : undefined}
+          >
+            {isEndingTurn ? 'Enviando...' : 'Terminar turno'}
+          </button>
+          ) : (
+            '—'
+          )}
       </aside>
     </div>
   );
