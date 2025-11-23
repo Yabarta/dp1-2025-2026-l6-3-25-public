@@ -1,12 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { matchPath, useNavigate, useParams } from 'react-router-dom';
 import '../static/css/game/gameScreen.css';
 import ExitGameModal from '../components/modal/ExitGameModal';
 import useWebSocket from '../hooks/useWebSocket';
 import api from '../services/api';
 import tokenService from '../services/token.service';
 import Board from './demoBoard';
-
+import Chat from './Chat/Chat';
 
 function ScoreBar({ score = 0, color = '#888' }) {
   const max = 9;
@@ -123,6 +123,7 @@ export default function GameScreen() {
   const timerRef = useRef(null);
   const lastTurnRef = useRef(null);
   const previousBoardRef = useRef([]);
+
 
   const matchUpdate = useWebSocket(`/app/matches/watch/${id}`, `/topic/match/${id}`);
 
@@ -485,6 +486,18 @@ function useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, currentTurnI
 
   const isPlayer1 = Boolean(currentUser && match?.player1?.username === currentUser.username);
   const isPlayer2 = Boolean(currentUser && match?.player2?.username === currentUser.username);
+  let nickname = currentUser?.username || 'Invitado'; // Valor por defecto (si eres espectador)
+
+  if (match) {
+    if (isPlayer1) {
+      // Si soy el P1, uso el nickname del P1 (o su username si no tiene nick)
+      nickname = match.player1?.nickname ?? match.player1?.username ?? 'Player 1';
+    } else if (isPlayer2) {
+      // Si soy el P2, uso el nickname del P2
+      nickname = match.player2?.nickname ?? match.player2?.username ?? 'Player 2';
+    }
+  }
+  
   const iAmParticipant = isPlayer1 || isPlayer2;
   const hasMatch = Boolean(match);
   const matchEnded = Boolean(match?.endedAt);
@@ -529,7 +542,11 @@ function useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, currentTurnI
   const { turnTrackRef, turnTrackOffset } = useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, timelineTurnIndex);
 
   const handleTimeUp = () => {
-    alert('Sin tiempo, has perdido!');
+    try {
+      api.put(`/api/v1/matches/${id}/endMatch`);
+    } catch (err) {
+      console.error('Unable to end match cleanly', err);
+    } 
   };
 
   const handleBackToMenu = () => {
@@ -852,6 +869,9 @@ function useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, currentTurnI
       <aside className="chatPanel">
         <span className="">Tiempo Restante: {timeLeft} s</span>
         <div className="chatTitle">CHAT</div>
+        <div className="chatList">
+          <Chat nickname={nickname}/>
+        </div>
         {waitingForPlayer && (
           <div className="chatRoomInfo">
             <p>Código de partida:</p>

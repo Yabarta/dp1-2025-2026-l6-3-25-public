@@ -168,6 +168,10 @@ public class MatchController {
         }
         User currentUser = userService.findCurrentUser();
         Player currentPlayer = playerService.getPlayerByUser(currentUser);
+        Player p1 = matchService.getMatchById(id).getPlayer1();
+        Player p2 = matchService.getMatchById(id).getPlayer2();
+        p1.setIsCurrentlyInMatch(false);
+        p2.setIsCurrentlyInMatch(false);
         if (!currentPlayer.equals(match.getPlayer1()) && !currentPlayer.equals(match.getPlayer2())) {
             throw new AccessDeniedException("You're not part of this lobby");
         }
@@ -260,6 +264,10 @@ public class MatchController {
             throws AccessDeniedException {
         User currentUser = userService.findCurrentUser();
         Player currentPlayer = playerService.getPlayerByUser(currentUser);
+        Player p1 = matchService.getMatchById(id).getPlayer1();
+        Player p2 = matchService.getMatchById(id).getPlayer2();
+        p1.setIsCurrentlyInMatch(false);
+        p2.setIsCurrentlyInMatch(false);
         Match matchToUpdate = Objects.requireNonNull(matchService.getMatchById(id));
         if(currentPlayer.equals(matchToUpdate.getPlayer1())) {
             matchToUpdate.setWinner(2);
