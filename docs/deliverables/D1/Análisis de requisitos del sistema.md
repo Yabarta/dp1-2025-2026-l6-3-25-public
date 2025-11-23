@@ -49,9 +49,15 @@ A continuación se definen  todas las historias de usuario a implementar:
 
 - ## HU-(ISSUE#ID): **Avanzar de turno (jugador)**
     - Como jugador quiero avanzar de turno para poder continuar con la partida.
-    - _Se requiere tener un botón de terminar el turno para poder confirmar los movimientos en la fase de propagación para pasar al siguienHU-(ISSUE#ID): te turno._
+    - _Se requiere tener un botón de terminar el turno para poder confirmar los movimientos en la fase de propagación para pasar al siguiente turno._
 ### Avanzar de turno (jugador)
 ![alt text](ImagenesD1/m2.png)
+
+- ## HU-(ISSUE#ID): **Bloqueo de fin de turno (jugador)**
+    - Como jugador quiero que el botón de turno quede bloqueado explicando el motivo para poder jugar correctamente.
+    - _Se debe invalidar el avance de turno argumentando el motivo en caso de que se realicen movimientos ilegales o no se haya movido ninguna bacteria._
+### Bloqueo de fin de turno (jugador)
+![alt text](ImagenesD1/m37.png)
 
 - ## HU-(ISSUE#ID): **Validación de movimientos (jugador)**
     - Como jugador quiero saber qué movimientos puedo o no hacer en una partida para poder jugar correctamente.
@@ -71,16 +77,29 @@ A continuación se definen  todas las historias de usuario a implementar:
 ### Barra de contaminación (jugador)
 ![alt text](ImagenesD1/m5.png)
 
+- ## HU-(ISSUE#ID): **Control de fase de fisión binaria (jugador)**
+    - Como jugador quiero que en la fase de fisión binaria se añada una bacteria del jugador al que pertenece un disco para poder proseguir una partida con normalidad.
+    - _Se requiere la automatización para que por cada disco en el que solo existan bacterias de un jugador, se agrege a dicho disco una más._
+### Control de fase de fisión binaria (jugador)
+![alt text](ImagenesD1/m38.png)
+
+- ## HU-(ISSUE#ID): **Control de fase de contaminación (jugador)**
+    - Como jugador quiero que en la fase de contaminación se añadan los puntos de contaminación a cada jugador para poder proseguir una partida con normalidad.
+    - _Se requiere la automatización para que la barra de contaminación de un jugador suba automáticamente._
+### Control de fase de contaminación (jugador)
+![alt text](ImagenesD1/m39.png)
+
+- ## HU-(ISSUE#ID): **Creación de sarcinas (jugador)**
+    - Como jugador quiero que al tener 5 bacterias propias en un mismo disco se cree una sarcina para poder proseguir una partida con normalidad.
+    - _Se requiere la automatización para la creación de sarcinas._
+### Creación de sarcinas (jugador)
+![alt text](ImagenesD1/m40.png)
+
 - ## HU-(ISSUE#32): **Abandonar partida (jugador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/32
     - Como jugador quiero abandonar la partida si quiero para poder jugar otra en el caso en el que dé por perdida mi partida.
     - _Se requiere una opción para salirse de una partida con confirmación (en caso de que se pulse por error)._ 
 ### Abandonar partida (jugador)
 ![alt text](ImagenesD1/m6.png)
-
-- ## HU-(ISSUE#ID): **Volver a la partida tras refrescar (jugador)**
-    - Como jugador quiero volver a la partida si refresco la pantalla para poder continuar con el juego en caso de que la refresque sin querer.
-    - _Se debe vincular al jugador con la partida que está jugando cuando refresque la pantalla en caso de que no la abandone._
-
 
 - ## HU-(ISSUE#36): **Listado de partidas en curso (administrador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/36
     - Como administrador quiero un listado de partidas en curso, incluyendo los usuarios, para poder llevar el control de estos en tiempo real.
@@ -307,7 +326,7 @@ Si el tiempo del turno de un jugador se acaba, éste pierde la partida. Por ejem
 ### R14 - Partida por jugador
 Si el jugador ya tiene una partida iniciada no puede crear otra a no ser que la abandone.
 ### R15 - Penalizaciones
-Si un jugador tiene un comportamiento irrespetuoso, su cuenta puede ser vetada por un administrador impidiéndole jugar.
+Si un jugador tiene un comportamiento irrespetuoso, su cuenta puede ser eliminada por un administrador impidiéndole jugar.
 
 
 
