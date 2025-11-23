@@ -98,3 +98,4 @@ docs/deliverables/D3/coverage/*
 docs/deliverables/D3/status/*
 docs/deliverables/D3/coverage/**
 docs/deliverables/D3/status/**
+node_modules/**

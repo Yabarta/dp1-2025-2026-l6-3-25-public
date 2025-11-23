@@ -1,0 +1,26 @@
+.chat{
+  width: '100%';              
+  height: '100%';             
+  display: 'flex';            
+  flex-direction: 'column';    
+  font-family: 'sans-serif';
+  box-sizing: 'border-box';    
+  overflow: 'hidden';
+}
+
+.lista{
+  list-style: '->'; 
+  padding: '50px';
+  margin: 0;
+  flex: 1;              
+  overflow-y: 'auto';      
+  border-bottom: '1px solid #ddd';
+}
+
+.elemento-lista{
+  display: 'flex';
+  gap: 8; 
+  padding: '8px 12px'; 
+  border-bottom: '1px solid #f5f5f5';
+}
+
