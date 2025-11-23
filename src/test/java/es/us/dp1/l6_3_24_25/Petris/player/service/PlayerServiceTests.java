@@ -13,6 +13,9 @@ import es.us.dp1.l6_3_24_25.Petris.user.User;
 import es.us.dp1.l6_3_24_25.Petris.user.UserService;
 import io.qameta.allure.Epic;
 import io.qameta.allure.Feature;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Epic("Player Module")
 @Feature("Player Service")
@@ -25,19 +28,17 @@ public class PlayerServiceTests {
     @Autowired
 	private UserService userService;
 
-/*     @Test
+    @Test
+    @Transactional
     @DisplayName("getAllPlayers Test")
     void shouldGetAllPlayers() {
         List<Player> players = this.playerService.getAllPlayers();
         assertEquals(10, players.size(), "Incorrect number of players");
 
-    Al ejecutarlo con todos los tests sale size = 11
-    Al ejecutarlo individualmente sale size = 10
-
-    } */
-
+    }
 
     @Test
+    @Transactional
     @DisplayName("getPlayerById Test")
     void testGetPlayerById() {
         Player player = this.playerService.getPlayerById(1);
@@ -45,12 +46,14 @@ public class PlayerServiceTests {
     }
 
     @Test
+    @Transactional
     @DisplayName("getPlayerById Test (Negative)")
     void shouldNotGetPlayerByIncorrectId() {
         assertThrows(ResourceNotFoundException.class, () -> this.playerService.getPlayerById(50));
-    }    
+    }
 
     @Test
+    @Transactional
     @DisplayName("getPlayerByNickname Test")
     void testGetPlayerByNickname() {
         Player player = this.playerService.getPlayerByNickname("player1");
@@ -58,6 +61,7 @@ public class PlayerServiceTests {
     }
 
     @Test
+    @Transactional
     @DisplayName("getPlayerByNickname Test (Negative)")
     void shouldNotGetPlayerByIncorrectNickname() {
         assertThrows(ResourceNotFoundException.class, () -> this.playerService.getPlayerByNickname("nonExistingUsername"));
@@ -72,6 +76,7 @@ public class PlayerServiceTests {
     }
 
     @Test
+    @Transactional
     @DisplayName("getPlayerByUser Test (Negative)")
     void shouldNotGetPlayerWithIncorrectUser() {
         User user = this.userService.findUser(1);
@@ -80,7 +85,8 @@ public class PlayerServiceTests {
 
 
     @Test
-    @DisplayName("save Test")
+    @Transactional
+    @DisplayName("Base save Test")
     void testSave() {
         Integer count = this.playerService.getAllPlayers().size();
 
@@ -102,9 +108,10 @@ public class PlayerServiceTests {
 		assertEquals(count + 1, finalCount);
     }
 
-    
+
     @Test
-    @DisplayName("delete Test")
+    @Transactional
+    @DisplayName("Base delete Test")
     void testDelete() {
         Integer firstCount = this.playerService.getAllPlayers().size();
 

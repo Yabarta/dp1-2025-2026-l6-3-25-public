@@ -22,10 +22,12 @@ import { useEffect, useState } from "react";
 
 export default function useFetchState(initial, url, jwt, setMessage, setVisible, id = null) {
     const [data, setData] = useState(initial);
+    const [loading, setLoading] = useState(false);
     useEffect(() => {
         if (url) {
             if (!id || id !== "new") {
                 let ignore = false;
+                setLoading(true);
                 fetch(url, jwt?{
                     headers: {
                         "Authorization": `Bearer ${jwt}`,
@@ -43,12 +45,14 @@ export default function useFetchState(initial, url, jwt, setMessage, setVisible,
                             }
                             else {
                                 setData(json);
+                                setLoading(false);
                             }
                         }
                     }).catch((message) => {
                         console.log(message);
                         setMessage('Failed to fetch data');
                         setVisible(true);
+                        setLoading(false);
                     });
                 return () => {
                     ignore = true;
@@ -57,5 +61,5 @@ export default function useFetchState(initial, url, jwt, setMessage, setVisible,
 
         }
     }, [url, id, jwt, setMessage, setVisible]);
-    return [data, setData];
+    return [data, setData, loading];
 }

@@ -32,17 +32,19 @@ INSERT INTO players(id, is_currently_in_match, user_id, nickname, email) VALUES(
 INSERT INTO players(id, is_currently_in_match, user_id, nickname, email) VALUES(9, false, 12, 'player9', 'player9@gmail.com');
 INSERT INTO players(id, is_currently_in_match, user_id, nickname, email) VALUES(10, false, 13, 'player10', 'player10@gmail.com');
 
-INSERT INTO statistics(id, name, valor) VALUES (1, 'games_played', 10);
-INSERT INTO statistics(id, name, valor) VALUES (2, 'games_won', 7);
-INSERT INTO statistics(id, name, valor) VALUES (3, 'highest_score', 150);
-INSERT INTO statistics(id, name, valor) VALUES (4, 'total_score', 1200);
-INSERT INTO statistics(id, name, valor) VALUES (5, 'power_ups_used', 50);
-INSERT INTO statistics(id, name, valor) VALUES (6, 'lines_cleared', 1000);
+INSERT INTO statistics(id, name, valor) VALUES (1, 'games_played', 2);
+INSERT INTO statistics(id, name, valor) VALUES (2, 'games_won', 1);
+INSERT INTO statistics(id, name, valor) VALUES (3, 'sarcines_created', 7);
 
-INSERT INTO achievements(id, name, description, valor, statistic_name, image) VALUES (1, 'First Win', 'Win your first game', 1, 'games_won', 'imagelin.png');
-INSERT INTO achievements(id, name, description, valor, statistic_name, image) VALUES (2, 'High Scorer', 'Reach a total score of 1000', 1000, 'total_score', 'highscore.png');
-INSERT INTO achievements(id, name, description, valor, statistic_name, image) VALUES (3, 'Line Master', 'Clear 500 lines', 500, 'lines_cleared', 'linemaster.png');
-INSERT INTO achievements(id, name, description, valor, statistic_name, image) VALUES (4, 'Power Up!', 'Use 25 power-ups', 25, 'power_ups_used', 'powerup.png');
+INSERT INTO players_statistics(player_id, statistics_id) VALUES (1, 1), (1, 2), (1, 3);
+
+
+INSERT INTO achievements(id, name, description, valor, statistic_name, image) VALUES (1, 'First Win', 'Win your first game', 1, 'games_won', 'imagelin.png'),
+                                                                                    (2, 'Sarcine Creator', 'Create 5 sarcines', 5, 'sarcines_created', 'imagelin.png'),
+                                                                                    (3, 'Gamer', 'Play 10 games', 10, 'games_played', 'imagelin.png');
+                                                                                    
+INSERT INTO players_achievements(player_id, achievements_id) VALUES (1, 1), (1, 2);
+
 
 INSERT INTO matches(id, code, created_at, started_at, ended_at, creator_id, player1_id, player2_id, turn, turn_type, player1score, player2score, winner)
     VALUES (1, 'TRJU', '2025-10-25 14:41:00', '2025-10-25 14:42:00', '2025-10-25 14:52:00', 1, 1, 2, 3, 1, 9, 5, 1),
@@ -52,6 +54,6 @@ INSERT INTO matches(id, code, created_at, started_at, ended_at, creator_id, play
            (5, 'IJKL', '2025-10-26 12:00:00', '2025-10-26 12:01:00', '2025-10-26 12:11:00', 5, 5, 6, 8, 0, 9, 9, 1),
            (6, 'MNOP', '2025-10-26 13:00:00', '2025-10-26 13:01:00', '2025-10-26 13:11:00', 6, 6, 7, 1, 1, 8, 9, 2),
            (7, 'QRST', '2025-10-26 14:00:00', '2025-10-26 14:01:00', '2025-10-26 14:11:00', 7, 7, 8, 4, 0, 9, 1, 1),
-           (8, 'UVWX', '2025-10-26 15:00:00', '2025-10-26 15:01:00', '2025-10-26 15:11:00', 8, 8, 9, 6, 1, 6, 7, 2),
-           (9, 'YZAB', '2025-10-26 16:00:00', '2025-10-26 16:01:00', '2025-10-26 16:11:00', 9, 9, 10, 3, 0, 8, 9, 2),
-           (10, 'CDEF', '2025-10-26 17:00:00', '2025-10-26 17:01:00', '2025-10-26 17:11:00', 10, 10, 1, 7, 1, 9, 9, 2);
+           (8, 'UVWX', '2025-10-26 15:00:00', null, null, 8, null, null, 0, 0, 0, 0, null),
+           (9, 'YZAB', '2025-10-26 16:00:00', null, null, 9, null, null, 0, 0, 0, 0, null),
+           (10, 'CDEF', '2025-10-26 17:00:00', '2025-10-26 17:01:00', null, 10, 10, 1, 7, 1, 3, 4, null);
