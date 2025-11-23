@@ -6,7 +6,11 @@ import tokenService from '../services/token.service';
 import '../static/css/lobby/lobby.css';
 
 const currentUser = tokenService.getUser();
-const player = (await api.get(`/api/v1/players/user/${currentUser.username}`)).data;
+let player = ''
+if(currentUser){
+    player = (await api.get(`/api/v1/players/user/${currentUser.username}`)).data;
+}
+
 
 export default function LobbyScreen() {
     const { id } = useParams();
