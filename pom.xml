@@ -437,7 +437,13 @@
       				Default to false which means assertions are only generated for public fields.
     			-->
     			<generateAssertionsForAllFields>true</generateAssertionsForAllFields>
-    
+
+				<!-- Where to generate assertions entry point classes -->
+    			<entryPointClassPackage>org.assertj</entryPointClassPackage>
+
+				<!-- Sets the base directory where to generate assertions -->
+    			<targetDir>src/test/java/generatedAssertions</targetDir>
+
     			<!-- If true, all files in targetDir are removed before generating new ones (default to false) -->
     			<cleanTargetDir>true</cleanTargetDir>
 

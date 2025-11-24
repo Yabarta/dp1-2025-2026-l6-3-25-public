@@ -31,6 +31,8 @@ import es.us.dp1.l6_3_24_25.Petris.player.model.Player;
 import io.qameta.allure.Description;
 import io.qameta.allure.Owner;
 
+import static generatedAssertions.org.assertj.Assertions.assertThat;
+
 @Epic("Game")
 @Feature("Match management")
 @Owner("josbardel1")
@@ -140,6 +142,12 @@ class MatchServiceTest {
         Player creator = new Player();
         creator.setIsCurrentlyInMatch(false);
 
-        assertThat(matchService.createMatch(creator, isPrivate));
+        assertThat(matchService.createMatch(creator, isPrivate)).hasCreator(creator);
+    }
+
+    @Test
+    @DisplayName("")
+    void test() {
+
     }
 }
