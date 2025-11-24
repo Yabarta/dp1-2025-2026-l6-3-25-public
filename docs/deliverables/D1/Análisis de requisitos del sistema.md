@@ -37,214 +37,263 @@ La duración de una partida es variable, pero ninguna suele superar los 10 minut
 
 ## Historias de Usuario
 
-A continuación se definen  todas las historias de usuario a implementar junto a su mockup correspondiente (M*):
+A continuación se definen  todas las historias de usuario a implementar:
 ---
-### **Módulo de juego (obligatorio)**
+## **Módulo de juego (obligatorio)**
 
-- HU-(ISSUE#33): **Unirse a una partida (jugador) - _M2_** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/33
-    - **Como** jugador quiero unirme a una partida para poder jugar una partida con alguien aleatorio o conocido.
+- ## HU-(ISSUE#33): **Unirse a una partida (jugador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/33
+    - Como jugador quiero unirme a una partida para poder jugar una partida con alguien aleatorio o conocido.
     - _Se requiere poder seleccionar una búsqueda de partida con alguien aleatorio, o bien, unirse a una partida creada por otro jugador a través de un código de sala._
-
-- HU-(ISSUE#ID): **Avanzar de turno (jugador) - _M1_**
-    - **Como** jugador quiero avanzar de turno para poder continuar con la partida.
-    - _Se requiere tener un botón de terminar el turno para poder confirmar los movimientos en la fase de propagación para pasar al siguienHU-(ISSUE#ID): te turno._
-
-- HU-(ISSUE#ID): **Validación de movimientos (jugador) - _M3_**
-    - **Como** jugador quiero saber qué movimientos puedo o no hacer en una partida para poder jugar correctamente.
-    - _Se requiere poder mostrar mediante señales luminosas en los discos si un movimiento es incorrecto antes de terminar mi turno._
-
-- HU-(ISSUE#ID): **Control de turnos (jugador) - _M1_**
-    - **Como** jugador quiero conocer el turno por el que voy para poder controlar a quién le toca en cada caso.
-    - _Se requiere señalar con colores un marcador de turno de la persona a la que le toca jugar además de los siguientes turnos._
-
-- HU-(ISSUE#ID): **Barra de contaminación (jugador) - _M1_**
-    - **Como** jugador quiero saber cuánta contaminación tenemos ambos jugadores para poder controlar cuánto me queda para perder o ganar.
-    - _Se requiere una barra de contaminación tanto para el jugador 1, como para el jugador 2._
-
-- HU-(ISSUE#32): **Abandonar partida (jugador) - _M1_** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/32
-    - **Como** jugador quiero abandonar la partida si quiero para poder jugar otra en el caso en el que dé por perdida mi partida.
-    - _Se requiere una opción para salirse de una partida con confirmación (en caso de que se pulse por error)._ 
-
-- HU-(ISSUE#ID): **Volver a la partida tras refrescar (jugador)**
-    - **Como** jugador quiero volver a la partida si refresco la pantalla para poder continuar con el juego en caso de que la refresque sin querer.
-    - _Se debe vincular al jugador con la partida que está jugando cuando refresque la pantalla en caso de que no la abandone._
-
-- HU-(ISSUE#36): **Listado de partidas en curso (administrador) - _M4_** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/36
-    - **Como** administrador quiero un listado de partidas en curso, incluyendo los usuarios, para poder llevar el control de estos en tiempo real.
-    - _Se requiere una vista general de las partidas activas y poder entrar como modo espectador para controlar que las interacciones entre usuarios sean adecuadas._
-
-- HU-(ISSUE#ID): **Ver nombre del oponente (jugador) - _M1_**
-    - **Como** jugador quiero saber el nombre del otro jugador para poder saber a quién me estoy enfrentando.
-    - _Se requiere saber mediante un texto el nombre del jugador oponente para identificarlo correctamente. Esto gana un gran peso en las partidas privadas donde se debe saber si la persona que se ha unido es la persona correcta._
-
-- HU-(ISSUE#34): **Crear partida privada (jugador) - _M2_** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/34
-    - **Como** jugador quiero poder crear una partida privada mediante un código de identificación de 4 letras para poder jugar con alguien en concreto. (Implementada)
-    - _Se requiere una opción para crear una partida mediante un código de 4 letras y una sala privada en la que se espera al otro jugador para empezar la partida con la persona correspondiente._
-
-- HU(ISSUE#ID): **Ver ganador al finalizar (jugador) - _M5_**
-    - **Como** jugador quiero que cuando acabe una partida ver quién ha ganado para poder saber el resultado y salir de la partida.
-    - _Se requiere mostrar un ganador al final de una partida, ya sea mediante una animación o algún método visual intuitivo. Además de la opción de volver al menú principal._
-
-- HU-(ISSUE#46): **Expulsión por inactividad (jugador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/46
-    - **Como** jugador quiero que si mi rival pasa mucho tiempo sin jugar sea expulsado para poder tener una experiencia positiva y dinámica que no me haga perder el tiempo.
-    - _Se requiere un temporizador visual en el que cada jugador tendrá x tiempo para realizar su jugada. En caso de que el tiempo se agote se pierde automáticamente la partida, ya que hacer un movimiento aleatorio no es una opción en este juego, y no mover nada puede ser incluso una ventaja. El tiempo, por ende, ha de ser algo generoso._
-
-- HU-(ISSUE#ID): **Visualizar partidas recientes (jugador)  - _M6_**
-    - **Como** jugador quiero visualizar las partidas que he jugado recientemente para poder llevar un control sobre mi propio progreso como jugador.
-    - _Se requiere una opción que permita al jugador ver las últimas partidas que ha jugado de principio a fin, replicando los mismos movimientos tanto del jugador como del oponente._
-
----
-### **Módulo de gestión de usuarios (obligatorio)**
-
-- HU-(ISSUE#ID): **Registro de usuario (usuario) - _M7_**
-    - **Como** usuario quiero registrarme para poder tener una cuenta propia con la que jugar.
-    - _Se requiere una opción de poder crear una cuenta con un nombre de usuario y contraseña de manera que esta quede registrada y se pueda iniciar sesión con ella de ahora en adelante._
-
-- HU-(ISSUE#ID): **Inicio de sesión (jugador) - _M8_**
-    - **Como** jugador quiero iniciar sesión para poder jugar al juego con mi cuenta.
-    - _Se requiere una opción para que el jugador pueda iniciar sesión con las credenciales (usuario y contraseña) que el propio usuario ha creado._
-
-- HU-(ISSUE#ID): **Cerrar sesión (jugador) - _M4_**
-    - **Como** jugador quiero cerrar sesión para poder jugar con otra cuenta.
-    - _Se requiere una opción para que el jugador pueda cerrar sesión. De esta manera no podrá jugar si no inicia sesión de nuevo._
-
-- HU-(ISSUE#ID): **Editar perfil (jugador) - _M4_**
-    - **Como** jugador quiero editar mi perfil para poder cambiar mis datos en caso de que lo considere necesario.
-    - _Se requiere una opción para que el jugador pueda cambiar cosas sobre su perfil tales como su nombre de usuario o su contraseña._
-
-- HU-(ISSUE#ID): **Inicio de sesión (administrador) - _M8_**
-    - **Como** administrador quiero iniciar sesión para poder administrar las acciones de los usuarios.
-    - _Se requiere poder iniciar sesión como administrador con las credenciales (usuario y contraseña) que el propio usuario ha creado._
-
-- HU-(ISSUE#ID): **Cerrar sesión (administrador - _M4_**
-    - **Como** administrador quiero cerrar sesión para poder loguearme posteriormente con mi cuenta de jugador.
-    - _Se requiere poder cerrar sesión siendo administrador para que el usuario pueda cambiar de cuenta._
-
-- HU-(ISSUE#40): **Listado de usuarios (administrador) - _M2_** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/40
-    - **Como** administrador quiero ver un listado con todos los usuarios registrados para poder encontrar fácilmente a cualquier jugador.
-    - _Se requiere una vista para los administradores en la que se muestren los perfiles de todos los jugadores._
-
-- HU-(ISSUE#ID): **Editar perfil de usuario (administrador)**
-    - **Como** administrador quiero editar el perfil de un usuario para poder controlar que los nombres sean apropiados.
-    - _Se requiere una opción para poder editar los perfiles de usuario, especialmente el nombre._
-
-- HU-(ISSUE#ID): **Eliminar usuario (administrador)**
-    - **Como** administrador quiero eliminar a un usuario en caso de que lo considere necesario.
-    - _Se requiere una opción para los administradores para que puedan vetar a un usuario eliminando su cuenta si se considera que su comportamiento no es el adecuado._
-
-- HU-(ISSUE#ID): **Solicitud de administrador (usuario) - _M6_**
-    - **Como** usuario quiero pedir solicitud de administrador para poder adquirir una cuenta con la que administrar la aplicación.
-    - _Se requiere una opción para pedir acceso al equipo de soporte para obtener una cuenta de administrador._
-
----
-### **Módulo de estadísticas (opcional)**
-
-- HU-(ISSUE#ID): **Ver estadísticas personales (jugador) - _M9_**
-    - **Como** jugador quiero ver mis estadísticas para poder llevar actualizado mi progreso.
-    - _Se requiere una pantalla donde se muestren las estadísticas del jugador tales como el total de partidas jugadas, partidas ganadas, porcentaje de victorias, promedio de tiempo por partida o días desde la creación de la cuenta._
-
-- HU-(ISSUE#ID): **Ver logros (jugador)**
-    - **Como** jugador quiero ver mis logros para poder ver mis avances.
-    - _Se requiere un sistema de objetivos para que los jugadores cumplan y vean su progreso en forma de medallas._
-
-- HU-(ISSUE#ID): **Ver perfil de otro jugador (jugador) - _M9_**
-    - **Como** jugador quiero poder ver el perfil de otro jugador para poder ver sus estadísticas.
-    - _Se requiere mostrar de alguna manera el perfil de otro jugador para mostrar sus estadísticas y así identificar mejor a jugadores, socializar mediante el código de amistad o simplemente entretenerse._
-
-- HU-(ISSUE#ID): **Ver ranking de jugadores (jugador) - _M10_**
-    - **Como** jugador quiero ver el ranking de jugadores para poder ver quienes son los mejores.
-    - _Se requiere una opción para poder ver un ranking con el top de los mejores jugadores ordenados por más partidas ganadas y porcentaje de victorias._
-
-- HU-(ISSUE#ID): **Definir nuevos logros (administrador)**
-    - **Como** administrador quiero definir nuevos logros para poder agregar nuevas razones por las que jugar al juego.
-    - _Se requiere una opción para los administradores para publicar un nuevo logro._
-
----
-### **Módulo de juego social (opcional)**
-
-- HU-(ISSUE#ID): **Añadir amigo (jugador) - _M12_**
-    - **Como** jugador quiero añadir un amigo para poder conectar rápidamente con una persona con la que frecuento jugar.
-    - _Se requiere una opción que permita agregar a un jugador mediante un código de amigo siempre que la otra persona lo acepte._
-
-- HU-(ISSUE#ID): **Ver estado de amigos (jugador) - _M11_**
-    - **Como** jugador quiero ver si mis amigos están en línea para poder jugar con ellos.
-    - _Se requiere un sistema que permita ver la lista de amigos y si se encuentran en estado conectado o desconectado._
-
-- HU-(ISSUE#ID): **Eliminar amigo (jugador) - _M11_**
-    - **Como** jugador quiero eliminar un amigo para poder hacer hueco en la lista de amistades.
-    - _Se requiere una opción que permita sin la confirmación del otro jugador eliminarlo de la lista de amigos._
-
-- HU-(ISSUE#ID): **Chat en partida (jugador) - _M1_**
-    - **Como** jugador quiero conversar con mi oponente para poder aumentar la comunicación entre ambos.
-    - _Se requiere un chat de juego dentro de las partidas para poder intercambiar mensajes entre jugadores._
-
-- HU-(ISSUE#ID): **Silenciar chat (jugador) - _M11_**
-    - **Como** jugador quiero silenciar el chat para poder aislarme de cualquier tipo de interacción con otros jugadores por el motivo que sea.
-    - _Se requiere una opción para silenciar el chat en una partida._
-
-- HU-(ISSUE#ID): **Reportar jugador (jugador) - _M12_**
-    - **Como** jugador quiero reportar a otro jugador para poder hacer que le llamen la atención por comportamiento inapropiado.
-    - _Se requiere una opción para que un jugador pueda enviar al equipo de soporte una petición de queja, además de silenciar el chat, que permita a los administradores tomar acciones sobre la cuenta de un jugador que está teniendo comportamientos inapropiados hacia otros jugadores._
-
-- HU-(ISSUE#ID): **Bloquear jugador (jugador) - _M12_**
-    - **Como** jugador quiero bloquear a jugadores para poder aislarme de cualquier tipo de interacción con ellos.
-    - _Se requiere una opción para bloquear a un jugador y que estos no puedan interactuar de ninguna manera entre ellos._
-
-- HU-(ISSUE#ID): **Monitorizar chat (administrador) - _M1_**
-    - **Como** administrador quiero monitorizar el chat de cualquier partida para poder ocultar cualquier mensaje que propicie un mal ambiente.
-    - _Se requiere que el administrador pueda ocultar o eliminar cualquier mensaje dentro del chat de partida por el bienestar de los jugadores._
-
-- HU-(ISSUE#ID): **Vetos sin eliminar cuenta (administrador) - _M12_**
-    - **Como** administrador quiero vetar a los usuarios que no utilicen la aplicación correctamente para poder hacer que no puedan volver a loguearse con esa cuenta sin eliminarla.
-    - _Se requiere una opción que permita a los administradores vetar la cuenta a jugadores sin eliminarla por completo._
-
----
-
-# Mockups
-
+### Unirse a una partida (jugador)
 ![alt text](ImagenesD1/m1.png)
-### Mockup 1 - Partida
----
+
+- ## HU-(ISSUE#ID): **Avanzar de turno (jugador)**
+    - Como jugador quiero avanzar de turno para poder continuar con la partida.
+    - _Se requiere tener un botón de terminar el turno para poder confirmar los movimientos en la fase de propagación para pasar al siguiente turno._
+### Avanzar de turno (jugador)
 ![alt text](ImagenesD1/m2.png)
-### Mockup 2 - Menú principal
----
+
+- ## HU-(ISSUE#ID): **Bloqueo de fin de turno (jugador)**
+    - Como jugador quiero que el botón de turno quede bloqueado explicando el motivo para poder jugar correctamente.
+    - _Se debe invalidar el avance de turno argumentando el motivo en caso de que se realicen movimientos ilegales o no se haya movido ninguna bacteria._
+### Bloqueo de fin de turno (jugador)
+![alt text](ImagenesD1/m37.png)
+
+- ## HU-(ISSUE#ID): **Validación de movimientos (jugador)**
+    - Como jugador quiero saber qué movimientos puedo o no hacer en una partida para poder jugar correctamente.
+    - _Se requiere poder mostrar mediante señales luminosas en los discos si un movimiento es incorrecto antes de terminar mi turno._
+### Validación de movimientos (jugador)
 ![alt text](ImagenesD1/m3.png)
-### Mockup 3 - Movimiento no válido
----
+
+- ## HU-(ISSUE#ID): **Control de turnos (jugador)**
+    - Como jugador quiero conocer el turno por el que voy para poder controlar a quién le toca en cada caso.
+    - _Se requiere señalar con colores un marcador de turno de la persona a la que le toca jugar además de los siguientes turnos._
+### Control de turnos (jugador)
 ![alt text](ImagenesD1/m4.png)
-### Mockup 4 - Partidas en curso
----
+
+- ## HU-(ISSUE#ID): **Barra de contaminación (jugador)**
+    - Como jugador quiero saber cuánta contaminación tenemos ambos jugadores para poder controlar cuánto me queda para perder o ganar.
+    - _Se requiere una barra de contaminación tanto para el jugador 1, como para el jugador 2._
+### Barra de contaminación (jugador)
 ![alt text](ImagenesD1/m5.png)
-### Mockup 5 - Fin de partida
----
+
+- ## HU-(ISSUE#ID): **Control de fase de fisión binaria (jugador)**
+    - Como jugador quiero que en la fase de fisión binaria se añada una bacteria del jugador al que pertenece un disco para poder proseguir una partida con normalidad.
+    - _Se requiere la automatización para que por cada disco en el que solo existan bacterias de un jugador, se agrege a dicho disco una más._
+### Control de fase de fisión binaria (jugador)
+![alt text](ImagenesD1/m38.png)
+
+- ## HU-(ISSUE#ID): **Control de fase de contaminación (jugador)**
+    - Como jugador quiero que en la fase de contaminación se añadan los puntos de contaminación a cada jugador para poder proseguir una partida con normalidad.
+    - _Se requiere la automatización para que la barra de contaminación de un jugador suba automáticamente._
+### Control de fase de contaminación (jugador)
+![alt text](ImagenesD1/m39.png)
+
+- ## HU-(ISSUE#ID): **Creación de sarcinas (jugador)**
+    - Como jugador quiero que al tener 5 bacterias propias en un mismo disco se cree una sarcina para poder proseguir una partida con normalidad.
+    - _Se requiere la automatización para la creación de sarcinas._
+### Creación de sarcinas (jugador)
+![alt text](ImagenesD1/m40.png)
+
+- ## HU-(ISSUE#32): **Abandonar partida (jugador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/32
+    - Como jugador quiero abandonar la partida si quiero para poder jugar otra en el caso en el que dé por perdida mi partida.
+    - _Se requiere una opción para salirse de una partida con confirmación (en caso de que se pulse por error)._ 
+### Abandonar partida (jugador)
 ![alt text](ImagenesD1/m6.png)
-### Mockup 6 - Partidas recientes
----
+
+- ## HU-(ISSUE#36): **Listado de partidas en curso (administrador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/36
+    - Como administrador quiero un listado de partidas en curso, incluyendo los usuarios, para poder llevar el control de estos en tiempo real.
+    - _Se requiere una vista general de las partidas activas y poder entrar como modo espectador para controlar que las interacciones entre usuarios sean adecuadas._
+### Listado de partidas en curso (administrador) -
 ![alt text](ImagenesD1/m7.png)
-### Mockup 7 - Registro
----
+
+- ## HU-(ISSUE#ID): **Ver nombre del oponente (jugador)**
+    - Como jugador quiero saber el nombre del otro jugador para poder saber a quién me estoy enfrentando.
+    - _Se requiere saber mediante un texto el nombre del jugador oponente para identificarlo correctamente. Esto gana un gran peso en las partidas privadas donde se debe saber si la persona que se ha unido es la persona correcta._
+### Ver nombre del oponente (jugador) -
 ![alt text](ImagenesD1/m8.png)
-### Mockup 8 - Inicio de sesión
----
+
+- ## HU-(ISSUE#34): **Crear partida privada (jugador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/34
+    - Como jugador quiero poder crear una partida privada mediante un código de identificación de 4 letras para poder jugar con alguien en concreto. (Implementada)
+    - _Se requiere una opción para crear una partida mediante un código de 4 letras y una sala privada en la que se espera al otro jugador para empezar la partida con la persona correspondiente._
+### Crear partida privada (jugador)
 ![alt text](ImagenesD1/m9.png)
-### Mockup 9 - Estadísticas
----
 ![alt text](ImagenesD1/m10.png)
-### Mockup 10 - Ranking
----
+
+- ## HU(ISSUE#ID): **Ver ganador al finalizar (jugador)**
+    - Como jugador quiero que cuando acabe una partida ver quién ha ganado para poder saber el resultado y salir de la partida.
+    - _Se requiere mostrar un ganador al final de una partida, ya sea mediante una animación o algún método visual intuitivo. Además de la opción de volver al menú principal._
+### Ver ganador al finalizar (jugador)
 ![alt text](ImagenesD1/m11.png)
-### Mockup 11 - Amigos
----
+
+- ## HU-(ISSUE#46): **Expulsión por inactividad (jugador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/46
+    - Como jugador quiero que si mi rival pasa mucho tiempo sin jugar sea expulsado para poder tener una experiencia positiva y dinámica que no me haga perder el tiempo.
+    - _Se requiere un temporizador visual en el que cada jugador tendrá x tiempo para realizar su jugada. En caso de que el tiempo se agote se pierde automáticamente la partida, ya que hacer un movimiento aleatorio no es una opción en este juego, y no mover nada puede ser incluso una ventaja. El tiempo, por ende, ha de ser algo generoso._
+### Expulsión por inactividad (jugador)
 ![alt text](ImagenesD1/m12.png)
-### Mockup 12 - Visualización de perfil de usuario
+
+- ## HU-(ISSUE#ID): **Visualizar partidas recientes (jugador)**
+    - Como jugador quiero visualizar las partidas que he jugado recientemente para poder llevar un control sobre mi propio progreso como jugador.
+    - _Se requiere una opción que permita al jugador ver las últimas partidas que ha jugado de principio a fin, replicando los mismos movimientos tanto del jugador como del oponente._
+### Visualizar partidas recientes (jugador)
+![alt text](ImagenesD1/m13.png)
+![alt text](ImagenesD1/m14.png)
+
 ---
-## Aclaraciones
-- Mockup 12: la idea es implementar el pop-up del perfil del usuario al hacer click sobre su foto de perfil o pasar el ratón por encima de manera que no ocupe toda la pantalla.
+## **Módulo de gestión de usuarios (obligatorio)**
 
-## Diagrama conceptual del sistema
+- ## HU-(ISSUE#ID): **Registro de usuario (usuario)**
+    - Como usuario quiero registrarme para poder tener una cuenta propia con la que jugar.
+    - _Se requiere una opción de poder crear una cuenta con un nombre de usuario y contraseña de manera que esta quede registrada y se pueda iniciar sesión con ella de ahora en adelante._
+### Registro de usuario (usuario)
+![alt text](ImagenesD1/m15.png)
+![alt text](ImagenesD1/m16.png)
 
-![alt text](ImagenesD1/classDiagram.jpg)
+- ## HU-(ISSUE#ID): **Inicio de sesión (jugador)**
+    - Como jugador quiero iniciar sesión para poder jugar al juego con mi cuenta.
+    - _Se requiere una opción para que el jugador pueda iniciar sesión con las credenciales (usuario y contraseña) que el propio usuario ha creado._
+### Inicio de sesión (jugador)
+![alt text](ImagenesD1/m17.png)
+
+- ## HU-(ISSUE#ID): **Cerrar sesión (jugador)**
+    - Como jugador quiero cerrar sesión para poder jugar con otra cuenta.
+    - _Se requiere una opción para que el jugador pueda cerrar sesión. De esta manera no podrá jugar si no inicia sesión de nuevo._
+### Cerrar sesión (jugador)
+![alt text](ImagenesD1/m18.png)
+
+- ## HU-(ISSUE#64): **Editar perfil (jugador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/64
+    - Como jugador quiero editar mi perfil para poder cambiar mis datos en caso de que lo considere necesario.
+    - _Se requiere una opción para que el jugador pueda cambiar cosas sobre su perfil tales como su nombre de usuario o su contraseña._
+### Editar perfil (jugador)
+![alt text](ImagenesD1/m19.png)
+
+- ## HU-(ISSUE#ID): **Inicio de sesión (administrador)**
+    - Como administrador quiero iniciar sesión para poder administrar las acciones de los usuarios.
+    - _Se requiere poder iniciar sesión como administrador con las credenciales (usuario y contraseña) que el propio usuario ha creado._
+### Inicio de sesión (administrador)
+![alt text](ImagenesD1/m17.png)
+
+- ## HU-(ISSUE#ID): **Cerrar sesión (administrador)**
+    - Como administrador quiero cerrar sesión para poder loguearme posteriormente con mi cuenta de jugador.
+    - _Se requiere poder cerrar sesión siendo administrador para que el usuario pueda cambiar de cuenta._
+### Cerrar sesión (administrador)
+![alt text](ImagenesD1/m18.png)
+
+- ## HU-(ISSUE#40): **Listado de usuarios (administrador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/40
+    - Como administrador quiero ver un listado con todos los usuarios registrados para poder encontrar fácilmente a cualquier jugador.
+    - _Se requiere una vista para los administradores en la que se muestren los perfiles de todos los jugadores._
+### Listado de usuarios (administrador)
+![alt text](ImagenesD1/m20.png)
+
+- ## HU-(ISSUE#ID): **Editar perfil de usuario (administrador)**
+    - Como administrador quiero editar el perfil de un usuario para poder controlar que los nombres sean apropiados.
+    - _Se requiere una opción para poder editar los perfiles de usuario, especialmente el nombre._
+### Editar perfil de usuario (administrador)
+![alt text](ImagenesD1/m21.png)
+
+- ## HU-(ISSUE#ID): **Eliminar usuario (administrador)**
+    - Como administrador quiero eliminar a un usuario en caso de que lo considere necesario.
+    - _Se requiere una opción para los administradores para que puedan vetar a un usuario eliminando su cuenta si se considera que su comportamiento no es el adecuado._
+### Eliminar usuario (administrador)
+![alt text](ImagenesD1/m22.png)
+
+- ## HU-(ISSUE#ID): **Solicitud de administrador (usuario)**
+    - Como usuario quiero pedir solicitud de administrador para poder adquirir una cuenta con la que administrar la aplicación.
+    - _Se requiere una opción para pedir acceso al equipo de soporte para obtener una cuenta de administrador._
+### Solicitud de administrador (usuario)
+![alt text](ImagenesD1/m23.png)
+
+---
+## **Módulo de estadísticas (opcional)**
+
+- ## HU-(ISSUE#65): **Ver estadísticas personales (jugador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/65
+    - Como jugador quiero ver mis estadísticas para poder llevar actualizado mi progreso.
+    - _Se requiere una pantalla donde se muestren las estadísticas del jugador tales como el total de partidas jugadas, partidas ganadas, porcentaje de victorias, promedio de tiempo por partida o días desde la creación de la cuenta._
+### Ver estadísticas personales (jugador)
+![alt text](ImagenesD1/m24.png)
+
+- ## HU-(ISSUE#66): **Ver logros (jugador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/66
+    - Como jugador quiero ver mis logros para poder ver mis avances.
+    - _Se requiere un sistema de objetivos para que los jugadores cumplan y vean su progreso en forma de medallas._
+### Ver logros (jugador)
+![alt text](ImagenesD1/m25.png)
+
+- ## HU-(ISSUE#ID): **Ver perfil de otro jugador (jugador)**
+    - Como jugador quiero poder ver el perfil de otro jugador para poder ver sus estadísticas.
+    - _Se requiere mostrar de alguna manera el perfil de otro jugador para mostrar sus estadísticas y así identificar mejor a jugadores, socializar mediante el código de amistad o simplemente entretenerse._
+### Ver perfil de otro jugador (jugador)
+![TO DO](ImagenesD1/m26.png)
+
+- ## HU-(ISSUE#ID): **Ver ranking de jugadores (jugador)**
+    - Como jugador quiero ver el ranking de jugadores para poder ver quienes son los mejores.
+    - _Se requiere una opción para poder ver un ranking con el top de los mejores jugadores ordenados por más partidas ganadas y porcentaje de victorias._
+### Ver ranking de jugadores (jugador)
+![alt text](ImagenesD1/m27.png)
+
+- ## HU-(ISSUE#ID): **Definir nuevos logros (administrador)**
+    - Como administrador quiero definir nuevos logros para poder agregar nuevas razones por las que jugar al juego.
+    - _Se requiere una opción para los administradores para publicar un nuevo logro._
+### Definir nuevos logros (administrador)
+![alt text](ImagenesD1/m28.png)
+
+---
+## **Módulo de juego social (opcional)**
+
+- ## HU-(ISSUE#ID): **Añadir amigo (jugador)**
+    - Como jugador quiero añadir un amigo para poder conectar rápidamente con una persona con la que frecuento jugar.
+    - _Se requiere una opción que permita agregar a un jugador mediante un código de amigo siempre que la otra persona lo acepte._
+### Añadir amigo (jugador)
+![alt text](ImagenesD1/m29.png)
+
+- ## HU-(ISSUE#ID): **Ver estado de amigos (jugador)**
+    - Como jugador quiero ver si mis amigos están en línea para poder jugar con ellos.
+    - _Se requiere un sistema que permita ver la lista de amigos y si se encuentran en estado conectado o desconectado._
+### Ver estado de amigos (jugador)
+![alt text](ImagenesD1/m30.png)
+
+- ## HU-(ISSUE#ID): **Eliminar amigo (jugador)**
+    - Como jugador quiero eliminar un amigo para poder hacer hueco en la lista de amistades.
+    - _Se requiere una opción que permita sin la confirmación del otro jugador eliminarlo de la lista de amigos._
+### Eliminar amigo (jugador)
+![alt text](ImagenesD1/m31.png)
+
+- ## HU-(ISSUE#ID): **Chat en partida (jugador)**
+    - Como jugador quiero conversar con mi oponente para poder aumentar la comunicación entre ambos.
+    - _Se requiere un chat de juego dentro de las partidas para poder intercambiar mensajes entre jugadores._
+### Chat en partida (jugador)
+![alt text](ImagenesD1/m32.png)
+
+- ## HU-(ISSUE#ID): **Silenciar chat (jugador)**
+    - Como jugador quiero silenciar el chat para poder aislarme de cualquier tipo de interacción con otros jugadores por el motivo que sea.
+    - _Se requiere una opción para silenciar el chat en una partida._
+### Silenciar chat (jugador)
+![alt text](ImagenesD1/m33.png)
+
+- ## HU-(ISSUE#ID): **Reportar jugador (jugador)**
+    - Como jugador quiero reportar a otro jugador para poder hacer que le llamen la atención por comportamiento inapropiado.
+    - _Se requiere una opción para que un jugador pueda enviar al equipo de soporte una petición de queja, además de silenciar el chat, que permita a los administradores tomar acciones sobre la cuenta de un jugador que está teniendo comportamientos inapropiados hacia otros jugadores._
+### Reportar jugador (jugador)
+![alt text](ImagenesD1/m34.png)
+
+- ## HU-(ISSUE#ID): **Bloquear jugador (jugador)**
+    - Como jugador quiero bloquear a jugadores para poder aislarme de cualquier tipo de interacción con ellos.
+    - _Se requiere una opción para bloquear a un jugador y que estos no puedan interactuar de ninguna manera entre ellos._
+### Bloquear jugador (jugador)
+![alt text](ImagenesD1/m35.png)
+
+- ## HU-(ISSUE#ID): **Monitorizar chat (administrador)**
+    - Como administrador quiero monitorizar el chat de cualquier partida para poder ocultar cualquier mensaje que propicie un mal ambiente.
+    - _Se requiere que el administrador pueda ocultar o eliminar cualquier mensaje dentro del chat de partida por el bienestar de los jugadores._
+### Monitorizar chat (administrador)
+![alt text](ImagenesD1/m36.png)
+
+---
+
+# Diagrama conceptual del sistema
+
 ### Diagrama de clases UML
+![alt text](ImagenesD1/DiagramDominio.png)
+
 ----
 ## Reglas de Negocio
 
@@ -277,7 +326,7 @@ Si el tiempo del turno de un jugador se acaba, éste pierde la partida. Por ejem
 ### R14 - Partida por jugador
 Si el jugador ya tiene una partida iniciada no puede crear otra a no ser que la abandone.
 ### R15 - Penalizaciones
-Si un jugador tiene un comportamiento irrespetuoso, su cuenta puede ser vetada por un administrador impidiéndole jugar.
+Si un jugador tiene un comportamiento irrespetuoso, su cuenta puede ser eliminada por un administrador impidiéndole jugar.
 
 
 

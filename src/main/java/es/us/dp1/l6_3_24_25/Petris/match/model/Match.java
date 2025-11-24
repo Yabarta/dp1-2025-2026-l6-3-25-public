@@ -3,13 +3,13 @@ package es.us.dp1.l6_3_24_25.Petris.match.model;
 import es.us.dp1.l6_3_24_25.Petris.model.BaseEntity;
 import es.us.dp1.l6_3_24_25.Petris.player.model.Player;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import java.time.LocalDateTime;
 import java.util.List;
-
-import org.hibernate.annotations.Cascade;
 
 @Getter
 @Setter
@@ -21,24 +21,29 @@ public class Match extends BaseEntity{
     private LocalDateTime startedAt;
     private LocalDateTime endedAt;
     private String code;
-    private Integer finalP1Score;
-    private Integer finalP2Score;
+    @Min(0)
+    @Max(9)
+    private Integer player1Score;
+    @Min(0)
+    @Max(9)
+    private Integer player2Score;
+    @Min(1)
+    @Max(2)
     private Integer winner;
     private Integer turn;
     private TurnType turnType;
 
     @NotNull
-    @OneToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne(optional = false)
     private Player creator;
 
-    @NotNull
     @OneToMany(cascade = CascadeType.ALL)
-    private List<PetriDish> petriDish;
+    private List<PetriDish> boardState;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     private Player player1;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne()
     private Player player2;
 
 }

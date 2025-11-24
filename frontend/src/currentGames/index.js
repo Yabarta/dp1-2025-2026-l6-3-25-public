@@ -1,35 +1,26 @@
 import {Button, Table} from "reactstrap";
-//import tokenService from "../services/token.service";
+import tokenService from "../services/token.service";
 import {Link} from 'react-router-dom';
+import useFetchState from "../util/useFetchState";
+import { useState } from "react";
 
-//const jwt = tokenService.getLocalAccessToken();
+const jwt = tokenService.getLocalAccessToken();
 
-//Mock game data
-const games = [
-    {
-        id: 1,
-        creator: {nickname: "Player1", email:"player1@gmail.com"},
-        player1: {nickname: "Player1", email:"player1@gmail.com"},
-        player2: {nickname: "Player3", email:"player3@gmail.com"},
-        createdAt: new Date(), startedAt: new Date(), endedAt: null,
-        code: null,
-        turn: 0, turnType:""
-    },
-    {
-        id: 2,
-        creator: {nickname: "Player2", email:"player2@gmail.com"},
-        player1: {nickname: "Player4", email:"player4@gmail.com"},
-        player2: {nickname: "Player2", email:"player2@gmail.com"},
-        createdAt: new Date(), startedAt: new Date(), endedAt: null,
-        code: "ABCD",
-        turn: 23, turnType:""
-    }
-]
 
 export default function CurrentGames() {
+    const [message, setMessage] = useState(null)
+    const [visible, setVisible] = useState(false)
+    const[currentMatches, setCurrentMatches] = useFetchState(
+        [],
+        `/api/v1/matches/current`,
+        jwt,
+        setMessage,
+        setVisible
+    )
     
+
     const gameList =
-    games.map((g) => {
+    currentMatches.map((g) => {
         return(
             <tr key={g.id}>
                 <td className="text-center">{g.player1.nickname}</td>

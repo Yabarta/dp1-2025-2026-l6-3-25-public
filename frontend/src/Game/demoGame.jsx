@@ -1,16 +1,23 @@
 // Game/Game.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { initialGameState, turnOrder, nextPhase } from "./demoLogic";
 import { useLocation, useNavigate } from 'react-router-dom';
 import Board from "./demoBoard";
 import '../static/css/game/gameScreen.css';
 import ExitModal from '../components/modal/ExitModal';
+import ModalWinner from './modalWinner';
+import tokenService from '../services/token.service';
+import jwt_decode from "jwt-decode";
 
 export default function Game({onBackToMenu}) {
   const [gameState, setGameState] = useState({
     ...initialGameState,
     turnOrder: turnOrder,
   });
+  const [username, setUsername] = useState("");
+  const [message, setMessage] = useState(null);
+  const [visible, setVisible] = useState(false);
+
   const [selectedOrigin, setSelectedOrigin] = useState(null);
   const [selectedDest, setSelectedDest] = useState(null);
   const [moveAmount, setMoveAmount] = useState(1);
@@ -18,6 +25,58 @@ export default function Game({onBackToMenu}) {
   const location = useLocation();
   const navigate = useNavigate();
 
+    //contador
+  const TIEMPO_INICIAL = 5
+  const [timeLeft, setTimeLeft] = useState(TIEMPO_INICIAL)
+  const [running, setRunning] = useState(true)
+  const intervaloRef = useRef(null)
+
+    const jwt = tokenService.getLocalAccessToken();
+      useEffect(() => {
+          if (jwt) {
+              setUsername(jwt_decode(jwt).sub);
+          }
+      }, [jwt])
+
+  useEffect(() => {
+    if (username) {
+      setGameState(prev => {
+        const players = Array.isArray(prev.players) ? [...prev.players] : [{ name: 'Jugador 1' }, { name: 'Jugador 2' }];
+        players[0] = { ...players[0], name: username };
+        return { ...prev, players };
+      });
+    }
+  }, [username]);
+
+    // logica del contador
+    useEffect(() => {
+      if (!running) {
+        clearInterval(intervaloRef.current);
+        return;
+      }
+  
+      // Si 'reset' es true (asumiendo que significa CORRIENDO), establece el intervalo
+      intervaloRef.current = setInterval(() => {
+        setTimeLeft((prev) => {
+          if (prev <= 1) {
+            clearInterval(intervaloRef.current);
+            setRunning(false); // Detiene el timer (reset = false)
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+  
+      return () => clearInterval(intervaloRef.current);
+    }, [running]);
+  
+    const handleTimeUp = (values) => {
+      if(gameState.players[0] === jwt_decode(jwt).sub && turnOrder[gameState.currentPhaseIndex] == "J1"){
+        setGameState(prev => ({ ...prev, winner: gameState.players[1].name }));
+      } else if (gameState.players[1] === jwt_decode(jwt).sub && turnOrder[gameState.currentPhaseIndex] == "J2"){
+        setGameState(prev => ({ ...prev, winner: gameState.players[0].name }));
+      }
+    }
   // estilos por jugador (puedes cambiarlos aquí)
   const playerStyles = [
     { color: '#c42323', nameColor: '#c42323' }, // jugador 1: rojo
@@ -32,7 +91,7 @@ export default function Game({onBackToMenu}) {
     const numbers = Array.from({ length: max + 1 }, (_, i) => max - i); // 9..0
 
     return (
-      <div className="scoreBarContainer" style={{ display: 'flex', alignItems: 'center', gap: 12, paddingLeft: 48, paddingTop: 24 }}>
+      <div className="scoreBarContainer" style={{ display: 'flex', alignItems: 'center', gap: 12, paddingLeft: 30, paddingTop: 24 }}>
         <div className="scoreBar" style={{ position: 'relative', width: 56, height: 400, border: '2px solid #000', boxSizing: 'border-box', background: '#fff' }}>
           <div className="scoreFill" style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: `${fillPercent}%`, background: color, transition: 'height 300ms ease' }} />
 
@@ -57,6 +116,7 @@ export default function Game({onBackToMenu}) {
       </div>
     );
   };
+  
 
   const currentPhase = gameState.turnOrder[gameState.currentPhaseIndex];
 
@@ -101,8 +161,50 @@ export default function Game({onBackToMenu}) {
     setMoveAmount(1);
   };
 
-  const handleEndTurn = () => {
-    setGameState((prev) => nextPhase(prev));
+  const handleEndTurn = async () => {
+    setTimeLeft(TIEMPO_INICIAL)
+    setRunning(true)
+    // If the match has an id, call the backend to compute nextTurn and updated scores.
+    if (gameState.id && jwt) {
+      try {
+        const response = await fetch(`/api/v1/matches/${gameState.id}/nextTurn`, {
+          method: 'PUT',
+          headers: {
+            Authorization: `Bearer ${jwt}`,
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+          // send the current board state as JSON in the request body (controller expects @RequestBody List<PetriDish>)
+          body: JSON.stringify(gameState.board),
+        });
+
+        if (response.ok) {
+          const updated = await response.json();
+          // update local scores and board from the server response
+          setGameState((prev) => {
+            const p0 = { ...prev.players[0], score: (updated.player1Score ?? prev.players[0].score) };
+            const p1 = { ...prev.players[1], score: (updated.player2Score ?? prev.players[1].score) };
+            return {
+              ...prev,
+              board: updated.boardState ? updated.boardState : prev.board,
+              players: [p0, p1],
+            };
+          });
+          setGameState((prev) => nextPhase(prev));
+        } else {
+          console.error('nextTurn failed', response.status);
+          setGameState((prev) => nextPhase(prev));
+        }
+      } catch (err) {
+        console.error('Error calling nextTurn', err);
+        setGameState((prev) => nextPhase(prev));
+      }
+    } else {
+      //esto es solo para el demo sin backend
+      console.log("No hay id de partida, siguiente fase local")
+      setGameState((prev) => nextPhase(prev));
+    }
+
     setSelectedOrigin(null);
     setSelectedDest(null);
     setMoveAmount(1);
@@ -128,13 +230,21 @@ export default function Game({onBackToMenu}) {
       } else if (gameState.players[1].score >= 9) {
         setGameState(prev => ({ ...prev, winner: gameState.players[0].name }));
       }
+      if(timeLeft === 0){
+        console.log(gameState.players[0].name, jwt_decode(jwt).sub, turnOrder[gameState.currentPhaseIndex])
+        if(gameState.players[0].name === jwt_decode(jwt).sub && turnOrder[gameState.currentPhaseIndex] == "J1"){
+          setGameState(prev => ({ ...prev, winner: gameState.players[1].name }));
+        } else if (gameState.players[1].name === jwt_decode(jwt).sub && turnOrder[gameState.currentPhaseIndex] == "J2"){
+          setGameState(prev => ({ ...prev, winner: gameState.players[0].name }));
+        }
+      }
     }
-  }, [gameState.players[0].score, gameState.players[1].score, gameState.winner]);
+  }, [gameState.players[0].score, gameState.players[1].score, gameState.winner, timeLeft]);
 
   const centerColumnStyle = {
     display: 'flex',
     flexDirection: 'column',
-    gap: '1rem',
+    gap: '0.5rem',
     width: '70%',
     boxSizing: 'border-box',
     margin: '0 auto'
@@ -154,6 +264,8 @@ export default function Game({onBackToMenu}) {
               onCancel={() => {setExitGame(null)}}>
       </ExitModal>
 
+      <ModalWinner winner={gameState.winner} currentUser={username} onGoToMenu={handleBackToMenu} />
+
       <div className="chatPanel">
         <div className="chatTitle">CHAT</div>
           <div style={{ textAlign: 'center' }}>
@@ -171,14 +283,14 @@ export default function Game({onBackToMenu}) {
         </h1>
 
         <div style={{ position: 'relative', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <span className="timer" style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>Tiempo</span>
+          <span className="timer" style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>{ timeLeft }</span>
 
           <button className="back" onClick={() => { setExitGame(true) }}>
             Volver al Menú
           </button>
         </div>
 
-        <div style={{ marginBottom: '1rem', minHeight: 40 }}>
+  <div style={{ marginBottom: '0.5rem', minHeight: 20 }}>
           {currentPlayer && selectedOrigin !== null && selectedDest === null && (
             <div style={{ color: '#333' }}>
               Selecciona disco destino para mover bacterias desde <b>{selectedOrigin}</b>.

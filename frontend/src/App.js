@@ -16,6 +16,10 @@ import UserListAdmin from "./admin/users/UserListAdmin";
 import UserEditAdmin from "./admin/users/UserEditAdmin";
 import SwaggerDocs from "./public/swagger";
 import CurrentGames from "./currentGames";
+import ProfileScreen from "./profile/profileScreen";
+import Lobby from "./Game/Lobby";
+import NotStartedGames from "./home/NotStartedGameList"; 
+import LobbyScreen from "./Game/LobbyScreen"; 
 
 function ErrorFallback({ error, resetErrorBoundary }) {
   return (
@@ -50,13 +54,14 @@ function App() {
         <>
           <Route path="/users" exact={true} element={<PrivateRoute><UserListAdmin /></PrivateRoute>} />
           <Route path="/users/:username" exact={true} element={<PrivateRoute><UserEditAdmin /></PrivateRoute>} />
-          <Route path="/currentGames" element={<CurrentGames />} />    
+          <Route path="/currentGames" element={<CurrentGames />} />
         </>)
     }
     if (role === "PLAYER") {
       ownerRoutes = (
         <>
           <Route path="/gameScreen" element={<GameScreen />} />
+          <Route path="/notStarted" element={<NotStartedGames/>}/>
         </>)
     }    
   })
@@ -70,7 +75,11 @@ function App() {
   } else {
     userRoutes = (
       <>
-        {/* <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} /> */}        
+        {/* <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} /> */} 
+        <Route path="/game/:id" element={<PrivateRoute><GameScreen /></PrivateRoute>} />
+        <Route path="/lobby/:id" element={<PrivateRoute><LobbyScreen /></PrivateRoute>} />       
+        <Route path="/lobby" element={<PrivateRoute><Lobby /></PrivateRoute>} />       
+        <Route path="/profile" element={<ProfileScreen />} />
         <Route path="/logout" element={<Logout />} />
         <Route path="/login" element={<Login />} />
       </>

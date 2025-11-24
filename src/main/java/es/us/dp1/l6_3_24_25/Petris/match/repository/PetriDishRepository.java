@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PetriDishRepository extends CrudRepository<PetriDish, Integer> {
-    PetriDish findPetriDishByIndex(Integer index);
+    
 }

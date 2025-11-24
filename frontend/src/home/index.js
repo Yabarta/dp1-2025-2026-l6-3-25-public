@@ -1,21 +1,19 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import '../static/css/home/home.css';
-import GameScreen from '../Game/gameScreen';
 import JoinGameScreen from './joinGameScreen';
 import logo from '../static/images/petris3D_recortado.png'
-import tokenService from 'frontend/src/services/token.service.js';
-import ProfileScreen from '../profile/profileScreen';
+import tokenService from '../services/token.service.js';
 import {ToastContainer, toast} from 'react-toastify';
-import { NavLink, NavItem, Nav, NavbarText, NavbarToggler } from 'reactstrap';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+
+const jwt = tokenService.getLocalAccessToken();
 
 export default function Home(){
   const navigate = useNavigate();
   const [showMainMenu, setShowMainMenu] = useState(false);
   const [showJoinGameScreen, setShowJoinGameScreen] = useState(false);
-  const [showProfile, setShowProfile] = useState(false);
-  const jwt = tokenService.getLocalAccessToken();
-  const [roomCode, setRoomCode] = useState('');
+  // profile will be shown via a dedicated route /profile
+
 
   const handlePlayButtonClick = () => {
     if (!jwt) {
@@ -30,22 +28,12 @@ export default function Home(){
     setShowMainMenu(true);
   };
 
-  const handleBackToWelcome = () => {
-    setShowMainMenu(false);
-    setShowJoinGameScreen(false);
-  };
-  //Lógica para unirse a una sala existente
-
-  const handleJoinPrivateGame = () => {
-    setShowMainMenu(false);
-    setShowJoinGameScreen(true);
-  };
   
   const handleShowProfile = () => {
     if (jwt == null) {
       return toast.error("User not logged in")
     } else {
-      setShowProfile(true)
+        navigate('/profile');
     }
   }
 
@@ -55,20 +43,9 @@ export default function Home(){
 
   // Lógica para crear una sala con código aleatorio
 
-  const generateRoomCode = () => {
-    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    let code = '';
-    for (let i = 0; i < 4; i++) {
-      code += letters.charAt(Math.floor(Math.random() * letters.length));
-    }
-    return code;
-  };
 
   const handleCreatePrivateGame = () => {
-    const code = generateRoomCode();
-    setRoomCode(code);
-    setShowMainMenu(false);
-    navigate('/gameScreen', { state: { roomCode: code } });
+    navigate('/lobby');
   };
 
   const handleDemoGame = () => {  
@@ -76,9 +53,7 @@ export default function Home(){
     navigate('/demo');
   };
 
-  if (showProfile) {
-    return <ProfileScreen user={jwt} />
-  }
+
 
   return (
     <div className="homePageContainer">
@@ -86,15 +61,9 @@ export default function Home(){
         {showMainMenu ? (
           <div className="mainMenu">
             <h1>Menú Principal</h1>
-            <div className="menuButtons">
-              <button className="menuButton" onClick={() => toast.error('Funcionalidad pendiente')}>
-                Buscar Partida
-              </button>
-              <button className="menuButton" onClick={handleJoinPrivateGame}>
-                Unirse a Partida
-              </button>
+            <div className="menuButtonsBox">
               <button className="menuButton" onClick={handleCreatePrivateGame}>
-                Crear Partida Privada
+                Jugar
               </button>
               <button className="menuButton" onClick={handleShowProfile}>
                 Ver Perfil
