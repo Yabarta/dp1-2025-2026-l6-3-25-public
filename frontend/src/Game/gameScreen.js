@@ -642,7 +642,7 @@ function useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, currentTurnI
       return false;
     }
     const amount = Math.min(moveAmount, sourceDish[currentPlayerKey]);
-    if (amount <= 0) {
+    if (amount <= 0 || amount >= 5) {
       return false;
     }
     if (targetDish[currentPlayerKey] + amount > MAX_BACTERIA) {
