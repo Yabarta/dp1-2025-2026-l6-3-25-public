@@ -99,3 +99,4 @@ docs/deliverables/D3/status/*
 docs/deliverables/D3/coverage/**
 docs/deliverables/D3/status/**
 assertions-generation-report.txt
+node_modules/**

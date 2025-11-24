@@ -34,7 +34,7 @@ public class Match extends BaseEntity{
     private TurnType turnType;
 
     @NotNull
-    @OneToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne(optional = false)
     private Player creator;
 
     @OneToMany(cascade = CascadeType.ALL)

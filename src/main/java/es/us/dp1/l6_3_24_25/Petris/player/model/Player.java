@@ -24,6 +24,7 @@ public class Player extends BaseEntity{
 
     private String nickname;
     private String email;
+    private String profilePicture;
     @NotNull
     private Boolean isCurrentlyInMatch;
     @NotNull
