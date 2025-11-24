@@ -23,8 +23,11 @@
 }
 
 .elemento-lista{
-  display: flex;
-  height: auto;
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  white-space: pre-wrap;
   gap: 8; 
   padding: 8px 12px; 
   border-bottom: 1px solid #f5f5f5;

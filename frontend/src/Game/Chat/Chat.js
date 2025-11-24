@@ -48,8 +48,8 @@ export default function Chat(props){
                 {messages.map((msg, i) => (
                     <li key={i} className='elemento-lista'>
                         <div style={{ overflow: 'hidden' }}> {/* Evita que textos largos rompan el layout */}
-                            <div style={{ color: '#78fab2',fontWeight: 600, fontSize: '14px' }}><strong>{msg.nickname || 'Anonimo'}</strong></div>
-                            <div style={{ fontSize: '14px', wordWrap: 'break-word', paddingLeft: "1%" }}>{msg.message}</div>
+                            <div style={{ color: '#d1cfcf',fontWeight: 600, fontSize: '20px' }}><strong>{msg.nickname || 'Anonimo'}</strong></div>
+                            <div style={{ fontSize: '17px', wordWrap: 'break-word', paddingLeft: "1%" }}>{msg.message}</div>
                         </div>
                     </li>
                 ))}
