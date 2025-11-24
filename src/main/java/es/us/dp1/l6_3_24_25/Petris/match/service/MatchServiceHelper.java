@@ -87,12 +87,6 @@ public class MatchServiceHelper {
     public MatchServiceHelper() {
     }
 
-    public MatchServiceHelper(Match m, List<PetriDish> boardState, int player) {
-        this.match = m;
-        this.boardState = boardState;
-        this.player = player;
-    }
-
     public Match binaryFission(Match matchToUpdate) {
         List<PetriDish> newBoardState = new ArrayList<>(matchToUpdate.getBoardState());
         for(Integer i = 0; i < NUM_PETRI_DISHES; i++) {

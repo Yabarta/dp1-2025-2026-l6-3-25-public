@@ -506,7 +506,7 @@ class MatchServiceTest {
         @SuppressWarnings("unchecked")
         ObjectProvider<MatchServiceHelper> provider = (ObjectProvider<MatchServiceHelper>) mock(ObjectProvider.class);
         when(provider.getIfAvailable()).thenReturn(new MatchServiceHelper());
-        return new MatchService(repository, provider);
+        return new MatchService(repository);
     }
 
     private @NonNull Match buildMatch(int id, Player player1, Player player2) {
