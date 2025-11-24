@@ -6,9 +6,8 @@ import './chatStyles.css'
 export default function Chat(props){
     const [messages, setMessages] = useState([])
     const [message, setMessage] = useState('')
-    const [nickname, setNickname] = useState('')
     const [stompClient, setStompClient] = useState([])
-
+    
     useEffect(() => {
         const socket = new SockJS('http://localhost:8080/ws');
         const client = Stomp.over(socket);
@@ -27,14 +26,12 @@ export default function Chat(props){
 
     const handleMessageChange = (msg) => {
         setMessage(msg.target.value)
-        console.log("Nickname: "+props.nickname)
-        setNickname(props.nickname)
     }
 
     const sendMessage = () => {
         if(message.trim()){
             const chatMessage = {
-                nickname: nickname,
+                nickname: props.nickname,
                 message: message.trim()
             }
             stompClient.send('/app/chat', {}, JSON.stringify(chatMessage))
@@ -44,34 +41,35 @@ export default function Chat(props){
 
 
     return(
-        <div className='chat'>
-            {/* ZONA DE MENSAJES (Scrollable) */}
+        <>
+            <div className='chat'>
+            {/* ZONA DE MENSAJES */}
             <ul className='lista'>
                 {messages.map((msg, i) => (
                     <li key={i} className='elemento-lista'>
                         <div style={{ overflow: 'hidden' }}> {/* Evita que textos largos rompan el layout */}
-                            <div style={{ fontWeight: 600, fontSize: '14px' }}><strong>{msg.nickname || 'Anonimo'}</strong></div>
-                            <div style={{ color: '#333', fontSize: '14px', wordWrap: 'break-word', paddingLeft: "1%" }}>{msg.message}</div>
+                            <div style={{ color: '#78fab2',fontWeight: 600, fontSize: '14px' }}><strong>{msg.nickname || 'Anonimo'}</strong></div>
+                            <div style={{ fontSize: '14px', wordWrap: 'break-word', paddingLeft: "1%" }}>{msg.message}</div>
                         </div>
                     </li>
                 ))}
             </ul>
 
             {/* ZONA DE INPUTS (Fija abajo) */}
-            <div style={{ display: 'flex', gap: 8, padding: 10}}>
-                <input
-                    placeholder="mensaje..."
-                    value={message}
-                    onChange={handleMessageChange}
-                    onKeyDown={(e) => { if (e.key === 'Enter') sendMessage(); }}
-                    style={{ 
-                        flex: 1,             // Ocupa el resto del espacio
-                        padding: 8, 
-                        borderRadius: 4,
-                        border: '1px solid'
-                    }}
-                />
             </div>
-        </div>
+            <div style={{ 
+                padding: '10px', 
+                background: 'rgba(0,0,0,0.2)',
+                flexShrink: 0
+                }}>
+            <input
+                className='inputMessage'
+                placeholder="mensaje..."
+                value={message}
+                onChange={handleMessageChange}
+                onKeyDown={(e) => { if (e.key === 'Enter') sendMessage(); }}
+            />
+                </div>
+        </>
     )
 }
