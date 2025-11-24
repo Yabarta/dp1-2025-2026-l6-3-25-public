@@ -879,7 +879,9 @@ function useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, currentTurnI
       <aside className="chatPanel">
         <span className="">Tiempo Restante: {timeLeft} s</span>
         <div className="chatTitle">CHAT</div>
-        <div className="chatList">
+        <div className="chatList" style={{
+          height: '87.5%'
+        }}>
           <Chat nickname={nickname}/>
         </div>
         {waitingForPlayer && (
