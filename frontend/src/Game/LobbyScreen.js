@@ -6,7 +6,6 @@ import tokenService from '../services/token.service';
 import '../static/css/lobby/lobby.css';
 
 const currentUser = tokenService.getUser();
-console.log("Current user in LobbyScreen:", currentUser);
 let player = ''
 if(currentUser && currentUser.roles.includes('PLAYER')){
     player = (await api.get(`/api/v1/players/user/${currentUser.username}`)).data;
