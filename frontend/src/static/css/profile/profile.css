@@ -168,6 +168,9 @@
 }
 .gamePlayerInfo {
     display: flex;
+    background: transparent!important;
+    border: none!important;
+    color: inherit!important;
     align-items: center;
 }
 .gamePlayerPic {
