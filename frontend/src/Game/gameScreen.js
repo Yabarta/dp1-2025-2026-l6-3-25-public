@@ -6,6 +6,7 @@ import useWebSocket from '../hooks/useWebSocket';
 import api from '../services/api';
 import tokenService from '../services/token.service';
 import Board from './demoBoard';
+import Chat from '../components/chat/Chat';
 
 
 function ScoreBar({ score = 0, color = '#888' }) {
@@ -485,6 +486,16 @@ function useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, currentTurnI
 
   const isPlayer1 = Boolean(currentUser && match?.player1?.username === currentUser.username);
   const isPlayer2 = Boolean(currentUser && match?.player2?.username === currentUser.username);
+  let nickname = currentUser?.username ?? 'Invitado';
+  if (match) {
+    if (isPlayer1) {
+      // Si soy el P1, uso el nickname del P1 (o su username si no tiene nick)
+      nickname = match.player1?.nickname ?? match.player1?.username ?? 'Player 1';
+    } else if (isPlayer2) {
+      // Si soy el P2, uso el nickname del P2
+      nickname = match.player2?.nickname ?? match.player2?.username ?? 'Player 2';
+    }
+  }
   const iAmParticipant = isPlayer1 || isPlayer2;
   const hasMatch = Boolean(match);
   const matchEnded = Boolean(match?.endedAt);
@@ -632,7 +643,7 @@ function useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, currentTurnI
       return false;
     }
     const amount = Math.min(moveAmount, sourceDish[currentPlayerKey]);
-    if (amount <= 0) {
+    if (amount <= 0 || amount >= 5) {
       return false;
     }
     if (targetDish[currentPlayerKey] + amount > MAX_BACTERIA) {
@@ -862,6 +873,11 @@ function useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, currentTurnI
       <aside className="chatPanel">
         <span className="">Tiempo Restante: {timeLeft} s</span>
         <div className="chatTitle">CHAT</div>
+        <div className="chatList" style={{
+          height: '87.5%'
+        }}>
+          <Chat nickname={nickname}/>
+        </div>
         {waitingForPlayer && (
           <div className="chatRoomInfo">
             <p>Código de partida:</p>

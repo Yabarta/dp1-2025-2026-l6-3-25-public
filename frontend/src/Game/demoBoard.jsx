@@ -134,16 +134,16 @@ function Disco({
   const j2Style = { color: playerStyles[1].color, fontWeight: 600, marginLeft: 6 };
   const ring = [];
   if (isSource) {
-    ring.push('0 0 0 8px rgba(52, 152, 219, 0.35)');
+    ring.push('0 0 0 8px rgba(237, 255, 71, 0.8)');
   }
   if (isTarget) {
-    ring.push('0 0 0 12px rgba(46, 204, 113, 0.35)');
+    ring.push('0 0 0 12px rgba(255, 61, 229, 0.8)');
   }
   if (isLastSource) {
-    ring.push('0 0 0 16px rgba(241, 196, 15, 0.25)');
+    ring.push('0 0 0 0px rgba(185, 163, 40, 0.8)');
   }
   if (isLastTarget) {
-    ring.push('0 0 0 20px rgba(155, 89, 182, 0.25)');
+    ring.push('0 0 0 0px rgba(142, 69, 211, 0.8)');
   }
 
   const j1Count = Number(disco?.j1 ?? 0);
