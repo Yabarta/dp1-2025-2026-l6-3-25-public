@@ -6,7 +6,7 @@ import useWebSocket from '../hooks/useWebSocket';
 import api from '../services/api';
 import tokenService from '../services/token.service';
 import Board from './demoBoard';
-import Chat from '../components/chat/Chat';
+import Chat from '../Game/Chat/Chat';
 
 
 function ScoreBar({ score = 0, color = '#888' }) {
