@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback, useMemo } from "react";
+import { useParams } from "react-router-dom";
 import jwt_decode from "jwt-decode";
 import tokenService from "../services/token.service";
 import '../static/css/profile/profile.css';
@@ -13,13 +14,22 @@ const DEFAULT_PROFILE_PIC = "https://www.dsac.gov/image-repository/blank-profile
 export default function ProfileScreen() {
     // State declarations
     const jwt = tokenService.getLocalAccessToken();
+    const { username } = useParams()
+    const [currentPlayer, setCurrentPlayer] = useState(() => {
+        if (!jwt) return username ?? "";
+        try {
+            return jwt_decode(jwt)?.sub ?? (username ?? "");
+        } catch (e) {
+            console.error("Invalid JWT", e);
+            return username ?? "";
+        }
+    });
     const imageInputRef = useRef(null);
     const [showEditPopup, setShowEditPopup] = useState(false);
     const [showHistoryPopup, setShowHistoryPopup] = useState(false);
     const [message, setMessage] = useState(null);
     const [visible, setVisible] = useState(false);
     const [profilePic, setProfilePic] = useState(DEFAULT_PROFILE_PIC);
-    const [username] = useState(() => jwt ? jwt_decode(jwt).sub : "");
 
     // Data fetching
     const playerUrl = username ? `/api/v1/players/user/${encodeURIComponent(username)}` : "";
@@ -183,7 +193,7 @@ export default function ProfileScreen() {
         <div>
             <div className="profileHeader">
                 <span className="profileNickname">{playerData.nickname}</span>
-                <span onClick={() => setShowEditPopup(true)} className="editIcon">✏️</span>
+                {currentPlayer && currentPlayer===username && <span onClick={() => setShowEditPopup(true)} className="editIcon">✏️</span>}
             </div>
             <div className="profileHeaderEmail">{playerData.email}</div>
         </div>
@@ -376,8 +386,9 @@ export default function ProfileScreen() {
             <div className="left">
                 <ProfileHeader />
                 <div className="bg">
-                    <img src={profilePic} onClick={handleChangeProfilePicture} alt="provisional" className="profilePicture" />
-                    <input type="file" ref={imageInputRef} onChange={handleFileChange} className="hiddenFileInput" accept="image/*" />
+                    { currentPlayer && currentPlayer===username ? <img src={profilePic} onClick={handleChangeProfilePicture} alt="provisional" className="profilePicture" /> :
+                    <img src={profilePic} alt="provisional" className="profilePicture" />} 
+                    { currentPlayer && currentPlayer===username && <input type="file" ref={imageInputRef} onChange={handleFileChange} className="hiddenFileInput" accept="image/*" /> }
                     <StatsSection />
                 </div>
             </div>

@@ -5,6 +5,7 @@ import logo from '../static/images/petris3D_recortado.png'
 import tokenService from '../services/token.service.js';
 import {ToastContainer, toast} from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
+import jwt_decode from "jwt-decode";
 
 const jwt = tokenService.getLocalAccessToken();
 
@@ -12,6 +13,7 @@ export default function Home(){
   const navigate = useNavigate();
   const [showMainMenu, setShowMainMenu] = useState(false);
   const [showJoinGameScreen, setShowJoinGameScreen] = useState(false);
+  const [username] = useState(() => jwt ? jwt_decode(jwt).sub : "");
   // profile will be shown via a dedicated route /profile
 
 
@@ -33,7 +35,7 @@ export default function Home(){
     if (jwt == null) {
       return toast.error("User not logged in")
     } else {
-        navigate('/profile');
+        navigate(`/profile/${username}`);
     }
   }
 
