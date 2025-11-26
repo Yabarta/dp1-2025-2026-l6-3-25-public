@@ -547,8 +547,39 @@ function useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, currentTurnI
     : 0;
   const { turnTrackRef, turnTrackOffset } = useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, timelineTurnIndex);
 
-  const handleTimeUp = () => {
-    alert('Sin tiempo, has perdido!');
+  const handleTimeUp = async () => {
+    try {
+      if (isMyTurn && match?.id) {
+        try {
+          await api.put(`/api/v1/matches/${id}/endMatch`);
+        } catch (err) {
+          console.error('Unable to request endMatch on timeout', err);
+        }
+        // Refrescar el estado del match desde el servidor.
+        try {
+          const resp = await api.get(`/api/v1/matches/${id}`);
+          setMatch(normaliseMatch(resp.data));
+          return;
+        } catch (err) {
+          console.error('Unable to refresh match after endMatch', err);
+        }
+      }
+
+      // Si no se puede obtener el estado actualizado del servidor, determinar el ganador localmente.
+      if (match) {
+        const localWinner = isPlayer1 ? 2 : 1;
+        setMatch((prev) => ({
+          ...(prev ?? {}),
+          winner: localWinner,
+          endedAt: new Date().toISOString(),
+        }));
+      }
+    } catch (err) {
+      console.error('handleTimeUp error', err);
+    } finally {
+      setRunning(false);
+      setTimeLeft(0);
+    }
   };
 
   const handleBackToMenu = () => {
@@ -877,7 +908,6 @@ function useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, currentTurnI
       />
 
       <aside className="chatPanel">
-        <span className="">Tiempo Restante: {timeLeft} s</span>
         <div className="chatTitle">CHAT</div>
         <div className="chatList" style={{
           height: '87.5%'
@@ -894,6 +924,9 @@ function useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, currentTurnI
       </aside>
 
       <main className="gameMainPanel">
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '0.6rem 0' }}>
+          <div className="timer" style={{ textAlign: 'center' }}>Tiempo restante: {timeLeft} s</div>
+        </div>
         <div className={`gameStage ${waitingForPlayer ? 'gameStage--waiting' : ''}`}>
           <PlayerColumn
             player={match?.player1}
