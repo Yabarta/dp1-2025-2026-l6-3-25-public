@@ -7,6 +7,7 @@ import api from '../services/api';
 import tokenService from '../services/token.service';
 import Board from './demoBoard';
 import Chat from './Chat/Chat';
+import ModalWinner from './modalWinner';
 
 function ScoreBar({ score = 0, color = '#888' }) {
   const max = 9;
@@ -499,6 +500,11 @@ function useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, currentTurnI
       nickname = match.player2?.nickname ?? match.player2?.username ?? 'Player 2';
     }
   }
+  const winnerName = match?.winner
+    ? (match.winner === 1
+        ? (match.player1?.nickname ?? match.player1?.username ?? 'Jugador 1')
+        : (match.player2?.nickname ?? match.player2?.username ?? 'Jugador 2'))
+    : null;
   
   const iAmParticipant = isPlayer1 || isPlayer2;
   const hasMatch = Boolean(match);
@@ -942,14 +948,7 @@ function useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, currentTurnI
           />
         </div>
 
-        {match?.endedAt && (
-          <div className="game-result">
-            <strong>Partida finalizada.</strong>{' '}
-            {match.winner
-              ? `Ganador: ${match.winner === 1 ? (match.player1?.nickname ?? match.player1?.username ?? 'Jugador 1') : (match.player2?.nickname ?? match.player2?.username ?? 'Jugador 2')}`
-              : 'Empate.'}
-          </div>
-        )}
+        <ModalWinner winner={winnerName} currentUser={nickname} onGoToMenu={handleBackToMenu} />
         {error && <div className="error-banner">{error}</div>}
       </main>
 
