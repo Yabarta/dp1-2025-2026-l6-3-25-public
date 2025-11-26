@@ -79,7 +79,7 @@ function App() {
         <Route path="/game/:id" element={<PrivateRoute><GameScreen /></PrivateRoute>} />
         <Route path="/lobby/:id" element={<PrivateRoute><LobbyScreen /></PrivateRoute>} />       
         <Route path="/lobby" element={<PrivateRoute><Lobby /></PrivateRoute>} />       
-        <Route path="/profile" element={<ProfileScreen />} />
+        <Route path="/profile/:username" element={<PrivateRoute><ProfileScreen /></PrivateRoute>} />
         <Route path="/logout" element={<Logout />} />
         <Route path="/login" element={<Login />} />
       </>
