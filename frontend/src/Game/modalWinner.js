@@ -15,7 +15,7 @@ const modalOverlayStyle = {
 };
 
 const modalContentStyle = {
-  backgroundColor: '#fff',
+  backgroundColor: '#0d441fff',
   padding: '2rem',
   borderRadius: '8px',
   textAlign: 'center',
@@ -43,7 +43,7 @@ export default function ModalWinner({ winner, currentUser, onGoToMenu }) {
     if (onGoToMenu) {
       onGoToMenu();
     } else {
-      navigate('/'); // Fallback to home
+      navigate('/');
     }
   };
 

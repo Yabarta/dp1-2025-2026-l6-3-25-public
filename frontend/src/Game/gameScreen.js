@@ -1,12 +1,14 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { matchPath, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import '../static/css/game/gameScreen.css';
 import ExitGameModal from '../components/modal/ExitGameModal';
 import useWebSocket from '../hooks/useWebSocket';
 import api from '../services/api';
 import tokenService from '../services/token.service';
 import Board from './demoBoard';
-import Chat from './Chat/Chat';
+import Chat from '../Game/Chat/Chat';
+import ModalWinner from './modalWinner';
+
 
 function ScoreBar({ score = 0, color = '#888' }) {
   const max = 9;
@@ -17,7 +19,7 @@ function ScoreBar({ score = 0, color = '#888' }) {
   return (
     <div className="scoreBarContainer">
       <div className="scoreBarFrame">
-        <div className="scoreBarFill" style={{ height: `${fillPercent}%`, background: `linear-gradient(180deg, ${color} 0%, rgba(12, 24, 15, 0.9) 100%)` }} />
+        <div className="scoreBarFill" style={{ height: `${fillPercent}%`, background: `linear-gradient(0deg, ${color} 0%, rgba(60, 7, 85, 0.9) 100%)` }} />
         {ticks.map((value) => {
           const percent = 100 - (value / max) * 100;
           return <span key={`line-${value}`} className="scoreBarTick" style={{ top: `${percent}%` }} />;
@@ -117,14 +119,12 @@ export default function GameScreen() {
   const [selectedSource, setSelectedSource] = useState(null);
   const [moveAmount, setMoveAmount] = useState(1);
   const [selectedTarget, setSelectedTarget] = useState(null);
-  const [selectionLocked, setSelectionLocked] = useState(false);
   const [boardFeedback, setBoardFeedback] = useState(null);
   const [currentUser] = useState(() => tokenService.getUser());
   const [lastMove, setLastMove] = useState({ source: null, target: null });
   const timerRef = useRef(null);
   const lastTurnRef = useRef(null);
   const previousBoardRef = useRef([]);
-
 
   const matchUpdate = useWebSocket(`/app/matches/watch/${id}`, `/topic/match/${id}`);
 
@@ -420,7 +420,6 @@ function useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, currentTurnI
     setSelectedSource(null);
     setSelectedTarget(null);
     setMoveAmount(1);
-    setSelectionLocked(false);
     setBoardFeedback(null);
     setLastMove(derivedLastMove);
     previousBoardRef.current = currentBoard.map((dish) => ({ ...dish }));
@@ -488,8 +487,7 @@ function useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, currentTurnI
 
   const isPlayer1 = Boolean(currentUser && match?.player1?.username === currentUser.username);
   const isPlayer2 = Boolean(currentUser && match?.player2?.username === currentUser.username);
-  let nickname = currentUser?.username || 'Invitado'; // Valor por defecto (si eres espectador)
-
+  let nickname = currentUser?.username ?? 'Invitado';
   if (match) {
     if (isPlayer1) {
       // Si soy el P1, uso el nickname del P1 (o su username si no tiene nick)
@@ -499,13 +497,18 @@ function useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, currentTurnI
       nickname = match.player2?.nickname ?? match.player2?.username ?? 'Player 2';
     }
   }
-  
+  const winnerName = match?.winner
+    ? (match.winner === 1
+        ? (match.player1?.nickname ?? match.player1?.username ?? 'Jugador 1')
+        : (match.player2?.nickname ?? match.player2?.username ?? 'Jugador 2'))
+    : null;
   const iAmParticipant = isPlayer1 || isPlayer2;
   const hasMatch = Boolean(match);
   const matchEnded = Boolean(match?.endedAt);
   const currentPlayerKey = isPlayer1 ? 'player1Bacteria' : isPlayer2 ? 'player2Bacteria' : 'player1Bacteria';
   const opponentPlayerKey = currentPlayerKey === 'player1Bacteria' ? 'player2Bacteria' : 'player1Bacteria';
   const isPropagationTurn = match?.turnType === 'P1_PROPAGATION' || match?.turnType === 'P2_PROPAGATION';
+  console.log('match', match);
   const isMyPropagationTurn = (match?.turnType === 'P1_PROPAGATION' && isPlayer1) || (match?.turnType === 'P2_PROPAGATION' && isPlayer2);
   const canEditBoard = Boolean(isMyPropagationTurn && !match?.endedAt);
   const waitingForPlayer = useMemo(() => !match || !match.player2, [match]);
@@ -528,6 +531,7 @@ function useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, currentTurnI
   const isMyTurn = Boolean(match && !matchEnded && (isPropagationTurn ? isMyPropagationTurn : iAmParticipant));
   const totalTurnPhases = TURN_SEQUENCE.length;
   const rawTurnIndex = typeof match?.turn === 'number' ? match.turn : -1;
+  console.log('Turnosiguiente', rawTurnIndex+1);
   const consumedAllPhases = rawTurnIndex >= totalTurnPhases;
   const clampedTurnIndex = rawTurnIndex >= 0
     ? Math.min(rawTurnIndex, totalTurnPhases - 1)
@@ -543,12 +547,39 @@ function useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, currentTurnI
     : 0;
   const { turnTrackRef, turnTrackOffset } = useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, timelineTurnIndex);
 
-  const handleTimeUp = () => {
+  const handleTimeUp = async () => {
     try {
-      api.put(`/api/v1/matches/${id}/endMatch`);
+      if (isMyTurn && match?.id) {
+        try {
+          await api.put(`/api/v1/matches/${id}/endMatch`);
+        } catch (err) {
+          console.error('Unable to request endMatch on timeout', err);
+        }
+        // Refrescar el estado del match desde el servidor.
+        try {
+          const resp = await api.get(`/api/v1/matches/${id}`);
+          setMatch(normaliseMatch(resp.data));
+          return;
+        } catch (err) {
+          console.error('Unable to refresh match after endMatch', err);
+        }
+      }
+
+      // Si no se puede obtener el estado actualizado del servidor, determinar el ganador localmente.
+      if (match) {
+        const localWinner = isPlayer1 ? 2 : 1;
+        setMatch((prev) => ({
+          ...(prev ?? {}),
+          winner: localWinner,
+          endedAt: new Date().toISOString(),
+        }));
+      }
     } catch (err) {
-      console.error('Unable to end match cleanly', err);
-    } 
+      console.error('handleTimeUp error', err);
+    } finally {
+      setRunning(false);
+      setTimeLeft(0);
+    }
   };
 
   const handleBackToMenu = () => {
@@ -570,6 +601,8 @@ function useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, currentTurnI
       handleBackToMenu();
     }
   };
+  const isNextTurnFission = match? TURN_SEQUENCE[clampedTurnIndex + 1] === 'BINARY_FISSION': false;
+  const isFissionsNextTurnContamination = match? TURN_SEQUENCE[clampedTurnIndex + 2] === 'CONTAMINATION': false;
 
   const handleEndTurn = async () => {
     if (!match || !isMyTurn) {
@@ -606,6 +639,12 @@ function useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, currentTurnI
       if (propagationTurn && selectedSource !== null) {
         setLastMove({ source: selectedSource, target: null });
       }
+      if (isNextTurnFission) {
+        await api.put(`/api/v1/matches/${id}/nextTurn`);
+      }
+      if (isFissionsNextTurnContamination){
+        await api.put(`/api/v1/matches/${id}/nextTurn`);
+      }
     } catch (err) {
       console.error('Unable to advance turn', err);
       const serverMessage = err.response?.data?.message ?? err.response?.data ?? err.message;
@@ -617,7 +656,6 @@ function useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, currentTurnI
       }
     } finally {
       setIsEndingTurn(false);
-      setSelectionLocked(false);
     }
   };
 
@@ -642,13 +680,10 @@ function useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, currentTurnI
       return false;
     }
     const amount = Math.min(moveAmount, sourceDish[currentPlayerKey]);
-    if (amount <= 0) {
+    if (amount <= 0 || amount >= 5) {
       return false;
     }
     if (targetDish[currentPlayerKey] + amount > MAX_BACTERIA) {
-      return false;
-    }
-    if ((targetDish[currentPlayerKey] + amount) === targetDish[opponentPlayerKey]) {
       return false;
     }
     if (sourceDish[opponentPlayerKey] !== 0 && targetDish[opponentPlayerKey] === amount) {
@@ -683,11 +718,10 @@ function useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, currentTurnI
       setMoveAmount(Math.min(moveAmount, remaining));
       setBoardFeedback('Movimiento aplicado. Puedes seguir repartiendo bacterias desde la misma placa.');
       setLastMove({ source: selectedSource, target: targetIndex });
-      setSelectionLocked(true);
     } else {
+      setSelectedSource(null);
       setMoveAmount(1);
-      setBoardFeedback('Movimiento aplicado. No quedan bacterias en la placa origen. Pulsa "Terminar turno" para finalizar tu turno.');
-      setSelectionLocked(true);
+      setBoardFeedback('Movimiento aplicado.');
       setLastMove({ source: selectedSource, target: targetIndex });
     }
   };
@@ -712,12 +746,10 @@ function useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, currentTurnI
       return;
     }
     if (selectedSource === index) {
-      if (!selectionLocked) {
-        setSelectedSource(null);
-        setSelectedTarget(null);
-        setMoveAmount(1);
-        setBoardFeedback(null);
-      }
+      setSelectedSource(null);
+      setSelectedTarget(null);
+      setMoveAmount(1);
+      setBoardFeedback(null);
       return;
     }
     if (!canMoveTo(index)) {
@@ -840,7 +872,7 @@ function useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, currentTurnI
   const maxMoveForSource = Math.max(1, sourceCapacity || 1);
   const moveAmountValue = Math.min(moveAmount, maxMoveForSource);
   const canApplyMove = canEditBoard && selectedSource !== null && selectedTarget !== null;
-  const canCancelSelection = canEditBoard && (selectedSource !== null || selectedTarget !== null) && !selectionLocked;
+  const canCancelSelection = canEditBoard && (selectedSource !== null || selectedTarget !== null);
 
   const handleQuickAmountSelect = useCallback((value) => {
     setMoveAmount(Math.min(value, maxMoveForSource));
@@ -851,7 +883,6 @@ function useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, currentTurnI
     setSelectedTarget(null);
     setMoveAmount(1);
     setBoardFeedback(null);
-    setSelectionLocked(false);
   }, []);
 
   useEffect(() => {
@@ -877,9 +908,10 @@ function useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, currentTurnI
       />
 
       <aside className="chatPanel">
-        <span className="">Tiempo Restante: {timeLeft} s</span>
         <div className="chatTitle">CHAT</div>
-        <div className="chatList">
+        <div className="chatList" style={{
+          height: '87.5%'
+        }}>
           <Chat nickname={nickname}/>
         </div>
         {waitingForPlayer && (
@@ -892,6 +924,9 @@ function useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, currentTurnI
       </aside>
 
       <main className="gameMainPanel">
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '0.6rem 0' }}>
+          <div className="timer" style={{ textAlign: 'center' }}>Tiempo restante: {timeLeft} s</div>
+        </div>
         <div className={`gameStage ${waitingForPlayer ? 'gameStage--waiting' : ''}`}>
           <PlayerColumn
             player={match?.player1}
@@ -942,14 +977,7 @@ function useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, currentTurnI
           />
         </div>
 
-        {match?.endedAt && (
-          <div className="game-result">
-            <strong>Partida finalizada.</strong>{' '}
-            {match.winner
-              ? `Ganador: ${match.winner === 1 ? (match.player1?.nickname ?? match.player1?.username ?? 'Jugador 1') : (match.player2?.nickname ?? match.player2?.username ?? 'Jugador 2')}`
-              : 'Empate.'}
-          </div>
-        )}
+        <ModalWinner winner={winnerName} currentUser={nickname} onGoToMenu={handleBackToMenu} />
         {error && <div className="error-banner">{error}</div>}
       </main>
 
