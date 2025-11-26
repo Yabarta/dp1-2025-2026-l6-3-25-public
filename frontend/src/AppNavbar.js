@@ -14,16 +14,9 @@ function AppNavbar() {
     const [collapsed, setCollapsed] = useState(true);
     const [isOpenFriends, setIsOpenFriends] = useState(false);
     const [nombreBuscado , setNombre] = useState("");
-    const [friends, setFriends] = useFetchState(
-        [],
-        `/api/v1/players/${username}/friends`,
-    );
-    
-    const filterFriends = friends.filter((user) =>
-    user.nickname.toLowerCase().includes(nombreBuscado.toLowerCase())
-    );
+    const [friends, setFriends] = useState([]);
 
-    const userFriends = filterFriends.map((user) => {
+    const userFriends = friends.map((user) => {
         return (
         <tr key={user.id}>
             <td>{user.nickname}</td>
@@ -44,10 +37,7 @@ function AppNavbar() {
             );
         });
 
-    const [request, setRequest] = useFetchState(
-        [],
-        `/api/v1/players/${username}/request`,
-    );
+    const [request, setRequest] = useState([]);
 
     const requestList = request.map((user) => {
         return (
@@ -101,7 +91,54 @@ function AppNavbar() {
             setRoles(jwt_decode(jwt).authorities);
             setUsername(jwt_decode(jwt).sub);
         }
-    }, [jwt])
+    }, [jwt]);
+
+    useEffect(() => {
+    // Guard clause: Si no hay username, no hacemos nada
+    if (!username) return;
+
+    const fetchFriends = async () => {
+        try {
+            // A. Hacemos la petición
+            const response = await fetch(`/api/v1/players/${username}/friends`);
+            if (!response.ok) throw new Error("Error en la petición");
+            
+            const data = await response.json();
+
+            // B. Aquí guardamos los amigos en el estado
+            setFriends(data);
+            
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    fetchFriends();
+
+}, [username]);
+
+useEffect(() => {
+    // Guard clause: Si no hay username, no hacemos nada
+    if (!username) return;
+
+    const fetchRequest = async () => {
+        try {
+            // A. Hacemos la petición
+            const response = await fetch(`/api/v1/players/${username}/request`);
+            if (!response.ok) throw new Error("Error en la petición");
+            
+            const data = await response.json();
+            // B. Aquí guardamos los amigos en el estado
+            setRequest(data);
+            
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    fetchRequest();
+
+}, [username]);
 
 
     let adminLinks = <></>;
@@ -190,8 +227,9 @@ function AppNavbar() {
             </Navbar>
 
             <Offcanvas isOpen={isOpenFriends} onClose={toggleMenu} direction='start' style={{width: "33%" , backgroundColor: "#f8f9fa", overflowY: "scroll"}} >
-                <div class="barra-busqueda">
+                <div className="barra-busqueda">
                     <input type="search" value={nombreBuscado} onChange={(usuario) => setname(usuario.target.value)} placeholder="Buscar usuario" />
+                    <Button color="secondary" onClick={toggleMenu} style={{width: '10%'}} direction='end'>X</Button>
                 </div>
                 <div>
         <Table aria-label="friends" className="mt-4">
@@ -205,11 +243,13 @@ function AppNavbar() {
         </Table>
         </div>
             </Offcanvas>
-            <Offcanvas isOpen={isOpenFriends} onClose={toggleMenu} direction='end' style={{width: "33%"}} backdrop={false} >
-                <Button color="secondary" onClick={toggleMenu} style={{width: '10%'}}>X</Button>
 
-                <div>
-        <Table aria-label="users" className="mt-4" stickyHeader>
+            <Offcanvas isOpen={isOpenFriends} onClose={toggleMenu} direction='end' style={{width: "33%", overflowY: "scroll"}} backdrop={false} >
+                <div className="barra-busqueda">
+                    <input type="search" value={nombreBuscado} onChange={(usuario) => setname(usuario.target.value)} placeholder="Buscar usuario" />
+                </div>
+                <div style={{maxHeight: '50%' , overflowY: "scroll"}}>
+        <Table aria-label="users" className="mt-4">
         <thead>
             <tr>
                 <th>Username</th>
@@ -218,6 +258,9 @@ function AppNavbar() {
         </thead>
             <tbody>{userList}</tbody>
         </Table>
+        </div>
+
+        <div style={{maxHeight: '40%' , overflowY: "scroll"}}>
         <Table aria-label="request" className="mt-4">
         <thead>
             <tr>
