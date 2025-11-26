@@ -19,7 +19,7 @@ function ScoreBar({ score = 0, color = '#888' }) {
   return (
     <div className="scoreBarContainer">
       <div className="scoreBarFrame">
-        <div className="scoreBarFill" style={{ height: `${fillPercent}%`, background: `linear-gradient(180deg, ${color} 0%, rgba(12, 24, 15, 0.9) 100%)` }} />
+        <div className="scoreBarFill" style={{ height: `${fillPercent}%`, background: `linear-gradient(0deg, ${color} 0%, rgba(60, 7, 85, 0.9) 100%)` }} />
         {ticks.map((value) => {
           const percent = 100 - (value / max) * 100;
           return <span key={`line-${value}`} className="scoreBarTick" style={{ top: `${percent}%` }} />;
