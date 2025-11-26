@@ -102,6 +102,16 @@ public class PlayerController {
         return new ResponseEntity<>(playerservice.getPlayerByUsername(username), HttpStatus.OK);
     }
 
+    @GetMapping("/{username}/friends")
+    public ResponseEntity<List<Player>> getFriendsByUsername(@PathVariable("username") String username) {
+        return new ResponseEntity<>(playerservice.getPlayerByNickname(username).getFriends(), HttpStatus.OK);
+    }
+
+    @GetMapping("/{username}/request")
+    public ResponseEntity<List<Player>> getRequestsByUsername(@PathVariable("username") String username) {
+        return new ResponseEntity<>(playerservice.getPlayerByNickname(username).getRequest(), HttpStatus.OK);
+    }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<Player> createPlayer(@Valid @RequestBody Player player) {
