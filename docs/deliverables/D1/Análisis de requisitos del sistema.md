@@ -71,13 +71,13 @@ A continuación se definen  todas las historias de usuario a implementar:
 ### Control de turnos (jugador)
 ![alt text](ImagenesD1/m4.png)
 
-- ## HU-(ISSUE#ID): **Barra de contaminación (jugador)**
+- ## HU-(ISSUE#79): **Barra de contaminación (jugador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/79
     - Como jugador quiero saber cuánta contaminación tenemos ambos jugadores para poder controlar cuánto me queda para perder o ganar.
     - _Se requiere una barra de contaminación tanto para el jugador 1, como para el jugador 2._
 ### Barra de contaminación (jugador)
 ![alt text](ImagenesD1/m5.png)
 
-- ## HU-(ISSUE#ID): **Control de fase de fisión binaria (jugador)**
+- ## HU-(ISSUE#ID): **Control de fase de fisión binaria (jugador)** 
     - Como jugador quiero que en la fase de fisión binaria se añada una bacteria del jugador al que pertenece un disco para poder proseguir una partida con normalidad.
     - _Se requiere la automatización para que por cada disco en el que solo existan bacterias de un jugador, se agrege a dicho disco una más._
 ### Control de fase de fisión binaria (jugador)
@@ -107,7 +107,7 @@ A continuación se definen  todas las historias de usuario a implementar:
 ### Listado de partidas en curso (administrador) -
 ![alt text](ImagenesD1/m7.png)
 
-- ## HU-(ISSUE#ID): **Ver nombre del oponente (jugador)**
+- ## HU-(ISSUE#87): **Ver nombre del oponente (jugador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/87
     - Como jugador quiero saber el nombre del otro jugador para poder saber a quién me estoy enfrentando.
     - _Se requiere saber mediante un texto el nombre del jugador oponente para identificarlo correctamente. Esto gana un gran peso en las partidas privadas donde se debe saber si la persona que se ha unido es la persona correcta._
 ### Ver nombre del oponente (jugador) -
@@ -120,7 +120,7 @@ A continuación se definen  todas las historias de usuario a implementar:
 ![alt text](ImagenesD1/m9.png)
 ![alt text](ImagenesD1/m10.png)
 
-- ## HU(ISSUE#ID): **Ver ganador al finalizar (jugador)**
+- ## HU(ISSUE#86): **Ver ganador al finalizar (jugador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/86
     - Como jugador quiero que cuando acabe una partida ver quién ha ganado para poder saber el resultado y salir de la partida.
     - _Se requiere mostrar un ganador al final de una partida, ya sea mediante una animación o algún método visual intuitivo. Además de la opción de volver al menú principal._
 ### Ver ganador al finalizar (jugador)
@@ -257,7 +257,7 @@ A continuación se definen  todas las historias de usuario a implementar:
 ### Eliminar amigo (jugador)
 ![alt text](ImagenesD1/m31.png)
 
-- ## HU-(ISSUE#ID): **Chat en partida (jugador)**
+- ## HU-(ISSUE#95): **Chat en partida (jugador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/95
     - Como jugador quiero conversar con mi oponente para poder aumentar la comunicación entre ambos.
     - _Se requiere un chat de juego dentro de las partidas para poder intercambiar mensajes entre jugadores._
 ### Chat en partida (jugador)
