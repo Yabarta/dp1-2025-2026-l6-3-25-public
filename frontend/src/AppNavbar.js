@@ -16,49 +16,60 @@ function AppNavbar() {
     const [nombreBuscado , setNombre] = useState("");
     const [friends, setFriends] = useState([]);
 
-    const userFriends = friends.map((user) => {
-        return (
-        <tr key={user.id}>
-            <td>{user.nickname}</td>
+    // Supongamos que 'currentUserNickname' es el nombre de tu usuario logueado.
+// Asegúrate de tener esta variable definida antes del map.
+
+const userFriends = friends.map((friend) => {
+    
+    // LÓGICA:
+    // ¿El receiver soy yo? -> Entonces muestra al requester.
+    // ¿El receiver NO soy yo? -> Entonces muestra al receiver.
+    const friendDisplayName = (friend.receiver.nickname === username) 
+        ? friend.requester.nickname 
+        : friend.receiver.nickname;
+
+    return (
+        <tr key={friend.id}>
+            {/* Aquí mostramos el nombre calculado */}
+            <td>{friendDisplayName}</td> 
+            
             <td>
                 <ButtonGroup>
-            <Button
-                style={{justifyContent: 'flex-end', backgroundColor: 'green'}}>
-                Invite
-            </Button>
-            <Button
-                style={{justifyContent: 'flex-end', backgroundColor: 'red'}}>
-                Delete Friend
-            </Button>
-            </ButtonGroup>
+                    <Button
+                        style={{justifyContent: 'flex-end', backgroundColor: 'red'}}>
+                        Delete Friend
+                    </Button>
+                </ButtonGroup>
             </td>
-            
         </tr>
-            );
-        });
+    );
+});
 
-    const [request, setRequest] = useState([]);
+    const [requests, setRequests] = useState([]);
 
-    const requestList = request.map((user) => {
-        return (
-        <tr key={user.id}>
-            <td>{user.nickname}</td>
+    const requestList = requests.map((request) => {
+
+    return (
+        <tr key={request.id}>
+            {/* Aquí mostramos el nombre calculado */}
+            <td>{request.requester.nickname}</td> 
+            
             <td>
                 <ButtonGroup>
-            <Button
-                style={{justifyContent: 'flex-end', backgroundColor: 'green'}}>
-                Accept
-            </Button>
-            <Button
-                style={{justifyContent: 'flex-end', backgroundColor: 'red'}}>
-                Reject
-            </Button>
-            </ButtonGroup>
+                    <Button
+                        style={{justifyContent: 'flex-end', backgroundColor: 'green'}}>
+                        Accept
+                    </Button>
+                    <Button
+                        style={{justifyContent: 'flex-end', backgroundColor: 'red'}}>
+                        Decline
+                    </Button>
+                </ButtonGroup>
             </td>
-            
         </tr>
-            );
-        });
+    );
+});
+
 
     const [players, setPlayers] = useFetchState(
         [],
@@ -100,7 +111,7 @@ function AppNavbar() {
     const fetchFriends = async () => {
         try {
             // A. Hacemos la petición
-            const response = await fetch(`/api/v1/players`);
+            const response = await fetch(`/api/v1/players/${username}/friends`);
             if (!response.ok) throw new Error("Error en la petición");
             
             const data = await response.json();
@@ -124,12 +135,12 @@ useEffect(() => {
     const fetchRequest = async () => {
         try {
             // A. Hacemos la petición
-            const response = await fetch(`/api/v1/players/friends`);
+            const response = await fetch(`/api/v1/players/${username}/requests`);
             if (!response.ok) throw new Error("Error en la petición");
             
             const data = await response.json();
             // B. Aquí guardamos los amigos en el estado
-            setRequest(data);
+            setRequests(data);
             
         } catch (error) {
             console.error(error);
