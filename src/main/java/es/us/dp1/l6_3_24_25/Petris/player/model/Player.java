@@ -3,6 +3,7 @@ package es.us.dp1.l6_3_24_25.Petris.player.model;
 
 import java.util.List;
 
+import es.us.dp1.l6_3_24_25.Petris.friend.Friend;
 import es.us.dp1.l6_3_24_25.Petris.match.model.Match;
 import es.us.dp1.l6_3_24_25.Petris.model.BaseEntity;
 import es.us.dp1.l6_3_24_25.Petris.user.User;
@@ -36,8 +37,8 @@ public class Player extends BaseEntity{
     private List<Achievement> achievements;
     @OneToMany(cascade = CascadeType.ALL)
     private List<Statistics> statistics;
-    @ManyToMany
-    private List<Player> friends;
-    @ManyToMany
-    private List<Player> request;
+    @OneToMany
+    private List<Friend> friends;
+    @OneToMany
+    private List<Friend> request;
 }

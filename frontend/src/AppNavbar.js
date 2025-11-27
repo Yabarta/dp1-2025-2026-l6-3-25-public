@@ -100,7 +100,7 @@ function AppNavbar() {
     const fetchFriends = async () => {
         try {
             // A. Hacemos la petición
-            const response = await fetch(`/api/v1/players/${username}/friends`);
+            const response = await fetch(`/api/v1/players`);
             if (!response.ok) throw new Error("Error en la petición");
             
             const data = await response.json();
@@ -124,7 +124,7 @@ useEffect(() => {
     const fetchRequest = async () => {
         try {
             // A. Hacemos la petición
-            const response = await fetch(`/api/v1/players/${username}/request`);
+            const response = await fetch(`/api/v1/players/friends`);
             if (!response.ok) throw new Error("Error en la petición");
             
             const data = await response.json();
