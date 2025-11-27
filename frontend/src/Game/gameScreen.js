@@ -7,6 +7,7 @@ import api from '../services/api';
 import tokenService from '../services/token.service';
 import Board from './demoBoard';
 import Chat from '../Game/Chat/Chat';
+import ModalWinner from './modalWinner';
 
 
 function ScoreBar({ score = 0, color = '#888' }) {
@@ -18,7 +19,7 @@ function ScoreBar({ score = 0, color = '#888' }) {
   return (
     <div className="scoreBarContainer">
       <div className="scoreBarFrame">
-        <div className="scoreBarFill" style={{ height: `${fillPercent}%`, background: `linear-gradient(180deg, ${color} 0%, rgba(12, 24, 15, 0.9) 100%)` }} />
+        <div className="scoreBarFill" style={{ height: `${fillPercent}%`, background: `linear-gradient(0deg, ${color} 0%, rgba(60, 7, 85, 0.9) 100%)` }} />
         {ticks.map((value) => {
           const percent = 100 - (value / max) * 100;
           return <span key={`line-${value}`} className="scoreBarTick" style={{ top: `${percent}%` }} />;
@@ -496,6 +497,11 @@ function useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, currentTurnI
       nickname = match.player2?.nickname ?? match.player2?.username ?? 'Player 2';
     }
   }
+  const winnerName = match?.winner
+    ? (match.winner === 1
+        ? (match.player1?.nickname ?? match.player1?.username ?? 'Jugador 1')
+        : (match.player2?.nickname ?? match.player2?.username ?? 'Jugador 2'))
+    : null;
   const iAmParticipant = isPlayer1 || isPlayer2;
   const hasMatch = Boolean(match);
   const matchEnded = Boolean(match?.endedAt);
@@ -541,8 +547,39 @@ function useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, currentTurnI
     : 0;
   const { turnTrackRef, turnTrackOffset } = useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, timelineTurnIndex);
 
-  const handleTimeUp = () => {
-    alert('Sin tiempo, has perdido!');
+  const handleTimeUp = async () => {
+    try {
+      if (isMyTurn && match?.id) {
+        try {
+          await api.put(`/api/v1/matches/${id}/endMatch`);
+        } catch (err) {
+          console.error('Unable to request endMatch on timeout', err);
+        }
+        // Refrescar el estado del match desde el servidor.
+        try {
+          const resp = await api.get(`/api/v1/matches/${id}`);
+          setMatch(normaliseMatch(resp.data));
+          return;
+        } catch (err) {
+          console.error('Unable to refresh match after endMatch', err);
+        }
+      }
+
+      // Si no se puede obtener el estado actualizado del servidor, determinar el ganador localmente.
+      if (match) {
+        const localWinner = isPlayer1 ? 2 : 1;
+        setMatch((prev) => ({
+          ...(prev ?? {}),
+          winner: localWinner,
+          endedAt: new Date().toISOString(),
+        }));
+      }
+    } catch (err) {
+      console.error('handleTimeUp error', err);
+    } finally {
+      setRunning(false);
+      setTimeLeft(0);
+    }
   };
 
   const handleBackToMenu = () => {
@@ -871,7 +908,6 @@ function useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, currentTurnI
       />
 
       <aside className="chatPanel">
-        <span className="">Tiempo Restante: {timeLeft} s</span>
         <div className="chatTitle">CHAT</div>
         <div className="chatList" style={{
           height: '87.5%'
@@ -888,6 +924,9 @@ function useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, currentTurnI
       </aside>
 
       <main className="gameMainPanel">
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '0.6rem 0' }}>
+          <div className="timer" style={{ textAlign: 'center' }}>Tiempo restante: {timeLeft} s</div>
+        </div>
         <div className={`gameStage ${waitingForPlayer ? 'gameStage--waiting' : ''}`}>
           <PlayerColumn
             player={match?.player1}
@@ -938,14 +977,7 @@ function useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, currentTurnI
           />
         </div>
 
-        {match?.endedAt && (
-          <div className="game-result">
-            <strong>Partida finalizada.</strong>{' '}
-            {match.winner
-              ? `Ganador: ${match.winner === 1 ? (match.player1?.nickname ?? match.player1?.username ?? 'Jugador 1') : (match.player2?.nickname ?? match.player2?.username ?? 'Jugador 2')}`
-              : 'Empate.'}
-          </div>
-        )}
+        <ModalWinner winner={winnerName} currentUser={nickname} onGoToMenu={handleBackToMenu} />
         {error && <div className="error-banner">{error}</div>}
       </main>
 
