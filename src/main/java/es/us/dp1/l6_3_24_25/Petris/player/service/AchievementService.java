@@ -38,7 +38,7 @@ public class AchievementService {
     }
 
     @Transactional
-    public void deleteAchievement(Achievement achievement) {
-        achievementRepository.delete(achievement);
+    public void deleteAchievement(Integer id) {
+        achievementRepository.deleteById(id);
     }
 }

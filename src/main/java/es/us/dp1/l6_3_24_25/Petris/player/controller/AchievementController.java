@@ -79,7 +79,7 @@ public class AchievementController {
         if (achievement == null) {
             throw new ResourceNotFoundException("Achievement", "id", id);
         }
-        achievementService.deleteAchievement(achievement);
+        achievementService.deleteAchievement(id);
     }
 
 }
