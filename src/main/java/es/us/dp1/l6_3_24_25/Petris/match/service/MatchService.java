@@ -12,24 +12,13 @@ import es.us.dp1.l6_3_24_25.Petris.player.model.Player;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.security.SecureRandom;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
-import org.springframework.lang.NonNull;
-
-import es.us.dp1.l6_3_24_25.Petris.match.dto.LobbyDTO;
-import es.us.dp1.l6_3_24_25.Petris.match.dto.MatchDTO;
-import es.us.dp1.l6_3_24_25.Petris.match.dto.PetriDishDTO;
-import es.us.dp1.l6_3_24_25.Petris.match.dto.PlayerSummaryDTO;
 
 @Service
 public class MatchService {
-    private static final String CODE_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    private static final int CODE_LENGTH = 4;
 
     private final MatchRepository matchRepository;
-    private final SecureRandom secureRandom = new SecureRandom();
 
     public MatchService(final MatchRepository matchRepository) {
         this.matchRepository = matchRepository;
@@ -70,7 +59,6 @@ public class MatchService {
         }
 
         Match initialMatch = MatchHelper.buildInitialMatch(creator, isPrivate);
-        initialMatch.setCode(generateLobbyCode(isPrivate));
 
         return matchRepository.save(initialMatch);
     }
@@ -102,12 +90,14 @@ public class MatchService {
         if(match.hasEnded()) {
             throw new AccessDeniedException("The match has already ended");
         } else if(match.hasStarted()) {
-            throw new AccessDeniedException("The match has already started. Forfeit instead");
+            throw new AccessDeniedException("The match has already started. Concede instead");
         }
         if (!match.hasPlayer(playerToLeave)) {
             throw new AccessDeniedException("Not in this match");
         } else if(match.hasCreator(playerToLeave)) {
-            throw new AccessDeniedException("Unsupported. Delete match instead");
+            Player currentPlayer2 = match.getPlayer2();
+            match.setCreator(currentPlayer2);
+            match.setPlayer1(currentPlayer2);
         }
 
         match.setPlayer2(null);
@@ -139,7 +129,8 @@ public class MatchService {
         if (currentTurn >= MatchHelper.getTurnsNum()) {
             throw new IllegalArgumentException("No remaining turns to process");
         }
-        if(matchToUpdate.getEndedAt() != null) {
+
+        if(matchToUpdate.hasEnded()) {
             throw new AccessDeniedException("The match has already ended");
         }
 
@@ -183,99 +174,58 @@ public class MatchService {
             updatedMatch.setEndedAt(LocalDateTime.now());
             updatedMatch.setWinner(winner);
         }
+
         return matchRepository.save(updatedMatch);
     }
 
     @Transactional(readOnly = true)
-    public List<String> checkErrors(List<PetriDish> currentBoardState, List<PetriDish> newBoardState, int player) {
-        return MatchHelper.getPropagationErrors(currentBoardState, newBoardState, player);
+    public List<String> checkErrors(Match matchToCheck, List<PetriDish> newBoardState, Player player) throws AccessDeniedException {
+        int playerNum;
+        if(matchToCheck.hasPlayer1(player)) {
+            playerNum = 1;
+        } else if(matchToCheck.hasPlayer2(player)) {
+            playerNum = 2;
+        } else {
+            throw new AccessDeniedException("Not in this match");
+        }
+
+        if(matchToCheck.hasEnded()) {
+            throw new AccessDeniedException("The match has already ended");
+        }
+        if(!matchToCheck.isTurnOf(player)) {
+            throw new AccessDeniedException("Can only check for errors in your propagation turns");
+        }
+
+        return MatchHelper.getPropagationErrors(matchToCheck.getBoardState(), newBoardState, playerNum);
     }
 
-    @Transactional
-    public Match forceEndMatch(@NonNull Match match) {
-        match.setEndedAt(LocalDateTime.now());
-        return matchRepository.save(match);
+    @Transactional(rollbackFor = {AccessDeniedException.class})
+    public Match forceEndMatch(Match matchToUpdate, Player playerToConcede) throws AccessDeniedException {
+        int playerNum;
+        if(matchToUpdate.hasPlayer1(playerToConcede)) {
+            playerNum = 1;
+        } else if(matchToUpdate.hasPlayer2(playerToConcede)) {
+            playerNum = 2;
+        } else {
+            throw new AccessDeniedException("Not in this match");
+        }
+
+        if(matchToUpdate.hasEnded()) {
+            throw new AccessDeniedException("The match has already ended");
+        }
+        if(!matchToUpdate.isInPropagationTurn()) {
+            throw new AccessDeniedException("Can only concede in propagation turns");
+        }
+
+        matchToUpdate.setWinner(playerNum);
+        matchToUpdate.setEndedAt(LocalDateTime.now());
+
+        return matchRepository.save(matchToUpdate);
     }
 
-    @Transactional
-    public void delete(@NonNull Integer id){
+    @Transactional(rollbackFor = {AccessDeniedException.class})
+    public void delete(Integer id) throws AccessDeniedException {
         matchRepository.deleteById(id);
     }
 
-    public LobbyDTO toLobbyDTO(@NonNull Match match) {
-        LobbyDTO dto = new LobbyDTO();
-        dto.setId(match.getId());
-        dto.setCode(match.getCode());
-        dto.setPrivate(match.getCode() != null);
-        dto.setCreatorId(match.getCreator() != null ? match.getCreator().getId() : null);
-        dto.setCreatedAt(match.getCreatedAt());
-        dto.setStartedAt(match.getStartedAt());
-        dto.setPlayers(buildPlayerList(match));
-        return dto;
-    }
-
-    public MatchDTO toMatchDTO(@NonNull Match match) {
-        MatchDTO dto = new MatchDTO();
-        dto.setId(match.getId());
-        dto.setCode(match.getCode());
-        dto.setCreatedAt(match.getCreatedAt());
-        dto.setStartedAt(match.getStartedAt());
-        dto.setEndedAt(match.getEndedAt());
-        dto.setTurn(match.getTurn());
-        dto.setTurnType(match.getTurnType());
-        dto.setPlayer1Score(match.getPlayer1Score());
-        dto.setPlayer2Score(match.getPlayer2Score());
-        dto.setWinner(match.getWinner());
-        dto.setPlayer1(toPlayerSummary(match.getPlayer1()));
-        dto.setPlayer2(toPlayerSummary(match.getPlayer2()));
-        List<PetriDishDTO> board = new ArrayList<>();
-        List<PetriDish> dishes = match.getBoardState();
-        if (dishes != null) {
-            for (int i = 0; i < dishes.size(); i++) {
-                PetriDish dish = dishes.get(i);
-                PetriDishDTO dishDTO = new PetriDishDTO();
-                dishDTO.setIndex(i);
-                dishDTO.setPlayer1Bacteria(dish.getPlayer1Bacteria());
-                dishDTO.setPlayer2Bacteria(dish.getPlayer2Bacteria());
-                board.add(dishDTO);
-            }
-        }
-        dto.setBoard(board);
-        return dto;
-    }
-
-    public String generateLobbyCode(Boolean matchIsPrivate) {
-        String code = null;
-        if (matchIsPrivate) {
-            StringBuilder builder = new StringBuilder(CODE_LENGTH);
-            for (int i = 0; i < CODE_LENGTH; i++) {
-                int index = secureRandom.nextInt(CODE_ALPHABET.length());
-                builder.append(CODE_ALPHABET.charAt(index));
-            }
-            code = builder.toString();
-        }
-        return code;
-    }
-
-    private List<PlayerSummaryDTO> buildPlayerList(Match match) {
-        List<PlayerSummaryDTO> players = new ArrayList<>();
-        if (match.getPlayer1() != null) {
-            players.add(toPlayerSummary(match.getPlayer1()));
-        }
-        if (match.getPlayer2() != null) {
-            players.add(toPlayerSummary(match.getPlayer2()));
-        }
-        return players;
-    }
-
-    private PlayerSummaryDTO toPlayerSummary(Player player) {
-        if (player == null) {
-            return null;
-        }
-        PlayerSummaryDTO dto = new PlayerSummaryDTO();
-        dto.setId(player.getId());
-        dto.setNickname(player.getNickname());
-        dto.setUsername(player.getUser() != null ? player.getUser().getUsername() : null);
-        return dto;
-    }
 }

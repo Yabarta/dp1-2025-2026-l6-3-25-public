@@ -1,5 +1,6 @@
 package es.us.dp1.l6_3_24_25.Petris.match.model;
 
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -14,15 +15,14 @@ import lombok.Setter;
 @Getter
 @Setter
 public class MatchHelper {
-    private Match match;
-    private List<PetriDish> boardState;
-    private int player;
+    public static final int PLAYER_1_WINS = 1;
+    public static final int PLAYER_2_WINS = 2;
     public static final int NUM_PETRI_DISHES = 7;
     public static final int PLAYER_1_INTITIAL_BACTERIUM_INDEX = 2;
     public static final int PLAYER_2_INTITIAL_BACTERIUM_INDEX = 4;
-    public static final Integer MAX_BACTERIA_PER_PETRI_DISH = 5;
-    public static final Integer MAX_SCORE = 9;
-    public static final Integer MAX_MOVABLE_BACTERIA = 4;
+    public static final int MAX_BACTERIA_PER_PETRI_DISH = 5;
+    public static final int MAX_SCORE = 9;
+    public static final int MAX_MOVABLE_BACTERIA = 4;
 
     private static final List<TurnType> turnTypeList = List.of(
             TurnType.P1_PROPAGATION,
@@ -94,6 +94,8 @@ public class MatchHelper {
         initialMatch.setCreator(creator);
         initialMatch.setPlayer1(creator);
 
+        initialMatch.setCode(generateLobbyCode(isPrivate));
+
         initialMatch.setCreatedAt(LocalDateTime.now());
         initialMatch.setStartedAt(null);
         initialMatch.setEndedAt(null);
@@ -116,6 +118,22 @@ public class MatchHelper {
         }
         initialMatch.setBoardState(initialBoardState);
         return initialMatch;
+    }
+
+    private static final SecureRandom secureRandom = new SecureRandom();
+    private static final String CODE_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    private static final int CODE_LENGTH = 4;
+    private static String generateLobbyCode(Boolean matchIsPrivate) {
+        String code = null;
+        if (matchIsPrivate) {
+            StringBuilder builder = new StringBuilder(CODE_LENGTH);
+            for (int i = 0; i < CODE_LENGTH; i++) {
+                int index = secureRandom.nextInt(CODE_ALPHABET.length());
+                builder.append(CODE_ALPHABET.charAt(index));
+            }
+            code = builder.toString();
+        }
+        return code;
     }
 
 

@@ -23,13 +23,13 @@ public class Match extends BaseEntity{
     private LocalDateTime endedAt;
     private String code;
     @Min(0)
-    @Max(9)
+    @Max(MatchHelper.MAX_SCORE)
     private Integer player1Score;
     @Min(0)
-    @Max(9)
+    @Max(MatchHelper.MAX_SCORE)
     private Integer player2Score;
-    @Min(1)
-    @Max(2)
+    @Min(MatchHelper.PLAYER_1_WINS)
+    @Max(MatchHelper.PLAYER_2_WINS)
     private Integer winner;
     @Min(0)
     private Integer turn;
@@ -57,6 +57,14 @@ public class Match extends BaseEntity{
         return player.equals(this.getPlayer1()) || player.equals(this.getPlayer2());
     }
 
+    public boolean hasPlayer1(Player player) {
+        return player.equals(this.getPlayer1());
+    }
+
+    public boolean hasPlayer2(Player player) {
+        return player.equals(this.getPlayer2());
+    }
+
     public boolean hasCreator(Player player) {
         return this.getCreator().equals(player);
     }
@@ -76,5 +84,9 @@ public class Match extends BaseEntity{
     public boolean isTurnOf(Player player) {
         return (player.equals(this.getPlayer1()) && this.getTurnType().equals(TurnType.P1_PROPAGATION)) ||
                (player.equals(this.getPlayer2()) && this.getTurnType().equals(TurnType.P2_PROPAGATION));
+    }
+
+    public boolean isInPropagationTurn() {
+        return this.getTurnType().equals(TurnType.P1_PROPAGATION) || this.getTurnType().equals(TurnType.P2_PROPAGATION);
     }
 }

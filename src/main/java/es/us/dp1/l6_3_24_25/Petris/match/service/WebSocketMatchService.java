@@ -19,14 +19,12 @@ public class WebSocketMatchService {
 
     private final SimpMessagingTemplate messagingTemplate;
     private final MatchRepository matchRepository;
-    private final MatchService matchService;
 
     public WebSocketMatchService(final ObjectProvider<SimpMessagingTemplate> messagingTemplateProvider,
                                  final MatchRepository matchRepository,
                                  final MatchService matchService) {
         this.messagingTemplate = messagingTemplateProvider.getIfAvailable();
         this.matchRepository = matchRepository;
-        this.matchService = matchService;
     }
 
     public void publishLobbySnapshot(@NonNull Match match) {
@@ -34,7 +32,7 @@ public class WebSocketMatchService {
             return;
         }
         Match ensuredMatch = Objects.requireNonNull(match, "match");
-        LobbyDTO lobbySnapshot = Objects.requireNonNull(matchService.toLobbyDTO(ensuredMatch));
+        LobbyDTO lobbySnapshot = Objects.requireNonNull(LobbyDTO.toLobbyDTO(ensuredMatch));
         messagingTemplate.convertAndSend("/topic/lobby/" + ensuredMatch.getId(), lobbySnapshot);
     }
 
@@ -43,7 +41,7 @@ public class WebSocketMatchService {
             return;
         }
         List<LobbyDTO> lobbies = matchRepository.findByStartedAtNull().stream()
-            .map(matchService::toLobbyDTO)
+            .map(LobbyDTO::toLobbyDTO)
             .toList();
         messagingTemplate.convertAndSend("/topic/lobbies", Objects.requireNonNull(List.copyOf(lobbies)));
     }
@@ -53,7 +51,7 @@ public class WebSocketMatchService {
             return;
         }
         Match ensuredMatch = Objects.requireNonNull(match, "match");
-        MatchDTO matchSnapshot = Objects.requireNonNull(matchService.toMatchDTO(ensuredMatch));
+        MatchDTO matchSnapshot = Objects.requireNonNull(MatchDTO.toMatchDTO(ensuredMatch));
         messagingTemplate.convertAndSend("/topic/match/" + ensuredMatch.getId(), matchSnapshot);
     }
 
