@@ -6,6 +6,7 @@ import static org.mockito.Mockito.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -22,7 +23,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.lang.NonNull;
@@ -34,6 +38,8 @@ import es.us.dp1.l6_3_24_25.Petris.match.model.Match;
 import es.us.dp1.l6_3_24_25.Petris.match.model.PetriDish;
 import es.us.dp1.l6_3_24_25.Petris.match.model.TurnType;
 import es.us.dp1.l6_3_24_25.Petris.match.repository.MatchRepository;
+import es.us.dp1.l6_3_24_25.Petris.match.util.MatchDataUtil;
+import es.us.dp1.l6_3_24_25.Petris.match.util.MatchMethodUtil;
 import es.us.dp1.l6_3_24_25.Petris.player.model.Player;
 import es.us.dp1.l6_3_24_25.Petris.user.Authorities;
 import es.us.dp1.l6_3_24_25.Petris.user.User;
@@ -43,7 +49,7 @@ import io.qameta.allure.Owner;
 import static generatedAssertions.org.assertj.Assertions.assertThat;
 
 @Epic("Game")
-@Feature("Create and play matches")
+@Feature("Create, play and delete matches")
 @ExtendWith(MockitoExtension.class)
 class MatchServiceTest {
 
@@ -326,7 +332,7 @@ class MatchServiceTest {
 
         assertThatExceptionOfType(AccessDeniedException.class)
             .isThrownBy(() -> matchService.leaveMatch(match, playerToLeave))
-            .withMessage("The match has already started. Forfeit instead");
+            .withMessage("The match has already started. Concede instead");
     }
 
     @Test
@@ -351,28 +357,31 @@ class MatchServiceTest {
     }
 
     @Test
-    @DisplayName("Should not leave match if the player is the creator")
-    @Description("Test that if the creator of a match attempts to leave it, AccessDeniedException is thrown and the player doesn't leave")
+    @DisplayName("Should leave not started match if creator and player 2 becomes creator")
+    @Description("Test that if the creator attempts to leave a not started match, the player leaves, player2 is set to null and both player1 and creator are set to player2")
     @Owner("josbardel1(WHS7046)")
-    void testLeaveMatchNegative4() {
-        verify(matchRepository, never()).save(any(Match.class));
-        verifyNoMoreInteractions(matchRepository);
+    void testLeaveMatchPositive() {
+        lenient().when(matchRepository.save(any(Match.class))).then(returnsFirstArg());
 
         Player playerToLeave = new Player();
+        playerToLeave.setId(1);
+        Player player2 = new Player();
         Match match = new Match();
         match.setCreator(playerToLeave);
         match.setPlayer1(playerToLeave);
+        match.setPlayer2(player2);
 
-        assertThatExceptionOfType(AccessDeniedException.class)
-            .isThrownBy(() -> matchService.leaveMatch(match, playerToLeave))
-            .withMessage("Unsupported. Delete match instead");
+        Match result = matchService.leaveMatch(match, playerToLeave);
+        assertThat(result).hasPlayer2(null);
+        assertThat(result).hasCreator(player2);
+        assertThat(result).hasPlayer1(player2);
     }
 
     @Test
     @DisplayName("Should leave not started match if player 2")
     @Description("Test that if a player2 attempts to leave a not started match, the player leaves and player2 is set to null")
     @Owner("josbardel1(WHS7046)")
-    void testLeaveMatchPositive() {
+    void testLeaveMatchPositive2() {
         lenient().when(matchRepository.save(any(Match.class))).then(returnsFirstArg());
 
         Player creatorAndPlayer1 = new Player();
@@ -469,6 +478,69 @@ class MatchServiceTest {
         Match result = matchService.startMatch(match);
         org.assertj.core.api.Assertions.assertThat(result.getStartedAt()).isNotNull();
         assertThat(result).hasTurn(0);
+    }
+
+    @Test
+    @DisplayName("Should not advance turn if already past last turn")
+    @Description("Test that if a turn advance is attempted when the match is past the last turn, IllegalArgumentException is thrown and the turn doesn't advance")
+    @Owner("josbardel1(WHS7046)")
+    void testNextTurnNegative() {
+        verify(matchRepository, never()).save(any(Match.class));
+        verifyNoMoreInteractions(matchRepository);
+
+        int turn = MatchDataUtil.getTurnsNum();
+        Match matchToAdvanceTurn = new Match();
+        matchToAdvanceTurn.setTurn(turn);
+        List<PetriDish> newBoardState = new ArrayList<>();
+
+        assertThatExceptionOfType(IllegalArgumentException.class)
+            .isThrownBy(() -> matchService.nextTurn(matchToAdvanceTurn, newBoardState))
+            .withMessage("No remaining turns to process");
+    }
+
+    @Test
+    @DisplayName("Should not advance turn if match already ended")
+    @Description("Test that if a turn advance is attempted when the match has ended, AccessDeniedException is thrown and the turn doesn't advance")
+    @Owner("josbardel1(WHS7046)")
+    void testNextTurnNegative2() {
+        verify(matchRepository, never()).save(any(Match.class));
+        verifyNoMoreInteractions(matchRepository);
+
+        int turn = 0;
+        LocalDateTime startedAt = LocalDateTime.now();
+        LocalDateTime endedAt = LocalDateTime.now();
+        Match matchToAdvanceTurn = new Match();
+        matchToAdvanceTurn.setStartedAt(startedAt);
+        matchToAdvanceTurn.setEndedAt(endedAt);
+        matchToAdvanceTurn.setTurn(turn);
+        List<PetriDish> newBoardState = new ArrayList<>();
+
+        assertThatExceptionOfType(AccessDeniedException.class)
+            .isThrownBy(() -> matchService.nextTurn(matchToAdvanceTurn, newBoardState))
+            .withMessage("The match has already ended");
+    }
+
+    @Test
+    @DisplayName("Should advance turn of not ended match if valid turn")
+    @Description("Test that if a turn advance is attempted when the match is in a valid turn, the turn advances")
+    @Owner("josbardel1(WHS7046)")
+    void testNextTurnPositive() {
+        lenient().when(matchRepository.save(any(Match.class))).then(returnsFirstArg());
+
+        int turn = 0;
+        TurnType turnType = TurnType.P1_PROPAGATION;
+        Match matchToAdvanceTurn = new Match();
+        matchToAdvanceTurn.setTurnType(turnType);
+        matchToAdvanceTurn.setTurn(turn);
+        List<PetriDish> newBoardState = new ArrayList<>();
+
+        try (MockedStatic<MatchMethodUtil> utility = Mockito.mockStatic(MatchMethodUtil.class)) {
+            utility.when(() -> MatchMethodUtil.propagation(any(Match.class), any(List.class), any(int.class)))
+                .then(returnsFirstArg());
+            Match result = matchService.nextTurn(matchToAdvanceTurn, newBoardState);
+            assertThat(result).hasTurn(turn + 1);
+            assertThat(result).hasTurnType(TurnType.P2_PROPAGATION);
+        }
     }
 
     // TODO descomentar y aprovechar tests

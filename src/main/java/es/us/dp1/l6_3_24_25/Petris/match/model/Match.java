@@ -1,5 +1,6 @@
 package es.us.dp1.l6_3_24_25.Petris.match.model;
 
+import es.us.dp1.l6_3_24_25.Petris.match.util.MatchDataUtil;
 import es.us.dp1.l6_3_24_25.Petris.model.BaseEntity;
 import es.us.dp1.l6_3_24_25.Petris.player.model.Player;
 import jakarta.persistence.*;
@@ -23,13 +24,13 @@ public class Match extends BaseEntity{
     private LocalDateTime endedAt;
     private String code;
     @Min(0)
-    @Max(MatchHelper.MAX_SCORE)
+    @Max(MatchDataUtil.MAX_SCORE)
     private Integer player1Score;
     @Min(0)
-    @Max(MatchHelper.MAX_SCORE)
+    @Max(MatchDataUtil.MAX_SCORE)
     private Integer player2Score;
-    @Min(MatchHelper.PLAYER_1_WINS)
-    @Max(MatchHelper.PLAYER_2_WINS)
+    @Min(MatchDataUtil.PLAYER_1_WINS)
+    @Max(MatchDataUtil.PLAYER_2_WINS)
     private Integer winner;
     @Min(0)
     private Integer turn;
@@ -40,7 +41,7 @@ public class Match extends BaseEntity{
     private Player creator;
 
     @OneToMany(cascade = CascadeType.ALL)
-    @Size(min = MatchHelper.NUM_PETRI_DISHES, max = MatchHelper.NUM_PETRI_DISHES)
+    @Size(min = MatchDataUtil.NUM_PETRI_DISHES, max = MatchDataUtil.NUM_PETRI_DISHES)
     private List<PetriDish> boardState;
 
     @ManyToOne()

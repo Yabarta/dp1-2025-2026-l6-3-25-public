@@ -3,10 +3,11 @@ package es.us.dp1.l6_3_24_25.Petris.match.service;
 import es.us.dp1.l6_3_24_25.Petris.exceptions.AccessDeniedException;
 import es.us.dp1.l6_3_24_25.Petris.exceptions.ResourceNotFoundException;
 import es.us.dp1.l6_3_24_25.Petris.match.model.Match;
-import es.us.dp1.l6_3_24_25.Petris.match.model.MatchHelper;
 import es.us.dp1.l6_3_24_25.Petris.match.model.PetriDish;
 import es.us.dp1.l6_3_24_25.Petris.match.model.TurnType;
 import es.us.dp1.l6_3_24_25.Petris.match.repository.MatchRepository;
+import es.us.dp1.l6_3_24_25.Petris.match.util.MatchDataUtil;
+import es.us.dp1.l6_3_24_25.Petris.match.util.MatchMethodUtil;
 import es.us.dp1.l6_3_24_25.Petris.player.model.Player;
 
 import org.springframework.stereotype.Service;
@@ -30,14 +31,13 @@ public class MatchService {
     }
 
     @Transactional(readOnly = true)
-    public Match getMatchById(Integer id){
-        // TODO Only if public ? / Spectate
+    public Match getMatchById(Integer id) throws ResourceNotFoundException {
         return matchRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Match", "Id", id));
     }
 
     @Transactional(readOnly = true)
-    public Match getMatchByCode(String code){
+    public Match getMatchByCode(String code) throws ResourceNotFoundException {
         return matchRepository.findByCode(code)
             .orElseThrow(() -> new ResourceNotFoundException("Match", "Code", code));
     }
@@ -58,7 +58,7 @@ public class MatchService {
             throw new AccessDeniedException("Already in a match");
         }
 
-        Match initialMatch = MatchHelper.buildInitialMatch(creator, isPrivate);
+        Match initialMatch = MatchDataUtil.buildInitialMatch(creator, isPrivate);
 
         return matchRepository.save(initialMatch);
     }
@@ -126,7 +126,7 @@ public class MatchService {
     @Transactional(rollbackFor = {IllegalArgumentException.class, AccessDeniedException.class})
     public Match nextTurn(Match matchToUpdate, List<PetriDish> newBoardState) throws IllegalArgumentException, AccessDeniedException {
         Integer currentTurn = matchToUpdate.getTurn();
-        if (currentTurn >= MatchHelper.getTurnsNum()) {
+        if (currentTurn >= MatchDataUtil.getTurnsNum()) {
             throw new IllegalArgumentException("No remaining turns to process");
         }
 
@@ -139,37 +139,37 @@ public class MatchService {
         switch (currentTurnType) {
             case TurnType.P1_PROPAGATION:
                 try {
-                    updatedMatch = MatchHelper.propagation(matchToUpdate, newBoardState, 1);
+                    updatedMatch = MatchMethodUtil.propagation(matchToUpdate, newBoardState, 1);
                 } catch(IllegalArgumentException e) {
                     throw e;
                 }
                 break;
             case TurnType.P2_PROPAGATION:
                 try {
-                    updatedMatch = MatchHelper.propagation(matchToUpdate, newBoardState, 2);
+                    updatedMatch = MatchMethodUtil.propagation(matchToUpdate, newBoardState, 2);
                 } catch(IllegalArgumentException e) {
                     throw e;
                 }
                 break;
             case TurnType.BINARY_FISSION:
-                updatedMatch = MatchHelper.binaryFission(matchToUpdate);
+                updatedMatch = MatchMethodUtil.binaryFission(matchToUpdate);
                 break;
             case TurnType.CONTAMINATION:
-                updatedMatch = MatchHelper.contamination(matchToUpdate);
+                updatedMatch = MatchMethodUtil.contamination(matchToUpdate);
                 break;
             default:
-                throw new IllegalStateException("Unsupported turn type: " + currentTurnType);
+                throw new IllegalArgumentException("Unsupported turn type: " + currentTurnType);
         }
 
         int nextTurnIndex = currentTurn + 1;
         updatedMatch.setTurn(nextTurnIndex);
-        if (nextTurnIndex < MatchHelper.getTurnsNum()) {
-            updatedMatch.setTurnType(MatchHelper.getTurnType(nextTurnIndex));
+        if (nextTurnIndex < MatchDataUtil.getTurnsNum()) {
+            updatedMatch.setTurnType(MatchDataUtil.getTurnType(nextTurnIndex));
         } else {
             updatedMatch.setTurnType(null);
         }
 
-        Integer winner = MatchHelper.getWinner(updatedMatch);
+        Integer winner = MatchMethodUtil.getWinner(updatedMatch);
         if (winner != null) {
             updatedMatch.setEndedAt(LocalDateTime.now());
             updatedMatch.setWinner(winner);
@@ -196,7 +196,7 @@ public class MatchService {
             throw new AccessDeniedException("Can only check for errors in your propagation turns");
         }
 
-        return MatchHelper.getPropagationErrors(matchToCheck.getBoardState(), newBoardState, playerNum);
+        return MatchMethodUtil.getPropagationErrors(matchToCheck.getBoardState(), newBoardState, playerNum);
     }
 
     @Transactional(rollbackFor = {AccessDeniedException.class})

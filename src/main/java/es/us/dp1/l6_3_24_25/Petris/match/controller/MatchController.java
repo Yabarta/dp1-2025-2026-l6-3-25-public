@@ -74,16 +74,26 @@ public class MatchController {
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<Match> getMatchById(@PathVariable(required = true) Integer id) throws ResourceNotFoundException {
-        Match match = Objects.requireNonNull(matchService.getMatchById(id));
-        return new ResponseEntity<>(match, HttpStatus.OK);
+    public ResponseEntity<Match> getMatchById(@PathVariable(required = true) Integer id) throws ResponseStatusException {
+        Match result;
+        try {
+            result = matchService.getMatchById(id);
+        } catch(ResourceNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     @GetMapping("/code/{code}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<Match> getMatchByCode(@PathVariable(required = true) String code) throws ResourceNotFoundException {
-        Match match = Objects.requireNonNull(matchService.getMatchByCode(code));
-        return new ResponseEntity<>(match, HttpStatus.OK);
+    public ResponseEntity<Match> getMatchByCode(@PathVariable(required = true) String code) throws ResponseStatusException {
+        Match result;
+        try {
+            result = matchService.getMatchByCode(code);
+        } catch(ResourceNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     private Player getCurrentPlayer() {
@@ -96,7 +106,6 @@ public class MatchController {
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<Match> createMatch(@RequestParam(defaultValue = "false") Boolean isPrivate) throws ResponseStatusException {
         Match result;
-
         try {
             Player currentPlayer = getCurrentPlayer();
             result = matchService.createMatch(currentPlayer, isPrivate);
@@ -113,8 +122,8 @@ public class MatchController {
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Match> joinMatch(@PathVariable(required = true) Integer id,
-        @RequestParam(required = false) Optional<String> code)
-        throws ResponseStatusException {
+            @RequestParam(required = false) Optional<String> code)
+            throws ResponseStatusException {
 
         Match result;
         Match matchToUpdate = matchService.getMatchById(id);
@@ -206,8 +215,8 @@ public class MatchController {
     @GetMapping("/{id}/checkErrors")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<List<String>> checkErrors(@PathVariable(required = true) Integer id,
-        @Valid @RequestBody List<PetriDish> newBoardState)
-        throws ResponseStatusException {
+            @Valid @RequestBody List<PetriDish> newBoardState)
+            throws ResponseStatusException {
 
         Player currentPlayer = getCurrentPlayer();
         Match matchToCheck = matchService.getMatchById(id);
