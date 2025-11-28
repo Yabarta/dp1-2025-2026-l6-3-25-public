@@ -92,6 +92,7 @@ public class SecurityConfiguration {
                 .requestMatchers("/topic/**").permitAll()
                 .requestMatchers("/api/v1/statistics/achievements").permitAll()
                 .requestMatchers("/api/v1/statistics/ranking").permitAll()
+                .requestMatchers("/api/v1/friends/**").authenticated()
 
                 // API restringida para administradores
                 .requestMatchers("/api/v1/users").hasAuthority(ADMIN)

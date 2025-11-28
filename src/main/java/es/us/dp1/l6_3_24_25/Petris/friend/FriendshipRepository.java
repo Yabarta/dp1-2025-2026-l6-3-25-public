@@ -8,15 +8,10 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import es.us.dp1.l6_3_24_25.Petris.player.model.Player;
-
 @Repository
-public interface FriendshipRepository extends JpaRepository<Friend, Long> {
-    // Buscar una amistad específica entre dos personas
-    Optional<Friend> findByRequesterAndReceiver(Player requester, Player receiver);
+public interface FriendshipRepository extends JpaRepository<Friend, Integer> {
     
-    // Encontrar solicitudes pendientes para un usuario
-    List<Friend> findByReceiverAndStatus(Player receiver, FriendshipStatus status);
+    Optional<Friend> findFriendById(Integer id);
     
     // Encontrar amigos aceptados (complicado porque el user puede ser requester o receiver)
     @Query("SELECT f FROM Friend f WHERE (f.requester.nickname = :nickname OR f.receiver.nickname = :nickname) AND f.status = 1")

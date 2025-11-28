@@ -15,6 +15,7 @@ function AppNavbar() {
     const [isOpenFriends, setIsOpenFriends] = useState(false);
     const [nombreBuscado , setNombre] = useState("");
     const [friends, setFriends] = useState([]);
+    const [change , setChange] = useState(false);
 
     // Supongamos que 'currentUserNickname' es el nombre de tu usuario logueado.
 // Asegúrate de tener esta variable definida antes del map.
@@ -36,7 +37,8 @@ const userFriends = friends.map((friend) => {
             <td>
                 <ButtonGroup>
                     <Button
-                        style={{justifyContent: 'flex-end', backgroundColor: 'red'}}>
+                        style={{justifyContent: 'flex-end', backgroundColor: 'red'}}
+                        onClick={() => {handleDelete(friend.id);}}>
                         Delete Friend
                     </Button>
                 </ButtonGroup>
@@ -46,6 +48,16 @@ const userFriends = friends.map((friend) => {
 });
 
     const [requests, setRequests] = useState([]);
+
+    const handleDelete = async(id) => {
+        const response = await fetch(`api/v1/friends/${id}`, {method: 'DELETE', 
+                            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${jwt}`
+            }
+                        });
+        setChange(!change);
+    };
 
     const requestList = requests.map((request) => {
 
@@ -61,7 +73,8 @@ const userFriends = friends.map((friend) => {
                         Accept
                     </Button>
                     <Button
-                        style={{justifyContent: 'flex-end', backgroundColor: 'red'}}>
+                        style={{justifyContent: 'flex-end', backgroundColor: 'red'}}
+                        onClick={() => {handleDelete(request.id);}}>
                         Decline
                     </Button>
                 </ButtonGroup>
@@ -105,7 +118,6 @@ const userFriends = friends.map((friend) => {
     }, [jwt]);
 
     useEffect(() => {
-    // Guard clause: Si no hay username, no hacemos nada
     if (!username) return;
 
     const fetchFriends = async () => {
@@ -126,7 +138,7 @@ const userFriends = friends.map((friend) => {
 
     fetchFriends();
 
-}, [username]);
+}, [username , change]);
 
 useEffect(() => {
     // Guard clause: Si no hay username, no hacemos nada
@@ -149,7 +161,7 @@ useEffect(() => {
 
     fetchRequest();
 
-}, [username]);
+}, [username , change]);
 
 
     let adminLinks = <></>;
