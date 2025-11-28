@@ -5,10 +5,10 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +23,7 @@ import es.us.dp1.l6_3_24_25.Petris.match.model.PetriDish;
 import es.us.dp1.l6_3_24_25.Petris.match.model.TurnType;
 import es.us.dp1.l6_3_24_25.Petris.match.repository.MatchRepository;
 import es.us.dp1.l6_3_24_25.Petris.player.model.Player;
+import es.us.dp1.l6_3_24_25.Petris.player.batchProcessing.MatchStatsBatchOrchestrator;
 
 @Service
 public class MatchService {
@@ -35,14 +36,23 @@ public class MatchService {
     private final MatchRepository matchRepository;
     private final SecureRandom secureRandom = new SecureRandom();
     private MatchServiceHelper matchServiceHelper;
+    private final MatchStatsBatchOrchestrator matchStatsBatchOrchestrator;
 
+    @Autowired
     public MatchService(final MatchRepository matchRepository,
-                        final ObjectProvider<MatchServiceHelper> helperProvider) {
+                        final ObjectProvider<MatchServiceHelper> helperProvider,
+                        final MatchStatsBatchOrchestrator matchStatsBatchOrchestrator) {
         this.matchRepository = matchRepository;
+        this.matchStatsBatchOrchestrator = matchStatsBatchOrchestrator;
         this.matchServiceHelper = helperProvider.getIfAvailable();
         if (this.matchServiceHelper == null) {
             this.matchServiceHelper = new MatchServiceHelper(null, new ArrayList<>(), 1);
         }
+    }
+
+    public MatchService(final MatchRepository matchRepository,
+                        final ObjectProvider<MatchServiceHelper> helperProvider) {
+        this(matchRepository, helperProvider, null);
     }
 
 
@@ -111,11 +121,33 @@ public class MatchService {
 
     @Transactional
     public Optional<Match> leaveMatch(@NonNull Match match, @NonNull Player player) {
+        Integer matchId = match.getId();
+        Match managedMatch = matchRepository.findById(matchId)
+            .orElseThrow(() -> new ResourceNotFoundException("Match", "Id", matchId));
+        match = managedMatch;
+        Player originalPlayer1 = match.getPlayer1();
+        Player originalPlayer2 = match.getPlayer2();
+        boolean playerWasP1 = originalPlayer1 != null && originalPlayer1.equals(player);
+        boolean playerWasP2 = originalPlayer2 != null && originalPlayer2.equals(player);
+
+        boolean shouldTriggerBatch = matchStatsBatchOrchestrator != null
+            && match.getStartedAt() != null
+            && match.getEndedAt() == null
+            && originalPlayer1 != null
+            && originalPlayer2 != null
+            && (playerWasP1 || playerWasP2);
+
+        if (shouldTriggerBatch) {
+            match.setWinner(playerWasP1 ? 2 : 1);
+            match.setEndedAt(LocalDateTime.now());
+            matchStatsBatchOrchestrator.triggerForMatch(match);
+        }
+
         boolean changed = false;
-        if (player.equals(match.getPlayer1())) {
+        if (playerWasP1) {
             match.setPlayer1(null);
             changed = true;
-        } else if (player.equals(match.getPlayer2())) {
+        } else if (playerWasP2) {
             match.setPlayer2(null);
             changed = true;
         }
@@ -147,6 +179,10 @@ public class MatchService {
 
     @Transactional
     public Match nextTurn(@NonNull Match matchToUpdate, Optional<List<PetriDish>> newBoardState) throws IllegalArgumentException {
+        Integer matchId = matchToUpdate.getId();
+        matchToUpdate = matchRepository.findById(matchId)
+            .orElseThrow(() -> new ResourceNotFoundException("Match", "Id", matchId));
+        boolean matchWasAlreadyFinished = matchToUpdate.getEndedAt() != null;
         List<TurnType> turnSequence = matchServiceHelper.getTurnTypeList();
         Integer currentTurn = matchToUpdate.getTurn();
         if (currentTurn == null) {
@@ -197,7 +233,11 @@ public class MatchService {
             updatedMatch.setEndedAt(LocalDateTime.now());
             updatedMatch.setWinner(winner);
         }
-        return matchRepository.save(updatedMatch);
+        Match savedMatch = matchRepository.save(updatedMatch);
+        if (!matchWasAlreadyFinished && winner != null && matchStatsBatchOrchestrator != null) {
+            matchStatsBatchOrchestrator.triggerForMatch(savedMatch);
+        }
+        return savedMatch;
     }
 
     private Match propagation(Match matchToUpdate, List<PetriDish> newBoardState, int player) throws IllegalArgumentException{
@@ -314,8 +354,23 @@ public class MatchService {
 
     @Transactional
     public Match forceEndMatch(@NonNull Match match) {
-        match.setEndedAt(LocalDateTime.now());
-        return matchRepository.save(match);
+        Integer matchId = match.getId();
+        Match managedMatch = matchRepository.findById(matchId)
+            .orElseThrow(() -> new ResourceNotFoundException("Match", "Id", matchId));
+
+        if (match.getWinner() != null) {
+            managedMatch.setWinner(match.getWinner());
+        }
+        managedMatch.setEndedAt(LocalDateTime.now());
+        Match savedMatch = matchRepository.save(managedMatch);
+
+        if (matchStatsBatchOrchestrator != null
+            && savedMatch.getPlayer1() != null
+            && savedMatch.getPlayer2() != null) {
+            matchStatsBatchOrchestrator.triggerForMatch(savedMatch);
+        }
+
+        return savedMatch;
     }
 
     @Transactional
