@@ -45,6 +45,8 @@ public class AchievementController {
         return achievement;
     }
 
+    // TODO: Add GET method by name
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<Achievement> createAchievement(@Valid @RequestBody Achievement achievement) {
