@@ -32,9 +32,13 @@ import io.qameta.allure.Description;
 import io.qameta.allure.Epic;
 import io.qameta.allure.Feature;
 import io.qameta.allure.Owner;
+import io.qameta.allure.Severity;
+import io.qameta.allure.SeverityLevel;
+import io.qameta.allure.Story;
 
 @Epic("Match module")
 @Feature("Match Service")
+@Owner("match-service-team")
 @SpringBootTest
 class MatchServiceTest {
 
@@ -55,6 +59,8 @@ class MatchServiceTest {
     @DisplayName("Obtener todos las partidas")
     @Description("Método para obtener la lista de partidas")
     @Owner("dlozaco(FBN5868)")
+    @Story("Retrieve matches")
+    @Severity(SeverityLevel.NORMAL)
     void testGetAllMatches() {
         List<Match> matches = matchService.getAllMatches();
         assertNotNull(matches, "List of matches must not be null");
@@ -65,6 +71,8 @@ class MatchServiceTest {
     @DisplayName("Obtener partida por ID")
     @Description("Método para obtener partida por ID")
     @Owner("dlozaco(FBN5868)")
+    @Story("Retrieve matches")
+    @Severity(SeverityLevel.NORMAL)
     void testGetMatchById() {
         Match match = matchService.getMatchById(1);
         assertEquals(1, match.getId());
@@ -75,6 +83,8 @@ class MatchServiceTest {
     @DisplayName("Obtener partida por ID incorrecto")
     @Description("Método para obtener partida por ID incorrecto")
     @Owner("dlozaco(FBN5868)")
+    @Story("Retrieve matches")
+    @Severity(SeverityLevel.MINOR)
     void testGetMatchByWrongId() {
         Exception ex = assertThrows(ResourceNotFoundException.class, () -> matchService.getMatchById(100));
         assertEquals("Match not found with Id: '100'", ex.getMessage());
@@ -84,6 +94,8 @@ class MatchServiceTest {
     @DisplayName("Obtener partida por code incorrecto")
     @Description("Método para obtener partida por código no existente")
     @Owner("dlozaco(FBN5868)")
+    @Story("Retrieve matches")
+    @Severity(SeverityLevel.MINOR)
     void testGetMatchByWrongCode() {
         Exception ex = assertThrows(ResourceNotFoundException.class, () -> matchService.getMatchByCode("GBNW"));
         assertEquals("Match not found with Code: 'GBNW'", ex.getMessage());
@@ -93,6 +105,8 @@ class MatchServiceTest {
     @DisplayName("Obtener partida por code")
     @Description("Método para obtener partida por código no existente")
     @Owner("dlozaco(FBN5868)")
+    @Story("Retrieve matches")
+    @Severity(SeverityLevel.NORMAL)
     void testGetMatchByCode() {
         Match match = matchService.getMatchByCode("TRJU");
         assertEquals("TRJU", match.getCode());
@@ -103,6 +117,8 @@ class MatchServiceTest {
     @DisplayName("Obtener todos las partidas en curso")
     @Description("Método para obtener la lista de partidas en curso")
     @Owner("dlozaco(FBN5868)")
+    @Story("Retrieve matches")
+    @Severity(SeverityLevel.NORMAL)
     void testGetCurrentMatches() {
         List<Match> currentMatches = matchService.getCurrentMatches();
         assertNotNull(currentMatches, "List of current matches can not be null");
@@ -112,6 +128,8 @@ class MatchServiceTest {
     @DisplayName("Obtener todas las partidas sin empezar")
     @Description("Metodo para obtener todas las partidas sin empezar")
     @Owner("dlozaco(FBN5868)")
+    @Story("Retrieve matches")
+    @Severity(SeverityLevel.NORMAL)
     void testGetNotStartedMatches() {
         List<Match> notStartedMatches = matchService.getNotStartedMatches();
         assertNotNull(notStartedMatches, "List of not started matches can not be null");
@@ -147,6 +165,10 @@ class MatchServiceTest {
     }
 
     @Test
+    @DisplayName("startMatch fija timestamp y persiste sin WS")
+    @Story("Match lifecycle core")
+    @Description("startMatch must set the timestamp and persist without emitting WebSocket messages from the domain service.")
+    @Severity(SeverityLevel.CRITICAL)
     void startMatch_setsTimestampAndPersistsWithoutMessaging() {
         Match match = buildMatch(5, buildPlayer(10, "creator", true), buildPlayer(20, "guest", true));
         stubSaveReturnsArgument();
@@ -159,6 +181,10 @@ class MatchServiceTest {
     }
 
     @Test
+    @DisplayName("leaveMatch promociona al segundo jugador si se va el creador")
+    @Story("Match lifecycle core")
+    @Description("When the creator leaves, the remaining player should be promoted and the lobby stay open.")
+    @Severity(SeverityLevel.CRITICAL)
     void leaveMatch_promotesRemainingPlayerWhenCreatorLeaves() {
         Player creator = buildPlayer(11, "player1", true);
         Player second = buildPlayer(22, "player2", true);
@@ -178,6 +204,10 @@ class MatchServiceTest {
     }
 
     @Test
+    @DisplayName("leaveMatch elimina el lobby al quedar vacío")
+    @Story("Match lifecycle core")
+    @Description("If the last player leaves the lobby, the match should be deleted.")
+    @Severity(SeverityLevel.CRITICAL)
     void leaveMatch_deletesLobbyWhenEmpty() {
         Player solo = buildPlayer(33, "solo", true);
         Match match = buildMatch(15, solo, null);
@@ -191,6 +221,10 @@ class MatchServiceTest {
     }
 
     @Test
+    @DisplayName("broadcastLobbyAndMatchState publica lobby y partida")
+    @Story("WebSocket broadcasting")
+    @Description("broadcastLobbyAndMatchState must push lobby snapshot, list refresh and match snapshot.")
+    @Severity(SeverityLevel.CRITICAL)
     void broadcastLobbyAndMatchState_publishesLobbySnapshotListAndMatchSnapshot() {
         Player creator = buildPlayer(44, "creator", true);
         Player guest = buildPlayer(55, "guest", true);
@@ -227,6 +261,10 @@ class MatchServiceTest {
     }
 
     @Test
+    @DisplayName("broadcastLobbyClosed notifica refresco y cierre")
+    @Story("WebSocket broadcasting")
+    @Description("broadcastLobbyClosed should notify lobby list refresh plus closure event.")
+    @Severity(SeverityLevel.NORMAL)
     void broadcastLobbyClosed_publishesListRefreshAndClosure() {
         when(matchRepository.findByStartedAtNull()).thenReturn(List.of());
 
@@ -253,6 +291,10 @@ class MatchServiceTest {
     }
 
     @Test
+    @DisplayName("generateLobbyCode devuelve 4 letras mayúsculas")
+    @Story("Lobby operations")
+    @Description("Generated lobby codes must be four uppercase letters.")
+    @Severity(SeverityLevel.MINOR)
     void generateLobbyCode_createsFourUppercaseCharacters() {
         String code = behaviourService.generateLobbyCode();
 
@@ -261,6 +303,10 @@ class MatchServiceTest {
     }
 
     @Test
+    @DisplayName("getPropagationErrors acepta un movimiento válido")
+    @Story("Board validation")
+    @Description("Valid propagation moves should not trigger validation errors.")
+    @Severity(SeverityLevel.NORMAL)
     void getPropagationErrors_validSingleMove_returnsEmptyList() {
         MatchRepository repository = mock(MatchRepository.class);
         MatchService service = buildServiceWithRealHelper(repository);
@@ -277,6 +323,10 @@ class MatchServiceTest {
     }
 
     @Test
+    @DisplayName("getPropagationErrors rechaza movimientos no adyacentes")
+    @Story("Board validation")
+    @Description("Non-adjacent propagation must be rejected.")
+    @Severity(SeverityLevel.NORMAL)
     void getPropagationErrors_rejectsNonAdjacentMove() {
         MatchRepository repository = mock(MatchRepository.class);
         MatchService service = buildServiceWithRealHelper(repository);
@@ -295,6 +345,10 @@ class MatchServiceTest {
 
     @Test
     @SuppressWarnings("null")
+    @DisplayName("nextTurn avanza turno y persiste el tablero")
+    @Story("Turn resolution")
+    @Description("nextTurn should persist the updated board and advance to the next propagation turn.")
+    @Severity(SeverityLevel.CRITICAL)
     void nextTurn_advancesPropagationTurnAndPersistsBoard() {
         MatchRepository repository = mock(MatchRepository.class);
         MatchService service = buildServiceWithRealHelper(repository);
@@ -320,6 +374,10 @@ class MatchServiceTest {
 
     @Test
     @SuppressWarnings("null")
+    @DisplayName("nextTurn ejecuta fisión binaria sin tablero propuesto")
+    @Story("Turn resolution")
+    @Description("Binary fission turns must duplicate isolated bacteria even without an input board snapshot.")
+    @Severity(SeverityLevel.CRITICAL)
     void nextTurn_runsBinaryFissionWhenNoBoardProvided() {
         MatchRepository repository = mock(MatchRepository.class);
         MatchService service = buildServiceWithRealHelper(repository);
@@ -339,6 +397,10 @@ class MatchServiceTest {
     }
 
     @Test
+    @DisplayName("nextTurn exige tablero en turnos de propagación")
+    @Story("Turn resolution")
+    @Description("Propagation turns require a proposed board; otherwise an exception is raised.")
+    @Severity(SeverityLevel.NORMAL)
     void nextTurn_requiresBoardStateForPropagationTurns() {
         MatchRepository repository = mock(MatchRepository.class);
         MatchService service = buildServiceWithRealHelper(repository);
@@ -350,6 +412,10 @@ class MatchServiceTest {
     }
 
     @Test
+    @DisplayName("binaryFission solo crece bacterias aisladas")
+    @Story("Helper algorithms")
+    @Description("binaryFission should only grow isolated bacteria, leaving other cells intact.")
+    @Severity(SeverityLevel.MINOR)
     void binaryFission_onlyGrowsIsolatedBacteria() {
         MatchServiceHelper helper = new MatchServiceHelper();
         Match match = new Match();
@@ -365,6 +431,10 @@ class MatchServiceTest {
     }
 
     @Test
+    @DisplayName("contamination puntúa y limita los valores máximos")
+    @Story("Helper algorithms")
+    @Description("contamination must assign points to higher counts and clamp to maximum values.")
+    @Severity(SeverityLevel.NORMAL)
     void contamination_scoresHigherCountsAndClampsAtMax() {
         MatchServiceHelper helper = new MatchServiceHelper();
         Match match = new Match();
@@ -383,6 +453,10 @@ class MatchServiceTest {
     }
 
     @Test
+    @DisplayName("hasPossibleMoves retorna falso solo con sarcinas")
+    @Story("Helper algorithms")
+    @Description("When all dishes contain sarcinas, no further moves should be available.")
+    @Severity(SeverityLevel.MINOR)
     void hasPossibleMoves_returnsFalseWhenOnlySarcinas() {
         MatchServiceHelper helper = new MatchServiceHelper();
         List<PetriDish> board = createEmptyBoard();
@@ -394,6 +468,10 @@ class MatchServiceTest {
     }
 
     @Test
+    @DisplayName("hasPossibleMoves detecta una transferencia simple")
+    @Story("Helper algorithms")
+    @Description("A simple adjacent transfer should be detected as a possible move.")
+    @Severity(SeverityLevel.MINOR)
     void hasPossibleMoves_detectsSimpleTransferOpportunity() {
         MatchServiceHelper helper = new MatchServiceHelper();
         List<PetriDish> board = createEmptyBoard();
@@ -404,6 +482,10 @@ class MatchServiceTest {
     }
 
     @Test
+    @DisplayName("toMatchDTO incluye tablero, puntuaciones y jugadores")
+    @Story("DTO mapping")
+    @Description("toMatchDTO must include board cells, scores, turn info and player data.")
+    @Severity(SeverityLevel.NORMAL)
     void toMatchDTO_includesBoardAndPlayers() {
         Integer TURN = 7;
         Player player1 = buildPlayer(41, "alpha", true);
@@ -439,6 +521,10 @@ class MatchServiceTest {
     }
 
     @Test
+    @DisplayName("toLobbyDTO marca privacidad y jugadores")
+    @Story("DTO mapping")
+    @Description("toLobbyDTO should mark privacy via code and list all players.")
+    @Severity(SeverityLevel.NORMAL)
     void toLobbyDTO_marksPrivacyAndPlayerList() {
         Player creator = buildPlayer(51, "creator", true);
         Player guest = buildPlayer(52, "guest", true);

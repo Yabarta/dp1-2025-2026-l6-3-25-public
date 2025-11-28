@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -24,9 +25,19 @@ import es.us.dp1.l6_3_24_25.Petris.match.service.MatchService;
 import es.us.dp1.l6_3_24_25.Petris.player.model.Player;
 import es.us.dp1.l6_3_24_25.Petris.player.model.Statistics;
 import es.us.dp1.l6_3_24_25.Petris.player.service.PlayerService;
+import io.qameta.allure.Description;
+import io.qameta.allure.Epic;
+import io.qameta.allure.Feature;
+import io.qameta.allure.Owner;
+import io.qameta.allure.Severity;
+import io.qameta.allure.SeverityLevel;
+import io.qameta.allure.Story;
 
 @SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+@Epic("Match statistics batch")
+@Feature("Automatic player stats updates")
+@Owner("match-batch-team")
 class MatchStatsBatchIntegrationTests {
 
     @Autowired
@@ -51,6 +62,10 @@ class MatchStatsBatchIntegrationTests {
     }
 
     @Test
+    @DisplayName("Match finalizado actualiza estadísticas de ambos jugadores")
+    @Story("Finished matches trigger stats updates")
+    @Description("Verifies that a completed match publishes payloads and increments all player statistics accordingly.")
+    @Severity(SeverityLevel.CRITICAL)
     void shouldUpdateStatsForFinishedMatch() {
         Match finishedMatch = matchRepository.findById(1).orElseThrow();
         assertThat(finishedMatch.getEndedAt()).as("sample match must be finished").isNotNull();
@@ -94,6 +109,10 @@ class MatchStatsBatchIntegrationTests {
     }
 
     @Test
+    @DisplayName("Abandonar una partida también dispara el batch de estadísticas")
+    @Story("Leaving a match still records stats")
+    @Description("Ensures the batch job runs when a player abandons an ongoing match and stats change for both players.")
+    @Severity(SeverityLevel.CRITICAL)
     void shouldUpdateStatsWhenPlayerLeavesMatch() {
         Match ongoingMatch = matchRepository.findById(10).orElseThrow();
         assertThat(ongoingMatch.getStartedAt()).isNotNull();
@@ -115,7 +134,9 @@ class MatchStatsBatchIntegrationTests {
         Map<String, Integer> player1Initial = loadStatsSnapshot(player1.getId());
         Map<String, Integer> player2Initial = loadStatsSnapshot(player2.getId());
 
-        matchService.leaveMatch(matchRepository.findById(ongoingMatch.getId()).orElseThrow(), player1);
+        Integer matchId = Objects.requireNonNull(ongoingMatch.getId());
+        Match matchSnapshot = matchRepository.findById(matchId).orElseThrow();
+        matchService.leaveMatch(Objects.requireNonNull(matchSnapshot), player1);
 
         Map<String, Integer> player1Updated = awaitStatsIncrement(player1.getId(), player1Initial, StatProcessor.GAMES_PLAYED);
         Map<String, Integer> player2Updated = awaitStatsIncrement(player2.getId(), player2Initial, StatProcessor.GAMES_PLAYED);
@@ -136,6 +157,10 @@ class MatchStatsBatchIntegrationTests {
     }
 
     @Test
+    @DisplayName("Forzar el fin de partida persiste las estadísticas")
+    @Story("Forced match ending updates stats")
+    @Description("Covers the admin force-end action to guarantee stats are persisted even when the match doesn't finish naturally.")
+    @Severity(SeverityLevel.CRITICAL)
     void shouldUpdateStatsWhenMatchForceEnded() {
         Match ongoingMatch = matchRepository.findById(10).orElseThrow();
         assertThat(ongoingMatch.getStartedAt()).isNotNull();
@@ -157,7 +182,7 @@ class MatchStatsBatchIntegrationTests {
         Map<String, Integer> player1Initial = loadStatsSnapshot(player1.getId());
         Map<String, Integer> player2Initial = loadStatsSnapshot(player2.getId());
 
-        Match forceEndRequest = matchRepository.findById(ongoingMatch.getId()).orElseThrow();
+        Match forceEndRequest = matchRepository.findById(Objects.requireNonNull(ongoingMatch.getId())).orElseThrow();
         forceEndRequest.setWinner(1);
         matchService.forceEndMatch(forceEndRequest);
 
