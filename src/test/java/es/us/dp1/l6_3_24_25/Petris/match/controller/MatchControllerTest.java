@@ -10,6 +10,7 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -30,8 +31,18 @@ import es.us.dp1.l6_3_24_25.Petris.player.service.PlayerService;
 import es.us.dp1.l6_3_24_25.Petris.user.Authorities;
 import es.us.dp1.l6_3_24_25.Petris.user.User;
 import es.us.dp1.l6_3_24_25.Petris.user.UserService;
+import io.qameta.allure.Description;
+import io.qameta.allure.Epic;
+import io.qameta.allure.Feature;
+import io.qameta.allure.Owner;
+import io.qameta.allure.Severity;
+import io.qameta.allure.SeverityLevel;
+import io.qameta.allure.Story;
 
 @ExtendWith(MockitoExtension.class)
+@Epic("Match module")
+@Feature("REST controller")
+@Owner("match-rest-team")
 class MatchControllerTest {
 
     @Mock
@@ -60,6 +71,10 @@ class MatchControllerTest {
 
     @SuppressWarnings("null")
     @Test
+    @DisplayName("Crear lobby privado asigna código y marca al creador")
+    @Story("Create lobby")
+    @Description("When a player creates a private lobby, a code is generated, the player state changes and notifications are broadcast.")
+    @Severity(SeverityLevel.CRITICAL)
     void createMatch_generatesCodeForPrivateLobbyAndMarksPlayerBusy() throws Exception {
         Player creator = buildPlayer(1, "creator", false);
         Match persisted = new Match();
@@ -96,6 +111,10 @@ class MatchControllerTest {
 
     @SuppressWarnings("null")
     @Test
+    @DisplayName("Crear lobby falla si el jugador ya está ocupado")
+    @Story("Create lobby")
+    @Description("A player already flagged as in-match cannot start a new lobby.")
+    @Severity(SeverityLevel.MINOR)
     void createMatch_rejectsPlayerAlreadyInLobby() throws Exception {
         Player creator = buildPlayer(2, "busy", true);
         when(userService.findCurrentUser()).thenReturn(creator.getUser());
@@ -108,6 +127,10 @@ class MatchControllerTest {
 
     @SuppressWarnings("null")
     @Test
+    @DisplayName("joinMatch añade al segundo jugador si hay hueco")
+    @Story("Join lobby")
+    @Description("Joining an open lobby should add the guest, set flags, and broadcast the updated states.")
+    @Severity(SeverityLevel.CRITICAL)
     void joinMatch_addsSecondPlayerWhenLobbyOpen() throws Exception {
         Player player1 = buildPlayer(3, "host", true);
         Player player2 = buildPlayer(4, "guest", false);
@@ -129,6 +152,10 @@ class MatchControllerTest {
 
     @SuppressWarnings("null")
     @Test
+    @DisplayName("joinMatch devuelve la lobby si el usuario ya está dentro")
+    @Story("Join lobby")
+    @Description("If the current user already belongs to the lobby, the controller should simply return it without changes.")
+    @Severity(SeverityLevel.NORMAL)
     void joinMatch_returnsExistingLobbyWhenAlreadyParticipant() throws Exception {
         Player player1 = buildPlayer(5, "self", true);
         Match match = buildMatch(101, player1, null);
@@ -145,6 +172,10 @@ class MatchControllerTest {
 
     @SuppressWarnings("null")
     @Test
+    @DisplayName("joinMatch rechaza códigos privados incorrectos")
+    @Story("Join lobby")
+    @Description("Private lobbies must validate the invitation code before allowing entry.")
+    @Severity(SeverityLevel.NORMAL)
     void joinMatch_rejectsWhenCodeMismatch() throws Exception {
         Player player1 = buildPlayer(6, "lock", true);
         Match match = buildMatch(102, player1, null);
@@ -157,6 +188,10 @@ class MatchControllerTest {
 
     @SuppressWarnings("null")
     @Test
+    @DisplayName("joinMatch rechaza lobbies completos")
+    @Story("Join lobby")
+    @Description("A lobby that already has two players must reject additional participants.")
+    @Severity(SeverityLevel.NORMAL)
     void joinMatch_rejectsFullLobby() throws Exception {
         Player player1 = buildPlayer(7, "full", true);
         Player player2 = buildPlayer(8, "taken", true);
@@ -172,6 +207,10 @@ class MatchControllerTest {
 
     @SuppressWarnings("null")
     @Test
+    @DisplayName("leaveMatch elimina invitado y actualiza flags")
+    @Story("Leave lobby")
+    @Description("When a guest leaves, their flag resets and remaining players/lobbies are notified.")
+    @Severity(SeverityLevel.CRITICAL)
     void leaveMatch_removesPlayerAndUpdatesFlags() throws Exception {
         Player player1 = buildPlayer(9, "host", true);
         Player player2 = buildPlayer(10, "leaver", true);
@@ -192,6 +231,10 @@ class MatchControllerTest {
 
     @SuppressWarnings("null")
     @Test
+    @DisplayName("leaveMatch cierra la lobby al irse el último jugador")
+    @Story("Leave lobby")
+    @Description("If the last player leaves, the lobby must be closed and closure broadcasted.")
+    @Severity(SeverityLevel.CRITICAL)
     void leaveMatch_closesLobbyWhenLastPlayerLeaves() throws Exception {
         Player player1 = buildPlayer(29, "solo", true);
         Match match = buildMatch(204, player1, null);
@@ -211,6 +254,10 @@ class MatchControllerTest {
 
     @SuppressWarnings("null")
     @Test
+    @DisplayName("leaveMatch rechaza peticiones de usuarios externos")
+    @Story("Leave lobby")
+    @Description("Only players inside the lobby can request to leave; outsiders get rejected.")
+    @Severity(SeverityLevel.NORMAL)
     void leaveMatch_rejectsPlayerOutsideLobby() throws Exception {
         Player player1 = buildPlayer(11, "host", true);
         Player outsider = buildPlayer(12, "outsider", true);
@@ -225,6 +272,10 @@ class MatchControllerTest {
 
     @SuppressWarnings("null")
     @Test
+    @DisplayName("startMatch solo permite al creador iniciar la partida")
+    @Story("Start match")
+    @Description("The lobby creator is the only one allowed to start the match, broadcasting updated state.")
+    @Severity(SeverityLevel.CRITICAL)
     void startMatch_onlyCreatorCanStart() throws Exception {
         Player creator = buildPlayer(13, "creator", true);
         Player guest = buildPlayer(14, "guest", true);
@@ -248,6 +299,10 @@ class MatchControllerTest {
 
     @SuppressWarnings("null")
     @Test
+    @DisplayName("startMatch rechaza a usuarios que no son el creador")
+    @Story("Start match")
+    @Description("Non-creators attempting to start should receive an access denied error.")
+    @Severity(SeverityLevel.NORMAL)
     void startMatch_rejectsNonCreator() throws Exception {
         Player creator = buildPlayer(15, "creator", true);
         Player guest = buildPlayer(16, "guest", true);
@@ -263,6 +318,10 @@ class MatchControllerTest {
 
     @SuppressWarnings("null")
     @Test
+    @DisplayName("startMatch devuelve el estado si ya estaba iniciada")
+    @Story("Start match")
+    @Description("If the match already started, the controller returns the current state without re-triggering logic.")
+    @Severity(SeverityLevel.NORMAL)
     void startMatch_returnsExistingWhenAlreadyStarted() throws Exception {
         Player creator = buildPlayer(18, "creator", true);
         Player guest = buildPlayer(19, "guest", true);
