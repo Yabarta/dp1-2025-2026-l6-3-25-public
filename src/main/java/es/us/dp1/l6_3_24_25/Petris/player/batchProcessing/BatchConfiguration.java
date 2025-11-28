@@ -2,6 +2,8 @@ package es.us.dp1.l6_3_24_25.Petris.player.batchProcessing;
 
 import java.util.List;
 
+import javax.sql.DataSource;
+
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
@@ -14,13 +16,20 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.batch.BatchDataSourceScriptDatabaseInitializer;
+import org.springframework.boot.autoconfigure.batch.BatchProperties;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.lang.NonNull;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import es.us.dp1.l6_3_24_25.Petris.player.service.PlayerService;
+import es.us.dp1.l6_3_24_25.Petris.player.service.StatisticsService;
+
 @Configuration
 @EnableBatchProcessing
+@EnableConfigurationProperties(BatchProperties.class)
 public class BatchConfiguration {
 
     @Bean
@@ -65,7 +74,14 @@ public class BatchConfiguration {
 
     @Bean
     @StepScope
-    public PlayerStatsWriter playerStatsWriter() {
-        return new PlayerStatsWriter();
+    public PlayerStatsWriter playerStatsWriter(PlayerService playerService,
+                                               StatisticsService statisticsService) {
+        return new PlayerStatsWriter(playerService, statisticsService);
+    }
+
+    @Bean
+    public BatchDataSourceScriptDatabaseInitializer batchDataSourceInitializer(DataSource dataSource,
+                                                                              BatchProperties properties) {
+        return new BatchDataSourceScriptDatabaseInitializer(dataSource, properties.getJdbc());
     }
 }

@@ -27,7 +27,6 @@ public class TemporaryMatchStatStore {
             target.add(payload);
             return target;
         });
-        log.debug("Payload staged for match {} and player {}", payload.matchId(), payload.playerId());
     }
 
     public List<MatchStatPayload> consume(Long matchId, Long playerId) {

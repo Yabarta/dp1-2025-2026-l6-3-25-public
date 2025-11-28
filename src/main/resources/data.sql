@@ -58,10 +58,3 @@ INSERT INTO matches(id, code, created_at, started_at, ended_at, creator_id, play
            (9, 'YZAB', '2025-10-26 16:00:00', null, null, 9, null, null, 0, 0, 0, 0, null),
            (10, 'CDEF', '2025-10-26 17:00:00', '2025-10-26 17:01:00', null, 10, 10, 1, 7, 1, 3, 4, null);
 
-DROP TABLE people IF EXISTS;
-
-CREATE TABLE people  (
-    person_id BIGINT IDENTITY NOT NULL PRIMARY KEY,
-    first_name VARCHAR(20),
-    last_name VARCHAR(20)
-);
