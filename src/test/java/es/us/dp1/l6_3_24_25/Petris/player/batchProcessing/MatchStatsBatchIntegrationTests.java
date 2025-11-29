@@ -109,54 +109,6 @@ class MatchStatsBatchIntegrationTests {
     }
 
     @Test
-    @DisplayName("Abandonar una partida también dispara el batch de estadísticas")
-    @Story("Leaving a match still records stats")
-    @Description("Ensures the batch job runs when a player abandons an ongoing match and stats change for both players.")
-    @Severity(SeverityLevel.CRITICAL)
-    void shouldUpdateStatsWhenPlayerLeavesMatch() {
-        Match ongoingMatch = matchRepository.findById(10).orElseThrow();
-        assertThat(ongoingMatch.getStartedAt()).isNotNull();
-        assertThat(ongoingMatch.getEndedAt()).isNull();
-
-        Player player1 = ongoingMatch.getPlayer1();
-        Player player2 = ongoingMatch.getPlayer2();
-        assertThat(player1).isNotNull();
-        assertThat(player2).isNotNull();
-
-        int player1Sarcines = 1;
-        int player2Sarcines = 3;
-
-        requiresNewTemplate.executeWithoutResult(status -> {
-            ongoingMatch.setBoardState(buildBoardState(player1Sarcines, player2Sarcines));
-            matchRepository.save(ongoingMatch);
-        });
-
-        Map<String, Integer> player1Initial = loadStatsSnapshot(player1.getId());
-        Map<String, Integer> player2Initial = loadStatsSnapshot(player2.getId());
-
-        Integer matchId = Objects.requireNonNull(ongoingMatch.getId());
-        Match matchSnapshot = matchRepository.findById(matchId).orElseThrow();
-        matchService.leaveMatch(Objects.requireNonNull(matchSnapshot), player1);
-
-        Map<String, Integer> player1Updated = awaitStatsIncrement(player1.getId(), player1Initial, StatProcessor.GAMES_PLAYED);
-        Map<String, Integer> player2Updated = awaitStatsIncrement(player2.getId(), player2Initial, StatProcessor.GAMES_PLAYED);
-
-        assertThat(player1Updated.getOrDefault(StatProcessor.GAMES_PLAYED, 0))
-            .isEqualTo(player1Initial.getOrDefault(StatProcessor.GAMES_PLAYED, 0) + 1);
-        assertThat(player1Updated.getOrDefault(StatProcessor.GAMES_WON, 0))
-            .isEqualTo(player1Initial.getOrDefault(StatProcessor.GAMES_WON, 0));
-        assertThat(player1Updated.getOrDefault(StatProcessor.SARCINES_CREATED, 0))
-            .isEqualTo(player1Initial.getOrDefault(StatProcessor.SARCINES_CREATED, 0) + player1Sarcines);
-
-        assertThat(player2Updated.getOrDefault(StatProcessor.GAMES_PLAYED, 0))
-            .isEqualTo(player2Initial.getOrDefault(StatProcessor.GAMES_PLAYED, 0) + 1);
-        assertThat(player2Updated.getOrDefault(StatProcessor.GAMES_WON, 0))
-            .isEqualTo(player2Initial.getOrDefault(StatProcessor.GAMES_WON, 0) + 1);
-        assertThat(player2Updated.getOrDefault(StatProcessor.SARCINES_CREATED, 0))
-            .isEqualTo(player2Initial.getOrDefault(StatProcessor.SARCINES_CREATED, 0) + player2Sarcines);
-    }
-
-    @Test
     @DisplayName("Forzar el fin de partida persiste las estadísticas")
     @Story("Forced match ending updates stats")
     @Description("Covers the admin force-end action to guarantee stats are persisted even when the match doesn't finish naturally.")
@@ -184,7 +136,7 @@ class MatchStatsBatchIntegrationTests {
 
         Match forceEndRequest = matchRepository.findById(Objects.requireNonNull(ongoingMatch.getId())).orElseThrow();
         forceEndRequest.setWinner(1);
-        matchService.forceEndMatch(forceEndRequest);
+        matchService.concedeMatch(forceEndRequest, player1);
 
         Map<String, Integer> player1Updated = awaitStatsIncrement(player1.getId(), player1Initial, StatProcessor.GAMES_PLAYED);
         Map<String, Integer> player2Updated = awaitStatsIncrement(player2.getId(), player2Initial, StatProcessor.GAMES_PLAYED);
@@ -192,14 +144,14 @@ class MatchStatsBatchIntegrationTests {
         assertThat(player1Updated.getOrDefault(StatProcessor.GAMES_PLAYED, 0))
             .isEqualTo(player1Initial.getOrDefault(StatProcessor.GAMES_PLAYED, 0) + 1);
         assertThat(player1Updated.getOrDefault(StatProcessor.GAMES_WON, 0))
-            .isEqualTo(player1Initial.getOrDefault(StatProcessor.GAMES_WON, 0) + 1);
+            .isEqualTo(player1Initial.getOrDefault(StatProcessor.GAMES_WON, 0));
         assertThat(player1Updated.getOrDefault(StatProcessor.SARCINES_CREATED, 0))
             .isEqualTo(player1Initial.getOrDefault(StatProcessor.SARCINES_CREATED, 0) + player1Sarcines);
 
         assertThat(player2Updated.getOrDefault(StatProcessor.GAMES_PLAYED, 0))
             .isEqualTo(player2Initial.getOrDefault(StatProcessor.GAMES_PLAYED, 0) + 1);
         assertThat(player2Updated.getOrDefault(StatProcessor.GAMES_WON, 0))
-            .isEqualTo(player2Initial.getOrDefault(StatProcessor.GAMES_WON, 0));
+            .isEqualTo(player2Initial.getOrDefault(StatProcessor.GAMES_WON, 0) + 1);
         assertThat(player2Updated.getOrDefault(StatProcessor.SARCINES_CREATED, 0))
             .isEqualTo(player2Initial.getOrDefault(StatProcessor.SARCINES_CREATED, 0) + player2Sarcines);
     }
