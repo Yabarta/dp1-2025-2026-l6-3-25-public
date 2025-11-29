@@ -7,7 +7,6 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 import es.us.dp1.l6_3_24_25.Petris.player.model.Achievement;
-import es.us.dp1.l6_3_24_25.Petris.player.model.Statistics;
 
 @Repository
 public interface AchievementRepository extends CrudRepository<Achievement, Integer> {

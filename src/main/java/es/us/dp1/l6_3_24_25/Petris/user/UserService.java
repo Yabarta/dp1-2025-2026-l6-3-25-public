@@ -18,7 +18,6 @@ package es.us.dp1.l6_3_24_25.Petris.user;
 import jakarta.validation.Valid;
 
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -32,7 +31,6 @@ public class UserService {
 
 	private UserRepository userRepository;
 
-	@Autowired
 	public UserService(UserRepository userRepository) {
 		this.userRepository = userRepository;
 
