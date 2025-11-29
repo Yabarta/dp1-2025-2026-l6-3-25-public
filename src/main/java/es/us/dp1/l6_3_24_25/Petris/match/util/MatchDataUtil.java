@@ -24,7 +24,6 @@ public class MatchDataUtil {
     public static final int PLAYER_2_INTITIAL_BACTERIUM_INDEX = 4;
     public static final int MAX_BACTERIA_PER_PETRI_DISH = 5;
     public static final int MAX_SCORE = 9;
-    public static final int MAX_MOVABLE_BACTERIA = 4;
 
     private static final List<TurnType> turnTypeList = List.of(
             TurnType.P1_PROPAGATION,

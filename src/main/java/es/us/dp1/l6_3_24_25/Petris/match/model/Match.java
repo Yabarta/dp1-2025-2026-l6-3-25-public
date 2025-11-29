@@ -25,15 +25,15 @@ public class Match extends BaseEntity{
     private String code;
     @Min(0)
     @Max(MatchDataUtil.MAX_SCORE)
-    private Integer player1Score;
+    private int player1Score;
     @Min(0)
     @Max(MatchDataUtil.MAX_SCORE)
-    private Integer player2Score;
+    private int player2Score;
     @Min(MatchDataUtil.PLAYER_1_WINS)
     @Max(MatchDataUtil.PLAYER_2_WINS)
     private Integer winner;
     @Min(0)
-    private Integer turn;
+    private int turn;
     private TurnType turnType;
 
     @NotNull
@@ -89,5 +89,9 @@ public class Match extends BaseEntity{
 
     public boolean isInPropagationTurn() {
         return this.getTurnType().equals(TurnType.P1_PROPAGATION) || this.getTurnType().equals(TurnType.P2_PROPAGATION);
+    }
+
+    public boolean isPastLastTurn() {
+        return this.getTurn() == MatchDataUtil.getTurnsNum();
     }
 }

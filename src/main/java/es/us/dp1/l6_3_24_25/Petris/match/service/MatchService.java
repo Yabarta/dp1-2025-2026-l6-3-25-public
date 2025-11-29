@@ -130,6 +130,9 @@ public class MatchService {
             throw new IllegalArgumentException("No remaining turns to process");
         }
 
+        if(!matchToUpdate.hasStarted()) {
+            throw new AccessDeniedException("The match has not yet started");
+        }
         if(matchToUpdate.hasEnded()) {
             throw new AccessDeniedException("The match has already ended");
         }
@@ -200,12 +203,12 @@ public class MatchService {
     }
 
     @Transactional(rollbackFor = {AccessDeniedException.class})
-    public Match forceEndMatch(Match matchToUpdate, Player playerToConcede) throws AccessDeniedException {
-        int playerNum;
+    public Match concedeMatch(Match matchToUpdate, Player playerToConcede) throws AccessDeniedException {
+        int winner;
         if(matchToUpdate.hasPlayer1(playerToConcede)) {
-            playerNum = 1;
+            winner = 2;
         } else if(matchToUpdate.hasPlayer2(playerToConcede)) {
-            playerNum = 2;
+            winner = 1;
         } else {
             throw new AccessDeniedException("Not in this match");
         }
@@ -217,14 +220,14 @@ public class MatchService {
             throw new AccessDeniedException("Can only concede in propagation turns");
         }
 
-        matchToUpdate.setWinner(playerNum);
+        matchToUpdate.setWinner(winner);
         matchToUpdate.setEndedAt(LocalDateTime.now());
 
         return matchRepository.save(matchToUpdate);
     }
 
-    @Transactional(rollbackFor = {AccessDeniedException.class})
-    public void delete(Integer id) throws AccessDeniedException {
+    @Transactional
+    public void delete(Integer id) {
         matchRepository.deleteById(id);
     }
 

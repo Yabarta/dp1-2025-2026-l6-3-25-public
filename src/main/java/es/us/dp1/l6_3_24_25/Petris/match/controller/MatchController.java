@@ -147,14 +147,22 @@ public class MatchController {
     }
 
     @PutMapping("/{id}/leave")
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<Void> leaveMatch(@PathVariable(required = true) Integer id) throws ResponseStatusException {
         Match matchToUpdate = matchService.getMatchById(id);
         Player currentPlayer = getCurrentPlayer();
 
-        Match updatedMatch = matchService.leaveMatch(matchToUpdate, currentPlayer);
-        currentPlayer.setIsCurrentlyInMatch(false);
-        playerService.save(currentPlayer);
+        Match updatedMatch = null;
+        if (matchToUpdate.isFull()) {
+            updatedMatch = matchService.leaveMatch(matchToUpdate, currentPlayer);
+            
+            playerService.setIsCurrentlyInMatch(currentPlayer, false);
+        } else {
+            matchService.delete(id);
+
+            playerService.setIsCurrentlyInMatch(matchToUpdate.getPlayer1(), false);
+            playerService.setIsCurrentlyInMatch(matchToUpdate.getPlayer2(), false);
+        }
 
         Optional<Match> optionalMatch = Optional.of(updatedMatch);
         if (optionalMatch.isPresent()) {
@@ -163,7 +171,7 @@ public class MatchController {
             webSocketMatchService.broadcastLobbyClosed(matchToUpdate.getId());
         }
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{id}/start")
@@ -195,7 +203,7 @@ public class MatchController {
         Player currentPlayer = getCurrentPlayer();
         Match matchToUpdate = matchService.getMatchById(id);
 
-        if (matchToUpdate.isTurnOf(currentPlayer)) {
+        if (!matchToUpdate.isTurnOf(currentPlayer)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "It's not your turn");
         }
         
@@ -227,11 +235,11 @@ public class MatchController {
 
     @PutMapping("/{id}/endMatch")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<Match> forceEndMatch(@PathVariable(required = true) Integer id) throws ResponseStatusException {
+    public ResponseEntity<Match> concedeMatch(@PathVariable(required = true) Integer id) throws ResponseStatusException {
         Player currentPlayer = getCurrentPlayer();
         Match matchToUpdate = matchService.getMatchById(id);
 
-        Match updatedMatch = matchService.forceEndMatch(matchToUpdate, currentPlayer);
+        Match updatedMatch = matchService.concedeMatch(matchToUpdate, currentPlayer);
 
         playerService.setIsCurrentlyInMatch(matchToUpdate.getPlayer1(), false);
         playerService.setIsCurrentlyInMatch(matchToUpdate.getPlayer2(), false);

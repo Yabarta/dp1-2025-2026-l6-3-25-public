@@ -2,11 +2,11 @@ package es.us.dp1.l6_3_24_25.Petris.match.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -24,6 +24,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
@@ -56,14 +57,21 @@ class MatchServiceTest {
     @Mock
     private MatchRepository matchRepository;
     protected MatchService matchService;
+    
+    /*
+    private WebSocketMatchService webSocketService;
+    private SimpMessagingTemplate messagingTemplate;
+    private ObjectProvider<SimpMessagingTemplate> messagingTemplateProvider;
+    */
 
     @BeforeEach
     void setup() {
         matchService = new MatchService(matchRepository);
+        /*
+        messagingTemplate = mock(SimpMessagingTemplate.class);
+        webSocketService = new WebSocketMatchService(messagingTemplateProvider, matchRepository, matchService);
+        */
     }
-
-    private SimpMessagingTemplate messagingTemplate;
-    private ObjectProvider<SimpMessagingTemplate> messagingTemplateProvider;
 
     @Test
     @DisplayName("Obtener todos las partidas")
@@ -521,6 +529,24 @@ class MatchServiceTest {
     }
 
     @Test
+    @DisplayName("Should not advance turn if match already ended")
+    @Description("Test that if a turn advance is attempted when the match has ended, AccessDeniedException is thrown and the turn doesn't advance")
+    @Owner("josbardel1(WHS7046)")
+    void testNextTurnNegative3() {
+        verify(matchRepository, never()).save(any(Match.class));
+        verifyNoMoreInteractions(matchRepository);
+
+        int turn = 0;
+        Match matchToAdvanceTurn = new Match();
+        matchToAdvanceTurn.setTurn(turn);
+        List<PetriDish> newBoardState = new ArrayList<>();
+
+        assertThatExceptionOfType(AccessDeniedException.class)
+            .isThrownBy(() -> matchService.nextTurn(matchToAdvanceTurn, newBoardState))
+            .withMessage("The match has not yet started");
+    }
+
+    @Test
     @DisplayName("Should advance turn of not ended match if valid turn")
     @Description("Test that if a turn advance is attempted when the match is in a valid turn, the turn advances")
     @Owner("josbardel1(WHS7046)")
@@ -528,100 +554,217 @@ class MatchServiceTest {
         lenient().when(matchRepository.save(any(Match.class))).then(returnsFirstArg());
 
         int turn = 0;
-        TurnType turnType = TurnType.P1_PROPAGATION;
+        TurnType turnType = MatchDataUtil.getTurnType(turn);
+        LocalDateTime startedAt = LocalDateTime.now();
         Match matchToAdvanceTurn = new Match();
+        matchToAdvanceTurn.setStartedAt(startedAt);
         matchToAdvanceTurn.setTurnType(turnType);
         matchToAdvanceTurn.setTurn(turn);
         List<PetriDish> newBoardState = new ArrayList<>();
 
         try (MockedStatic<MatchMethodUtil> utility = Mockito.mockStatic(MatchMethodUtil.class)) {
-            utility.when(() -> MatchMethodUtil.propagation(any(Match.class), any(List.class), any(int.class)))
+            utility.when(() -> MatchMethodUtil.propagation(any(Match.class), anyList(), any(int.class)))
                 .then(returnsFirstArg());
+                
             Match result = matchService.nextTurn(matchToAdvanceTurn, newBoardState);
             assertThat(result).hasTurn(turn + 1);
-            assertThat(result).hasTurnType(TurnType.P2_PROPAGATION);
+            assertThat(result).hasTurnType(MatchDataUtil.getTurnType(turn + 1));
         }
+    }
+
+    @Test
+    @DisplayName("Should end match if finishing turn")
+    @Description("Test that if a turn advance is attempted when the match is in a finishing turn, the match ends")
+    @Owner("josbardel1(WHS7046)")
+    void testNextTurnPositive2() {
+        lenient().when(matchRepository.save(any(Match.class))).then(returnsFirstArg());
+
+        int turn = MatchDataUtil.getTurnsNum() - 1;
+        TurnType turnType = MatchDataUtil.getTurnType(turn);
+        LocalDateTime startedAt = LocalDateTime.now();
+        Match matchToAdvanceTurn = new Match();
+        matchToAdvanceTurn.setStartedAt(startedAt);
+        matchToAdvanceTurn.setTurnType(turnType);
+        matchToAdvanceTurn.setTurn(turn);
+        List<PetriDish> newBoardState = new ArrayList<>();
+
+        try (MockedStatic<MatchMethodUtil> utility = Mockito.mockStatic(MatchMethodUtil.class)) {
+            utility.when(() -> MatchMethodUtil.contamination(any(Match.class))).thenAnswer(i -> {
+                Match match = i.getArgument(0, Match.class);
+                match.setWinner(1);
+                return match;
+            });
+            
+            Match result = matchService.nextTurn(matchToAdvanceTurn, newBoardState);
+            assertThat(result).hasTurn(turn + 1);
+            assertThat(result).hasTurnType(null);
+            org.assertj.core.api.Assertions.assertThat(result.getEndedAt()).isNotNull();
+        }
+    }
+
+    @Test
+    @DisplayName("Should not check for errors if player who requested is not in the match")
+    @Description("Test that if a player who is not in the match attempts to check for propagation errors, AccessDeniedException is thrown")
+    @Owner("josbardel1(WHS7046)")
+    void testCheckErrorsNegative() {
+        try (MockedStatic<MatchMethodUtil> utility = Mockito.mockStatic(MatchMethodUtil.class)) {
+            utility.verify(() -> MatchMethodUtil.getPropagationErrors(anyList(), anyList(), any(int.class)), never());
+
+            Match matchToCheck = new Match();
+            Player playerNotInTheMatch = new Player();
+            List<PetriDish> newBoardState = new ArrayList<>();
+
+            assertThatExceptionOfType(AccessDeniedException.class)
+                .isThrownBy(() -> matchService.checkErrors(matchToCheck, newBoardState, playerNotInTheMatch))
+                .withMessage("Not in this match");
+        }
+    }
+
+    @ParameterizedTest
+    @DisplayName("Should not check for errors if not the turn of requesting player")
+    @Description("Test that if a player attempts to check for propagation errors in a turn not their own, AccessDeniedException is thrown")
+    @Owner("josbardel1(WHS7046)")
+    @EnumSource(value = TurnType.class, names = {"P2_PROPAGATION", "BINARY_FISSION", "CONTAMINATION"})
+    void testCheckErrorsNegative2WithEnumSource(TurnType turnType) {
+        try (MockedStatic<MatchMethodUtil> utility = Mockito.mockStatic(MatchMethodUtil.class)) {
+            utility.verify(() -> MatchMethodUtil.getPropagationErrors(anyList(), anyList(), any(int.class)), never());
+
+            Player player1 = new Player();
+            Match matchToCheck = new Match();
+            matchToCheck.setPlayer1(player1);
+            matchToCheck.setTurnType(turnType);
+            List<PetriDish> newBoardState = new ArrayList<>();
+
+            assertThatExceptionOfType(AccessDeniedException.class)
+                .isThrownBy(() -> matchService.checkErrors(matchToCheck, newBoardState, player1))
+                .withMessage("Can only check for errors in your propagation turns");
+        }
+    }
+
+    @Test
+    @DisplayName("Should not check for errors if match already ended")
+    @Description("Test that if a player attempts to check for propagation errors in an ended match, AccessDeniedException is thrown")
+    @Owner("josbardel1(WHS7046)")
+    void testCheckErrorsNegative3() {
+        try (MockedStatic<MatchMethodUtil> utility = Mockito.mockStatic(MatchMethodUtil.class)) {
+            utility.verify(() -> MatchMethodUtil.getPropagationErrors(anyList(), anyList(), any(int.class)), never());
+
+            Player player1 = new Player();
+            LocalDateTime endedAt = LocalDateTime.now();
+            Match matchToCheck = new Match();
+            matchToCheck.setPlayer1(player1);
+            matchToCheck.setEndedAt(endedAt);
+            matchToCheck.setTurnType(TurnType.P1_PROPAGATION);
+            List<PetriDish> newBoardState = new ArrayList<>();
+
+            assertThatExceptionOfType(AccessDeniedException.class)
+                .isThrownBy(() -> matchService.checkErrors(matchToCheck, newBoardState, player1))
+                .withMessage("The match has already ended");
+        }
+    }
+
+    @Test
+    @DisplayName("Should check for errors of the current turn player in not ended match")
+    @Description("Test that a player can check for propagation errors during their turn in a not ended match")
+    @Owner("josbardel1(WHS7046)")
+    void testCheckErrorsPositive() {
+        try (MockedStatic<MatchMethodUtil> utility = Mockito.mockStatic(MatchMethodUtil.class)) {
+            utility.when(() -> MatchMethodUtil.getPropagationErrors(anyList(), anyList(), any(int.class)))
+                .thenReturn(new ArrayList<>());
+
+            Player player1 = new Player();
+            Match matchToCheck = new Match();
+            matchToCheck.setPlayer1(player1);
+            matchToCheck.setTurnType(TurnType.P1_PROPAGATION);
+            List<PetriDish> newBoardState = new ArrayList<>();
+
+            org.assertj.core.api.Assertions.assertThat(matchService.checkErrors(matchToCheck, newBoardState, player1)).isNotNull();
+        }
+    }
+
+    @Test
+    @DisplayName("Should not concede match if player who requested is not in the match")
+    @Description("Test that if a player who is not in the match attempts to concede, AccessDeniedException is thrown and the match doesn't end")
+    @Owner("josbardel1(WHS7046)")
+    void testConcedeMatchNegative() {
+        verify(matchRepository, never()).save(any(Match.class));
+        verifyNoMoreInteractions(matchRepository);
+
+        Match matchToConcede = new Match();
+        Player playerNotInTheMatch = new Player();
+
+        assertThatExceptionOfType(AccessDeniedException.class)
+            .isThrownBy(() -> matchService.concedeMatch(matchToConcede, playerNotInTheMatch))
+            .withMessage("Not in this match");
+    }
+
+    @ParameterizedTest
+    @DisplayName("Should not concede match if not in propagation")
+    @Description("Test that if a player attempts to concede outside of a propagation turn, AccessDeniedException is thrown and the match doesn't end")
+    @Owner("josbardel1(WHS7046)")
+    @EnumSource(value = TurnType.class, names = {"BINARY_FISSION", "CONTAMINATION"})
+    void testConcedeMatchNegative2WithEnumSource(TurnType turnType) {
+        verify(matchRepository, never()).save(any(Match.class));
+        verifyNoMoreInteractions(matchRepository);
+
+        Player player1 = new Player();
+        Match matchToConcede = new Match();
+        matchToConcede.setPlayer1(player1);
+        matchToConcede.setTurnType(turnType);
+
+        assertThatExceptionOfType(AccessDeniedException.class)
+            .isThrownBy(() -> matchService.concedeMatch(matchToConcede, player1))
+            .withMessage("Can only concede in propagation turns");
+    }
+
+    @Test
+    @DisplayName("Should not concede if match already ended")
+    @Description("Test that if a player attempts to concede an ended match, AccessDeniedException is thrown and the match doesn't end")
+    @Owner("josbardel1(WHS7046)")
+    void testConcedeMatchNegative3() {
+        verify(matchRepository, never()).save(any(Match.class));
+        verifyNoMoreInteractions(matchRepository);
+
+        Player player1 = new Player();
+        LocalDateTime endedAt = LocalDateTime.now();
+        Match matchToConcede = new Match();
+        matchToConcede.setPlayer1(player1);
+        matchToConcede.setEndedAt(endedAt);
+        matchToConcede.setTurnType(TurnType.P2_PROPAGATION);
+
+        assertThatExceptionOfType(AccessDeniedException.class)
+            .isThrownBy(() -> matchService.concedeMatch(matchToConcede, player1))
+            .withMessage("The match has already ended");
+    }
+
+    @ParameterizedTest
+    @DisplayName("Should not concede if match already ended")
+    @Description("Test that if a player attempts to concede an ended match, AccessDeniedException is thrown and the match doesn't end")
+    @Owner("josbardel1(WHS7046)")
+    @EnumSource(value = TurnType.class, names = {"P1_PROPAGATION", "P2_PROPAGATION"})
+    void testConcedeMatchPositiveWithEnumSource(TurnType turnType) {
+        lenient().when(matchRepository.save(any(Match.class))).then(returnsFirstArg());
+
+        Player player1 = new Player();
+        Match matchToConcede = new Match();
+        matchToConcede.setPlayer1(player1);
+        matchToConcede.setTurnType(turnType);
+
+        Match result = matchService.concedeMatch(matchToConcede, player1);
+        org.assertj.core.api.Assertions.assertThat(result.getEndedAt()).isNotNull();
+        assertThat(result).hasWinner(2);
     }
 
     // TODO descomentar y aprovechar tests
     /*
-    private ObjectProvider<MatchHelper> matchServiceHelperProvider;
-
-    private WebSocketMatchService webSocketService;
-
-    @BeforeEach
-    void setupMocks() {
-        matchRepository = mock(MatchRepository.class);
-        messagingTemplate = mock(SimpMessagingTemplate.class);
-        messagingTemplateProvider = mockMessagingTemplateProvider();
-
-        when(messagingTemplateProvider.getIfAvailable()).thenReturn(messagingTemplate);
-        matchServiceHelperProvider = mockMatchServiceHelperProvider();
-        when(matchServiceHelperProvider.getIfAvailable()).thenReturn(null);
-        behaviourService = new MatchService(matchRepository);
-        webSocketService = new WebSocketMatchService(messagingTemplateProvider, matchRepository, behaviourService);
-    }
-
-    private ObjectProvider<SimpMessagingTemplate> mockMessagingTemplateProvider() {
-        return (ObjectProvider<SimpMessagingTemplate>) mock(ObjectProvider.class);
-    }
-
-    private ObjectProvider<MatchHelper> mockMatchServiceHelperProvider() {
-        return (ObjectProvider<MatchHelper>) mock(ObjectProvider.class);
-    }
-
-    @Test
-    void startMatch_setsTimestampAndPersistsWithoutMessaging() {
-        Match match = buildMatch(5, buildPlayer(10, "creator", true), buildPlayer(20, "guest", true));
-        stubSaveReturnsArgument();
-
-        Match result = behaviourService.startMatch(match);
-
-        assertNotNull(result.getStartedAt(), "startMatch should stamp the start time");
-        verify(matchRepository).save(match);
-        verifyNoInteractions(messagingTemplate);
-    }
-
-    @Test
-    void leaveMatch_promotesRemainingPlayerWhenCreatorLeaves() {
-        Player creator = buildPlayer(11, "player1", true);
-        Player second = buildPlayer(22, "player2", true);
-        Match match = buildMatch(9, creator, second);
-        when(matchRepository.findByStartedAtNull()).thenReturn(List.of(match));
-        stubSaveReturnsArgument();
-
-        Optional<Match> optional = behaviourService.leaveMatch(match, creator);
-
-        assertTrue(optional.isPresent(), "Lobby should remain open with the remaining player");
-        Match updated = optional.get();
-        assertSame(second, updated.getPlayer1(), "Second player should be promoted to player1");
-        assertNull(updated.getPlayer2(), "Lobby should have a single participant after promotion");
-        assertSame(second, updated.getCreator(), "Creator should transfer to the remaining player");
-        verify(matchRepository).save(match);
-        verifyNoInteractions(messagingTemplate);
-    }
-
-    @Test
-    void leaveMatch_deletesLobbyWhenEmpty() {
-        Player solo = buildPlayer(33, "solo", true);
-        Match match = buildMatch(15, solo, null);
-        when(matchRepository.findByStartedAtNull()).thenReturn(List.of());
-
-        Optional<Match> optional = behaviourService.leaveMatch(match, solo);
-
-        assertTrue(optional.isEmpty(), "Lobby should be deleted when the last player leaves");
-        verify(matchRepository).delete(match);
-        verifyNoInteractions(messagingTemplate);
-    }
-
     @Test
     void broadcastLobbyAndMatchState_publishesLobbySnapshotListAndMatchSnapshot() {
         Player creator = buildPlayer(44, "creator", true);
         Player guest = buildPlayer(55, "guest", true);
         Match match = buildMatch(18, creator, guest);
         match.setBoardState(List.of(new PetriDish()));
-        LobbyDTO expectedLobby = ensureNonNull(behaviourService.toLobbyDTO(match));
-        MatchDTO expectedMatch = ensureNonNull(behaviourService.toMatchDTO(match));
+        LobbyDTO expectedLobby = Objects.requireNonNull(LobbyDTO.toLobbyDTO(match));
+        MatchDTO expectedMatch = Objects.requireNonNull(MatchDTO.toMatchDTO(match));
         List<LobbyDTO> expectedLobbyList = List.of(expectedLobby);
         when(matchRepository.findByStartedAtNull()).thenReturn(List.of(match));
 
@@ -677,157 +820,6 @@ class MatchServiceTest {
     }
 
     @Test
-    void generateLobbyCode_createsFourUppercaseCharacters() {
-        String code = behaviourService.generateLobbyCode(true);
-
-        assertEquals(4, code.length(), "Codes must contain four characters");
-        assertTrue(code.chars().allMatch(ch -> ch >= 'A' && ch <= 'Z'), "Codes must be uppercase letters");
-    }
-
-    @Test
-    void getPropagationErrors_validSingleMove_returnsEmptyList() {
-        MatchRepository repository = mock(MatchRepository.class);
-        MatchService service = buildServiceWithRealHelper(repository);
-        List<PetriDish> currentBoard = createEmptyBoard();
-        setCounts(currentBoard, 2, 3, 0);
-
-        List<PetriDish> proposedBoard = copyBoard(currentBoard);
-        setCounts(proposedBoard, 2, 2, 0);
-        setCounts(proposedBoard, 3, 1, 0);
-
-        List<String> errors = service.getPropagationErrors(currentBoard, proposedBoard, 1);
-
-        assertTrue(errors.isEmpty(), "Expected a valid move to produce no validation errors");
-    }
-
-    @Test
-    void getPropagationErrors_rejectsNonAdjacentMove() {
-        MatchRepository repository = mock(MatchRepository.class);
-        MatchService service = buildServiceWithRealHelper(repository);
-        List<PetriDish> currentBoard = createEmptyBoard();
-        setCounts(currentBoard, 2, 3, 0);
-
-        List<PetriDish> proposedBoard = copyBoard(currentBoard);
-        setCounts(proposedBoard, 2, 2, 0);
-        setCounts(proposedBoard, 4, 1, 0);
-
-        List<String> errors = service.getPropagationErrors(currentBoard, proposedBoard, 1);
-
-        assertTrue(errors.stream().anyMatch(msg -> msg.contains("adyacent")),
-            "Expected a non-adjacent move to be rejected");
-    }
-
-    @Test
-    @SuppressWarnings("null")
-    void nextTurn_advancesPropagationTurnAndPersistsBoard() {
-        MatchRepository repository = mock(MatchRepository.class);
-        MatchService service = buildServiceWithRealHelper(repository);
-
-        Match match = buildLogicMatch(0, TurnType.P1_PROPAGATION);
-        when(repository.save(match)).thenAnswer(invocation -> ensureNonNull(invocation.getArgument(0, Match.class)));
-        List<PetriDish> currentBoard = createEmptyBoard();
-        setCounts(currentBoard, 2, 3, 0);
-        match.setBoardState(currentBoard);
-
-        List<PetriDish> proposedBoard = copyBoard(currentBoard);
-        setCounts(proposedBoard, 2, 2, 0);
-        setCounts(proposedBoard, 3, 1, 0);
-
-        Match updated = service.nextTurn(match, Optional.of(proposedBoard));
-
-        assertEquals(proposedBoard.get(2).getPlayer1Bacteria(), updated.getBoardState().get(2).getPlayer1Bacteria());
-        assertEquals(proposedBoard.get(3).getPlayer1Bacteria(), updated.getBoardState().get(3).getPlayer1Bacteria());
-        assertEquals(Integer.valueOf(1), updated.getTurn());
-        assertEquals(TurnType.P2_PROPAGATION, updated.getTurnType());
-        verify(repository).save(match);
-    }
-
-    @Test
-    @SuppressWarnings("null")
-    void nextTurn_runsBinaryFissionWhenNoBoardProvided() {
-        MatchRepository repository = mock(MatchRepository.class);
-        MatchService service = buildServiceWithRealHelper(repository);
-
-        Match match = buildLogicMatch(2, TurnType.BINARY_FISSION);
-        when(repository.save(match)).thenAnswer(invocation -> ensureNonNull(invocation.getArgument(0, Match.class)));
-        List<PetriDish> board = createEmptyBoard();
-        setCounts(board, 0, 1, 0);
-        match.setBoardState(board);
-
-        Match updated = service.nextTurn(match, Optional.empty());
-
-        assertEquals(2, updated.getBoardState().get(0).getPlayer1Bacteria(),
-            "Binary fission should duplicate lone bacteria");
-        assertEquals(Integer.valueOf(3), updated.getTurn());
-        assertEquals(TurnType.P2_PROPAGATION, updated.getTurnType());
-    }
-
-    @Test
-    void nextTurn_requiresBoardStateForPropagationTurns() {
-        MatchRepository repository = mock(MatchRepository.class);
-        MatchService service = buildServiceWithRealHelper(repository);
-        Match match = buildLogicMatch(0, TurnType.P1_PROPAGATION);
-        match.setBoardState(createEmptyBoard());
-
-        assertThrows(IllegalArgumentException.class, () -> service.nextTurn(match, Optional.empty()));
-        verifyNoInteractions(repository);
-    }
-
-    @Test
-    void binaryFission_onlyGrowsIsolatedBacteria() {
-        MatchHelper helper = new MatchHelper();
-        Match match = new Match();
-        List<PetriDish> board = createEmptyBoard();
-        setCounts(board, 0, 1, 0);
-        setCounts(board, 1, 0, 2);
-        match.setBoardState(board);
-
-        helper.binaryFission(match);
-
-        assertEquals(2, match.getBoardState().get(0).getPlayer1Bacteria());
-        assertEquals(3, match.getBoardState().get(1).getPlayer2Bacteria());
-    }
-
-    @Test
-    void contamination_scoresHigherCountsAndClampsAtMax() {
-        MatchHelper helper = new MatchHelper();
-        Match match = new Match();
-        List<PetriDish> board = createEmptyBoard();
-        setCounts(board, 0, 2, 0);
-        setCounts(board, 1, 0, 3);
-        setCounts(board, 2, 4, 1);
-        match.setBoardState(board);
-        match.setPlayer1Score(8);
-        match.setPlayer2Score(1);
-
-        helper.contamination(match);
-
-        assertEquals(9, match.getPlayer1Score());
-        assertEquals(2, match.getPlayer2Score());
-    }
-
-    @Test
-    void hasPossibleMoves_returnsFalseWhenOnlySarcinas() {
-        MatchHelper helper = new MatchHelper();
-        List<PetriDish> board = createEmptyBoard();
-        for (int i = 0; i < board.size(); i++) {
-            setCounts(board, i, 5, 0);
-        }
-
-        assertFalse(helper.hasPossibleMoves(board, 1));
-    }
-
-    @Test
-    void hasPossibleMoves_detectsSimpleTransferOpportunity() {
-        MatchHelper helper = new MatchHelper();
-        List<PetriDish> board = createEmptyBoard();
-        setCounts(board, 2, 3, 0);
-        setCounts(board, 3, 0, 0);
-
-        assertTrue(helper.hasPossibleMoves(board, 1));
-    }
-
-    @Test
     void toMatchDTO_includesBoardAndPlayers() {
         Integer TURN = 7;
         Player player1 = buildPlayer(41, "alpha", true);
@@ -836,7 +828,7 @@ class MatchServiceTest {
         match.setPlayer1Score(3);
         match.setPlayer2Score(5);
         match.setTurn(TURN);
-        match.setTurnType(MatchHelper.getTurnType(TURN));
+        match.setTurnType(MatchDataUtil.getTurnType(TURN));
         List<PetriDish> board = new ArrayList<>();
         PetriDish dish0 = new PetriDish();
         dish0.setPlayer1Bacteria(2);
@@ -848,7 +840,7 @@ class MatchServiceTest {
         board.add(dish1);
         match.setBoardState(board);
 
-        MatchDTO dto = behaviourService.toMatchDTO(match);
+        MatchDTO dto = MatchDTO.toMatchDTO(match);
 
         assertEquals(2, dto.getBoard().size(), "Board size should be preserved");
         assertEquals(0, dto.getBoard().get(0).getIndex());
@@ -869,7 +861,7 @@ class MatchServiceTest {
         Match match = buildMatch(31, creator, guest);
         match.setCode("ZXCV");
 
-        LobbyDTO dto = behaviourService.toLobbyDTO(match);
+        LobbyDTO dto = LobbyDTO.toLobbyDTO(match);
 
         assertEquals(31, dto.getId());
         assertTrue(dto.isPrivate(), "Code should mark the lobby as private");
@@ -877,13 +869,6 @@ class MatchServiceTest {
         assertEquals(creator.getId(), dto.getCreatorId());
         assertEquals(2, dto.getPlayers().size());
         assertEquals("creator_user", dto.getPlayers().get(0).getUsername());
-    }
-
-    private MatchService buildServiceWithRealHelper(MatchRepository repository) {
-        @SuppressWarnings("unchecked")
-        ObjectProvider<MatchHelper> provider = (ObjectProvider<MatchHelper>) mock(ObjectProvider.class);
-        when(provider.getIfAvailable()).thenReturn(new MatchHelper());
-        return new MatchService(repository);
     }
 
     private @NonNull Match buildMatch(int id, Player player1, Player player2) {
@@ -897,7 +882,7 @@ class MatchServiceTest {
         match.setPlayer1Score(0);
         match.setPlayer2Score(0);
         match.setTurn(TURN);
-        match.setTurnType(MatchHelper.getTurnType(TURN));
+        match.setTurnType(MatchDataUtil.getTurnType(TURN));
         return match;
     }
 
@@ -918,51 +903,6 @@ class MatchServiceTest {
         player.setIsCurrentlyInMatch(inMatch);
         player.setUser(user);
         return player;
-    }
-
-    private Match buildLogicMatch(int turnIndex, TurnType turnType) {
-        Match match = new Match();
-        match.setTurn(turnIndex);
-        match.setTurnType(turnType);
-        match.setPlayer1Score(0);
-        match.setPlayer2Score(0);
-        match.setBoardState(new ArrayList<>());
-        return match;
-    }
-
-    private List<PetriDish> createEmptyBoard() {
-        List<PetriDish> board = new ArrayList<>();
-        for (int i = 0; i < 7; i++) {
-            board.add(new PetriDish());
-        }
-        return board;
-    }
-
-    private void setCounts(List<PetriDish> board, int index, int p1, int p2) {
-        PetriDish dish = board.get(index);
-        dish.setPlayer1Bacteria(p1);
-        dish.setPlayer2Bacteria(p2);
-    }
-
-    private List<PetriDish> copyBoard(List<PetriDish> original) {
-        List<PetriDish> copy = new ArrayList<>();
-        for (PetriDish source : original) {
-            PetriDish dish = new PetriDish();
-            dish.setPlayer1Bacteria(source.getPlayer1Bacteria());
-            dish.setPlayer2Bacteria(source.getPlayer2Bacteria());
-            copy.add(dish);
-        }
-        return copy;
-    }
-
-    @SuppressWarnings("null")
-    private void stubSaveReturnsArgument() {
-        when(matchRepository.save(any(Match.class)))
-                .thenAnswer(invocation -> ensureNonNull(invocation.getArgument(0, Match.class)));
-    }
-
-    private <T> T ensureNonNull(T value) {
-        return Objects.requireNonNull(value);
     }
     */
 }
