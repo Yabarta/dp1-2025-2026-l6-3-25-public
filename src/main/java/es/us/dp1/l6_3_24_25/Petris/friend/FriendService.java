@@ -31,6 +31,11 @@ public class FriendService {
         return friendRepository.findRequestByPlayer(username);
     }
 
+    @Transactional(readOnly = true)
+    public List<Friend> getRequester(String username) {
+        return friendRepository.findRequesterByPlayer(username);
+    }
+
     @Transactional
     public Friend create(Player requester, Player receiver) {
         Friend newFriend = new Friend();

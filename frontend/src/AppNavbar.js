@@ -17,10 +17,12 @@ function AppNavbar() {
     const [friends, setFriends] = useState([]);
     const [change , setChange] = useState(false);
 
-const userFriends = friends.map((friend) => {
+
+    //Friend List
+const friendList = friends.map((friend) => {
 
     const friendDisplayName = (friend.receiver.nickname === username) 
-        ? friend.requester.nickname 
+        ? friend.requester.nickname
         : friend.receiver.nickname;
 
     return (
@@ -40,102 +42,6 @@ const userFriends = friends.map((friend) => {
         </tr>
     );
 });
-
-    const [requests, setRequests] = useState([]);
-
-    const handleDelete = async(id) => {
-        const response = await fetch(`api/v1/friends/${id}`, {method: 'DELETE', 
-                            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${jwt}`
-            }
-                        });
-        setChange(!change);
-    };
-
-    const handleAccept = async(id) => {
-        const response = await fetch(`api/v1/players/friends/${id}`, {method: 'PUT', 
-                            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${jwt}`
-            }
-                        });
-        setChange(!change);
-    };
-
-    const requestList = requests.map((request) => {
-
-    return (
-        <tr key={request.id}>
-            {/* Aquí mostramos el nombre calculado */}
-            <td>{request.requester.nickname}</td> 
-            
-            <td>
-                <ButtonGroup>
-                    <Button
-                        style={{justifyContent: 'flex-end', backgroundColor: 'green'}}
-                        onClick={() => {handleAccept(request.id);}}>
-                        Accept
-                    </Button>
-                    <Button
-                        style={{justifyContent: 'flex-end', backgroundColor: 'red'}}
-                        onClick={() => {handleDelete(request.id);}}>
-                        Decline
-                    </Button>
-                </ButtonGroup>
-            </td>
-        </tr>
-    );
-});
-
-
-    const [players, setPlayers] = useFetchState(
-        [],
-        `/api/v1/players`,
-    );
-
-    const filterPlayers = players.filter((player) => {
-        return player.nickname.toLowerCase().includes(nombreBuscado.toLowerCase()) && player.nickname !== username && nombreBuscado!== "" && player.nickname !== userFriends[0]?.props.children[0].props.children &&  player.nickname !== requestList[0]?.props.children[0].props.children;
-    }
-    );
-
-    const handleCreate = async(requester, receiver) => {
-        const payload = { requester, receiver };
-
-    const response = await fetch(`/api/v1/players/friends`, { 
-        method: 'POST',
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${jwt}`
-        },
-        body: JSON.stringify(payload) 
-    });
-        console.log(response);
-        console.log("Tetas");
-        setChange(!change);
-    };
-
-    const userList = filterPlayers.map((player) => {
-        return (
-        <tr key={player.id}>
-            <td>{player.nickname}</td>
-            <td>
-            <Button
-                color="primary"
-                style={{justifyContent: 'flex-end'}}
-                onClick={() => {handleCreate(username, player.nickname);}}>
-                Send Friends Request
-            </Button>
-            </td>
-        </tr>
-            );
-        });
-
-    const toggleNavbar = () => setCollapsed(!collapsed);
-
-    function setname(nombreDeUsuario){setNombre(nombreDeUsuario);}
-
-    const toggleMenu = () => setIsOpenFriends(!isOpenFriends);
 
     useEffect(() => {
         if (jwt) {
@@ -167,18 +73,63 @@ const userFriends = friends.map((friend) => {
 
 }, [username , change]);
 
+    // Request List
+
+    const [requests, setRequests] = useState([]);
+
+    const handleDelete = async(id) => {
+        const response = await fetch(`api/v1/friends/${id}`, {method: 'DELETE', 
+                            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${jwt}`
+            }
+                        });
+        setChange(!change);
+    };
+
+    const handleAccept = async(id) => {
+        const response = await fetch(`api/v1/players/friends/${id}`, {method: 'PUT', 
+                            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${jwt}`
+            }
+                        });
+        setChange(!change);
+    };
+
+    const requestList = requests.map((request) => {
+
+    return (
+        <tr key={request.id}>
+            <td>{request.requester.nickname}</td> 
+            
+            <td>
+                <ButtonGroup>
+                    <Button
+                        style={{justifyContent: 'flex-end', backgroundColor: 'green'}}
+                        onClick={() => {handleAccept(request.id);}}>
+                        Accept
+                    </Button>
+                    <Button
+                        style={{justifyContent: 'flex-end', backgroundColor: 'red'}}
+                        onClick={() => {handleDelete(request.id);}}>
+                        Decline
+                    </Button>
+                </ButtonGroup>
+            </td>
+        </tr>
+    );
+});
+
 useEffect(() => {
-    // Guard clause: Si no hay username, no hacemos nada
     if (!username) return;
 
     const fetchRequest = async () => {
         try {
-            // A. Hacemos la petición
             const response = await fetch(`/api/v1/players/${username}/requests`);
             if (!response.ok) throw new Error("Error en la petición");
             
             const data = await response.json();
-            // B. Aquí guardamos los amigos en el estado
             setRequests(data);
             
         } catch (error) {
@@ -190,6 +141,83 @@ useEffect(() => {
 
 }, [username , change]);
 
+    // Player List
+
+    const [players, setPlayers] = useFetchState(
+        [],
+        `/api/v1/players`,
+    );
+
+    const[requester, setRequester] = useState([]);
+
+    useEffect(() => {
+    if (!username) return;
+
+    const fetchRequester = async () => {
+        try {
+            const response = await fetch(`/api/v1/players/${username}/requester`);
+            if (!response.ok) throw new Error("Error en la petición");
+            
+            const data = await response.json();
+            setRequester(data);
+            
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    fetchRequester();
+
+}, [username , change]);
+
+    const filterPlayers = players.filter((player) => {
+        return player.nickname.toLowerCase().includes(nombreBuscado.toLowerCase()) && player.nickname !== username && nombreBuscado!== "" && !friendList.map(friend => friend.props.children[0].props.children).includes(player.nickname) &&  !requestList.map(request => request.props.children[0].props.children).includes(player.nickname);
+    }
+    );
+
+    const handleCreate = async(requester, receiver) => {
+        const payload = { requester, receiver };
+
+    const response = await fetch(`/api/v1/players/friends`, { 
+        method: 'POST',
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${jwt}`
+        },
+        body: JSON.stringify(payload)
+    });
+        setChange(!change);
+    };
+
+    const userList = filterPlayers.map((player) => {
+
+        let solicitudEnviada = false;
+
+        if (requester.some(req => req.receiver.nickname === player.nickname)) {
+            solicitudEnviada = true;
+        }
+
+        return (
+        <tr key={player.id}>
+            <td>{player.nickname}</td>
+            <td>
+            <Button
+                color="primary"
+                style={{justifyContent: 'flex-end'}}
+                onClick={() => {handleCreate(username, player.nickname)}}
+                disabled={solicitudEnviada}>
+                {solicitudEnviada ? "Sent Request" : "Send Friends Request"}
+            </Button>
+            </td>
+        </tr>
+            );
+        });
+
+    const toggleNavbar = () => setCollapsed(!collapsed);
+
+    function setname(nombreDeUsuario){setNombre(nombreDeUsuario);}
+
+    const toggleMenu = () => setIsOpenFriends(!isOpenFriends);
 
     let adminLinks = <></>;
     let ownerLinks = <></>;
@@ -289,7 +317,7 @@ useEffect(() => {
                 <th>Action</th>
             </tr>
         </thead>
-            <tbody>{userFriends}</tbody>
+            <tbody>{friendList}</tbody>
         </Table>
         </div>
             </Offcanvas>

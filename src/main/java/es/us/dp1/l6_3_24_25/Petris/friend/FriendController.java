@@ -46,6 +46,11 @@ public class FriendController {
         return new ResponseEntity<>(friendService.getRequests(username), HttpStatus.OK);
     }
 
+    @GetMapping("/api/v1/players/{username}/requester")
+    public ResponseEntity<List<Friend>> getRequester(@PathVariable String username) {
+        return new ResponseEntity<>(friendService.getRequester(username), HttpStatus.OK);
+    }
+
     @PostMapping("/api/v1/players/friends")
     public ResponseEntity<Friend> createFriend(@Valid @RequestBody Map<String, String> body) {
 
