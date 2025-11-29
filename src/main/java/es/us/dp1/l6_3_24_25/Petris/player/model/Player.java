@@ -37,8 +37,4 @@ public class Player extends BaseEntity{
     private List<Achievement> achievements;
     @OneToMany(cascade = CascadeType.ALL)
     private List<Statistics> statistics;
-    @OneToMany
-    private List<Friend> friends;
-    @OneToMany
-    private List<Friend> request;
 }

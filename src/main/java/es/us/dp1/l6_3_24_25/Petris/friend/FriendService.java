@@ -7,6 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import es.us.dp1.l6_3_24_25.Petris.player.model.Player;
+
+
 @Service
 public class FriendService {
 
@@ -29,8 +32,17 @@ public class FriendService {
     }
 
     @Transactional
-    public Friend save(Friend friend) {
-        return friendRepository.save(friend);
+    public Friend create(Player requester, Player receiver) {
+        Friend newFriend = new Friend();
+        newFriend.setRequester(requester);
+        newFriend.setReceiver(receiver);
+        newFriend.setStatus(FriendshipStatus.PENDING); // O "WAITING"
+
+        return friendRepository.save(newFriend);
+    }
+
+    public void save(Friend friend) {
+        friendRepository.save(friend);
     }
 
     @Transactional

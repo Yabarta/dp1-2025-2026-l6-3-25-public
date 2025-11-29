@@ -17,14 +17,8 @@ function AppNavbar() {
     const [friends, setFriends] = useState([]);
     const [change , setChange] = useState(false);
 
-    // Supongamos que 'currentUserNickname' es el nombre de tu usuario logueado.
-// Asegúrate de tener esta variable definida antes del map.
-
 const userFriends = friends.map((friend) => {
-    
-    // LÓGICA:
-    // ¿El receiver soy yo? -> Entonces muestra al requester.
-    // ¿El receiver NO soy yo? -> Entonces muestra al receiver.
+
     const friendDisplayName = (friend.receiver.nickname === username) 
         ? friend.requester.nickname 
         : friend.receiver.nickname;
@@ -59,6 +53,16 @@ const userFriends = friends.map((friend) => {
         setChange(!change);
     };
 
+    const handleAccept = async(id) => {
+        const response = await fetch(`api/v1/players/friends/${id}`, {method: 'PUT', 
+                            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${jwt}`
+            }
+                        });
+        setChange(!change);
+    };
+
     const requestList = requests.map((request) => {
 
     return (
@@ -69,7 +73,8 @@ const userFriends = friends.map((friend) => {
             <td>
                 <ButtonGroup>
                     <Button
-                        style={{justifyContent: 'flex-end', backgroundColor: 'green'}}>
+                        style={{justifyContent: 'flex-end', backgroundColor: 'green'}}
+                        onClick={() => {handleAccept(request.id);}}>
                         Accept
                     </Button>
                     <Button
@@ -89,14 +94,36 @@ const userFriends = friends.map((friend) => {
         `/api/v1/players`,
     );
 
-    const userList = players.map((player) => {
+    const filterPlayers = players.filter((player) => {
+        return player.nickname.toLowerCase().includes(nombreBuscado.toLowerCase()) && player.nickname !== username && nombreBuscado!== "" && player.nickname !== userFriends[0]?.props.children[0].props.children &&  player.nickname !== requestList[0]?.props.children[0].props.children;
+    }
+    );
+
+    const handleCreate = async(requester, receiver) => {
+        const payload = { requester, receiver };
+
+    const response = await fetch(`/api/v1/players/friends`, { 
+        method: 'POST',
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${jwt}`
+        },
+        body: JSON.stringify(payload) 
+    });
+        console.log(response);
+        console.log("Tetas");
+        setChange(!change);
+    };
+
+    const userList = filterPlayers.map((player) => {
         return (
         <tr key={player.id}>
             <td>{player.nickname}</td>
             <td>
             <Button
                 color="primary"
-                style={{justifyContent: 'flex-end'}}>
+                style={{justifyContent: 'flex-end'}}
+                onClick={() => {handleCreate(username, player.nickname);}}>
                 Send Friends Request
             </Button>
             </td>
