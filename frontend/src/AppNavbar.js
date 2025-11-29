@@ -13,14 +13,20 @@ function AppNavbar() {
     const jwt = tokenService.getLocalAccessToken();
     const [collapsed, setCollapsed] = useState(true);
     const [isOpenFriends, setIsOpenFriends] = useState(false);
-    const [nombreBuscado , setNombre] = useState("");
+    const [nombreBuscadoFriend , setNombreFriend] = useState("");
+    const [nombreBuscadoPlayer , setNombrePlayer] = useState("");
     const [friends, setFriends] = useState([]);
     const [change , setChange] = useState(false);
 
 
     //Friend List
-const friendList = friends.map((friend) => {
 
+    const filterFriend = friends.filter((friend) => friend.requester.nickname === username
+    ?friend.receiver.nickname.toLowerCase().includes(nombreBuscadoFriend.toLowerCase())
+    :friend.requester.nickname.toLowerCase().includes(nombreBuscadoFriend.toLowerCase())
+    );
+
+const friendList = filterFriend.map((friend) => {
     const friendDisplayName = (friend.receiver.nickname === username) 
         ? friend.requester.nickname
         : friend.receiver.nickname;
@@ -171,7 +177,7 @@ useEffect(() => {
 }, [username , change]);
 
     const filterPlayers = players.filter((player) => {
-        return player.nickname.toLowerCase().includes(nombreBuscado.toLowerCase()) && player.nickname !== username && nombreBuscado!== "" && !friendList.map(friend => friend.props.children[0].props.children).includes(player.nickname) &&  !requestList.map(request => request.props.children[0].props.children).includes(player.nickname);
+        return player.nickname.toLowerCase().includes(nombreBuscadoPlayer.toLowerCase()) && player.nickname !== username && nombreBuscadoPlayer!== "" && !friendList.map(friend => friend.props.children[0].props.children).includes(player.nickname) &&  !requestList.map(request => request.props.children[0].props.children).includes(player.nickname);
     }
     );
 
@@ -214,8 +220,6 @@ useEffect(() => {
         });
 
     const toggleNavbar = () => setCollapsed(!collapsed);
-
-    function setname(nombreDeUsuario){setNombre(nombreDeUsuario);}
 
     const toggleMenu = () => setIsOpenFriends(!isOpenFriends);
 
@@ -304,13 +308,17 @@ useEffect(() => {
                 </Collapse>
             </Navbar>
 
-            <Offcanvas isOpen={isOpenFriends} onClose={toggleMenu} direction='start' style={{width: "33%" , backgroundColor: "#f8f9fa", overflowY: "scroll"}} >
-                <div className="barra-busqueda">
-                    <input type="search" value={nombreBuscado} onChange={(usuario) => setname(usuario.target.value)} placeholder="Buscar usuario" />
-                    <Button color="secondary" onClick={toggleMenu} style={{width: '10%'}} direction='end'>X</Button>
+            <Offcanvas isOpen={isOpenFriends} onClose={toggleMenu} direction='start'  style={{width: "33%" , overflowY: "scroll"}} className="bg-dark text-white">
+                <div className="barra-busqueda-Friends d-flex justify-content-center align-items-center position-relative p-3">
+                    <input type="search" value={nombreBuscadoFriend} onChange={(usuario) => setNombreFriend(usuario.target.value)} placeholder="Buscar usuario" />
+                    <Button color="secondary" onClick={toggleMenu} style={{width: '10%'}} className= "position-absolute end-0">X</Button>
                 </div>
                 <div>
-        <Table aria-label="friends" className="mt-4">
+        <Table borderless className="m-0" 
+        style={{
+        "--bs-table-bg": "transparent",
+        "--bs-table-color": "white"
+    }}>
         <thead>
             <tr>
                 <th>Username</th>
@@ -322,12 +330,16 @@ useEffect(() => {
         </div>
             </Offcanvas>
 
-            <Offcanvas isOpen={isOpenFriends} onClose={toggleMenu} direction='end' style={{width: "33%", overflowY: "scroll"}} backdrop={false} >
-                <div className="barra-busqueda">
-                    <input type="search" value={nombreBuscado} onChange={(usuario) => setname(usuario.target.value)} placeholder="Buscar usuario" />
+            <Offcanvas isOpen={isOpenFriends} onClose={toggleMenu} direction='end' style={{width: "33%", overflowY: "scroll"}} backdrop={false} className="bg-dark text-white">
+                <div className="barra-busqueda-Players d-flex justify-content-center align-items-center position-relative p-3" >
+                    <input type="search" value={nombreBuscadoPlayer} onChange={(usuario) => setNombrePlayer(usuario.target.value)} placeholder="Buscar usuario" />
                 </div>
-                <div style={{maxHeight: '50%' , overflowY: "scroll"}}>
-        <Table aria-label="users" className="mt-4">
+                <div style={{ height: "45%", overflowY: "auto", borderBottom: "1px solid #444" }}>
+        <Table aria-label="users" className="mt-0"
+        style={{
+        "--bs-table-bg": "transparent",
+        "--bs-table-color": "white"
+    }}>
         <thead>
             <tr>
                 <th>Username</th>
@@ -338,8 +350,12 @@ useEffect(() => {
         </Table>
         </div>
 
-        <div style={{maxHeight: '40%' , overflowY: "scroll"}}>
-        <Table aria-label="request" className="mt-4">
+        <div style={{ height: "45%", overflowY: "auto"}}>
+        <Table aria-label="request" className="mt-4"
+        style={{
+        "--bs-table-bg": "transparent",
+        "--bs-table-color": "white"
+    }}>
         <thead>
             <tr>
                 <th>Request</th>
