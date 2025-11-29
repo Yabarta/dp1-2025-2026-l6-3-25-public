@@ -42,7 +42,8 @@ public class SecurityConfiguration {
 	DataSource dataSource;
 
 	private static final String ADMIN = "ADMIN";
-	private static final String PLAYER = "PLAYER";
+	@SuppressWarnings("unused")
+    private static final String PLAYER = "PLAYER";
 
 
 	@Bean

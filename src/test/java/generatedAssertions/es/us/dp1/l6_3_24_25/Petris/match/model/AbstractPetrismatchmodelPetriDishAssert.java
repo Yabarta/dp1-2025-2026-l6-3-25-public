@@ -26,6 +26,7 @@ public abstract class AbstractPetrismatchmodelPetriDishAssert<S extends Abstract
    * @return this assertion object.
    * @throws AssertionError - if the actual PetriDish's player1Bacteria is not equal to the given one.
    */
+  @SuppressWarnings("deprecation")
   public S hasPlayer1Bacteria(Integer player1Bacteria) {
     // check that actual PetriDish we want to make assertions on is not null.
     isNotNull();
@@ -49,6 +50,7 @@ public abstract class AbstractPetrismatchmodelPetriDishAssert<S extends Abstract
    * @return this assertion object.
    * @throws AssertionError - if the actual PetriDish's player2Bacteria is not equal to the given one.
    */
+  @SuppressWarnings("deprecation")
   public S hasPlayer2Bacteria(Integer player2Bacteria) {
     // check that actual PetriDish we want to make assertions on is not null.
     isNotNull();

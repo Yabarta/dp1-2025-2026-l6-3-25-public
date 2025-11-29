@@ -26,6 +26,7 @@ public class PetrismatchmodelMatchAssert extends AbstractPetrismatchmodelMatchAs
    * @param actual the Match we want to make assertions on.
    * @return a new <code>{@link PetrismatchmodelMatchAssert}</code>
    */
+  @SuppressWarnings("deprecation")
   @org.assertj.core.util.CheckReturnValue
   public static PetrismatchmodelMatchAssert assertThat(Match actual) {
     return new PetrismatchmodelMatchAssert(actual);

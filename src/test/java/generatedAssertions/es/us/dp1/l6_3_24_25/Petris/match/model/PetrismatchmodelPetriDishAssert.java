@@ -26,6 +26,7 @@ public class PetrismatchmodelPetriDishAssert extends AbstractPetrismatchmodelPet
    * @param actual the PetriDish we want to make assertions on.
    * @return a new <code>{@link PetrismatchmodelPetriDishAssert}</code>
    */
+  @SuppressWarnings("deprecation")
   @org.assertj.core.util.CheckReturnValue
   public static PetrismatchmodelPetriDishAssert assertThat(PetriDish actual) {
     return new PetrismatchmodelPetriDishAssert(actual);

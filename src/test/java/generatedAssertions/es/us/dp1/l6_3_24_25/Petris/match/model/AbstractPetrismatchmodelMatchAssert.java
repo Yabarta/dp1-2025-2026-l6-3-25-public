@@ -182,6 +182,7 @@ public abstract class AbstractPetrismatchmodelMatchAssert<S extends AbstractPetr
    * @return this assertion object.
    * @throws AssertionError - if the actual Match's code is not equal to the given one.
    */
+  @SuppressWarnings("deprecation")
   public S hasCode(String code) {
     // check that actual Match we want to make assertions on is not null.
     isNotNull();
@@ -205,6 +206,7 @@ public abstract class AbstractPetrismatchmodelMatchAssert<S extends AbstractPetr
    * @return this assertion object.
    * @throws AssertionError - if the actual Match's createdAt is not equal to the given one.
    */
+  @SuppressWarnings("deprecation")
   public S hasCreatedAt(java.time.LocalDateTime createdAt) {
     // check that actual Match we want to make assertions on is not null.
     isNotNull();
@@ -228,6 +230,7 @@ public abstract class AbstractPetrismatchmodelMatchAssert<S extends AbstractPetr
    * @return this assertion object.
    * @throws AssertionError - if the actual Match's creator is not equal to the given one.
    */
+  @SuppressWarnings("deprecation")
   public S hasCreator(es.us.dp1.l6_3_24_25.Petris.player.model.Player creator) {
     // check that actual Match we want to make assertions on is not null.
     isNotNull();
@@ -251,6 +254,7 @@ public abstract class AbstractPetrismatchmodelMatchAssert<S extends AbstractPetr
    * @return this assertion object.
    * @throws AssertionError - if the actual Match's endedAt is not equal to the given one.
    */
+  @SuppressWarnings("deprecation")
   public S hasEndedAt(java.time.LocalDateTime endedAt) {
     // check that actual Match we want to make assertions on is not null.
     isNotNull();
@@ -274,6 +278,7 @@ public abstract class AbstractPetrismatchmodelMatchAssert<S extends AbstractPetr
    * @return this assertion object.
    * @throws AssertionError - if the actual Match's player1 is not equal to the given one.
    */
+  @SuppressWarnings("deprecation")
   public S hasPlayer1(es.us.dp1.l6_3_24_25.Petris.player.model.Player player1) {
     // check that actual Match we want to make assertions on is not null.
     isNotNull();
@@ -297,6 +302,7 @@ public abstract class AbstractPetrismatchmodelMatchAssert<S extends AbstractPetr
    * @return this assertion object.
    * @throws AssertionError - if the actual Match's player1Score is not equal to the given one.
    */
+  @SuppressWarnings("deprecation")
   public S hasPlayer1Score(Integer player1Score) {
     // check that actual Match we want to make assertions on is not null.
     isNotNull();
@@ -320,6 +326,7 @@ public abstract class AbstractPetrismatchmodelMatchAssert<S extends AbstractPetr
    * @return this assertion object.
    * @throws AssertionError - if the actual Match's player2 is not equal to the given one.
    */
+  @SuppressWarnings("deprecation")
   public S hasPlayer2(es.us.dp1.l6_3_24_25.Petris.player.model.Player player2) {
     // check that actual Match we want to make assertions on is not null.
     isNotNull();
@@ -343,6 +350,7 @@ public abstract class AbstractPetrismatchmodelMatchAssert<S extends AbstractPetr
    * @return this assertion object.
    * @throws AssertionError - if the actual Match's player2Score is not equal to the given one.
    */
+  @SuppressWarnings("deprecation")
   public S hasPlayer2Score(Integer player2Score) {
     // check that actual Match we want to make assertions on is not null.
     isNotNull();
@@ -366,6 +374,7 @@ public abstract class AbstractPetrismatchmodelMatchAssert<S extends AbstractPetr
    * @return this assertion object.
    * @throws AssertionError - if the actual Match's startedAt is not equal to the given one.
    */
+  @SuppressWarnings("deprecation")
   public S hasStartedAt(java.time.LocalDateTime startedAt) {
     // check that actual Match we want to make assertions on is not null.
     isNotNull();
@@ -389,6 +398,7 @@ public abstract class AbstractPetrismatchmodelMatchAssert<S extends AbstractPetr
    * @return this assertion object.
    * @throws AssertionError - if the actual Match's turn is not equal to the given one.
    */
+  @SuppressWarnings("deprecation")
   public S hasTurn(Integer turn) {
     // check that actual Match we want to make assertions on is not null.
     isNotNull();
@@ -412,6 +422,7 @@ public abstract class AbstractPetrismatchmodelMatchAssert<S extends AbstractPetr
    * @return this assertion object.
    * @throws AssertionError - if the actual Match's turnType is not equal to the given one.
    */
+  @SuppressWarnings("deprecation")
   public S hasTurnType(TurnType turnType) {
     // check that actual Match we want to make assertions on is not null.
     isNotNull();
@@ -435,6 +446,7 @@ public abstract class AbstractPetrismatchmodelMatchAssert<S extends AbstractPetr
    * @return this assertion object.
    * @throws AssertionError - if the actual Match's winner is not equal to the given one.
    */
+  @SuppressWarnings("deprecation")
   public S hasWinner(Integer winner) {
     // check that actual Match we want to make assertions on is not null.
     isNotNull();

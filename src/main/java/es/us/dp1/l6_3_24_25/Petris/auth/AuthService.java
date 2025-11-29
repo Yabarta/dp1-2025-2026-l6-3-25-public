@@ -3,7 +3,6 @@ package es.us.dp1.l6_3_24_25.Petris.auth;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import es.us.dp1.l6_3_24_25.Petris.user.Authorities;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -22,7 +21,6 @@ public class AuthService {
 	//private final PlayerService playerService;
 
 
-	@Autowired
 	public AuthService(PasswordEncoder encoder, AuthoritiesService authoritiesService, UserService userService
 			// PlayerService playerService
 			) {

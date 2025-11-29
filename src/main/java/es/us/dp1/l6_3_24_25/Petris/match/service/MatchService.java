@@ -1,16 +1,8 @@
 package es.us.dp1.l6_3_24_25.Petris.match.service;
 
 import es.us.dp1.l6_3_24_25.Petris.exceptions.AccessDeniedException;
-import java.security.SecureRandom;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

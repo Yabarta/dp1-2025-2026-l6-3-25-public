@@ -18,6 +18,7 @@ public class Assertions {
    * @param actual the actual value.
    * @return the created assertion object.
    */
+  @SuppressWarnings("deprecation")
   @org.assertj.core.util.CheckReturnValue
   public static PetrismatchmodelMatchAssert assertThat(es.us.dp1.l6_3_24_25.Petris.match.model.Match actual) {
     return new PetrismatchmodelMatchAssert(actual);
@@ -29,6 +30,7 @@ public class Assertions {
    * @param actual the actual value.
    * @return the created assertion object.
    */
+  @SuppressWarnings("deprecation")
   @org.assertj.core.util.CheckReturnValue
   public static PetrismatchmodelPetriDishAssert assertThat(es.us.dp1.l6_3_24_25.Petris.match.model.PetriDish actual) {
     return new PetrismatchmodelPetriDishAssert(actual);
@@ -40,6 +42,7 @@ public class Assertions {
    * @param actual the actual value.
    * @return the created assertion object.
    */
+  @SuppressWarnings("deprecation")
   @org.assertj.core.util.CheckReturnValue
   public static PetrismatchmodelTurnTypeAssert assertThat(es.us.dp1.l6_3_24_25.Petris.match.model.TurnType actual) {
     return new PetrismatchmodelTurnTypeAssert(actual);

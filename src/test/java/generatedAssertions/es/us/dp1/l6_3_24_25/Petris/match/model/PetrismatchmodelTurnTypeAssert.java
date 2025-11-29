@@ -26,6 +26,7 @@ public class PetrismatchmodelTurnTypeAssert extends AbstractPetrismatchmodelTurn
    * @param actual the TurnType we want to make assertions on.
    * @return a new <code>{@link PetrismatchmodelTurnTypeAssert}</code>
    */
+  @SuppressWarnings("deprecation")
   @org.assertj.core.util.CheckReturnValue
   public static PetrismatchmodelTurnTypeAssert assertThat(TurnType actual) {
     return new PetrismatchmodelTurnTypeAssert(actual);
