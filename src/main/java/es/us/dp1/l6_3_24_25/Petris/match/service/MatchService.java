@@ -1,6 +1,19 @@
 package es.us.dp1.l6_3_24_25.Petris.match.service;
 
 import es.us.dp1.l6_3_24_25.Petris.exceptions.AccessDeniedException;
+import java.security.SecureRandom;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.NonNull;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import es.us.dp1.l6_3_24_25.Petris.exceptions.ResourceNotFoundException;
 import es.us.dp1.l6_3_24_25.Petris.match.model.Match;
 import es.us.dp1.l6_3_24_25.Petris.match.model.PetriDish;
@@ -9,20 +22,17 @@ import es.us.dp1.l6_3_24_25.Petris.match.repository.MatchRepository;
 import es.us.dp1.l6_3_24_25.Petris.match.util.MatchDataUtil;
 import es.us.dp1.l6_3_24_25.Petris.match.util.MatchMethodUtil;
 import es.us.dp1.l6_3_24_25.Petris.player.model.Player;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.List;
+import es.us.dp1.l6_3_24_25.Petris.player.batchProcessing.MatchStatsBatchOrchestrator;
 
 @Service
 public class MatchService {
 
     private final MatchRepository matchRepository;
+    private final MatchStatsBatchOrchestrator matchStatsBatchOrchestrator;
 
-    public MatchService(final MatchRepository matchRepository) {
+    public MatchService(final MatchRepository matchRepository, MatchStatsBatchOrchestrator matchStatsBatchOrchestrator) {
         this.matchRepository = matchRepository;
+        this.matchStatsBatchOrchestrator = matchStatsBatchOrchestrator;
     }
 
     @Transactional(readOnly = true)
@@ -178,7 +188,11 @@ public class MatchService {
             updatedMatch.setWinner(winner);
         }
 
-        return matchRepository.save(updatedMatch);
+        Match savedMatch = matchRepository.save(updatedMatch);
+        if (winner != null && matchStatsBatchOrchestrator != null) {
+            matchStatsBatchOrchestrator.triggerForMatch(savedMatch);
+        }
+        return savedMatch;
     }
 
     @Transactional(readOnly = true)
@@ -222,6 +236,9 @@ public class MatchService {
 
         matchToUpdate.setWinner(winner);
         matchToUpdate.setEndedAt(LocalDateTime.now());
+
+        Match savedMatch = matchRepository.save(matchToUpdate);
+        matchStatsBatchOrchestrator.triggerForMatch(savedMatch);
 
         return matchRepository.save(matchToUpdate);
     }

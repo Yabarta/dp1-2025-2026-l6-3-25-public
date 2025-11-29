@@ -8,7 +8,6 @@ import static org.mockito.Mockito.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
@@ -29,33 +28,32 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.lang.NonNull;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 
-import es.us.dp1.l6_3_24_25.Petris.match.dto.LobbyDTO;
-import es.us.dp1.l6_3_24_25.Petris.match.dto.MatchDTO;
 import es.us.dp1.l6_3_24_25.Petris.match.model.Match;
 import es.us.dp1.l6_3_24_25.Petris.match.model.PetriDish;
 import es.us.dp1.l6_3_24_25.Petris.match.model.TurnType;
 import es.us.dp1.l6_3_24_25.Petris.match.repository.MatchRepository;
 import es.us.dp1.l6_3_24_25.Petris.match.util.MatchDataUtil;
 import es.us.dp1.l6_3_24_25.Petris.match.util.MatchMethodUtil;
+import es.us.dp1.l6_3_24_25.Petris.player.batchProcessing.MatchStatsBatchOrchestrator;
 import es.us.dp1.l6_3_24_25.Petris.player.model.Player;
-import es.us.dp1.l6_3_24_25.Petris.user.Authorities;
-import es.us.dp1.l6_3_24_25.Petris.user.User;
 import io.qameta.allure.Description;
 import io.qameta.allure.Owner;
+import io.qameta.allure.Severity;
+import io.qameta.allure.SeverityLevel;
+import io.qameta.allure.Story;
 
 import static generatedAssertions.org.assertj.Assertions.assertThat;
 
-@Epic("Game")
+@Epic("Game module")
 @Feature("Create, play and delete matches")
 @ExtendWith(MockitoExtension.class)
 class MatchServiceTest {
 
     @Mock
     private MatchRepository matchRepository;
+    @Mock
+    private MatchStatsBatchOrchestrator matchStatsBatchOrchestrator;
     protected MatchService matchService;
     
     /*
@@ -66,7 +64,7 @@ class MatchServiceTest {
 
     @BeforeEach
     void setup() {
-        matchService = new MatchService(matchRepository);
+        matchService = new MatchService(matchRepository, matchStatsBatchOrchestrator);
         /*
         messagingTemplate = mock(SimpMessagingTemplate.class);
         webSocketService = new WebSocketMatchService(messagingTemplateProvider, matchRepository, matchService);
@@ -77,6 +75,8 @@ class MatchServiceTest {
     @DisplayName("Obtener todos las partidas")
     @Description("Método para obtener la lista de partidas")
     @Owner("dlozaco(FBN5868)")
+    @Story("Retrieve matches")
+    @Severity(SeverityLevel.NORMAL)
     void testGetAllMatches() {
         List<Match> matches = matchService.getAllMatches();
         assertNotNull(matches, "List of matches must not be null");
@@ -86,6 +86,8 @@ class MatchServiceTest {
     @DisplayName("Obtener partida por ID")
     @Description("Método para obtener partida por ID")
     @Owner("dlozaco(FBN5868)")
+    @Story("Retrieve matches")
+    @Severity(SeverityLevel.NORMAL)
     void testGetMatchById() {
         int id = 1;
         when(matchRepository.findById(id)).thenReturn(Optional.of(new Match()));
@@ -97,6 +99,8 @@ class MatchServiceTest {
     @DisplayName("Obtener partida por ID incorrecto")
     @Description("Método para obtener partida por ID incorrecto")
     @Owner("dlozaco(FBN5868)")
+    @Story("Retrieve matches")
+    @Severity(SeverityLevel.MINOR)
     void testGetMatchByWrongId() {
         Exception ex = assertThrows(ResourceNotFoundException.class, () -> matchService.getMatchById(100));
         assertEquals("Match not found with Id: '100'", ex.getMessage());
@@ -106,6 +110,8 @@ class MatchServiceTest {
     @DisplayName("Obtener partida por code incorrecto")
     @Description("Método para obtener partida por código no existente")
     @Owner("dlozaco(FBN5868)")
+    @Story("Retrieve matches")
+    @Severity(SeverityLevel.MINOR)
     void testGetMatchByWrongCode() {
         Exception ex = assertThrows(ResourceNotFoundException.class, () -> matchService.getMatchByCode("GBNW"));
         assertEquals("Match not found with Code: 'GBNW'", ex.getMessage());
@@ -115,6 +121,8 @@ class MatchServiceTest {
     @DisplayName("Obtener partida por code")
     @Description("Método para obtener partida por código no existente")
     @Owner("dlozaco(FBN5868)")
+    @Story("Retrieve matches")
+    @Severity(SeverityLevel.NORMAL)
     void testGetMatchByCode() {
         String code = "TRJU";
         when(matchRepository.findByCode(code)).thenReturn(Optional.of(new Match()));
@@ -126,6 +134,8 @@ class MatchServiceTest {
     @DisplayName("Obtener todos las partidas en curso")
     @Description("Método para obtener la lista de partidas en curso")
     @Owner("dlozaco(FBN5868)")
+    @Story("Retrieve matches")
+    @Severity(SeverityLevel.NORMAL)
     void testGetCurrentMatches() {
         List<Match> currentMatches = matchService.getCurrentMatches();
         assertNotNull(currentMatches, "List of current matches can not be null");
@@ -135,6 +145,8 @@ class MatchServiceTest {
     @DisplayName("Obtener todas las partidas sin empezar")
     @Description("Metodo para obtener todas las partidas sin empezar")
     @Owner("dlozaco(FBN5868)")
+    @Story("Retrieve matches")
+    @Severity(SeverityLevel.NORMAL)
     void testGetNotStartedMatches() {
         List<Match> notStartedMatches = matchService.getNotStartedMatches();
         assertNotNull(notStartedMatches, "List of not started matches can not be null");
@@ -794,6 +806,10 @@ class MatchServiceTest {
     }
 
     @Test
+    @DisplayName("broadcastLobbyClosed notifica refresco y cierre")
+    @Story("WebSocket broadcasting")
+    @Description("broadcastLobbyClosed should notify lobby list refresh plus closure event.")
+    @Severity(SeverityLevel.NORMAL)
     void broadcastLobbyClosed_publishesListRefreshAndClosure() {
         when(matchRepository.findByStartedAtNull()).thenReturn(List.of());
 
@@ -855,6 +871,10 @@ class MatchServiceTest {
     }
 
     @Test
+    @DisplayName("toLobbyDTO marca privacidad y jugadores")
+    @Story("DTO mapping")
+    @Description("toLobbyDTO should mark privacy via code and list all players.")
+    @Severity(SeverityLevel.NORMAL)
     void toLobbyDTO_marksPrivacyAndPlayerList() {
         Player creator = buildPlayer(51, "creator", true);
         Player guest = buildPlayer(52, "guest", true);

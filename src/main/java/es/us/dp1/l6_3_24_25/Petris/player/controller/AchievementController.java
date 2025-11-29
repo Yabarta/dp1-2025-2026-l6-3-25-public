@@ -45,6 +45,8 @@ public class AchievementController {
         return achievement;
     }
 
+    // TODO: Add GET method by name
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<Achievement> createAchievement(@Valid @RequestBody Achievement achievement) {
@@ -79,7 +81,7 @@ public class AchievementController {
         if (achievement == null) {
             throw new ResourceNotFoundException("Achievement", "id", id);
         }
-        achievementService.deleteAchievement(achievement);
+        achievementService.deleteAchievement(id);
     }
 
 }
