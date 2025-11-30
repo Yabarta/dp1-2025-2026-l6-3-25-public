@@ -1,7 +1,10 @@
 package es.us.dp1.l6_3_24_25.Petris.player.model;
 
 
+import java.util.ArrayList;
 import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import es.us.dp1.l6_3_24_25.Petris.match.model.Match;
 import es.us.dp1.l6_3_24_25.Petris.model.BaseEntity;
@@ -30,11 +33,10 @@ public class Player extends BaseEntity{
     @NotNull
     @OneToOne()
     private User user;
-    @OneToMany
-    private List<Match> game;
     @ManyToMany
-    private List<Achievement> achievements;
+    private List<Achievement> achievements = new ArrayList<>();
+    @NotNull
     @OneToMany(cascade = CascadeType.ALL)
-    private List<Statistics> statistics;
+    private List<Statistics> statistics = new ArrayList<>();
 
 }

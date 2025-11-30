@@ -17,7 +17,7 @@ import es.us.dp1.l6_3_24_25.Petris.user.UserService;
 import io.qameta.allure.Epic;
 import io.qameta.allure.Feature;
 
-@Epic("Player Module")
+@Epic("Player Service Module")
 @SpringBootTest
 public class PlayerServiceTests {
 
