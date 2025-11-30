@@ -1,8 +1,15 @@
 package es.us.dp1.l6_3_24_25.Petris.match.controller;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 import java.net.URI;
 import java.time.LocalDateTime;
@@ -16,12 +23,27 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import org.springframework.web.server.ResponseStatusException;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import es.us.dp1.l6_3_24_25.Petris.configuration.SecurityConfiguration;
 import es.us.dp1.l6_3_24_25.Petris.exceptions.AccessDeniedException;
 import es.us.dp1.l6_3_24_25.Petris.match.model.Match;
 import es.us.dp1.l6_3_24_25.Petris.match.service.MatchService;
@@ -38,6 +60,91 @@ import io.qameta.allure.Owner;
 import io.qameta.allure.Severity;
 import io.qameta.allure.SeverityLevel;
 import io.qameta.allure.Story;
+
+@Epic("Game module")
+@Feature("REST controller for matches")
+@WebMvcTest(value = {MatchController.class},
+    excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = WebSecurityConfigurer.class),
+    excludeAutoConfiguration = SecurityConfiguration.class)
+class MatchControllerTest {
+    
+    @MockitoBean
+    MatchService matchService;
+    @MockitoBean
+    WebSocketMatchService webSocketMatchService;
+    @MockitoBean
+    UserService userService;
+    @MockitoBean
+    PlayerService playerService;
+
+    @Autowired
+    MockMvc mvc;
+
+    private static final String BASE_URL = "/api/v1/matches";
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+
+    @BeforeEach
+    void setUp() {
+        reset(matchService);
+        reset(webSocketMatchService);
+        reset(userService);
+        reset(playerService);
+    }
+
+    private void verifyGetCurrentPlayer() {
+        verify(userService, times(1)).findCurrentUser();
+        verify(playerService, times(1)).getPlayerByUser(any());
+    }
+
+    @Test
+    @DisplayName("Should create match and set player to currently in a match")
+    @Description("Test that if a player creates a match, CREATED is returned and isCurrentlyInMatch is set to true for the creator")
+    @Owner("josbardel1(WHS7046)")
+    @Story("Create a new game")
+    @WithMockUser(username = "player", authorities = "PLAYER")
+    public void testCreateMatchPositive() throws Exception {
+        boolean isPrivate = true;
+
+        mvc.perform(post(BASE_URL)
+            .with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
+            .param("isPrivate", objectMapper.writeValueAsString(isPrivate)))
+            .andExpect(status().isCreated());
+
+        verifyGetCurrentPlayer();
+        verify(matchService, times(1)).createMatch(any(), eq(isPrivate));
+        verify(webSocketMatchService, times(1)).broadcastLobbyState(any());
+        verify(playerService, times(1)).setIsCurrentlyInMatch(any(), anyBoolean());
+    }
+
+    // TODO Status 500, ni idea de por qué
+    /*
+    @Test
+    @DisplayName("Should join match and set player to currently in a match")
+    @Description("Test that if a player joins a match, OK is returned and isCurrentlyInMatch is set to true for that player")
+    @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
+    @WithMockUser(username = "player", authorities = "PLAYER")
+    public void testJoinMatchPositive() throws Exception {
+        int id = 1;
+        String code = "AAAA";
+
+        mvc.perform(put(BASE_URL + "/{id}", id)
+            .with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
+            .param("code", objectMapper.writeValueAsString(code)))
+            .andExpect(status().isOk())
+            .andDo(print());
+
+        verify(matchService, times(1)).getMatchById(id);
+        verifyGetCurrentPlayer();
+        verify(matchService, times(1)).joinMatch(any(), any(), eq(code));
+        verify(playerService, times(1)).setIsCurrentlyInMatch(any(), anyBoolean());
+        verify(webSocketMatchService, times(1)).broadcastLobbyAndMatchState(any());
+    }
+    */
+}
+
 
 /* TODO descomentar y aprovechar tests
 @ExtendWith(MockitoExtension.class)

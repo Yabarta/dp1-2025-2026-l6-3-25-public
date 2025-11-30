@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import es.us.dp1.l6_3_24_25.Petris.exceptions.AccessDeniedException;
 import es.us.dp1.l6_3_24_25.Petris.exceptions.ResourceNotFoundException;
 import es.us.dp1.l6_3_24_25.Petris.match.model.Match;
 import es.us.dp1.l6_3_24_25.Petris.match.model.PetriDish;
@@ -44,10 +43,12 @@ public class MatchController {
     UserService userService;
     PlayerService playerService;
 
-    public MatchController(MatchService ms,
-                           WebSocketMatchService webSocketMatchService,
-                           UserService us,
-                           PlayerService ps) {
+    public MatchController(
+        MatchService ms,
+        WebSocketMatchService webSocketMatchService,
+        UserService us,
+        PlayerService ps) {
+
         this.matchService = ms;
         this.webSocketMatchService = webSocketMatchService;
         this.userService = us;
@@ -75,25 +76,23 @@ public class MatchController {
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Match> getMatchById(@PathVariable(required = true) Integer id) throws ResponseStatusException {
-        Match result;
         try {
-            result = matchService.getMatchById(id);
+            Match result = matchService.getMatchById(id);
+            return new ResponseEntity<>(result, HttpStatus.OK);
         } catch(ResourceNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
-        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     @GetMapping("/code/{code}")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Match> getMatchByCode(@PathVariable(required = true) String code) throws ResponseStatusException {
-        Match result;
         try {
-            result = matchService.getMatchByCode(code);
+            Match result = matchService.getMatchByCode(code);
+            return new ResponseEntity<>(result, HttpStatus.OK);
         } catch(ResourceNotFoundException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
         }
-        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     private Player getCurrentPlayer() {
@@ -105,93 +104,99 @@ public class MatchController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<Match> createMatch(@RequestParam(defaultValue = "false") Boolean isPrivate) throws ResponseStatusException {
-        Match result;
         try {
             Player currentPlayer = getCurrentPlayer();
-            result = matchService.createMatch(currentPlayer, isPrivate);
+            Match createdMatch = matchService.createMatch(currentPlayer, isPrivate);
             playerService.setIsCurrentlyInMatch(currentPlayer, true);
+
+            webSocketMatchService.broadcastLobbyState(createdMatch);
+
+            return new ResponseEntity<>(createdMatch, HttpStatus.CREATED);
         } catch(Exception e) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
         }
-
-        webSocketMatchService.broadcastLobbyState(Objects.requireNonNull(result));
-        
-        return new ResponseEntity<>(result, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Match> joinMatch(@PathVariable(required = true) Integer id,
-            @RequestParam(required = false) Optional<String> code)
+            @RequestParam(defaultValue = "") String code)
             throws ResponseStatusException {
 
-        Match result;
-        Match matchToUpdate = matchService.getMatchById(id);
-        Player currentPlayer = getCurrentPlayer();
+        try {
+            Match result;
+            Match matchToUpdate = matchService.getMatchById(id);
+            Player currentPlayer = getCurrentPlayer();
+            if (matchToUpdate.hasPlayer(currentPlayer)) {
+                // Can't join if already in the match. Result is the match without updating it
+                result = matchToUpdate;
+            } else {
+                result = matchService.joinMatch(matchToUpdate, currentPlayer, code);
+                playerService.setIsCurrentlyInMatch(currentPlayer, true);
 
-        if (matchToUpdate.hasPlayer(currentPlayer)) {
-            // Can't join if already in the match. Result is the match without updating it
-            result = matchToUpdate;
-        } else {
-            try {
-                result = matchService.joinMatch(matchToUpdate, currentPlayer, code.orElse(null));
-            } catch(AccessDeniedException e){
-                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+                webSocketMatchService.broadcastLobbyAndMatchState(result);
             }
-            playerService.setIsCurrentlyInMatch(currentPlayer, true);
 
-            webSocketMatchService.broadcastLobbyAndMatchState(Objects.requireNonNull(result));
+            return new ResponseEntity<>(result, HttpStatus.OK);
+        } catch(Exception e){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
         }
-
-        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     @PutMapping("/{id}/leave")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<Void> leaveMatch(@PathVariable(required = true) Integer id) throws ResponseStatusException {
-        Match matchToUpdate = matchService.getMatchById(id);
-        Player currentPlayer = getCurrentPlayer();
+        try {
+            Match matchToUpdate = matchService.getMatchById(id);
+            Player currentPlayer = getCurrentPlayer();
 
-        Match updatedMatch = null;
-        if (matchToUpdate.isFull()) {
-            updatedMatch = matchService.leaveMatch(matchToUpdate, currentPlayer);
-            
-            playerService.setIsCurrentlyInMatch(currentPlayer, false);
-        } else {
-            matchService.delete(id);
+            Match updatedMatch = null;
+            if (matchToUpdate.isFull()) {
+                updatedMatch = matchService.leaveMatch(matchToUpdate, currentPlayer);
+                
+                playerService.setIsCurrentlyInMatch(currentPlayer, false);
+            } else {
+                matchService.delete(id);
 
-            playerService.setIsCurrentlyInMatch(matchToUpdate.getPlayer1(), false);
-            playerService.setIsCurrentlyInMatch(matchToUpdate.getPlayer2(), false);
+                playerService.setIsCurrentlyInMatch(matchToUpdate.getPlayer1(), false);
+                playerService.setIsCurrentlyInMatch(matchToUpdate.getPlayer2(), false);
+            }
+
+            if (updatedMatch != null) {
+                webSocketMatchService.broadcastLobbyState(Objects.requireNonNull(updatedMatch));
+            } else {
+                webSocketMatchService.broadcastLobbyClosed(matchToUpdate.getId());
+            }
+
+            return ResponseEntity.noContent().build();
+        } catch(Exception e) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
         }
-
-        Optional<Match> optionalMatch = Optional.of(updatedMatch);
-        if (optionalMatch.isPresent()) {
-            webSocketMatchService.broadcastLobbyState(Objects.requireNonNull(optionalMatch.get()));
-        } else {
-            webSocketMatchService.broadcastLobbyClosed(matchToUpdate.getId());
-        }
-
-        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{id}/start")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Match> startMatch(@PathVariable(required = true) Integer id) throws ResponseStatusException {
-        Match result;
-        Match matchToUpdate = matchService.getMatchById(id);
-        Player currentPlayer = getCurrentPlayer();
+        try {
+            Match result;
+            Match matchToUpdate = matchService.getMatchById(id);
+            Player currentPlayer = getCurrentPlayer();
 
-        if (!matchToUpdate.hasCreator(currentPlayer)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only the match creator can start the match");
-        } else if (matchToUpdate.hasStarted()) {
-            // Can't start if already started. Result is the match without updating it
-            result = matchToUpdate;
-        } else {
-            result = matchService.startMatch(matchToUpdate);
+            if (!matchToUpdate.hasCreator(currentPlayer)) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only the match creator can start the match");
+            } else if (matchToUpdate.hasStarted()) {
+                // Can't start if already started. Result is the match without updating it
+                result = matchToUpdate;
+            } else {
+                result = matchService.startMatch(matchToUpdate);
 
-            webSocketMatchService.broadcastLobbyAndMatchState(Objects.requireNonNull(result));
+                webSocketMatchService.broadcastLobbyAndMatchState(Objects.requireNonNull(result));
+            }
+
+            return new ResponseEntity<>(result, HttpStatus.OK);
+        } catch(Exception e) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
         }
-        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     @PutMapping("/{id}/nextTurn")
@@ -200,24 +205,29 @@ public class MatchController {
             @Valid @RequestBody(required = false) Optional<List<PetriDish>> newBoardState)
             throws ResponseStatusException {
 
-        Player currentPlayer = getCurrentPlayer();
-        Match matchToUpdate = matchService.getMatchById(id);
+        try {
+            Player currentPlayer = getCurrentPlayer();
+            Match matchToUpdate = matchService.getMatchById(id);
 
-        if (!matchToUpdate.isTurnOf(currentPlayer)) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "It's not your turn");
+            if (!matchToUpdate.isTurnOf(currentPlayer)) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "It's not your turn");
+            }
+            
+            Match updatedMatch = matchService.nextTurn(matchToUpdate, newBoardState.orElse(null));
+
+            if(updatedMatch.hasEnded()) {
+                playerService.setIsCurrentlyInMatch(updatedMatch.getPlayer1(), false);
+                playerService.setIsCurrentlyInMatch(updatedMatch.getPlayer2(), false);
+
+                webSocketMatchService.broadcastMatchEnded(updatedMatch);
+            } else {
+                webSocketMatchService.publishMatchSnapshot(updatedMatch);
+            }
+
+            return new ResponseEntity<>(updatedMatch, HttpStatus.OK);
+        } catch(Exception e) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
         }
-        
-        Match updatedMatch = matchService.nextTurn(matchToUpdate, newBoardState.orElse(null));
-
-        if(updatedMatch.hasEnded()) {
-            playerService.setIsCurrentlyInMatch(updatedMatch.getPlayer1(), false);
-            playerService.setIsCurrentlyInMatch(updatedMatch.getPlayer2(), false);
-            webSocketMatchService.broadcastMatchEnded(updatedMatch);
-        } else {
-            webSocketMatchService.publishMatchSnapshot(updatedMatch);
-        }
-
-        return new ResponseEntity<>(updatedMatch, HttpStatus.OK);
     }
 
     @GetMapping("/{id}/checkErrors")
@@ -226,39 +236,54 @@ public class MatchController {
             @Valid @RequestBody List<PetriDish> newBoardState)
             throws ResponseStatusException {
 
-        Player currentPlayer = getCurrentPlayer();
-        Match matchToCheck = matchService.getMatchById(id);
-        
-        List<String> errors = matchService.checkErrors(matchToCheck, newBoardState, currentPlayer);
-        return new ResponseEntity<>(errors, HttpStatus.OK);
+        try {
+            Player currentPlayer = getCurrentPlayer();
+            Match matchToCheck = matchService.getMatchById(id);
+            
+            List<String> errors = matchService.checkErrors(matchToCheck, newBoardState, currentPlayer);
+
+            return new ResponseEntity<>(errors, HttpStatus.OK);
+        } catch(Exception e) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
+        }
     }
 
     @PutMapping("/{id}/endMatch")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<Match> concedeMatch(@PathVariable(required = true) Integer id) throws ResponseStatusException {
-        Player currentPlayer = getCurrentPlayer();
-        Match matchToUpdate = matchService.getMatchById(id);
+        try {
+            Player currentPlayer = getCurrentPlayer();
+            Match matchToUpdate = matchService.getMatchById(id);
 
-        Match updatedMatch = matchService.concedeMatch(matchToUpdate, currentPlayer);
+            Match updatedMatch = matchService.concedeMatch(matchToUpdate, currentPlayer);
 
-        playerService.setIsCurrentlyInMatch(matchToUpdate.getPlayer1(), false);
-        playerService.setIsCurrentlyInMatch(matchToUpdate.getPlayer2(), false);
+            playerService.setIsCurrentlyInMatch(matchToUpdate.getPlayer1(), false);
+            playerService.setIsCurrentlyInMatch(matchToUpdate.getPlayer2(), false);
 
-        webSocketMatchService.broadcastMatchEnded(Objects.requireNonNull(updatedMatch));
-        return new ResponseEntity<>(updatedMatch, HttpStatus.OK);
+            webSocketMatchService.broadcastMatchEnded(Objects.requireNonNull(updatedMatch));
+
+            return new ResponseEntity<>(updatedMatch, HttpStatus.OK);
+        } catch(Exception e) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
+        }
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<Void> deleteMatch(@PathVariable(required = true) Integer id) throws ResponseStatusException {
-        Match matchToDelete = matchService.getMatchById(id);
-        
-        matchService.delete(id);
+        try {
+            Match matchToDelete = matchService.getMatchById(id);
+            
+            matchService.delete(id);
 
-        playerService.setIsCurrentlyInMatch(matchToDelete.getPlayer1(), false);
-        playerService.setIsCurrentlyInMatch(matchToDelete.getPlayer2(), false);
+            playerService.setIsCurrentlyInMatch(matchToDelete.getPlayer1(), false);
+            playerService.setIsCurrentlyInMatch(matchToDelete.getPlayer2(), false);
 
-        webSocketMatchService.broadcastLobbyClosed(id);
-        return ResponseEntity.noContent().build();
+            webSocketMatchService.broadcastLobbyClosed(id);
+
+            return ResponseEntity.noContent().build();
+        } catch(Exception e) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
+        }
     }
 }

@@ -4,6 +4,7 @@ import io.qameta.allure.Description;
 import io.qameta.allure.Epic;
 import io.qameta.allure.Feature;
 import io.qameta.allure.Owner;
+import io.qameta.allure.Story;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -28,6 +29,7 @@ public class MatchMethodUtilTest {
     @DisplayName("Should return error if board state missing")
     @Description("Test that if propagation is attempted without providing a boardState, IllegalArgumentException is thrown")
     @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
     void testPropagationNegative() {
 
         List<PetriDish> currentBoardState = null;
@@ -44,6 +46,7 @@ public class MatchMethodUtilTest {
     @DisplayName("Should return error if board state of wrong size")
     @Description("Test that if propagation is attempted providing a boardState of wrong size, IllegalArgumentException is thrown")
     @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
     void testPropagationNegative2() {
 
         List<PetriDish> currentBoardState = List.of();
@@ -60,6 +63,7 @@ public class MatchMethodUtilTest {
     @DisplayName("Should return error if board state contains wrong Petri dish data")
     @Description("Test that if propagation is attempted providing a boardState with wrong petriDish data, IllegalArgumentException is thrown")
     @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
     @ValueSource(ints = {0, 1, 2, 3, 4, 5, 6})
     void testPropagationNegative3WithValueSource(int petriDishIndex) {
 
@@ -91,6 +95,7 @@ public class MatchMethodUtilTest {
     @DisplayName("Should return error if new board state contains wrong bacteria amounts")
     @Description("Test that if propagation is attempted providing a boardState that contains wrong playerXBacteria, IllegalArgumentException is thrown")
     @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
     @ValueSource(ints = {0, 1, 2, 3, 4, 5, 6})
     void testPropagationNegative4WithValueSource(int petriDishIndex) {
 
@@ -122,6 +127,7 @@ public class MatchMethodUtilTest {
     @DisplayName("Should return error if same bacteria amount on dish")
     @Description("Test that if newBoardState has the same amounts for player1Bacteria and player2Bacteria, IllegalArgumentException is thrown")
     @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
     @ValueSource(ints = {0, 1, 2, 3, 4, 5, 6})
     void testPropagationNegative5WithValueSource(int petriDishIndex) {
 
@@ -153,6 +159,7 @@ public class MatchMethodUtilTest {
     @DisplayName("Should return error if player attempts to move bacteria not their own")
     @Description("Test that if playerX provides newBoardState that changes PlayerNotXBacteria, IllegalArgumentException is thrown")
     @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
     void testPropagationNegative6() {
 
         List<PetriDish> currentBoardState = List.of(
@@ -183,6 +190,7 @@ public class MatchMethodUtilTest {
     @DisplayName("Should return error if player attempts to move bacteria from several dishes")
     @Description("Test that if playerX provides newBoardState that subtracts from PlayerXBacteria of several PetriDish, IllegalArgumentException is thrown")
     @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
     void testPropagationNegative7() {
 
         List<PetriDish> currentBoardState = List.of(
@@ -213,6 +221,7 @@ public class MatchMethodUtilTest {
     @DisplayName("Should return error if player attempts to move sarcinas (5 bacteria)")
     @Description("Test that if playerX provides newBoardState that subtracts from PlayerXBacteria == 5 (a sarcina), IllegalArgumentException is thrown")
     @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
     void testPropagationNegative8() {
 
         List<PetriDish> currentBoardState = List.of(
@@ -243,6 +252,7 @@ public class MatchMethodUtilTest {
     @DisplayName("Should return error if player moves no bacteria")
     @Description("Test that if playerX provides newBoardState that doesn't change PlayerXBacteria of any PetriDish, IllegalArgumentException is thrown")
     @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
     void testPropagationNegative9() {
 
         List<PetriDish> currentBoardState = List.of(
@@ -266,6 +276,7 @@ public class MatchMethodUtilTest {
     @DisplayName("Should return error if player adds or removes bacteria from the board")
     @Description("Test that if playerX provides newBoardState that subtracts a different amount from PlayerXBacteria than it adds to other PetriDish, IllegalArgumentException is thrown")
     @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
     void testPropagationNegative10() {
 
         List<PetriDish> currentBoardState = List.of(
@@ -296,6 +307,7 @@ public class MatchMethodUtilTest {
     @DisplayName("Should return error if player moves bacteria to non-adyacent dishes")
     @Description("Test that if playerX provides newBoardState that subtracts PlayerXBacteria then adds the amount to non-adyacent PetriDish, IllegalArgumentException is thrown")
     @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
     void testPropagationNegative11() {
 
         List<PetriDish> currentBoardState = List.of(
@@ -326,6 +338,7 @@ public class MatchMethodUtilTest {
     @DisplayName("Should change board state into new one if valid propagation")
     @Description("Test that if newBoardState corresponds to a valid propagation from currentBoardState, the match with newBoardState as boardState is returned")
     @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
     void testPropagationPositive() {
 
         List<PetriDish> currentBoardState = List.of(
@@ -354,6 +367,7 @@ public class MatchMethodUtilTest {
     @DisplayName("Should add bacteria to dish with only one player's bacteria in binary fission")
     @Description("Test that if a PetriDish only contains bacteria from one player during binary fission, the amount increases by one (unless already at 5: sarcina)")
     @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
     void testBinaryFissionPositive() {
 
         List<PetriDish> currentBoardState = List.of(
@@ -382,6 +396,7 @@ public class MatchMethodUtilTest {
     @DisplayName("Should add score in contamination for more bacteria than opponent in Petri dish")
     @Description("Test that for every PetriDish that contains more bacteria from one player than from the other during contamination, the score of that player increases by one (unless already at MAX)")
     @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
     void testContaminationPositive() {
 
         List<PetriDish> currentBoardState = List.of(
@@ -408,6 +423,7 @@ public class MatchMethodUtilTest {
     @DisplayName("Should return null if winner not decided")
     @Description("Test that if no win condition is fulfilled, null is returned")
     @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
     void testGetWinnerPositive() {
 
         List<PetriDish> currentBoardState = List.of(
@@ -435,6 +451,7 @@ public class MatchMethodUtilTest {
     @DisplayName("Should return number of player with less score when past last turn")
     @Description("Test that if turn > MAX, the number of the player with less score is returned")
     @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
     void testGetWinnerPositive2() {
 
         List<PetriDish> currentBoardState = List.of(
@@ -461,6 +478,7 @@ public class MatchMethodUtilTest {
     @DisplayName("Should return number of player with less tokens if same score when past last turn")
     @Description("Test that if turn > MAX, the number of the player with less tokens is returned when both players have the same score")
     @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
     void testGetWinnerPositive3() {
 
         List<PetriDish> currentBoardState = List.of(
@@ -487,6 +505,7 @@ public class MatchMethodUtilTest {
     @DisplayName("Should return number of player with less sarcinas if same score and tokens when past last turn")
     @Description("Test that if turn > MAX, the number of the player with less sarcinas is returned when both players have the same score and tokens")
     @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
     void testGetWinnerPositive4() {
 
         List<PetriDish> currentBoardState = List.of(
@@ -513,6 +532,7 @@ public class MatchMethodUtilTest {
     @DisplayName("Should return number of other player if no possible propagation")
     @Description("Test that if a player can't make a valid propagation, the number of the other player is returned")
     @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
     void testGetWinnerPositive5() {
 
         List<PetriDish> currentBoardState = List.of(
@@ -540,6 +560,7 @@ public class MatchMethodUtilTest {
     @DisplayName("Should return number of other player if max score reached")
     @Description("Test that if a player reaches the maximum score, the number of the other player is returned")
     @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
     void testGetWinnerPositive6() {
 
         List<PetriDish> currentBoardState = List.of(
@@ -567,6 +588,7 @@ public class MatchMethodUtilTest {
     @DisplayName("Should return number of player with less tokens if max score reached by both players")
     @Description("Test that if both players reach the maximum score the same turn, the number of the player with less tokens is returned")
     @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
     void testGetWinnerPositive7() {
 
         List<PetriDish> currentBoardState = List.of(
@@ -594,6 +616,7 @@ public class MatchMethodUtilTest {
     @DisplayName("Should return number of player with less sarcinas if max score reached by both players and same score")
     @Description("Test that if both players reach the maximum score the same turn with the same amount of tokens, the number of the player with less sarcinas is returned")
     @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
     void testGetWinnerPositive8() {
 
         List<PetriDish> currentBoardState = List.of(
