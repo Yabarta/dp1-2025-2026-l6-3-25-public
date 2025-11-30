@@ -42,7 +42,8 @@ public class SecurityConfiguration {
 	DataSource dataSource;
 
 	private static final String ADMIN = "ADMIN";
-	private static final String PLAYER = "PLAYER";
+	@SuppressWarnings("unused")
+    private static final String PLAYER = "PLAYER";
 
 
 	@Bean
@@ -93,6 +94,7 @@ public class SecurityConfiguration {
                 .requestMatchers("/api/v1/statistics/achievements").permitAll()
                 .requestMatchers("/api/v1/statistics/ranking").permitAll()
                 .requestMatchers("/api/v1/friends/**").authenticated()
+                .requestMatchers("/api/v1/achievements/**").permitAll()
 
                 // API restringida para administradores
                 .requestMatchers("/api/v1/users").hasAuthority(ADMIN)

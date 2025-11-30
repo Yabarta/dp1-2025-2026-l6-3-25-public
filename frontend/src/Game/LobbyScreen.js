@@ -7,7 +7,7 @@ import '../static/css/lobby/lobby.css';
 
 const currentUser = tokenService.getUser();
 let player = ''
-if(currentUser){
+if(currentUser && currentUser.roles.includes('PLAYER')){
     player = (await api.get(`/api/v1/players/user/${currentUser.username}`)).data;
 }
 

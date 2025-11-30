@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback, useMemo } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import jwt_decode from "jwt-decode";
 import tokenService from "../services/token.service";
 import '../static/css/profile/profile.css';
@@ -6,6 +7,7 @@ import useFetchState from "../util/useFetchState";
 import getErrorModal from "../util/getErrorModal";
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
+import { Button } from "reactstrap";
 
 // Constants
 const DEFAULT_PROFILE_PIC = "https://www.dsac.gov/image-repository/blank-profile-picuture.png/@@images/image.png";
@@ -13,13 +15,23 @@ const DEFAULT_PROFILE_PIC = "https://www.dsac.gov/image-repository/blank-profile
 export default function ProfileScreen() {
     // State declarations
     const jwt = tokenService.getLocalAccessToken();
+    const { username } = useParams()
+    const [currentPlayer, setCurrentPlayer] = useState(() => {
+        if (!jwt) return username ?? "";
+        try {
+            return jwt_decode(jwt)?.sub ?? (username ?? "");
+        } catch (e) {
+            console.error("Invalid JWT", e);
+            return username ?? "";
+        }
+    });
     const imageInputRef = useRef(null);
     const [showEditPopup, setShowEditPopup] = useState(false);
     const [showHistoryPopup, setShowHistoryPopup] = useState(false);
     const [message, setMessage] = useState(null);
     const [visible, setVisible] = useState(false);
     const [profilePic, setProfilePic] = useState(DEFAULT_PROFILE_PIC);
-    const [username] = useState(() => jwt ? jwt_decode(jwt).sub : "");
+    const navigate = useNavigate();
 
     // Data fetching
     const playerUrl = username ? `/api/v1/players/user/${encodeURIComponent(username)}` : "";
@@ -183,7 +195,10 @@ export default function ProfileScreen() {
         <div>
             <div className="profileHeader">
                 <span className="profileNickname">{playerData.nickname}</span>
-                <span onClick={() => setShowEditPopup(true)} className="editIcon">✏️</span>
+                {currentPlayer && currentPlayer===username && <span onClick={() => setShowEditPopup(true)} className="editIcon">✏️</span>}
+                {/* TO DO:
+                Si no son amigos, mostrar un boton de mandar solicitud
+                Si son amigos, mostrar boton de invitar a partida */}
             </div>
             <div className="profileHeaderEmail">{playerData.email}</div>
         </div>
@@ -218,6 +233,16 @@ export default function ProfileScreen() {
         </div>
     );
 
+    const handleNavigateToProfile = async (nickname) => {
+        try {
+            const res = await fetch(`/api/v1/players/${encodeURIComponent(nickname)}`);
+            const user = await res.json();
+            navigate(`/profile/${encodeURIComponent(user.username ?? nickname)}`);
+        } catch (err) {
+            console.error('Unable to go to profile', err);
+        }
+    }
+
     const RecentGames = () => (
         <div className="bg">
             <h1 className="title">Partidas Recientes</h1>
@@ -233,16 +258,16 @@ export default function ProfileScreen() {
                         </div>
                         <div className="gamePlayersContainer">
                             <div className="scorePlayer1">
-                                <div className="gamePlayerInfo player2Info">
+                                <Button className="gamePlayerInfo player2Info" onClick={() => handleNavigateToProfile(game.player2.nickname)}>
                                     <img src={getPlayerProfilePic(game.player2)} alt={game.player2.nickname} className="gamePlayerPic" /> {game.player2.nickname}
-                                </div>
+                                </Button>
                                 <div className="score">{game.finalP2Score}</div>
                             </div>
                             <span className="gameVs">vs</span>
                             <div className="scorePlayer2">
-                                <div className="gamePlayerInfo player1Info">
+                                <Button className="gamePlayerInfo player1Info" onClick={() => handleNavigateToProfile(game.player1.nickname)}>
                                     {game.player1.nickname} <img src={getPlayerProfilePic(game.player1)} alt={game.player1.nickname} className="gamePlayerPic" />
-                                </div>
+                                </Button>
                                 <div className="score">{game.finalP1Score}</div>
                             </div>
                         </div>
@@ -376,8 +401,9 @@ export default function ProfileScreen() {
             <div className="left">
                 <ProfileHeader />
                 <div className="bg">
-                    <img src={profilePic} onClick={handleChangeProfilePicture} alt="provisional" className="profilePicture" />
-                    <input type="file" ref={imageInputRef} onChange={handleFileChange} className="hiddenFileInput" accept="image/*" />
+                    { currentPlayer && currentPlayer===username ? <img src={profilePic} onClick={handleChangeProfilePicture} alt="provisional" className="profilePicture" /> :
+                    <img src={profilePic} alt="provisional" className="profilePicture" />} 
+                    { currentPlayer && currentPlayer===username && <input type="file" ref={imageInputRef} onChange={handleFileChange} className="hiddenFileInput" accept="image/*" /> }
                     <StatsSection />
                 </div>
             </div>

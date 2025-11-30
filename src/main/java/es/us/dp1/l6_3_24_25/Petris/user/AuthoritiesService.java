@@ -15,7 +15,6 @@
  */
 package es.us.dp1.l6_3_24_25.Petris.user;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +27,6 @@ public class AuthoritiesService {
 	private AuthoritiesRepository authoritiesRepository;
 //	private UserService userService;
 
-	@Autowired
 	public AuthoritiesService(AuthoritiesRepository authoritiesRepository) {
 		this.authoritiesRepository = authoritiesRepository;
 //		this.userService = userService;
