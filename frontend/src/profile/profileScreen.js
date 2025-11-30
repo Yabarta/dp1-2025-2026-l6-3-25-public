@@ -325,13 +325,13 @@ export default function ProfileScreen() {
                                     <span className="gameDate">Fecha de creación: {new Date(game.createdAt).toLocaleDateString()}</span>
                                 </div>
                                 <div className="gamePlayersContainer">
-                                    <div className="gamePlayerInfo">
+                                    <Button className="gamePlayerInfo" onClick={() => {setShowHistoryPopup(false); handleNavigateToProfile(game.player2.nickname)}}>
                                         <img src={getPlayerProfilePic(game.player2)} alt={game.player2.nickname} className="gamePlayerPic" /> {game.player2.nickname}
-                                    </div>
+                                    </Button>
                                     <span className="gameVs">vs</span>
-                                    <div className="gamePlayerInfo">
+                                    <Button className="gamePlayerInfo" onClick={() => {setShowHistoryPopup(false); handleNavigateToProfile(game.player1.nickname)}}>
                                         {game.player1.nickname} <img src={getPlayerProfilePic(game.player1)} alt={game.player1.nickname} className="gamePlayerPic" />
-                                    </div>
+                                    </Button>
                                 </div>
                                 <div className="gameDetailsContainer">
                                     <div className="gameDetail">Código de la partida: {game.code}</div>
