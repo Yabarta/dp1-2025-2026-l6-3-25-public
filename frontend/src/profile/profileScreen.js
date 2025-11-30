@@ -235,7 +235,7 @@ export default function ProfileScreen() {
 
     const handleNavigateToProfile = async (nickname) => {
         try {
-            const res = await fetch(`/api/v1/players/${encodeURIComponent(nickname)}`);
+            const res = await fetch(`/api/v1/players/nickname/${encodeURIComponent(nickname)}`);
             const user = await res.json();
             navigate(`/profile/${encodeURIComponent(user.username ?? nickname)}`);
         } catch (err) {
