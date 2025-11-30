@@ -19,10 +19,8 @@ import java.util.List;
 
 import jakarta.validation.Valid;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 
 import es.us.dp1.l6_3_24_25.Petris.exceptions.AccessDeniedException;
 import es.us.dp1.l6_3_24_25.Petris.util.RestPreconditions;
@@ -48,7 +46,6 @@ class UserRestController {
 	private final UserService userService;
 	private final AuthoritiesService authService;
 
-	@Autowired
 	public UserRestController(UserService userService, AuthoritiesService authService) {
 		this.userService = userService;
 		this.authService = authService;

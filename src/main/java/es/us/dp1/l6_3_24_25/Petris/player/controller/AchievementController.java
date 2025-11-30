@@ -1,14 +1,11 @@
 package es.us.dp1.l6_3_24_25.Petris.player.controller;
 
-import es.us.dp1.l6_3_24_25.Petris.exceptions.AccessDeniedException;
 import es.us.dp1.l6_3_24_25.Petris.exceptions.ResourceNotFoundException;
 import es.us.dp1.l6_3_24_25.Petris.player.model.Achievement;
 import es.us.dp1.l6_3_24_25.Petris.player.service.AchievementService;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,8 +13,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/achievements")
@@ -26,7 +21,6 @@ public class AchievementController {
 
     AchievementService achievementService;
 
-    @Autowired
     public AchievementController(AchievementService as) {
         this.achievementService = as;
     }
@@ -44,6 +38,8 @@ public class AchievementController {
         }
         return achievement;
     }
+
+    // TODO: Add GET method by name
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -79,7 +75,7 @@ public class AchievementController {
         if (achievement == null) {
             throw new ResourceNotFoundException("Achievement", "id", id);
         }
-        achievementService.deleteAchievement(achievement);
+        achievementService.deleteAchievement(id);
     }
 
 }

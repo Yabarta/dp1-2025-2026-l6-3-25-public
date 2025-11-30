@@ -4,8 +4,7 @@ package es.us.dp1.l6_3_24_25.Petris.player.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-
+import es.us.dp1.l6_3_24_25.Petris.friend.Friend;
 import es.us.dp1.l6_3_24_25.Petris.match.model.Match;
 import es.us.dp1.l6_3_24_25.Petris.model.BaseEntity;
 import es.us.dp1.l6_3_24_25.Petris.user.User;

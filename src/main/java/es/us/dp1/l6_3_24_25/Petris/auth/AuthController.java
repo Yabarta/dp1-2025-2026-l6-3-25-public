@@ -5,7 +5,6 @@ import java.util.stream.Collectors;
 
 import jakarta.validation.Valid;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import es.us.dp1.l6_3_24_25.Petris.auth.payload.response.JwtResponse;
 
@@ -42,7 +41,6 @@ public class AuthController {
 	private final JwtUtils jwtUtils;
 	private final AuthService authService;
 
-	@Autowired
 	public AuthController(AuthenticationManager authenticationManager, UserService userService, JwtUtils jwtUtils,
 			AuthService authService) {
 		this.userService = userService;
@@ -51,6 +49,7 @@ public class AuthController {
 		this.authService = authService;
 	}
 
+	@SuppressWarnings("rawtypes")
 	@PostMapping("/signin")
 	public ResponseEntity authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
 		try{

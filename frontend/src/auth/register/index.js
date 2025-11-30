@@ -82,7 +82,7 @@ export default function Register() {
           <FormGenerator
             ref={registerFormRef}
             inputs={
-              type === "Player" ? registerFormOwnerInputs               
+              type === "Player" ? registerFormOwnerInputs
               : registerFormClinicOwnerInputs
             }
             onSubmit={handleSubmit}
