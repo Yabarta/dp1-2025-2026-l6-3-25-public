@@ -317,11 +317,11 @@ public class PlayerControllerTests {
         
         mockMvc.perform(put(BASE_URL + "/100").with(csrf()).contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(player))).andExpect(status().isNotFound());
-    }        
+    }
 
     @Test
     @Feature("Update Player Statistic")
-    DisplayName("Update Player Statistic (Successfully)")
+    @DisplayName("Update Player Statistic (Successfully)")
     void testUpdatePlayerStat() throws Exception {
         Statistics statToUpdate = player.getStatistics().get(0);
 
