@@ -5,105 +5,22 @@ import ExitGameModal from '../components/modal/ExitGameModal';
 import useWebSocket from '../hooks/useWebSocket';
 import api from '../services/api';
 import tokenService from '../services/token.service';
-import Board from './demoBoard';
 import Chat from '../Game/Chat/Chat';
 import ModalWinner from './modalWinner';
-
-
-function ScoreBar({ score = 0, color = '#888' }) {
-  const max = 9;
-  const clamped = Math.max(0, Math.min(max, Number(score) || 0));
-  const fillPercent = (clamped / max) * 100;
-  const ticks = Array.from({ length: max + 1 }, (_, i) => i);
-
-  return (
-    <div className="scoreBarContainer">
-      <div className="scoreBarFrame">
-        <div className="scoreBarFill" style={{ height: `${fillPercent}%`, background: `linear-gradient(0deg, ${color} 0%, rgba(60, 7, 85, 0.9) 100%)` }} />
-        {ticks.map((value) => {
-          const percent = 100 - (value / max) * 100;
-          return <span key={`line-${value}`} className="scoreBarTick" style={{ top: `${percent}%` }} />;
-        })}
-        {ticks.map((value) => {
-          const percent = 100 - (value / max) * 100;
-          return (
-            <span key={`label-${value}`} className="scoreBarLabel" style={{ top: `${percent}%` }}>
-              {value}
-            </span>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-const TURN_TIME_SECONDS = 60;
-const MAX_BACTERIA = 5;
-const PETRI_ADJACENCIES = {
-  0: [1, 2, 3],
-  1: [0, 3, 4],
-  2: [0, 3, 5],
-  3: [0, 1, 2, 4, 5, 6],
-  4: [1, 3, 6],
-  5: [2, 3, 6],
-  6: [3, 4, 5],
-};
-
-const TURN_SEQUENCE = [
-  'P1_PROPAGATION',
-  'P2_PROPAGATION',
-  'BINARY_FISSION',
-  'P2_PROPAGATION',
-  'P1_PROPAGATION',
-  'BINARY_FISSION',
-  'P1_PROPAGATION',
-  'P2_PROPAGATION',
-  'BINARY_FISSION',
-  'CONTAMINATION',
-  'P2_PROPAGATION',
-  'P1_PROPAGATION',
-  'BINARY_FISSION',
-  'P1_PROPAGATION',
-  'P2_PROPAGATION',
-  'BINARY_FISSION',
-  'P2_PROPAGATION',
-  'P1_PROPAGATION',
-  'BINARY_FISSION',
-  'CONTAMINATION',
-  'P1_PROPAGATION',
-  'P2_PROPAGATION',
-  'BINARY_FISSION',
-  'P2_PROPAGATION',
-  'P1_PROPAGATION',
-  'BINARY_FISSION',
-  'P1_PROPAGATION',
-  'P2_PROPAGATION',
-  'BINARY_FISSION',
-  'CONTAMINATION',
-  'P2_PROPAGATION',
-  'P1_PROPAGATION',
-  'BINARY_FISSION',
-  'P1_PROPAGATION',
-  'P2_PROPAGATION',
-  'BINARY_FISSION',
-  'P2_PROPAGATION',
-  'P1_PROPAGATION',
-  'BINARY_FISSION',
-  'CONTAMINATION',
-];
-
-const ROUND_SIZE = 10;
-const TURN_ROUNDS = Array.from({ length: Math.ceil(TURN_SEQUENCE.length / ROUND_SIZE) }, (_, roundIndex) =>
-  TURN_SEQUENCE.slice(roundIndex * ROUND_SIZE, (roundIndex + 1) * ROUND_SIZE),
-);
-
-const TURN_PHASE_META = {
-  P1_PROPAGATION: { label: 'P1', description: 'Propagación jugador 1', className: 'turnPhase--p1' },
-  P2_PROPAGATION: { label: 'P2', description: 'Propagación jugador 2', className: 'turnPhase--p2' },
-  BINARY_FISSION: { label: 'F', description: 'Fisión binaria', className: 'turnPhase--binary' },
-  CONTAMINATION: { label: 'C', description: 'Contaminación', className: 'turnPhase--contamination' },
-};
-
-const QUICK_AMOUNT_OPTIONS = [1, 2, 3, 4, 5];
+import PlayerColumn from './components/PlayerColumn';
+import BoardStage from './components/BoardStage';
+import TurnTimeline from './components/TurnTimeline';
+import useTurnTracker from './hooks/useTurnTracker';
+import {
+  TURN_TIME_SECONDS,
+  MAX_BACTERIA,
+  PETRI_ADJACENCIES,
+  TURN_SEQUENCE,
+  ROUND_SIZE,
+  TURN_ROUNDS,
+  TURN_PHASE_META,
+  QUICK_AMOUNT_OPTIONS,
+} from './gameScreenHelper';
 
 
 export default function GameScreen() {
@@ -128,235 +45,6 @@ export default function GameScreen() {
 
   const matchUpdate = useWebSocket(`/app/matches/watch/${id}`, `/topic/match/${id}`);
 
-function PlayerColumn({ player, fallbackLabel, score, style }) {
-  const displayName = player?.nickname ?? player?.username ?? fallbackLabel;
-  const safeScore = score ?? 0;
-
-  return (
-    <div className="playerColumn">
-      <div className="playerName" style={{ color: style.nameColor }}>
-        {displayName}
-      </div>
-      <ScoreBar score={safeScore} color={style.color} />
-    </div>
-  );
-}
-
-function BoardStage({ waitingForPlayer, roomCode, boardProps, controlsProps }) {
-  if (waitingForPlayer) {
-    return (
-      <div className="waitingStage">
-        <h2>Esperando al segundo jugador...</h2>
-        <div className="loadingSpinner" />
-        <p>
-          Código: <strong>{roomCode}</strong>
-        </p>
-      </div>
-    );
-  }
-
-  return (
-    <>
-      <div className="boardWrapper">
-        <Board {...boardProps} />
-      </div>
-      <BoardControls {...controlsProps} />
-    </>
-  );
-}
-
-function BoardControls({
-  boardInstruction,
-  canEditBoard,
-  moveAmountValue,
-  maxMoveForSource,
-  onMoveAmountChange,
-  quickAmountOptions,
-  moveAmount,
-  selectedSource,
-  sourceCapacity,
-  onQuickAmountClick,
-  onApplyMove,
-  applyDisabled,
-  onCancelSelection,
-  cancelDisabled,
-  boardFeedback,
-  lastMoveText,
-}) {
-  return (
-    <div className="boardControls">
-      <p className="boardInstruction">{boardInstruction}</p>
-      {canEditBoard && (
-        <>
-          <div className="controlRow">
-            <label htmlFor="move-amount">Unidades a mover:</label>
-            <input
-              id="move-amount"
-              type="number"
-              min="1"
-              max={maxMoveForSource}
-              value={moveAmountValue}
-              onChange={onMoveAmountChange}
-            />
-            <div className="quick-amounts">
-              {quickAmountOptions.map((value) => (
-                <button
-                  key={value}
-                  type="button"
-                  className={moveAmount === value ? 'active' : ''}
-                  disabled={selectedSource === null || value > sourceCapacity}
-                  onClick={() => onQuickAmountClick(value)}
-                >
-                  {value}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className="controlRow controlRow--actions">
-            <button type="button" onClick={onApplyMove} disabled={applyDisabled}>
-              Aplicar movimiento
-            </button>
-            <button type="button" onClick={onCancelSelection} disabled={cancelDisabled}>
-              Cancelar selección
-            </button>
-          </div>
-        </>
-      )}
-      {boardFeedback && <div className="board-feedback">{boardFeedback}</div>}
-      <div className="last-move-info">
-        Último movimiento: <strong>{lastMoveText}</strong>
-      </div>
-    </div>
-  );
-}
-
-function TurnTimeline({
-  currentPhaseMeta,
-  activeRoundIndex,
-  activeRoundPhases,
-  currentTurnIndex,
-  turnTrackOffset,
-  turnTrackRef,
-}) {
-  const totalTurns = TURN_SEQUENCE.length;
-  const safeDisplayTurn = currentTurnIndex < 0 ? 0 : Math.min(currentTurnIndex, totalTurns - 1);
-  const turnNumberLabel = currentTurnIndex < 0 ? 0 : safeDisplayTurn + 1;
-  return (
-    <>
-      <div className="turnSummary">Turno {turnNumberLabel%10} · Ronda {activeRoundIndex + 1}</div>
-      {currentPhaseMeta && <small>{currentPhaseMeta.description}</small>}
-      <div className="turnsList">
-        <div className="turnTimeline">
-          <div className="turnRound" key={`round-${activeRoundIndex}`}>
-            
-            <div
-              className="turnRoundTrack"
-              ref={turnTrackRef}
-              style={{ transform: `translateY(${turnTrackOffset}px)` }}
-            >
-              {activeRoundPhases.map((phase, phaseIdx) => {
-                const globalIndex = activeRoundIndex * ROUND_SIZE + phaseIdx;
-                const meta = TURN_PHASE_META[phase] || { label: '?', description: phase, className: 'turnPhase--default' };
-                const circleClasses = ['turnPhase', meta.className];
-                const wrapperClasses = ['turnPhaseItem'];
-                if (currentTurnIndex > globalIndex) {
-                  circleClasses.push('is-complete');
-                  wrapperClasses.push('is-complete');
-                } else if (currentTurnIndex === globalIndex) {
-                  circleClasses.push('is-current');
-                  wrapperClasses.push('is-current');
-                }
-                const showConnector = phaseIdx < activeRoundPhases.length - 1;
-                return (
-                  <div
-                    key={`phase-${globalIndex}`}
-                    className={wrapperClasses.join(' ')}
-                    title={`Ronda ${activeRoundIndex + 1} · ${meta.description}`}
-                  >
-                    <div className={circleClasses.join(' ')}>
-                      <span className="turnPhaseLabel">
-                        {meta.label}
-                        <small>{globalIndex + 1}</small>
-                      </span>
-                    </div>
-                    {showConnector && <span className="turnPhaseConnector" />}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      </div>
-    </>
-  );
-}
-
-function useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, currentTurnIndex) {
-  const turnTrackRef = useRef(null);
-  const previousRoundRef = useRef(null);
-  const previousPhaseIndexRef = useRef(null);
-  const [turnTrackOffset, setTurnTrackOffset] = useState(0);
-
-  useEffect(() => {
-    const trackElement = turnTrackRef.current;
-    if (!trackElement) {
-      previousRoundRef.current = activeRoundIndex;
-      previousPhaseIndexRef.current = currentPhaseIndexInRound;
-      setTurnTrackOffset(0);
-      return;
-    }
-
-    const phaseNodes = trackElement.querySelectorAll('.turnPhaseItem');
-    if (!phaseNodes.length) {
-      previousRoundRef.current = activeRoundIndex;
-      previousPhaseIndexRef.current = currentPhaseIndexInRound;
-      setTurnTrackOffset(0);
-      return;
-    }
-
-    const safeIndex = Math.min(Math.max(currentPhaseIndexInRound, 0), phaseNodes.length - 1);
-    const roundChanged = previousRoundRef.current !== null && previousRoundRef.current !== activeRoundIndex;
-    const waitingForTurn = currentTurnIndex < 0;
-
-    if (roundChanged || waitingForTurn) {
-      previousRoundRef.current = activeRoundIndex;
-      previousPhaseIndexRef.current = safeIndex;
-      setTurnTrackOffset(0);
-      return;
-    }
-
-    if (previousPhaseIndexRef.current === null) {
-      previousPhaseIndexRef.current = safeIndex;
-      previousRoundRef.current = activeRoundIndex;
-      setTurnTrackOffset(0);
-      return;
-    }
-
-    const previousIndex = previousPhaseIndexRef.current;
-    previousRoundRef.current = activeRoundIndex;
-
-    if (previousIndex === safeIndex) {
-      return;
-    }
-
-    const currentNode = phaseNodes[safeIndex];
-    const previousNode = phaseNodes[previousIndex];
-    previousPhaseIndexRef.current = safeIndex;
-
-    if (!currentNode || !previousNode) {
-      return;
-    }
-
-    const delta = currentNode.offsetTop - previousNode.offsetTop;
-    if (!Number.isFinite(delta) || delta === 0) {
-      return;
-    }
-
-    setTurnTrackOffset((prevOffset) => prevOffset - delta);
-  }, [activeRoundIndex, currentPhaseIndexInRound, currentTurnIndex]);
-
-  return { turnTrackRef, turnTrackOffset };
-}
 
   useEffect(() => {
     const fetchMatch = async () => {
@@ -479,12 +167,6 @@ function useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, currentTurnI
     return () => clearInterval(timerRef.current);
   }, [running]);
 
-  useEffect(() => {
-    if (timeLeft === 0) {
-      handleTimeUp();
-    }
-  }, [timeLeft]);
-
   const isPlayer1 = Boolean(currentUser && match?.player1?.username === currentUser.username);
   const isPlayer2 = Boolean(currentUser && match?.player2?.username === currentUser.username);
   let nickname = currentUser?.username ?? 'Invitado';
@@ -547,7 +229,7 @@ function useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, currentTurnI
     : 0;
   const { turnTrackRef, turnTrackOffset } = useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, timelineTurnIndex);
 
-  const handleTimeUp = async () => {
+  const handleTimeUp = useCallback(async () => {
     try {
       if (isMyTurn && match?.id) {
         try {
@@ -555,7 +237,6 @@ function useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, currentTurnI
         } catch (err) {
           console.error('Unable to request endMatch on timeout', err);
         }
-        // Refrescar el estado del match desde el servidor.
         try {
           const resp = await api.get(`/api/v1/matches/${id}`);
           setMatch(normaliseMatch(resp.data));
@@ -565,7 +246,6 @@ function useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, currentTurnI
         }
       }
 
-      // Si no se puede obtener el estado actualizado del servidor, determinar el ganador localmente.
       if (match) {
         const localWinner = isPlayer1 ? 2 : 1;
         setMatch((prev) => ({
@@ -580,7 +260,13 @@ function useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, currentTurnI
       setRunning(false);
       setTimeLeft(0);
     }
-  };
+  }, [id, isMyTurn, isPlayer1, match]);
+
+  useEffect(() => {
+    if (timeLeft === 0) {
+      handleTimeUp();
+    }
+  }, [handleTimeUp, timeLeft]);
 
   const handleBackToMenu = () => {
     navigate('/lobby');
@@ -990,8 +676,11 @@ function useTurnTracker(activeRoundIndex, currentPhaseIndexInRound, currentTurnI
           activeRoundIndex={activeRoundIndex}
           activeRoundPhases={activeRoundPhases}
           currentTurnIndex={timelineTurnIndex}
+          totalTurns={totalTurnPhases}
           turnTrackOffset={turnTrackOffset}
           turnTrackRef={turnTrackRef}
+          turnPhaseMeta={TURN_PHASE_META}
+          roundSize={ROUND_SIZE}
         />
           {match ? (
             
