@@ -70,6 +70,27 @@ Hemos creado para las tablas User, Player, Achievement, Statistics, Match y Petr
 
 Es interesante usar este patrón porque nos permite tener un código mejor estructurado por función, separando las responsabilidades de cada componente.
 
+### Patrón: Composición de Componentes (UI basada en React)
+*Tipo*: Arquitectónico / Diseño de presentación
+
+**Contexto de Aplicación**
+
+En la pantalla de juego (`frontend/src/Game/gameScreen.js`) todo el JSX y la lógica de renderizado estaban mezclados en un único componente superior. Para mejorar la mantenibilidad hemos aplicado el patrón de composición de componentes propio de React, separando la vista en piezas pequeñas, reutilizables y con responsabilidades claras.
+
+**Clases o componentes creados**
+
+- `PlayerColumn`, `ScoreBar`: encapsulan la representación y la barra de puntuaciones de cada jugador.
+- `BoardStage`, `BoardControls`: agrupan el tablero y los controles asociados, recibiendo callbacks desde el contenedor.
+- `TurnTimeline`: renderiza la línea temporal de turnos con metadatos y estados visuales.
+- `useTurnTracker`: hook específico que gestiona el desplazamiento del timeline.
+- `gameScreenHelper`: módulo que centraliza constantes de reglas (secuencias de turnos, adyacencias, límites numéricos) para compartirlas sin duplicaciones.
+
+**Ventajas alcanzadas al aplicar el patrón**
+
+- **Responsabilidad única**: cada componente se centra en una parte concreta de la UI, lo que hace que el `GameScreen` actúe solo como orquestador del estado.
+- **Reutilización**: los nuevos componentes pueden emplearse en otros escenarios (por ejemplo, vistas de espectador o pantallas de resumen) sin copiar código.
+- **Facilidad de pruebas y refactor**: aislar el hook y las constantes facilita probar comportamientos en Storybook o tests unitarios, además de reducir los conflictos al trabajar en paralelo.
+
 ## Decisiones de diseño
 
 ### Decisión 1: Creación de la tabla estadísticas.
