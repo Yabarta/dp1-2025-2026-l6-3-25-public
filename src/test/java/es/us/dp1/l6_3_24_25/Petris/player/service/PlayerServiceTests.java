@@ -29,7 +29,7 @@ public class PlayerServiceTests {
 
     @Test
     @Transactional
-    @Feature("Get All Players")
+    @Feature("Player Retrieval")
     @DisplayName("getAllPlayers Test")
     void shouldGetAllPlayers() {
         List<Player> players = this.playerService.getAllPlayers();
@@ -40,7 +40,7 @@ public class PlayerServiceTests {
 
 
     @Test
-    @Feature("Get Player by Id")
+    @Feature("Player Retrieval")
     @Transactional
     @DisplayName("getPlayerById Test")
     void shouldGetPlayerById() {
@@ -49,7 +49,7 @@ public class PlayerServiceTests {
     }
 
     @Test
-    @Feature("Get Player by Id")
+    @Feature("Player Retrieval")
     @Transactional
     @DisplayName("getPlayerById Test (Negative)")
     void shouldNotGetPlayerByIncorrectId() {
@@ -57,7 +57,7 @@ public class PlayerServiceTests {
     }
 
     @Test
-    @Feature("Get Player by Nickname")
+    @Feature("Player Retrieval")
     @Transactional
     @DisplayName("getPlayerByNickname Test")
     void shouldGetPlayerByNickname() {
@@ -66,7 +66,7 @@ public class PlayerServiceTests {
     }
 
     @Test
-    @Feature("Get Player by Nickname")
+    @Feature("Player Retrieval")
     @Transactional
     @DisplayName("getPlayerByNickname Test (Negative)")
     void shouldNotGetPlayerByIncorrectNickname() {
@@ -74,7 +74,7 @@ public class PlayerServiceTests {
     }
 
     @Test
-    @Feature("Get Player by Username")
+    @Feature("Player Retrieval")
     @Transactional
     @DisplayName("getPlayerByUsername Test")
     void shouldGetPlayerByUsername() {
@@ -84,7 +84,7 @@ public class PlayerServiceTests {
     }
 
     @Test
-    @Feature("Get Player by Username")
+    @Feature("Player Retrieval")
     @Transactional
     @DisplayName("getPlayerByUsername Test (Negative)")
     void shouldNotGetPlayerByIncorrectUsername() {
@@ -92,7 +92,7 @@ public class PlayerServiceTests {
     }
 
     @Test
-    @Feature("Get Player by User")
+    @Feature("Player Retrieval")
     @Transactional
     @DisplayName("getPlayerByUser Test")
     void shouldGetPlayerByUser() {
@@ -102,7 +102,7 @@ public class PlayerServiceTests {
     }
 
     @Test
-    @Feature("Get Player by User")
+    @Feature("Player Retrieval")
     @Transactional
     @DisplayName("getPlayerByUser Test (Negative)")
     void shouldNotGetPlayerWithIncorrectUser() {
@@ -112,7 +112,7 @@ public class PlayerServiceTests {
 
 
     @Test
-    @Feature("Save Player")
+    @Feature("Player Management")
     @Transactional
     @DisplayName("Save Test")
     void shouldSave() {
@@ -138,7 +138,7 @@ public class PlayerServiceTests {
 
 
     @Test
-    @Feature("Delete Player")
+    @Feature("Player Management")
     @Transactional
     @DisplayName("Delete Test")
     void shouldDelete() {
