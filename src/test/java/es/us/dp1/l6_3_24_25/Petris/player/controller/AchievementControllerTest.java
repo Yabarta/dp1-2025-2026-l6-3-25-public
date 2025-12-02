@@ -32,7 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 @WebMvcTest(controllers = AchievementController.class)
-@Epic("Achivement controller")
+@Epic("Achievement controller")
 class AchievementControllerTest {
 
     private static final String BASE_URL = "/api/v1/achievements";
