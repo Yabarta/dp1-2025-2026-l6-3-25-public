@@ -609,7 +609,17 @@ export default function GameScreen() {
       <aside className="chatPanel">
         <div className="chatTitle">CHAT</div>
         <div className="muteChat">
-          <button onClick={handleShowChat}>{muteChatMessage} chat</button>
+          <button onClick={handleShowChat} style={{
+            backgroundColor: showChat ? "#a63e3e" : "#3a9150",
+            color: "white",
+            border: "none",
+            borderRadius: "6px",
+            fontWeight: "bold",
+            fontFamily: "inherit",
+            cursor: "pointer",
+            fontSize: "20px",
+            boxShadow: "0 2px 4px rgba(0,0,0,0.2)"
+          }}>{muteChatMessage} chat</button>
         </div>
         {
           showChat && 

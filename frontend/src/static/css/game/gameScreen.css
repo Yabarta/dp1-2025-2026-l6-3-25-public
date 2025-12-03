@@ -297,6 +297,7 @@
   transition: transform 120ms ease, box-shadow 120ms ease;
 }
 
+
 .quick-amounts button.active {
   background: linear-gradient(135deg, #6bcf3b 0%, #3b9b27 100%);
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35), 0 16px 24px rgba(0, 0, 0, 0.35);
