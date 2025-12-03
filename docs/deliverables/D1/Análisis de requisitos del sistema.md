@@ -261,7 +261,7 @@ A continuación se definen  todas las historias de usuario a implementar:
 ### Chat en partida (jugador)
 ![alt text](ImagenesD1/m32.png)
 
-- ## HU-36 (ISSUE#ID): **Silenciar chat (jugador)**
+- ## HU-36 (ISSUE#ID): **Silenciar chat (jugador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/135
     - Como jugador quiero silenciar el chat para poder aislarme de cualquier tipo de interacción con otros jugadores por el motivo que sea.
     - _Se requiere una opción para silenciar el chat en una partida._
 ### Silenciar chat (jugador)

@@ -45,6 +45,9 @@ export default function GameScreen() {
 
   const matchUpdate = useWebSocket(`/app/matches/watch/${id}`, `/topic/match/${id}`);
 
+  const [showChat, setShowChat] = useState(true)
+  const [muteChatMessage, setMuteChatMessage] = useState("Silenciar")
+
 
   useEffect(() => {
     const fetchMatch = async () => {
@@ -264,7 +267,7 @@ export default function GameScreen() {
 
   useEffect(() => {
     if (timeLeft === 0) {
-      handleTimeUp();
+      handleTimeUp()
     }
   }, [handleTimeUp, timeLeft]);
 
@@ -478,6 +481,16 @@ export default function GameScreen() {
     setMoveAmount(clamped);
   };
 
+  const handleShowChat = () => {
+    if(showChat){
+      setShowChat(false)
+      setMuteChatMessage("Mostrar")
+    }else{
+      setShowChat(true)
+      setMuteChatMessage("Silenciar")
+    }
+  }
+
   const boardInstruction = useMemo(() => {
     if (waitingForPlayer) {
       return 'Esperando a que llegue el segundo jugador.';
@@ -595,11 +608,17 @@ export default function GameScreen() {
 
       <aside className="chatPanel">
         <div className="chatTitle">CHAT</div>
-        <div className="chatList" style={{
-          height: '87.5%'
-        }}>
-          <Chat nickname={nickname}/>
+        <div className="muteChat">
+          <button onClick={handleShowChat}>{muteChatMessage} chat</button>
         </div>
+        {
+          showChat && 
+          <div className="chatList" style={{
+            height: '85%'
+            }}>
+            <Chat nickname={nickname}/>
+          </div>
+        }
         {waitingForPlayer && (
           <div className="chatRoomInfo">
             <p>Código de partida:</p>
