@@ -3,9 +3,7 @@ package es.us.dp1.l6_3_24_25.Petris.player.batchProcessing;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 import org.junit.jupiter.api.DisplayName;
@@ -72,8 +70,8 @@ class MatchStatsBatchIntegrationTests {
 
         int player1Sarcines = 2;
         int player2Sarcines = 1;
-        Map<String, Integer> player1Initial = loadStatsSnapshot(finishedMatch.getPlayer1().getId());
-        Map<String, Integer> player2Initial = loadStatsSnapshot(finishedMatch.getPlayer2().getId());
+        StatisticsSnapshot player1Initial = loadStatsSnapshot(finishedMatch.getPlayer1().getId());
+        StatisticsSnapshot player2Initial = loadStatsSnapshot(finishedMatch.getPlayer2().getId());
 
         requiresNewTemplate.executeWithoutResult(status -> {
             Integer matchId = Objects.requireNonNull(finishedMatch.getId());
@@ -82,30 +80,30 @@ class MatchStatsBatchIntegrationTests {
             matchStatsBatchOrchestrator.triggerForMatch(Objects.requireNonNull(managedMatch));
         });
 
-        Map<String, Integer> player1Updated = awaitStatsIncrement(
+        StatisticsSnapshot player1Updated = awaitStatsIncrement(
             finishedMatch.getPlayer1().getId(),
             player1Initial,
-            StatProcessor.GAMES_PLAYED
+            1
         );
-        Map<String, Integer> player2Updated = awaitStatsIncrement(
+        StatisticsSnapshot player2Updated = awaitStatsIncrement(
             finishedMatch.getPlayer2().getId(),
             player2Initial,
-            StatProcessor.GAMES_PLAYED
+            1
         );
 
-        assertThat(player1Updated.getOrDefault(StatProcessor.GAMES_PLAYED, 0))
-            .isEqualTo(player1Initial.getOrDefault(StatProcessor.GAMES_PLAYED, 0) + 1);
-        assertThat(player1Updated.getOrDefault(StatProcessor.GAMES_WON, 0))
-            .isEqualTo(player1Initial.getOrDefault(StatProcessor.GAMES_WON, 0) + 1);
-        assertThat(player1Updated.getOrDefault(StatProcessor.SARCINES_CREATED, 0))
-            .isEqualTo(player1Initial.getOrDefault(StatProcessor.SARCINES_CREATED, 0) + player1Sarcines);
+        assertThat(player1Updated.gamesPlayed())
+            .isEqualTo(player1Initial.gamesPlayed() + 1);
+        assertThat(player1Updated.gamesWon())
+            .isEqualTo(player1Initial.gamesWon() + 1);
+        assertThat(player1Updated.sarcinesCreated())
+            .isEqualTo(player1Initial.sarcinesCreated() + player1Sarcines);
 
-        assertThat(player2Updated.getOrDefault(StatProcessor.GAMES_PLAYED, 0))
-            .isEqualTo(player2Initial.getOrDefault(StatProcessor.GAMES_PLAYED, 0) + 1);
-        assertThat(player2Updated.getOrDefault(StatProcessor.GAMES_WON, 0))
-            .isEqualTo(player2Initial.getOrDefault(StatProcessor.GAMES_WON, 0));
-        assertThat(player2Updated.getOrDefault(StatProcessor.SARCINES_CREATED, 0))
-            .isEqualTo(player2Initial.getOrDefault(StatProcessor.SARCINES_CREATED, 0) + player2Sarcines);
+        assertThat(player2Updated.gamesPlayed())
+            .isEqualTo(player2Initial.gamesPlayed() + 1);
+        assertThat(player2Updated.gamesWon())
+            .isEqualTo(player2Initial.gamesWon());
+        assertThat(player2Updated.sarcinesCreated())
+            .isEqualTo(player2Initial.sarcinesCreated() + player2Sarcines);
     }
 
     @Test
@@ -131,58 +129,55 @@ class MatchStatsBatchIntegrationTests {
             matchRepository.save(ongoingMatch);
         });
 
-        Map<String, Integer> player1Initial = loadStatsSnapshot(player1.getId());
-        Map<String, Integer> player2Initial = loadStatsSnapshot(player2.getId());
+        StatisticsSnapshot player1Initial = loadStatsSnapshot(player1.getId());
+        StatisticsSnapshot player2Initial = loadStatsSnapshot(player2.getId());
 
         Match forceEndRequest = matchRepository.findById(Objects.requireNonNull(ongoingMatch.getId())).orElseThrow();
         forceEndRequest.setWinner(1);
         matchService.concedeMatch(forceEndRequest, player1);
 
-        Map<String, Integer> player1Updated = awaitStatsIncrement(player1.getId(), player1Initial, StatProcessor.GAMES_PLAYED);
-        Map<String, Integer> player2Updated = awaitStatsIncrement(player2.getId(), player2Initial, StatProcessor.GAMES_PLAYED);
+        StatisticsSnapshot player1Updated = awaitStatsIncrement(player1.getId(), player1Initial, 1);
+        StatisticsSnapshot player2Updated = awaitStatsIncrement(player2.getId(), player2Initial, 1);
 
-        assertThat(player1Updated.getOrDefault(StatProcessor.GAMES_PLAYED, 0))
-            .isEqualTo(player1Initial.getOrDefault(StatProcessor.GAMES_PLAYED, 0) + 1);
-        assertThat(player1Updated.getOrDefault(StatProcessor.GAMES_WON, 0))
-            .isEqualTo(player1Initial.getOrDefault(StatProcessor.GAMES_WON, 0));
-        assertThat(player1Updated.getOrDefault(StatProcessor.SARCINES_CREATED, 0))
-            .isEqualTo(player1Initial.getOrDefault(StatProcessor.SARCINES_CREATED, 0) + player1Sarcines);
+        assertThat(player1Updated.gamesPlayed())
+            .isEqualTo(player1Initial.gamesPlayed() + 1);
+        assertThat(player1Updated.gamesWon())
+            .isEqualTo(player1Initial.gamesWon());
+        assertThat(player1Updated.sarcinesCreated())
+            .isEqualTo(player1Initial.sarcinesCreated() + player1Sarcines);
 
-        assertThat(player2Updated.getOrDefault(StatProcessor.GAMES_PLAYED, 0))
-            .isEqualTo(player2Initial.getOrDefault(StatProcessor.GAMES_PLAYED, 0) + 1);
-        assertThat(player2Updated.getOrDefault(StatProcessor.GAMES_WON, 0))
-            .isEqualTo(player2Initial.getOrDefault(StatProcessor.GAMES_WON, 0) + 1);
-        assertThat(player2Updated.getOrDefault(StatProcessor.SARCINES_CREATED, 0))
-            .isEqualTo(player2Initial.getOrDefault(StatProcessor.SARCINES_CREATED, 0) + player2Sarcines);
+        assertThat(player2Updated.gamesPlayed())
+            .isEqualTo(player2Initial.gamesPlayed() + 1);
+        assertThat(player2Updated.gamesWon())
+            .isEqualTo(player2Initial.gamesWon() + 1);
+        assertThat(player2Updated.sarcinesCreated())
+            .isEqualTo(player2Initial.sarcinesCreated() + player2Sarcines);
     }
 
-    private Map<String, Integer> statsAsMap(List<Statistics> stats) {
-        Map<String, Integer> result = new HashMap<>();
-        if (stats == null) {
-            return result;
-        }
-        for (Statistics statistic : stats) {
-            result.put(statistic.getName(), statistic.getValor());
-        }
-        return result;
-    }
-
-    private Map<String, Integer> loadStatsSnapshot(Integer playerId) {
+    private StatisticsSnapshot loadStatsSnapshot(Integer playerId) {
         return requiresNewTemplate.execute(status -> {
             Player player = playerService.getPlayerById(playerId);
-            return statsAsMap(player.getStatistics());
+            Statistics stats = player.getStatistics();
+            if (stats == null) {
+                return new StatisticsSnapshot(0, 0, 0);
+            }
+            return new StatisticsSnapshot(
+                defaultZero(stats.getGamesPlayed()),
+                defaultZero(stats.getGamesWon()),
+                defaultZero(stats.getSarcinesCreated())
+            );
         });
     }
 
-    private Map<String, Integer> awaitStatsIncrement(Integer playerId,
-                                                     Map<String, Integer> baseline,
-                                                     String statKey) {
-        int expected = baseline.getOrDefault(statKey, 0) + 1;
+    private StatisticsSnapshot awaitStatsIncrement(Integer playerId,
+                                                   StatisticsSnapshot baseline,
+                                                   int gamesPlayedIncrement) {
+        int expected = baseline.gamesPlayed() + gamesPlayedIncrement;
         long deadline = System.currentTimeMillis() + 5_000;
-        Map<String, Integer> current = baseline;
+        StatisticsSnapshot current = baseline;
         while (System.currentTimeMillis() < deadline) {
             current = loadStatsSnapshot(playerId);
-            if (current.getOrDefault(statKey, 0) >= expected) {
+            if (current.gamesPlayed() >= expected) {
                 return current;
             }
             try {
@@ -195,6 +190,10 @@ class MatchStatsBatchIntegrationTests {
         return current;
     }
 
+    private int defaultZero(Integer value) {
+        return value == null ? 0 : value;
+    }
+
     private List<PetriDish> buildBoardState(int player1Sarcines, int player2Sarcines) {
         List<PetriDish> dishes = new ArrayList<>();
         for (int i = 0; i < 7; i++) {
@@ -205,4 +204,6 @@ class MatchStatsBatchIntegrationTests {
         }
         return dishes;
     }
+
+    private record StatisticsSnapshot(int gamesPlayed, int gamesWon, int sarcinesCreated) { }
 }

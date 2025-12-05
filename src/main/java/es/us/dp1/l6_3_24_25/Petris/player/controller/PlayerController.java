@@ -71,17 +71,18 @@ public class PlayerController {
     }
 
     @GetMapping("/{id}/statistics")
-    public ResponseEntity<List<Statistics>> getPlayerStatsById(@PathVariable("id") Integer id) {
+    public ResponseEntity<Statistics> getPlayerStatsById(@PathVariable("id") Integer id) {
         return new ResponseEntity<>(playerservice.getPlayerById(id).getStatistics(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}/statistics/{statId}")
     public Statistics getPlayerSpecificStatById(@PathVariable("id") Integer id, @PathVariable("statId") Integer statId) {
         Player player = playerservice.getPlayerById(id);
-        return player.getStatistics().stream()
-                .filter(stat -> stat.getId().equals(statId))
-                .findFirst()
-                .orElseThrow(() -> new ResourceNotFoundException("Statistic not found"));
+        Statistics statistics = player.getStatistics();
+        if (statistics == null || !statistics.getId().equals(statId)) {
+            throw new ResourceNotFoundException("Statistic not found");
+        }
+        return statistics;
     }
 
     @GetMapping("/{id}/achievements")
@@ -164,10 +165,10 @@ public class PlayerController {
     @ResponseStatus(HttpStatus.OK)
     public void updatePlayerStat(@PathVariable("id") Integer id, @PathVariable("statId") Integer statId, @Valid @RequestBody Statistics stat) {
         Player player = playerservice.getPlayerById(id);
-        Statistics statToUpdate = player.getStatistics().stream()
-                .filter(s -> s.getId().equals(statId))
-                .findFirst()
-                .orElseThrow(() -> new ResourceNotFoundException("Statistic not found"));
+        Statistics statToUpdate = player.getStatistics();
+        if (statToUpdate == null || !statToUpdate.getId().equals(statId)) {
+            throw new ResourceNotFoundException("Statistic not found");
+        }
         BeanUtils.copyProperties(stat, statToUpdate, "id");
         playerservice.save(player);
     }

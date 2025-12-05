@@ -97,7 +97,8 @@ public class MatchStatsBatchOrchestrator {
         return new MatchStatPayload(
             match.getId().longValue(),
             player.getId().longValue(),
-            playerWon,
+            1,
+            playerWon ? 1 : 0,
             sarcinesCreated
         );
     }

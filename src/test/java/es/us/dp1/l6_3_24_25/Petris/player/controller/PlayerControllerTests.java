@@ -54,7 +54,7 @@ public class PlayerControllerTests {
     private Player player;
     private User user;
     private Authorities auth;
-    private List<Statistics> stats;
+    private Statistics statistics;
     private List<Achievement> achievements;
     private Match match1, match2;
 
@@ -86,20 +86,11 @@ public class PlayerControllerTests {
 		user.setPassword("password");
 		user.setAuthority(auth);
 
-        Statistics stat1 = new Statistics();
-        stat1.setId(1);
-        stat1.setName("stat1");
-        stat1.setValor(1);
-        Statistics stat2 = new Statistics();
-        stat2.setId(2);
-        stat2.setName("stat2");
-        stat2.setValor(2);
-        Statistics stat3 = new Statistics();
-        stat3.setId(3);
-        stat3.setName("stat3");
-        stat3.setValor(3);
-
-        stats = List.of(stat1, stat2, stat3);
+        statistics = new Statistics();
+        statistics.setId(1);
+        statistics.setGamesPlayed(10);
+        statistics.setGamesWon(4);
+        statistics.setSarcinesCreated(7);
 
         Achievement ach1 = new Achievement();
         ach1.setId(1);
@@ -122,7 +113,7 @@ public class PlayerControllerTests {
         player.setNickname("player1");
         player.setIsCurrentlyInMatch(false);
         player.setUser(user);
-        player.setStatistics(stats);
+        player.setStatistics(statistics);
         player.setAchievements(achievements);
 
         match1 = new Match();
@@ -183,10 +174,10 @@ public class PlayerControllerTests {
     void testGetPlayerStatsById() throws Exception {
         when(playerService.getPlayerById(1)).thenReturn(player);
         mockMvc.perform(get(BASE_URL + "/1/statistics")).andExpect(status().isOk())
-            .andExpect(jsonPath("$.size()").value(3))
-            .andExpect(jsonPath("$[?(@.id == 1)].name").value("stat1"))
-            .andExpect(jsonPath("$[?(@.id == 2)].name").value("stat2"))
-            .andExpect(jsonPath("$[?(@.id == 3)].name").value("stat3"));
+            .andExpect(jsonPath("$.id").value(1))
+            .andExpect(jsonPath("$.gamesPlayed").value(10))
+            .andExpect(jsonPath("$.gamesWon").value(4))
+            .andExpect(jsonPath("$.sarcinesCreated").value(7));
     }
 
 
@@ -196,7 +187,7 @@ public class PlayerControllerTests {
     void testGetPlayerSpecificStatById() throws Exception {
         when(playerService.getPlayerById(1)).thenReturn(player);
         mockMvc.perform(get(BASE_URL + "/1/statistics/1")).andExpect(status().isOk())
-            .andExpect(jsonPath("$.name").value("stat1"));
+            .andExpect(jsonPath("$.gamesPlayed").value(10));
     }
 
     @Test
@@ -227,7 +218,9 @@ public class PlayerControllerTests {
         playerNoAch.setNickname("player2");
         playerNoAch.setIsCurrentlyInMatch(false);
         playerNoAch.setUser(user);
-        playerNoAch.setStatistics(stats);
+        Statistics auxStatistics = new Statistics();
+        auxStatistics.setId(2);
+        playerNoAch.setStatistics(auxStatistics);
 
         when(playerService.getPlayerById(2)).thenReturn(playerNoAch);
         mockMvc.perform(get(BASE_URL + "/2/achievements")).andExpect(status().isOk())
@@ -323,10 +316,11 @@ public class PlayerControllerTests {
     @Feature("Update Player Statistic")
     @DisplayName("Update Player Statistic (Successfully)")
     void testUpdatePlayerStat() throws Exception {
-        Statistics statToUpdate = player.getStatistics().get(0);
+        Statistics statToUpdate = player.getStatistics();
 
-        statToUpdate.setValor(50); 
-        statToUpdate.setName("UpdatedName");
+        statToUpdate.setGamesPlayed(50);
+        statToUpdate.setGamesWon(25);
+        statToUpdate.setSarcinesCreated(30);
 
         when(this.playerService.getPlayerById(1)).thenReturn(player);
 
@@ -341,10 +335,11 @@ public class PlayerControllerTests {
     @Feature("Update Player Statistic")
     @DisplayName("Update Player Statistic (Not Found)")
     void testUpdatePlayerStat_NotFound() throws Exception {
-        Statistics statToUpdate = player.getStatistics().get(0);
+        Statistics statToUpdate = player.getStatistics();
 
-        statToUpdate.setValor(50); 
-        statToUpdate.setName("UpdatedName");
+        statToUpdate.setGamesPlayed(50);
+        statToUpdate.setGamesWon(25);
+        statToUpdate.setSarcinesCreated(30);
 
         when(this.playerService.getPlayerById(1)).thenReturn(player);
 
