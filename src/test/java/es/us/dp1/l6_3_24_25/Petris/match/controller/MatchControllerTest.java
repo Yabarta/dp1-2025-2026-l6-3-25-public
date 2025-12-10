@@ -35,6 +35,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -96,6 +97,11 @@ class MatchControllerTest {
         verify(playerService, times(1)).getPlayerByUser(any());
     }
 
+    private void stubCurrentPlayer(Player player) {
+        when(userService.findCurrentUser()).thenReturn(new User());
+        when(playerService.getPlayerByUser(any())).thenReturn(player);
+    }
+
     @Test
     @DisplayName("Should create match and set player to currently in a match")
     @Description("Test that if a player creates a match, CREATED is returned and isCurrentlyInMatch is set to true for the creator")
@@ -117,8 +123,6 @@ class MatchControllerTest {
         verify(playerService, times(1)).setIsCurrentlyInMatch(any(), anyBoolean());
     }
 
-    // TODO Status 500, ni idea de por qué
-    /*
     @Test
     @DisplayName("Should join match and set player to currently in a match")
     @Description("Test that if a player joins a match, OK is returned and isCurrentlyInMatch is set to true for that player")
@@ -128,21 +132,23 @@ class MatchControllerTest {
     public void testJoinMatchPositive() throws Exception {
         int id = 1;
         String code = "AAAA";
+        Match match = new Match();
+        Player playerToJoin = new Player();
+
+        when(matchService.getMatchById(id)).thenReturn(match);
+        stubCurrentPlayer(playerToJoin);
 
         mvc.perform(put(BASE_URL + "/{id}", id)
             .with(csrf())
             .contentType(MediaType.APPLICATION_JSON)
-            .param("code", objectMapper.writeValueAsString(code)))
+            .param("code", code))
             .andExpect(status().isOk())
             .andDo(print());
 
-        verify(matchService, times(1)).getMatchById(id);
-        verifyGetCurrentPlayer();
-        verify(matchService, times(1)).joinMatch(any(), any(), eq(code));
-        verify(playerService, times(1)).setIsCurrentlyInMatch(any(), anyBoolean());
+        verify(matchService, times(1)).joinMatch(match, playerToJoin, code);
+        verify(playerService, times(1)).setIsCurrentlyInMatch(playerToJoin, true);
         verify(webSocketMatchService, times(1)).broadcastLobbyAndMatchState(any());
     }
-    */
 }
 
 

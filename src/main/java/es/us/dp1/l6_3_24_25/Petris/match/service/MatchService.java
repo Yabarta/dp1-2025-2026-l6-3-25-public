@@ -32,13 +32,13 @@ public class MatchService {
         return matchRepository.findAll();
     }
 
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, rollbackFor = ResourceNotFoundException.class)
     public Match getMatchById(Integer id) throws ResourceNotFoundException {
         return matchRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Match", "Id", id));
     }
 
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, rollbackFor = ResourceNotFoundException.class)
     public Match getMatchByCode(String code) throws ResourceNotFoundException {
         return matchRepository.findByCode(code)
             .orElseThrow(() -> new ResourceNotFoundException("Match", "Code", code));
@@ -88,7 +88,7 @@ public class MatchService {
     }
 
     @Transactional(rollbackFor = {AccessDeniedException.class})
-    public Match leaveMatch(Match match, Player playerToLeave) {
+    public Match leaveMatch(Match match, Player playerToLeave) throws AccessDeniedException {
         if(match.hasEnded()) {
             throw new AccessDeniedException("The match has already ended");
         } else if(match.hasStarted()) {
@@ -108,7 +108,7 @@ public class MatchService {
     }
 
     @Transactional(rollbackFor = {AccessDeniedException.class})
-    public Match startMatch(Match match) {
+    public Match startMatch(Match match) throws AccessDeniedException {
         if (!match.isFull()) {
             throw new AccessDeniedException("Two players are required to start the match");
         }
@@ -187,7 +187,7 @@ public class MatchService {
         return savedMatch;
     }
 
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, rollbackFor = {AccessDeniedException.class})
     public List<String> checkErrors(Match matchToCheck, List<PetriDish> newBoardState, Player player) throws AccessDeniedException {
         int playerNum;
         if(matchToCheck.hasPlayer1(player)) {
