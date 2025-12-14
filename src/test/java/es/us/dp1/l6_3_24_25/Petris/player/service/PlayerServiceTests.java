@@ -1,11 +1,14 @@
 package es.us.dp1.l6_3_24_25.Petris.player.service;
 
-import static org.junit.Assert.assertThrows;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
 import es.us.dp1.l6_3_24_25.Petris.exceptions.ResourceNotFoundException;
 import es.us.dp1.l6_3_24_25.Petris.player.model.Player;
@@ -13,12 +16,8 @@ import es.us.dp1.l6_3_24_25.Petris.user.User;
 import es.us.dp1.l6_3_24_25.Petris.user.UserService;
 import io.qameta.allure.Epic;
 import io.qameta.allure.Feature;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
-@Epic("Player Module")
-@Feature("Player Service")
+@Epic("Player Service Module")
 @SpringBootTest
 public class PlayerServiceTests {
 
@@ -30,6 +29,7 @@ public class PlayerServiceTests {
 
     @Test
     @Transactional
+    @Feature("Player Retrieval")
     @DisplayName("getAllPlayers Test")
     void shouldGetAllPlayers() {
         List<Player> players = this.playerService.getAllPlayers();
@@ -37,45 +37,72 @@ public class PlayerServiceTests {
 
     }
 
+
+
     @Test
+    @Feature("Player Retrieval")
     @Transactional
     @DisplayName("getPlayerById Test")
-    void testGetPlayerById() {
+    void shouldGetPlayerById() {
         Player player = this.playerService.getPlayerById(1);
         assertEquals(1, player.getId(), "Incorrect id");
     }
 
     @Test
+    @Feature("Player Retrieval")
     @Transactional
     @DisplayName("getPlayerById Test (Negative)")
     void shouldNotGetPlayerByIncorrectId() {
-        assertThrows(ResourceNotFoundException.class, () -> this.playerService.getPlayerById(50));
+        assertThrows(ResourceNotFoundException.class, () -> this.playerService.getPlayerById(1000));
     }
 
     @Test
+    @Feature("Player Retrieval")
     @Transactional
     @DisplayName("getPlayerByNickname Test")
-    void testGetPlayerByNickname() {
+    void shouldGetPlayerByNickname() {
         Player player = this.playerService.getPlayerByNickname("player1");
         assertEquals("player1", player.getNickname(), "Incorrect nickname");
     }
 
     @Test
+    @Feature("Player Retrieval")
     @Transactional
     @DisplayName("getPlayerByNickname Test (Negative)")
     void shouldNotGetPlayerByIncorrectNickname() {
-        assertThrows(ResourceNotFoundException.class, () -> this.playerService.getPlayerByNickname("nonExistingUsername"));
+        assertThrows(ResourceNotFoundException.class, () -> this.playerService.getPlayerByNickname("nonExistentNickname"));
     }
 
     @Test
+    @Feature("Player Retrieval")
+    @Transactional
+    @DisplayName("getPlayerByUsername Test")
+    void shouldGetPlayerByUsername() {
+        Player correctPlayer = this.playerService.getPlayerById(1);
+        Player player = this.playerService.getPlayerByUsername("player1");
+        assertEquals(correctPlayer.getId(), player.getId(), "Incorrect player");
+    }
+
+    @Test
+    @Feature("Player Retrieval")
+    @Transactional
+    @DisplayName("getPlayerByUsername Test (Negative)")
+    void shouldNotGetPlayerByIncorrectUsername() {
+        assertThrows(ResourceNotFoundException.class, () -> this.playerService.getPlayerByUsername("nonExistentUsername"));
+    }
+
+    @Test
+    @Feature("Player Retrieval")
+    @Transactional
     @DisplayName("getPlayerByUser Test")
-    void testGetPlayerByUser() {
+    void shouldGetPlayerByUser() {
         User user = this.userService.findUser(4);
         Player player = this.playerService.getPlayerByUser(user);
         assertEquals(user.getId(), player.getUser().getId(), "Incorrect user");
     }
 
     @Test
+    @Feature("Player Retrieval")
     @Transactional
     @DisplayName("getPlayerByUser Test (Negative)")
     void shouldNotGetPlayerWithIncorrectUser() {
@@ -85,9 +112,10 @@ public class PlayerServiceTests {
 
 
     @Test
+    @Feature("Player Management")
     @Transactional
-    @DisplayName("Base save Test")
-    void testSave() {
+    @DisplayName("Save Test")
+    void shouldSave() {
         Integer count = this.playerService.getAllPlayers().size();
 
         Player newPlayer = new Player();
@@ -110,9 +138,10 @@ public class PlayerServiceTests {
 
 
     @Test
+    @Feature("Player Management")
     @Transactional
-    @DisplayName("Base delete Test")
-    void testDelete() {
+    @DisplayName("Delete Test")
+    void shouldDelete() {
         Integer firstCount = this.playerService.getAllPlayers().size();
 
         Player newPlayer = new Player();

@@ -70,6 +70,27 @@ Hemos creado para las tablas User, Player, Achievement, Statistics, Match y Petr
 
 Es interesante usar este patrón porque nos permite tener un código mejor estructurado por función, separando las responsabilidades de cada componente.
 
+### Patrón: Composición de Componentes (UI basada en React)
+*Tipo*: Arquitectónico / Diseño de presentación
+
+**Contexto de Aplicación**
+
+En la pantalla de juego (`frontend/src/Game/gameScreen.js`) todo el JSX y la lógica de renderizado estaban mezclados en un único componente superior. Para mejorar la mantenibilidad hemos aplicado el patrón de composición de componentes propio de React, separando la vista en piezas pequeñas, reutilizables y con responsabilidades claras.
+
+**Clases o componentes creados**
+
+- `PlayerColumn`, `ScoreBar`: encapsulan la representación y la barra de puntuaciones de cada jugador.
+- `BoardStage`, `BoardControls`: agrupan el tablero y los controles asociados, recibiendo callbacks desde el contenedor.
+- `TurnTimeline`: renderiza la línea temporal de turnos con metadatos y estados visuales.
+- `useTurnTracker`: hook específico que gestiona el desplazamiento del timeline.
+- `gameScreenHelper`: módulo que centraliza constantes de reglas (secuencias de turnos, adyacencias, límites numéricos) para compartirlas sin duplicaciones.
+
+**Ventajas alcanzadas al aplicar el patrón**
+
+- **Responsabilidad única**: cada componente se centra en una parte concreta de la UI, lo que hace que el `GameScreen` actúe solo como orquestador del estado.
+- **Reutilización**: los nuevos componentes pueden emplearse en otros escenarios (por ejemplo, vistas de espectador o pantallas de resumen) sin copiar código.
+- **Facilidad de pruebas y refactor**: aislar el hook y las constantes facilita probar comportamientos en Storybook o tests unitarios, además de reducir los conflictos al trabajar en paralelo.
+
 ## Decisiones de diseño
 
 ### Decisión 1: Creación de la tabla estadísticas.
@@ -1204,10 +1225,18 @@ El componente principal ahora actúa como “coordinador” y delega la UI a sub
 El JSX de alto nivel describe la estructura conceptual (dos columnas de jugadores, escenario central, panel lateral), lo que acelera la comprensión para nuevos desarrolladores.
 
 ### Refactorización 4:
-En esta refactorización [...]
+En esta refactorización se han:
+* Movido comprobaciones de lógica de negocio de MatchController a MatchService para respetar las capas de Spring
+* Extraído métodos auxiliares en MatchService a MatchMethodUtil
+* Creado métodos de comprobación de valores de partidas en Match
+* Extraído constantes y otros datos a MatchDataUtil
+* Extraído métodos de DTO en MatchService a sus propias clases
+* Reemplazado algunos "Magic Numbers" restantes por constantes de nombre adecuado
+* Eliminado algunas comprobaciones innecesarias de ciertos métodos que dificultaban la comprensión del código
+* Estructurado todos los métodos de MatchController con un try-catch que lanza ResponseStatusException
 #### Estado inicial del código
 ```Java 
-class Animal
+@Service
 public class MatchService {
     private static final int NUM_PETRI_DISHES = 7;
     private static final int MAX_BACTERIA_PER_PETRI_DISH = 5;
@@ -1596,46 +1625,8 @@ public class MatchService {
         return value >= 0 && value <= MAX_BACTERIA_PER_PETRI_DISH;
     }
 }
-
-
-package es.us.dp1.l6_3_24_25.Petris.match.controller;
-
-import java.net.URI;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.lang.NonNull;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import es.us.dp1.l6_3_24_25.Petris.exceptions.AccessDeniedException;
-import es.us.dp1.l6_3_24_25.Petris.exceptions.ResourceNotFoundException;
-import es.us.dp1.l6_3_24_25.Petris.match.model.Match;
-import es.us.dp1.l6_3_24_25.Petris.match.model.PetriDish;
-import es.us.dp1.l6_3_24_25.Petris.match.model.TurnType;
-import es.us.dp1.l6_3_24_25.Petris.match.service.MatchService;
-import es.us.dp1.l6_3_24_25.Petris.match.service.WebSocketMatchService;
-import es.us.dp1.l6_3_24_25.Petris.player.model.Player;
-import es.us.dp1.l6_3_24_25.Petris.player.service.PlayerService;
-import es.us.dp1.l6_3_24_25.Petris.user.User;
-import es.us.dp1.l6_3_24_25.Petris.user.UserService;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
-
+``` 
+``` Java 
 @RestController
 @RequestMapping("/api/v1/matches")
 @Tag(name = "Matches", description = "API for the management of Matches")
@@ -1904,10 +1895,491 @@ public class MatchController {
 #### Estado del código refactorizado
 
 ```Java
-código fuente en java, jsx o javascript
+@Service
+public class MatchService {
+
+    private final MatchRepository matchRepository;
+    private final MatchStatsBatchOrchestrator matchStatsBatchOrchestrator;
+
+    public MatchService(final MatchRepository matchRepository, MatchStatsBatchOrchestrator matchStatsBatchOrchestrator) {
+        this.matchRepository = matchRepository;
+        this.matchStatsBatchOrchestrator = matchStatsBatchOrchestrator;
+    }
+
+    @Transactional(readOnly = true)
+    public List<Match> getAllMatches(){
+        return matchRepository.findAll();
+    }
+
+    @Transactional(readOnly = true)
+    public Match getMatchById(Integer id) throws ResourceNotFoundException {
+        return matchRepository.findById(id)
+            .orElseThrow(() -> new ResourceNotFoundException("Match", "Id", id));
+    }
+
+    @Transactional(readOnly = true)
+    public Match getMatchByCode(String code) throws ResourceNotFoundException {
+        return matchRepository.findByCode(code)
+            .orElseThrow(() -> new ResourceNotFoundException("Match", "Code", code));
+    }
+
+    @Transactional(readOnly = true)
+    public List<Match> getCurrentMatches(){
+        return matchRepository.findByEndedAtNullAndStartedAtNotNull();
+    }
+
+    @Transactional(readOnly = true)
+    public List<Match> getNotStartedMatches(){
+        return matchRepository.findByStartedAtNull();
+    }
+
+    @Transactional(rollbackFor = {AccessDeniedException.class})
+    public Match createMatch(Player creator, boolean isPrivate) throws AccessDeniedException{
+        if (creator.getIsCurrentlyInMatch()) {
+            throw new AccessDeniedException("Already in a match");
+        }
+
+        Match initialMatch = MatchDataUtil.buildInitialMatch(creator, isPrivate);
+
+        return matchRepository.save(initialMatch);
+    }
+
+    @Transactional(rollbackFor = {AccessDeniedException.class})
+    public Match joinMatch(Match match, Player playerToJoin, String code) throws AccessDeniedException{
+        if (playerToJoin.getIsCurrentlyInMatch()) {
+            throw new AccessDeniedException("Already in a match");
+        }
+        if(match.hasEnded()) {
+            throw new AccessDeniedException("The match has already ended");
+        } else if(match.hasStarted()) {
+            throw new AccessDeniedException("The match has already started");
+        }
+        if(!match.isValidCode(code)) {
+            throw new AccessDeniedException("Incorrect code for private match");
+        }
+        if (match.isFull()) {
+            throw new AccessDeniedException("The match is already full");
+        }
+
+        match.setPlayer2(playerToJoin);
+
+        return matchRepository.save(match);
+    }
+
+    @Transactional(rollbackFor = {AccessDeniedException.class})
+    public Match leaveMatch(Match match, Player playerToLeave) {
+        if(match.hasEnded()) {
+            throw new AccessDeniedException("The match has already ended");
+        } else if(match.hasStarted()) {
+            throw new AccessDeniedException("The match has already started. Concede instead");
+        }
+        if (!match.hasPlayer(playerToLeave)) {
+            throw new AccessDeniedException("Not in this match");
+        } else if(match.hasCreator(playerToLeave)) {
+            Player currentPlayer2 = match.getPlayer2();
+            match.setCreator(currentPlayer2);
+            match.setPlayer1(currentPlayer2);
+        }
+
+        match.setPlayer2(null);
+
+        return matchRepository.save(match);
+    }
+
+    @Transactional(rollbackFor = {AccessDeniedException.class})
+    public Match startMatch(Match match) {
+        if (!match.isFull()) {
+            throw new AccessDeniedException("Two players are required to start the match");
+        }
+        if(match.hasEnded()) {
+            throw new AccessDeniedException("The match has already ended");
+        } else if(match.hasStarted()) {
+            // This method can't be called appropriately (via MatchController) if the match has started
+            throw new AccessDeniedException("Unsupported operation for started match");
+        }
+
+        match.setStartedAt(LocalDateTime.now());
+        match.setTurn(0);
+
+        return matchRepository.save(match);
+    }
+
+    @Transactional(rollbackFor = {IllegalArgumentException.class, AccessDeniedException.class})
+    public Match nextTurn(Match matchToUpdate, List<PetriDish> newBoardState) throws IllegalArgumentException, AccessDeniedException {
+        Integer currentTurn = matchToUpdate.getTurn();
+        if (currentTurn >= MatchDataUtil.getTurnsNum()) {
+            throw new IllegalArgumentException("No remaining turns to process");
+        }
+
+        if(!matchToUpdate.hasStarted()) {
+            throw new AccessDeniedException("The match has not yet started");
+        }
+        if(matchToUpdate.hasEnded()) {
+            throw new AccessDeniedException("The match has already ended");
+        }
+
+        Match updatedMatch;
+        TurnType currentTurnType = matchToUpdate.getTurnType();
+        switch (currentTurnType) {
+            case TurnType.P1_PROPAGATION:
+                try {
+                    updatedMatch = MatchMethodUtil.propagation(matchToUpdate, newBoardState, 1);
+                } catch(IllegalArgumentException e) {
+                    throw e;
+                }
+                break;
+            case TurnType.P2_PROPAGATION:
+                try {
+                    updatedMatch = MatchMethodUtil.propagation(matchToUpdate, newBoardState, 2);
+                } catch(IllegalArgumentException e) {
+                    throw e;
+                }
+                break;
+            case TurnType.BINARY_FISSION:
+                updatedMatch = MatchMethodUtil.binaryFission(matchToUpdate);
+                break;
+            case TurnType.CONTAMINATION:
+                updatedMatch = MatchMethodUtil.contamination(matchToUpdate);
+                break;
+            default:
+                throw new IllegalArgumentException("Unsupported turn type: " + currentTurnType);
+        }
+
+        int nextTurnIndex = currentTurn + 1;
+        updatedMatch.setTurn(nextTurnIndex);
+        if (nextTurnIndex < MatchDataUtil.getTurnsNum()) {
+            updatedMatch.setTurnType(MatchDataUtil.getTurnType(nextTurnIndex));
+        } else {
+            updatedMatch.setTurnType(null);
+        }
+
+        Integer winner = MatchMethodUtil.getWinner(updatedMatch);
+        if (winner != null) {
+            updatedMatch.setEndedAt(LocalDateTime.now());
+            updatedMatch.setWinner(winner);
+        }
+
+        Match savedMatch = matchRepository.save(updatedMatch);
+        if (winner != null && matchStatsBatchOrchestrator != null) {
+            matchStatsBatchOrchestrator.triggerForMatch(savedMatch);
+        }
+        return savedMatch;
+    }
+
+    @Transactional(readOnly = true)
+    public List<String> checkErrors(Match matchToCheck, List<PetriDish> newBoardState, Player player) throws AccessDeniedException {
+        int playerNum;
+        if(matchToCheck.hasPlayer1(player)) {
+            playerNum = 1;
+        } else if(matchToCheck.hasPlayer2(player)) {
+            playerNum = 2;
+        } else {
+            throw new AccessDeniedException("Not in this match");
+        }
+
+        if(matchToCheck.hasEnded()) {
+            throw new AccessDeniedException("The match has already ended");
+        }
+        if(!matchToCheck.isTurnOf(player)) {
+            throw new AccessDeniedException("Can only check for errors in your propagation turns");
+        }
+
+        return MatchMethodUtil.getPropagationErrors(matchToCheck.getBoardState(), newBoardState, playerNum);
+    }
+
+    @Transactional(rollbackFor = {AccessDeniedException.class})
+    public Match concedeMatch(Match matchToUpdate, Player playerToConcede) throws AccessDeniedException {
+        int winner;
+        if(matchToUpdate.hasPlayer1(playerToConcede)) {
+            winner = 2;
+        } else if(matchToUpdate.hasPlayer2(playerToConcede)) {
+            winner = 1;
+        } else {
+            throw new AccessDeniedException("Not in this match");
+        }
+
+        if(matchToUpdate.hasEnded()) {
+            throw new AccessDeniedException("The match has already ended");
+        }
+        if(!matchToUpdate.isInPropagationTurn()) {
+            throw new AccessDeniedException("Can only concede in propagation turns");
+        }
+
+        matchToUpdate.setWinner(winner);
+        matchToUpdate.setEndedAt(LocalDateTime.now());
+
+        Match savedMatch = matchRepository.save(matchToUpdate);
+        matchStatsBatchOrchestrator.triggerForMatch(savedMatch);
+
+        return matchRepository.save(matchToUpdate);
+    }
+
+    @Transactional
+    public void delete(Integer id) {
+        matchRepository.deleteById(id);
+    }
+
+}
+``` 
+``` Java
+@RestController
+@RequestMapping("/api/v1/matches")
+@Tag(name = "Matches", description = "API for the management of Matches")
+@SecurityRequirement(name = "bearerAuth")
+public class MatchController {
+
+    MatchService matchService;
+    WebSocketMatchService webSocketMatchService;
+    UserService userService;
+    PlayerService playerService;
+
+    public MatchController(
+        MatchService ms,
+        WebSocketMatchService webSocketMatchService,
+        UserService us,
+        PlayerService ps) {
+
+        this.matchService = ms;
+        this.webSocketMatchService = webSocketMatchService;
+        this.userService = us;
+        this.playerService = ps;
+    }
+
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<List<Match>> getAllMatches() {
+        return new ResponseEntity<>(matchService.getAllMatches(), HttpStatus.OK);
+    }
+
+    @GetMapping("/current")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<List<Match>> getCurrentMatches() {
+        return new ResponseEntity<>(matchService.getCurrentMatches(), HttpStatus.OK);
+    }
+
+    @GetMapping("/notStarted")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<List<Match>> getNotStartedMatches() {
+        return new ResponseEntity<>(matchService.getNotStartedMatches(), HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<Match> getMatchById(@PathVariable(required = true) Integer id) throws ResponseStatusException {
+        try {
+            Match result = matchService.getMatchById(id);
+            return new ResponseEntity<>(result, HttpStatus.OK);
+        } catch(ResourceNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
+    }
+
+    @GetMapping("/code/{code}")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<Match> getMatchByCode(@PathVariable(required = true) String code) throws ResponseStatusException {
+        try {
+            Match result = matchService.getMatchByCode(code);
+            return new ResponseEntity<>(result, HttpStatus.OK);
+        } catch(ResourceNotFoundException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+        }
+    }
+
+    private Player getCurrentPlayer() {
+        User currentUser = userService.findCurrentUser();
+        Player currentPlayer = playerService.getPlayerByUser(currentUser);
+        return currentPlayer;
+    }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<Match> createMatch(@RequestParam(defaultValue = "false") Boolean isPrivate) throws ResponseStatusException {
+        try {
+            Player currentPlayer = getCurrentPlayer();
+            Match createdMatch = matchService.createMatch(currentPlayer, isPrivate);
+            playerService.setIsCurrentlyInMatch(currentPlayer, true);
+
+            webSocketMatchService.broadcastLobbyState(createdMatch);
+
+            return new ResponseEntity<>(createdMatch, HttpStatus.CREATED);
+        } catch(Exception e) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
+        }
+    }
+
+    @PutMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<Match> joinMatch(@PathVariable(required = true) Integer id,
+            @RequestParam(defaultValue = "") String code)
+            throws ResponseStatusException {
+
+        try {
+            Match result;
+            Match matchToUpdate = matchService.getMatchById(id);
+            Player currentPlayer = getCurrentPlayer();
+            if (matchToUpdate.hasPlayer(currentPlayer)) {
+                // Can't join if already in the match. Result is the match without updating it
+                result = matchToUpdate;
+            } else {
+                result = matchService.joinMatch(matchToUpdate, currentPlayer, code);
+                playerService.setIsCurrentlyInMatch(currentPlayer, true);
+
+                webSocketMatchService.broadcastLobbyAndMatchState(result);
+            }
+
+            return new ResponseEntity<>(result, HttpStatus.OK);
+        } catch(Exception e){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
+        }
+    }
+
+    @PutMapping("/{id}/leave")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public ResponseEntity<Void> leaveMatch(@PathVariable(required = true) Integer id) throws ResponseStatusException {
+        try {
+            Match matchToUpdate = matchService.getMatchById(id);
+            Player currentPlayer = getCurrentPlayer();
+
+            Match updatedMatch = null;
+            if (matchToUpdate.isFull()) {
+                updatedMatch = matchService.leaveMatch(matchToUpdate, currentPlayer);
+                
+                playerService.setIsCurrentlyInMatch(currentPlayer, false);
+            } else {
+                matchService.delete(id);
+
+                playerService.setIsCurrentlyInMatch(matchToUpdate.getPlayer1(), false);
+                playerService.setIsCurrentlyInMatch(matchToUpdate.getPlayer2(), false);
+            }
+
+            if (updatedMatch != null) {
+                webSocketMatchService.broadcastLobbyState(Objects.requireNonNull(updatedMatch));
+            } else {
+                webSocketMatchService.broadcastLobbyClosed(matchToUpdate.getId());
+            }
+
+            return ResponseEntity.noContent().build();
+        } catch(Exception e) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
+        }
+    }
+
+    @PutMapping("/{id}/start")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<Match> startMatch(@PathVariable(required = true) Integer id) throws ResponseStatusException {
+        try {
+            Match result;
+            Match matchToUpdate = matchService.getMatchById(id);
+            Player currentPlayer = getCurrentPlayer();
+
+            if (!matchToUpdate.hasCreator(currentPlayer)) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only the match creator can start the match");
+            } else if (matchToUpdate.hasStarted()) {
+                // Can't start if already started. Result is the match without updating it
+                result = matchToUpdate;
+            } else {
+                result = matchService.startMatch(matchToUpdate);
+
+                webSocketMatchService.broadcastLobbyAndMatchState(Objects.requireNonNull(result));
+            }
+
+            return new ResponseEntity<>(result, HttpStatus.OK);
+        } catch(Exception e) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
+        }
+    }
+
+    @PutMapping("/{id}/nextTurn")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<Match> nextTurn(@PathVariable(required = true) Integer id,
+            @Valid @RequestBody(required = false) Optional<List<PetriDish>> newBoardState)
+            throws ResponseStatusException {
+
+        try {
+            Player currentPlayer = getCurrentPlayer();
+            Match matchToUpdate = matchService.getMatchById(id);
+
+            if (!matchToUpdate.isTurnOf(currentPlayer)) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "It's not your turn");
+            }
+            
+            Match updatedMatch = matchService.nextTurn(matchToUpdate, newBoardState.orElse(null));
+
+            if(updatedMatch.hasEnded()) {
+                playerService.setIsCurrentlyInMatch(updatedMatch.getPlayer1(), false);
+                playerService.setIsCurrentlyInMatch(updatedMatch.getPlayer2(), false);
+
+                webSocketMatchService.broadcastMatchEnded(updatedMatch);
+            } else {
+                webSocketMatchService.publishMatchSnapshot(updatedMatch);
+            }
+
+            return new ResponseEntity<>(updatedMatch, HttpStatus.OK);
+        } catch(Exception e) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
+        }
+    }
+
+    @GetMapping("/{id}/checkErrors")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<List<String>> checkErrors(@PathVariable(required = true) Integer id,
+            @Valid @RequestBody List<PetriDish> newBoardState)
+            throws ResponseStatusException {
+
+        try {
+            Player currentPlayer = getCurrentPlayer();
+            Match matchToCheck = matchService.getMatchById(id);
+            
+            List<String> errors = matchService.checkErrors(matchToCheck, newBoardState, currentPlayer);
+
+            return new ResponseEntity<>(errors, HttpStatus.OK);
+        } catch(Exception e) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
+        }
+    }
+
+    @PutMapping("/{id}/endMatch")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<Match> concedeMatch(@PathVariable(required = true) Integer id) throws ResponseStatusException {
+        try {
+            Player currentPlayer = getCurrentPlayer();
+            Match matchToUpdate = matchService.getMatchById(id);
+
+            Match updatedMatch = matchService.concedeMatch(matchToUpdate, currentPlayer);
+
+            playerService.setIsCurrentlyInMatch(matchToUpdate.getPlayer1(), false);
+            playerService.setIsCurrentlyInMatch(matchToUpdate.getPlayer2(), false);
+
+            webSocketMatchService.broadcastMatchEnded(Objects.requireNonNull(updatedMatch));
+
+            return new ResponseEntity<>(updatedMatch, HttpStatus.OK);
+        } catch(Exception e) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public ResponseEntity<Void> deleteMatch(@PathVariable(required = true) Integer id) throws ResponseStatusException {
+        try {
+            Match matchToDelete = matchService.getMatchById(id);
+            
+            matchService.delete(id);
+
+            playerService.setIsCurrentlyInMatch(matchToDelete.getPlayer1(), false);
+            playerService.setIsCurrentlyInMatch(matchToDelete.getPlayer2(), false);
+
+            webSocketMatchService.broadcastLobbyClosed(id);
+            
+            return ResponseEntity.noContent().build();
+        } catch(Exception e) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
+        }
+    }
+}
 ```
 
 #### Problema que nos hizo realizar la refactorización
-_Ej: Era difícil añadir información para implementar la lógica de negocio en cada una de las fases del juego (en nuestro caso varía bastante)_
+Comprensión del código por su mala organización, coherencia con las capas de Spring
 #### Ventajas que presenta la nueva versión del código respecto de la versión original
-_Ej: Ahora podemos añadir arbitrariamente los datos que nos hagan falta al contexto de la partida para que sea más sencillo llevar a cabo los turnos y jugadas_
+Código con funcionalidad dividida en las clases adecuadas, más legible y mantenible

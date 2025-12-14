@@ -156,6 +156,7 @@ class MatchServiceTest {
     @DisplayName("Should not create match with creator already in a match")
     @Description("Test that if a player that is currently in a match attempts to create a match, AccessDeniedException is thrown and the match is not created")
     @Owner("josbardel1(WHS7046)")
+    @Story("Create a new game")
     void testCreateMatchNegative() {
         verify(matchRepository, never()).save(any(Match.class));
         verifyNoMoreInteractions(matchRepository);
@@ -173,6 +174,7 @@ class MatchServiceTest {
     @DisplayName("Should create match with creator not already in a match")
     @Description("Test that if a player that is not currently in a match attempts to create a match, the match is created with that player as creator")
     @Owner("josbardel1(WHS7046)")
+    @Story("Create a new game")
     void testCreateMatchPositive() {
         lenient().when(matchRepository.save(any(Match.class))).then(returnsFirstArg());
 
@@ -187,6 +189,7 @@ class MatchServiceTest {
     @DisplayName("Should not join match if the player is already in a match")
     @Description("Test that if a player that is currently in a match attempts to join a match, AccessDeniedException is thrown and the player doesn't join")
     @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
     void testJoinMatchNegative() {
         verify(matchRepository, never()).save(any(Match.class));
         verifyNoMoreInteractions(matchRepository);
@@ -206,6 +209,7 @@ class MatchServiceTest {
     @DisplayName("Should not join match if the match has already started")
     @Description("Test that if a player attempts to join a match that has started, AccessDeniedException is thrown and the player doesn't join")
     @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
     void testJoinMatchNegative2() {
         verify(matchRepository, never()).save(any(Match.class));
         verifyNoMoreInteractions(matchRepository);
@@ -227,6 +231,7 @@ class MatchServiceTest {
     @DisplayName("Should not join match if the match has already ended")
     @Description("Test that if a player attempts to join a match that has ended, AccessDeniedException is thrown and the player doesn't join")
     @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
     void testJoinMatchNegative3() {
         verify(matchRepository, never()).save(any(Match.class));
         verifyNoMoreInteractions(matchRepository);
@@ -250,6 +255,7 @@ class MatchServiceTest {
     @DisplayName("Should not join match if the code is incorrect")
     @Description("Test that if a player attempts to join a match with a code that is not the match code, AccessDeniedException is thrown and the player doesn't join")
     @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
     void testJoinMatchNegative4() {
         verify(matchRepository, never()).save(any(Match.class));
         verifyNoMoreInteractions(matchRepository);
@@ -270,6 +276,7 @@ class MatchServiceTest {
     @DisplayName("Should not join match if full")
     @Description("Test that if a player attempts to join a match with two players, AccessDeniedException is thrown and the player doesn't join")
     @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
     void testJoinMatchNegative5() {
         verify(matchRepository, never()).save(any(Match.class));
         verifyNoMoreInteractions(matchRepository);
@@ -293,6 +300,7 @@ class MatchServiceTest {
     @DisplayName("Should join match if the code is correct")
     @Description("Test that if a player attempts to join a match with a code that is the match code, the player joins as player 2")
     @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
     void testJoinMatchPositive() {
         lenient().when(matchRepository.save(any(Match.class))).then(returnsFirstArg());
 
@@ -309,6 +317,7 @@ class MatchServiceTest {
     @DisplayName("Should join match if it is public (if it has no code)")
     @Description("Test that if a player attempts to join a match with null code, the player joins as player 2")
     @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
     void testJoinMatchPositive2() {
         lenient().when(matchRepository.save(any(Match.class))).then(returnsFirstArg());
 
@@ -324,6 +333,7 @@ class MatchServiceTest {
     @DisplayName("Should not leave match if the player is not in the match")
     @Description("Test that if a player attempts to leave a match where they are not a player, AccessDeniedException is thrown and no player leaves")
     @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
     void testLeaveMatchNegative() {
         verify(matchRepository, never()).save(any(Match.class));
         verifyNoMoreInteractions(matchRepository);
@@ -340,6 +350,7 @@ class MatchServiceTest {
     @DisplayName("Should not leave match if the match has already started")
     @Description("Test that if a player attempts to leave a match that has started, AccessDeniedException is thrown and the player doesn't leave")
     @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
     void testLeaveMatchNegative2() {
         verify(matchRepository, never()).save(any(Match.class));
         verifyNoMoreInteractions(matchRepository);
@@ -359,6 +370,7 @@ class MatchServiceTest {
     @DisplayName("Should not leave match if the match has already ended")
     @Description("Test that if a player attempts to leave a match that has ended, AccessDeniedException is thrown and the player doesn't leave")
     @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
     void testLeaveMatchNegative3() {
         verify(matchRepository, never()).save(any(Match.class));
         verifyNoMoreInteractions(matchRepository);
@@ -380,6 +392,7 @@ class MatchServiceTest {
     @DisplayName("Should leave not started match if creator and player 2 becomes creator")
     @Description("Test that if the creator attempts to leave a not started match, the player leaves, player2 is set to null and both player1 and creator are set to player2")
     @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
     void testLeaveMatchPositive() {
         lenient().when(matchRepository.save(any(Match.class))).then(returnsFirstArg());
 
@@ -401,6 +414,7 @@ class MatchServiceTest {
     @DisplayName("Should leave not started match if player 2")
     @Description("Test that if a player2 attempts to leave a not started match, the player leaves and player2 is set to null")
     @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
     void testLeaveMatchPositive2() {
         lenient().when(matchRepository.save(any(Match.class))).then(returnsFirstArg());
 
@@ -419,6 +433,7 @@ class MatchServiceTest {
     @DisplayName("Should not start match if there are less than 2 players")
     @Description("Test that if a player attempts to start a match where player2 is null, AccessDeniedException is thrown and the match doesn't start")
     @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
     void testStartMatchNegative() {
         verify(matchRepository, never()).save(any(Match.class));
         verifyNoMoreInteractions(matchRepository);
@@ -436,6 +451,7 @@ class MatchServiceTest {
     @DisplayName("Should not start match if the match has already started")
     @Description("Test that if a player attempts to start a match that has started, AccessDeniedException is thrown")
     @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
     void testStartMatchNegative2() {
         verify(matchRepository, never()).save(any(Match.class));
         verifyNoMoreInteractions(matchRepository);
@@ -459,6 +475,7 @@ class MatchServiceTest {
     @DisplayName("Should not start match if the match has already ended")
     @Description("Test that if a player attempts to start a match that has ended, AccessDeniedException is thrown and the match doesn't start")
     @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
     void testStartMatchNegative3() {
         verify(matchRepository, never()).save(any(Match.class));
         verifyNoMoreInteractions(matchRepository);
@@ -484,6 +501,7 @@ class MatchServiceTest {
     @DisplayName("Should start not ended and full match if creator requests it")
     @Description("Test that if a player attempts to start a match that has not ended and has two players, the match starts")
     @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
     void testStartMatchPositive() {
         lenient().when(matchRepository.save(any(Match.class))).then(returnsFirstArg());
 
@@ -504,6 +522,7 @@ class MatchServiceTest {
     @DisplayName("Should not advance turn if already past last turn")
     @Description("Test that if a turn advance is attempted when the match is past the last turn, IllegalArgumentException is thrown and the turn doesn't advance")
     @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
     void testNextTurnNegative() {
         verify(matchRepository, never()).save(any(Match.class));
         verifyNoMoreInteractions(matchRepository);
@@ -522,6 +541,7 @@ class MatchServiceTest {
     @DisplayName("Should not advance turn if match already ended")
     @Description("Test that if a turn advance is attempted when the match has ended, AccessDeniedException is thrown and the turn doesn't advance")
     @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
     void testNextTurnNegative2() {
         verify(matchRepository, never()).save(any(Match.class));
         verifyNoMoreInteractions(matchRepository);
@@ -544,6 +564,7 @@ class MatchServiceTest {
     @DisplayName("Should not advance turn if match already ended")
     @Description("Test that if a turn advance is attempted when the match has ended, AccessDeniedException is thrown and the turn doesn't advance")
     @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
     void testNextTurnNegative3() {
         verify(matchRepository, never()).save(any(Match.class));
         verifyNoMoreInteractions(matchRepository);
@@ -562,6 +583,7 @@ class MatchServiceTest {
     @DisplayName("Should advance turn of not ended match if valid turn")
     @Description("Test that if a turn advance is attempted when the match is in a valid turn, the turn advances")
     @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
     void testNextTurnPositive() {
         lenient().when(matchRepository.save(any(Match.class))).then(returnsFirstArg());
 
@@ -588,6 +610,7 @@ class MatchServiceTest {
     @DisplayName("Should end match if finishing turn")
     @Description("Test that if a turn advance is attempted when the match is in a finishing turn, the match ends")
     @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
     void testNextTurnPositive2() {
         lenient().when(matchRepository.save(any(Match.class))).then(returnsFirstArg());
 
@@ -618,6 +641,7 @@ class MatchServiceTest {
     @DisplayName("Should not check for errors if player who requested is not in the match")
     @Description("Test that if a player who is not in the match attempts to check for propagation errors, AccessDeniedException is thrown")
     @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
     void testCheckErrorsNegative() {
         try (MockedStatic<MatchMethodUtil> utility = Mockito.mockStatic(MatchMethodUtil.class)) {
             utility.verify(() -> MatchMethodUtil.getPropagationErrors(anyList(), anyList(), any(int.class)), never());
@@ -636,6 +660,7 @@ class MatchServiceTest {
     @DisplayName("Should not check for errors if not the turn of requesting player")
     @Description("Test that if a player attempts to check for propagation errors in a turn not their own, AccessDeniedException is thrown")
     @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
     @EnumSource(value = TurnType.class, names = {"P2_PROPAGATION", "BINARY_FISSION", "CONTAMINATION"})
     void testCheckErrorsNegative2WithEnumSource(TurnType turnType) {
         try (MockedStatic<MatchMethodUtil> utility = Mockito.mockStatic(MatchMethodUtil.class)) {
@@ -657,6 +682,7 @@ class MatchServiceTest {
     @DisplayName("Should not check for errors if match already ended")
     @Description("Test that if a player attempts to check for propagation errors in an ended match, AccessDeniedException is thrown")
     @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
     void testCheckErrorsNegative3() {
         try (MockedStatic<MatchMethodUtil> utility = Mockito.mockStatic(MatchMethodUtil.class)) {
             utility.verify(() -> MatchMethodUtil.getPropagationErrors(anyList(), anyList(), any(int.class)), never());
@@ -679,6 +705,7 @@ class MatchServiceTest {
     @DisplayName("Should check for errors of the current turn player in not ended match")
     @Description("Test that a player can check for propagation errors during their turn in a not ended match")
     @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
     void testCheckErrorsPositive() {
         try (MockedStatic<MatchMethodUtil> utility = Mockito.mockStatic(MatchMethodUtil.class)) {
             utility.when(() -> MatchMethodUtil.getPropagationErrors(anyList(), anyList(), any(int.class)))
@@ -698,6 +725,7 @@ class MatchServiceTest {
     @DisplayName("Should not concede match if player who requested is not in the match")
     @Description("Test that if a player who is not in the match attempts to concede, AccessDeniedException is thrown and the match doesn't end")
     @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
     void testConcedeMatchNegative() {
         verify(matchRepository, never()).save(any(Match.class));
         verifyNoMoreInteractions(matchRepository);
@@ -714,6 +742,7 @@ class MatchServiceTest {
     @DisplayName("Should not concede match if not in propagation")
     @Description("Test that if a player attempts to concede outside of a propagation turn, AccessDeniedException is thrown and the match doesn't end")
     @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
     @EnumSource(value = TurnType.class, names = {"BINARY_FISSION", "CONTAMINATION"})
     void testConcedeMatchNegative2WithEnumSource(TurnType turnType) {
         verify(matchRepository, never()).save(any(Match.class));
@@ -733,6 +762,7 @@ class MatchServiceTest {
     @DisplayName("Should not concede if match already ended")
     @Description("Test that if a player attempts to concede an ended match, AccessDeniedException is thrown and the match doesn't end")
     @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
     void testConcedeMatchNegative3() {
         verify(matchRepository, never()).save(any(Match.class));
         verifyNoMoreInteractions(matchRepository);
@@ -753,6 +783,7 @@ class MatchServiceTest {
     @DisplayName("Should not concede if match already ended")
     @Description("Test that if a player attempts to concede an ended match, AccessDeniedException is thrown and the match doesn't end")
     @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
     @EnumSource(value = TurnType.class, names = {"P1_PROPAGATION", "P2_PROPAGATION"})
     void testConcedeMatchPositiveWithEnumSource(TurnType turnType) {
         lenient().when(matchRepository.save(any(Match.class))).then(returnsFirstArg());
