@@ -88,6 +88,10 @@ public class Match extends BaseEntity{
         return (player.equals(this.getPlayer1()) && this.getTurnType().equals(TurnType.P1_PROPAGATION)) ||
                (player.equals(this.getPlayer2()) && this.getTurnType().equals(TurnType.P2_PROPAGATION));
     }
+    public boolean isFissionOrContaminationTurn(Player player) {
+        return (this.getTurnType().equals(TurnType.BINARY_FISSION)) ||
+               (this.getTurnType().equals(TurnType.CONTAMINATION));
+    }
 
     public boolean isInPropagationTurn() {
         return this.getTurnType().equals(TurnType.P1_PROPAGATION) || this.getTurnType().equals(TurnType.P2_PROPAGATION);
