@@ -21,16 +21,17 @@ INSERT INTO appusers(id,username,password,authority) VALUES (17,'RXW1248','$2a$1
 INSERT INTO appusers(id,username,password,authority) VALUES (18,'WHS7046','$2a$10$DaS6KIEfF5CRTFrxIoGc7emY3BpZZ0.fVjwA3NiJ.BjpGNmocaS3e',2);
 INSERT INTO appusers(id,username,password,authority) VALUES (19,'WTS5677','$2a$10$DaS6KIEfF5CRTFrxIoGc7emY3BpZZ0.fVjwA3NiJ.BjpGNmocaS3e',2);
 
-INSERT INTO statistics(id, games_played, games_won, sarcines_created) VALUES (1, 2, 1, 7);
-INSERT INTO statistics(id, games_played, games_won, sarcines_created) VALUES (2, 5, 4, 10);
-INSERT INTO statistics(id, games_played, games_won, sarcines_created) VALUES (3, 4, 2, 6);
-INSERT INTO statistics(id, games_played, games_won, sarcines_created) VALUES (4, 3, 1, 4);
-INSERT INTO statistics(id, games_played, games_won, sarcines_created) VALUES (5, 6, 3, 12);
-INSERT INTO statistics(id, games_played, games_won, sarcines_created) VALUES (6, 1, 0, 1);
-INSERT INTO statistics(id, games_played, games_won, sarcines_created) VALUES (7, 0, 0, 0);
-INSERT INTO statistics(id, games_played, games_won, sarcines_created) VALUES (8, 0, 0, 0);
-INSERT INTO statistics(id, games_played, games_won, sarcines_created) VALUES (9, 0, 0, 0);
-INSERT INTO statistics(id, games_played, games_won, sarcines_created) VALUES (10, 0, 0, 0);
+INSERT INTO statistics(id, games_played, games_won, time_played, sarcinas_created, bacterias_created) 
+VALUES (1, 10, 5, 300, 7, 15), 
+(2, 10, 5, 300, 7, 15), 
+(3, 10, 5, 300, 7, 15) ,
+(4, 10, 5, 300, 7, 15),
+(5, 10, 5, 300, 7, 15),
+(6, 10, 5, 3 , 7 ,15),
+(7, 10, 5, 300, 7, 15),
+(8, 10, 5, 300, 7, 15),
+(9, 10, 5, 300, 7, 15),
+(10, 10, 5, 300, 7, 15);
 
 INSERT INTO players(id, is_currently_in_match, user_id, nickname, email, statistics_id) VALUES(1, false, 4, 'player1', 'hola@gmail.com', 1);
 INSERT INTO players(id, is_currently_in_match, user_id, nickname, email, statistics_id) VALUES(2, false, 5, 'player2', 'adios@gmail.com', 2);
@@ -41,7 +42,8 @@ INSERT INTO players(id, is_currently_in_match, user_id, nickname, email, statist
 INSERT INTO players(id, is_currently_in_match, user_id, nickname, email, statistics_id) VALUES(7, false, 10, 'player7', 'player7@gmail.com', 7);
 INSERT INTO players(id, is_currently_in_match, user_id, nickname, email, statistics_id) VALUES(8, false, 11, 'player8', 'player8@gmail.com', 8);
 INSERT INTO players(id, is_currently_in_match, user_id, nickname, email, statistics_id) VALUES(9, false, 12, 'player9', 'player9@gmail.com', 9);
-INSERT INTO players(id, is_currently_in_match, user_id, nickname, email, statistics_id) VALUES(10, false, 13, 'player10', 'player10@gmail.com', 10);
+INSERT INTO players(id, is_currently_in_match, user_id, nickname, email, statistics_id) VALUES(10,false ,13 , 'player10' , 'player10@gmail.com' , 10);
+
 
 
 INSERT INTO achievements(id, name, description, valor, statistic_name, image) VALUES (1, 'First Win', 'Win your first game', 1, 'games_won', 'imagelin.png'),
