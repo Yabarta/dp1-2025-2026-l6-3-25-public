@@ -50,7 +50,9 @@ public class FriendAudService {
                 friend.getRequester().getNickname()
             ));
         }
-
+        if(listaDto.isEmpty()){
+            return null;
+        }
         return listaDto;
     }
 }
