@@ -159,12 +159,14 @@ class MatchStatsBatchIntegrationTests {
             Player player = playerService.getPlayerById(playerId);
             Statistics stats = player.getStatistics();
             if (stats == null) {
-                return new StatisticsSnapshot(0, 0, 0);
+                return new StatisticsSnapshot(0, 0, 0, 0, 0);
             }
             return new StatisticsSnapshot(
                 defaultZero(stats.getGamesPlayed()),
                 defaultZero(stats.getGamesWon()),
-                defaultZero(stats.getSarcinesCreated())
+                defaultZero(stats.getTimePlayed()),
+                defaultZero(stats.getSarcinasCreated()),
+                defaultZero(stats.getBacteriasCreated())
             );
         });
     }
@@ -205,5 +207,5 @@ class MatchStatsBatchIntegrationTests {
         return dishes;
     }
 
-    private record StatisticsSnapshot(int gamesPlayed, int gamesWon, int sarcinesCreated) { }
+    private record StatisticsSnapshot(int gamesPlayed, int gamesWon, int timePlayed, int sarcinesCreated, int bacteriasCreated) { }
 }

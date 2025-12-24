@@ -16,19 +16,23 @@ public class StatProcessor implements ItemProcessor<MatchStatPayload, PlayerStat
     public PlayerStatsUpdate process(@NonNull MatchStatPayload payload) {
         int gamesPlayedDelta = sanitizeDelta(payload.gamesPlayedDelta(), "gamesPlayed");
         int gamesWonDelta = sanitizeDelta(payload.gamesWonDelta(), "gamesWon");
-        int sarcinesDelta = sanitizeDelta(payload.sarcinesCreatedDelta(), "sarcinesCreated");
+        int sarcinasDelta = sanitizeDelta(payload.sarcinasCreatedDelta(), "sarcinesCreated");
+        int timePlayedDelta = sanitizeDelta(payload.timePlayedDelta(), "timePlayed");
+        int bacteriasDelta = sanitizeDelta(payload.bacteriasCreatedDelta(), "bacteriasCreated");
 
         PlayerStatsUpdate update = new PlayerStatsUpdate(
             payload.matchId(),
             payload.playerId(),
             gamesPlayedDelta,
             gamesWonDelta,
-            sarcinesDelta
+            sarcinasDelta,
+            timePlayedDelta,
+            bacteriasDelta
         );
 
         log.info(
-            "Aggregated deltas for player {} -> gamesPlayed={}, gamesWon={}, sarcinesCreated={}",
-            payload.playerId(), gamesPlayedDelta, gamesWonDelta, sarcinesDelta
+            "Aggregated deltas for player {} -> gamesPlayed={}, gamesWon={}, sarcinasCreated={}, timePlayed={}, bacteriasCreated={}",
+            payload.playerId(), gamesPlayedDelta, gamesWonDelta, sarcinasDelta, timePlayedDelta, bacteriasDelta
         );
         return update;
     }

@@ -93,13 +93,17 @@ public class MatchStatsBatchOrchestrator {
     private MatchStatPayload buildPayload(Match match, Player player, int playerIndex) {
         boolean playerWon = match.getWinner() != null && match.getWinner() == playerIndex;
         int sarcinesCreated = countSarcines(match.getBoardState(), playerIndex);
+        int timePlayed = match.getDuration();
+        int bacteriasCreated = countBacterias(match.getBoardState(), playerIndex);
 
         return new MatchStatPayload(
             match.getId().longValue(),
             player.getId().longValue(),
             1,
             playerWon ? 1 : 0,
-            sarcinesCreated
+            sarcinesCreated,
+            timePlayed,
+            bacteriasCreated
         );
     }
 
@@ -118,6 +122,22 @@ public class MatchStatsBatchOrchestrator {
             }
         }
         return count;
+    }
+    private int countBacterias(List<PetriDish> dishes, int playerIndex) {
+        if (dishes == null) {
+            return 0;
+        }
+        int total = 0;
+        for (PetriDish dish : dishes) {
+            if (dish == null) {
+                continue;
+            }
+            Integer value = playerIndex == 1 ? dish.getPlayer1Bacteria() : dish.getPlayer2Bacteria();
+            if (value != null) {
+                total += value;
+            }
+        }
+        return total;
     }
 
     private record DeferredStatsEvent(List<MatchStatPayload> payloads) { }

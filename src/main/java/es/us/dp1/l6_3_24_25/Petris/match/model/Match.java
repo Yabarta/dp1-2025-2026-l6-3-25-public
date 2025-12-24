@@ -100,4 +100,11 @@ public class Match extends BaseEntity{
     public boolean isPastLastTurn() {
         return this.getTurn() == MatchDataUtil.getTurnsNum();
     }
+    public Integer getDuration() {
+        int res = 0;
+        if (this.getStartedAt() != null && this.getEndedAt() != null) {
+            res = (int) java.time.Duration.between(this.getStartedAt(), this.getEndedAt()).toSeconds();
+        }
+        return res;
+    }
 }

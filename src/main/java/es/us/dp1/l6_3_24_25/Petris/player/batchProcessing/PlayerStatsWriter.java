@@ -42,8 +42,16 @@ public class PlayerStatsWriter implements ItemWriter<PlayerStatsUpdate> {
             statistics.setGamesWon(safeAdd(statistics.getGamesWon(), update.gamesWonDelta(), "gamesWon"));
             changed = true;
         }
-        if (update.sarcinesCreatedDelta() > 0) {
-            statistics.setSarcinesCreated(safeAdd(statistics.getSarcinesCreated(), update.sarcinesCreatedDelta(), "sarcinesCreated"));
+        if (update.sarcinasCreatedDelta() > 0) {
+            statistics.setSarcinasCreated(safeAdd(statistics.getSarcinasCreated(), update.sarcinasCreatedDelta(), "sarcinasCreated"));
+            changed = true;
+        }
+        if (update.timePlayedDelta() > 0) {
+            statistics.setTimePlayed(safeAdd(statistics.getTimePlayed(), update.timePlayedDelta(), "timePlayed"));
+            changed = true;
+        }
+        if (update.bacteriasCreatedDelta() > 0) {
+            statistics.setBacteriasCreated(safeAdd(statistics.getBacteriasCreated(), update.bacteriasCreatedDelta(), "bacteriasCreated"));
             changed = true;
         }
 
@@ -60,7 +68,9 @@ public class PlayerStatsWriter implements ItemWriter<PlayerStatsUpdate> {
             update.matchId(),
             statistics.getGamesPlayed(),
             statistics.getGamesWon(),
-            statistics.getSarcinesCreated()
+            statistics.getSarcinasCreated(),
+            statistics.getTimePlayed(),
+            statistics.getBacteriasCreated()
         );
     }
 

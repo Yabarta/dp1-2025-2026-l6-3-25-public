@@ -5,6 +5,8 @@ public record MatchStatPayload(
     Long playerId,
     int gamesPlayedDelta,
     int gamesWonDelta,
-    int sarcinesCreatedDelta
+    int sarcinasCreatedDelta,
+    int timePlayedDelta,
+    int bacteriasCreatedDelta
 ) {
 }
