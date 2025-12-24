@@ -47,10 +47,10 @@ INSERT INTO players(id, is_currently_in_match, user_id, nickname, email, statist
 
 
 INSERT INTO achievements(id, name, description, valor, statistic_name, image) VALUES (1, 'First Win', 'Win your first game', 1, 'games_won', 'imagelin.png'),
-                                                                                    (2, 'Sarcine Creator', 'Create 5 sarcines', 5, 'sarcines_created', 'imagelin.png'),
+                                                                                    (2, 'Sarcine Creator', 'Create 5 sarcines', 5, 'sarcinas_created', 'imagelin.png'),
                                                                                     (3, 'Gamer', 'Play 10 games', 10, 'games_played', 'imagelin.png');
                                                                                     
-INSERT INTO players_achievements(player_id, achievements_id) VALUES (1, 1), (1, 2);
+INSERT INTO players_achievements(player_id, achievements_id) VALUES (1, 1), (1, 2), (1, 3);
 
 
 INSERT INTO matches(id, code, created_at, started_at, ended_at, creator_id, player1_id, player2_id, turn, turn_type, player1score, player2score, winner)
