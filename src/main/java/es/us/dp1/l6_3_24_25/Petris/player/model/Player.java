@@ -17,23 +17,32 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
 
 @Getter
 @Setter
 @Entity
 @Table(name = "players")
+@Audited
 public class Player extends BaseEntity{
 
     private String nickname;
+    @NotAudited
     private String email;
+    @NotAudited
     private String profilePicture;
+    @NotAudited
     @NotNull
     private Boolean isCurrentlyInMatch;
+    @NotAudited
     @NotNull
     @OneToOne()
     private User user;
+    @NotAudited
     @ManyToMany
     private List<Achievement> achievements = new ArrayList<>();
+    @NotAudited
     @NotNull
     @OneToMany(cascade = CascadeType.ALL)
     private List<Statistics> statistics = new ArrayList<>();
