@@ -28,12 +28,6 @@ public class StatisticsService {
                 .orElseThrow(() -> new ResourceNotFoundException("Statistics", "id", id));
     }
 
-    @Transactional(readOnly = true)
-    public Statistics getStatisticsByName(String name) {
-        return statisticsRepository.findByName(name)
-                .orElseThrow(() -> new ResourceNotFoundException("Statistics", "name", name));
-    }
-
     @Transactional
     public Statistics saveStatistics(Statistics statistics) {
         return statisticsRepository.save(statistics);

@@ -43,6 +43,7 @@ export default function ProfileScreen() {
     const [UserAchievements, , userAchievementsLoading] = useFetchState([], userAchievementsUrl, jwt, setMessage, setVisible, playerData?.id);
     const statsUrl = playerData?.id ? `/api/v1/players/${playerData.id}/statistics` : "";
     const [playerStats, , statsLoading] = useFetchState([], statsUrl, jwt, setMessage, setVisible, playerData?.id);
+    console.log("Player Stats:", playerStats);
 
     // Effects
     useEffect(() => {
@@ -70,8 +71,12 @@ export default function ProfileScreen() {
 
     const getStatValue = useCallback((name) => {
         if (!playerStats) return 0;
-        const stat = playerStats.find(s => s.name?.toLowerCase() === name.toLowerCase());
-        return stat ? stat.valor : 0;
+            const sanitizedName = name.toLowerCase();
+            const lowerCamelCaseName = sanitizedName.replace(/_([a-z])/g, (g) => g[1].toUpperCase());
+            const value = playerStats?.[lowerCamelCaseName];
+            if (value === null || value === undefined) return 0;
+            return value;
+        
     }, [playerStats]);
 
     const achievementProgress = useCallback((achievement) => {
@@ -80,11 +85,6 @@ export default function ProfileScreen() {
         return `${Math.min(progress, target)}/${target}`;
     }, [getStatValue]);
 
-    // Computed values
-    const hoursPlayed = useMemo(() => {
-        if (!userGames.length) return 0;
-        return userGames.reduce((total, game) => total + duracion(game), 0) / 60;
-    }, [userGames, duracion]);
 
     const modal = getErrorModal(setVisible, visible, message);
     const isLoading = playerLoading || gamesLoading || achievementsLoading || userAchievementsLoading || statsLoading;
@@ -212,23 +212,23 @@ export default function ProfileScreen() {
             </div>
             <div className="statItem">
                 <span className="statLabel">Tiempo de Juego</span>
-                <span className="statValue">{Math.floor(hoursPlayed)} horas y {Math.round((hoursPlayed - Math.floor(hoursPlayed)) * 60)} minutos</span>
+                <span className="statValue">{playerStats?.timePlayed /60 || 0} minutos</span>
             </div>
             <div className="statItem">
                 <span className="statLabel">Partidas Online</span>
-                <span className="statValue">{userGames.length}</span>
+                <span className="statValue">{playerStats?.gamesPlayed || 0}</span>
             </div>
             <div className="statItem">
                 <span className="statLabel">Victorias</span>
-                <span className="statValue">{getStatValue('games_won')}</span>
+                <span className="statValue">{playerStats?.gamesWon || 0}</span>
             </div>
             <div className="statItem">
                 <span className="statLabel">Derrotas</span>
-                <span className="statValue">{userGames.filter(game => !isWinner(game)).length}</span>
+                <span className="statValue">{playerStats?.gamesPlayed - playerStats?.gamesWon || 0}</span>
             </div>
             <div className="statItem">
                 <span className="statLabel">Sarcinas</span>
-                <span className="statValue">{getStatValue('sarcines_created')}</span>
+                <span className="statValue">{playerStats?.sarcinasCreated || 0}</span>
             </div>
         </div>
     );
