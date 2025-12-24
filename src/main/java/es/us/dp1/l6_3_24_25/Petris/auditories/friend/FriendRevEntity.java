@@ -16,6 +16,5 @@ import org.hibernate.envers.RevisionEntity;
 @NoArgsConstructor
 @RevisionEntity(FriendRevisionListener.class)
 public class FriendRevEntity extends DefaultRevisionEntity {
-    private String requestedBy;
-    private String receivedBy;
+    private String modifiedBy;
 }

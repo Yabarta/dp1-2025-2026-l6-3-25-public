@@ -11,13 +11,13 @@ public class FriendRevisionListener implements RevisionListener {
     @Override
     public void newRevision(Object revisionEntity) {
         FriendRevEntity friendRevEntity = (FriendRevEntity) revisionEntity;
-        String requestedBy = "";
+        String modifiedBy = "";
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         Object principal = auth.getPrincipal();
         if(principal != null && principal instanceof UserDetails)
-            requestedBy = ((UserDetails) principal).getUsername();
+            modifiedBy = ((UserDetails) principal).getUsername();
         else if(principal != null)
-            requestedBy = principal.toString();
-        friendRevEntity.setRequestedBy(requestedBy);
+            modifiedBy = principal.toString();
+        friendRevEntity.setModifiedBy(modifiedBy);
     }
 }
