@@ -199,8 +199,13 @@
 			<artifactId>maven-model</artifactId>
 			<version>3.9.4</version>
 		</dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-envers</artifactId>
+            <version>${hibernate.version}</version>
+        </dependency>
 
-	</dependencies>
+    </dependencies>
 
 	<build>
 		<plugins>
@@ -440,7 +445,7 @@
       				<param>es.us.dp1.l6_3_24_25.Petris.match.model</param>
     			</packages>
 
-    			<!-- 
+    			<!--
       				If true, generate assertions for all fields whatever their visibility is (including private).
       				Default to false which means assertions are only generated for public fields.
     			-->
@@ -461,9 +466,9 @@
     			<generateSoftAssertions>false</generateSoftAssertions>
     			<generateJUnitSoftAssertions>false</generateJUnitSoftAssertions>
 
-    			<!-- 
+    			<!--
       				The generated assertions report is written to the given file.
-      				The base directory containing the report file is where the plugin is executed. 
+      				The base directory containing the report file is where the plugin is executed.
    				-->
     			<writeReportInFile>assertions-generation-report.txt</writeReportInFile>
 
