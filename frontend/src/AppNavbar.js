@@ -177,7 +177,10 @@ useEffect(() => {
 }, [username , change]);
 
     const filterPlayers = players.filter((player) => {
-        return player.nickname.toLowerCase().includes(nombreBuscadoPlayer.toLowerCase()) && player.nickname !== username && nombreBuscadoPlayer!== "" && !friendList.map(friend => friend.props.children[0].props.children).includes(player.nickname) &&  !requestList.map(request => request.props.children[0].props.children).includes(player.nickname);
+        return player.nickname.toLowerCase().includes(nombreBuscadoPlayer.toLowerCase()) && 
+        player.nickname !== username && nombreBuscadoPlayer!== "" && 
+        !friendList.map(friend => friend.props.children[0].props.children).includes(player.nickname) &&  
+        !requestList.map(request => request.props.children[0].props.children).includes(player.nickname);
     }
     );
 
@@ -308,7 +311,7 @@ useEffect(() => {
                 </Collapse>
             </Navbar>
 
-            <Offcanvas isOpen={isOpenFriends} onClose={toggleMenu} direction='start'  style={{width: "33%" , overflowY: "scroll"}} className="bg-dark text-white">
+            <Offcanvas isOpen={isOpenFriends} onClose={toggleMenu} direction='start'  style={{width: "33%" , overflowY: "scroll", borderLeftColor: "white"}} className="bg-dark text-white">
                 <div className="barra-busqueda-Friends d-flex justify-content-center align-items-center position-relative p-3">
                     <input type="search" value={nombreBuscadoFriend} onChange={(usuario) => setNombreFriend(usuario.target.value)} placeholder="Buscar usuario" />
                     <Button color="secondary" onClick={toggleMenu} style={{width: '10%'}} className= "position-absolute end-0">X</Button>

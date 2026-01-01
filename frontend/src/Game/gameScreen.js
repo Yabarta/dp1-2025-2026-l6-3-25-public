@@ -319,8 +319,6 @@ export default function GameScreen() {
           player2Bacteria,
         }));
         response = await api.put(`/api/v1/matches/${id}/nextTurn`, payload);
-      } else {
-        response = await api.put(`/api/v1/matches/${id}/nextTurn`);
       }
       setMatch(normaliseMatch(response.data));
       setTimeLeft(TURN_TIME_SECONDS);
