@@ -11,7 +11,7 @@ if (typeof HighchartsMore === 'function') {
 }
 
 
-export default function ChartComparator({ myName, myStats, opponentStats, opponentName }){
+export default function ChartComparator({ myName, myStats, opponentStats, opponentName, maxValue }){
   const options = {
     chart: {
       polar: true,
@@ -40,7 +40,7 @@ export default function ChartComparator({ myName, myStats, opponentStats, oppone
       gridLineInterpolation: 'polygon',
       lineWidth: 0,
       min: 0,
-      max: 100 // Asumiendo que stats van de 0 a 10
+      max: maxValue // Asumiendo que stats van de 0 a 10
     },
     tooltip: {
       shared: true,

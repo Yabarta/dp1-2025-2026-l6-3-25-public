@@ -1,34 +1,151 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import ChartComparator from "../individual/ChartComparator";
-
+import { useParams } from "react-router-dom";
+import jwt_decode from "jwt-decode";
+import tokenService from "../../services/token.service";
 
 
 export default function Comparator (props) {
+    const jwt = tokenService.getLocalAccessToken();
+    
+    const { username } = useParams()
+    const [currentPlayer, setCurrentPlayer] = useState(() => {
+            if (!jwt) return username ?? "";
+            try {
+                return jwt_decode(jwt)?.sub ?? (username ?? "");
+            } catch (e) {
+                console.error("Invalid JWT", e);
+                return username ?? "";
+            }
+        });
+
+    const [currentPlayerStats, setCurrentPlayerStats] = useState(null)
     const [searchTerm, setSearchTerm] = useState('')
-    const [opponent, setOpponent] = useState(null); // Guardará { name:Str, stats:[] }
+    const [opponent, setOpponent] = useState(null);
+    const [opponentStats, setOpponentStats] = useState([0, 0, 0, 0, 0, 0])
+
     const [error, setError] = useState('');
+    
+    useEffect(() => {
+        // Cargar estadísticas del jugador actual al iniciar
+        if (currentPlayer) {
+            fetchCurrentPlayerStats();
+        }
+    }, [currentPlayer]);
 
-    const myName = 'player1'
-    const myStats = [80, 45, 90, 60, 20, 75];
-
-    const mockDatabase = {
-        'player2': { name: 'Player Two', stats: [40, 50, 60, 30, 60, 50] },
-        'pro_gamer': { name: 'The Legend', stats: [99, 95, 99, 98, 10, 99] },
-        'bacterio': { name: 'Dr. Bacterio', stats: [10, 100, 50, 20, 80, 100] }
+    const fetchCurrentPlayerStats = async () => {
+        try {
+            const playerResponse = await fetch(`/api/v1/players/user/${encodeURIComponent(currentPlayer)}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${jwt}` 
+                }
+            });
+            const playerData = await playerResponse.json();
+            
+            if (playerData && playerData.id) {
+                const statsResponse = await fetch(`/api/v1/players/${playerData.id}/statistics`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${jwt}` 
+                    }
+                });
+                const stats = await statsResponse.json();
+                setCurrentPlayerStats(stats);
+            }
+        } catch (err) {
+            console.error('Error al cargar estadísticas del jugador actual:', err);
+        }
+    };
+    
+    const fetchOpponentData = async (opponentName) => {
+        const opponentURL = opponentName ? `/api/v1/players/nickname/${encodeURIComponent(opponentName)}` : "";
+        try {
+            const response = await fetch(opponentURL, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${jwt}` 
+                }
+            });
+            const data = await response.json();
+            return data;
+        }catch(err) {
+            setError(err.message);
+        }
     };
 
-    const handleSearch = () => {
+    const fetchOpponentStats = async (playerId) => {
+        try {
+            const response = await fetch(`/api/v1/players/${playerId}/statistics`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${jwt}` 
+                }
+            });
+            const stats = await response.json();
+            return stats;
+        } catch (err) {
+            console.error('Error al cargar estadísticas del oponente:', err);
+            return null;
+        }
+    };
+
+    // Función para transformar las estadísticas al formato del gráfico
+    const transformStatsToChartFormat = (stats) => {
+        if (!stats) return null;
+        return [
+            stats.bacteriasCreated || 0,
+            stats.gamesPlayed || 0,
+            stats.gamesWon || 0,
+            (stats.gamesPlayed || 0) - (stats.gamesWon || 0), // Partidas perdidas
+            stats.sarcinasCreated || 0,
+            (stats.timePlayed || 0) / 60 // Tiempo en minutos
+        ];
+    };
+
+    // Función para obtener el máximo valor de ambas listas de estadísticas
+    const getMaxStatValue = () => {
+        const myStats = transformStatsToChartFormat(currentPlayerStats);
+        const opponentChartStats = transformStatsToChartFormat(opponentStats);
+        
+        let maxValue = 10; // Valor por defecto
+        
+        if (myStats) {
+            maxValue = Math.max(maxValue, Math.max(...myStats));
+        }
+        
+        if (opponentChartStats) {
+            maxValue = Math.max(maxValue, Math.max(...opponentChartStats));
+        }
+        
+        return Math.ceil(maxValue / 10) * 10;
+    };
+
+    const handleSearch = async () => {
         if (!searchTerm) return;
         
-        // Simular búsqueda (aquí iría tu fetch a la API)
-        const found = mockDatabase[searchTerm.toLowerCase()];
-
-        if (found) {
-            setOpponent(found);
-            setError('');
-        } else {
+        try {
+            const opponentData = await fetchOpponentData(searchTerm.trim());
+            if (opponentData && opponentData.nickname && opponentData.id) {
+                setOpponent(opponentData);
+                
+                const stats = await fetchOpponentStats(opponentData.id);
+                setOpponentStats(stats);
+                
+                setError('');
+            } else {
+                setOpponent(null);
+                setOpponentStats([0, 0, 0, 0, 0, 0]);
+                setError('Jugador no encontrado. Verifica el username.');
+            }
+        } catch (err) {
             setOpponent(null);
-            setError('Jugador no encontrado. Prueba con "player2" o "bacterio"');
+            setOpponentStats(null);
+            setError('Error al buscar el jugador. Verifica el username.');
         }
     };
 
@@ -55,10 +172,11 @@ export default function Comparator (props) {
     {error && <p style={{ color: '#e74c3c', textAlign: 'center' }}>{error}</p>}
       <div style={{ maxWidth: '800px', margin: '0 auto' }}>
         <ChartComparator 
-            myName={myName}
-            myStats={myStats} 
-            opponentStats={opponent ? opponent.stats : null}
-            opponentName={opponent ? opponent.name : null}
+            myName={currentPlayer}
+            myStats={transformStatsToChartFormat(currentPlayerStats)} 
+            opponentStats={transformStatsToChartFormat(opponentStats)}
+            opponentName={opponent ? opponent.nickname : null}
+            maxValue={getMaxStatValue()}
         />
       </div>
 
