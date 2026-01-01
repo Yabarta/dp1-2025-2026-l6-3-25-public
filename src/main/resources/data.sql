@@ -31,7 +31,8 @@ VALUES (1, 10, 5, 300, 7, 15),
 (7, 10, 5, 300, 7, 15),
 (8, 10, 5, 300, 7, 15),
 (9, 10, 5, 300, 7, 15),
-(10, 10, 5, 300, 7, 15);
+(10, 10, 5, 300, 7, 15),
+(11, 8, 3, 147, 2, 28);
 
 INSERT INTO players(id, is_currently_in_match, user_id, nickname, email, statistics_id) VALUES(1, false, 4, 'player1', 'hola@gmail.com', 1);
 INSERT INTO players(id, is_currently_in_match, user_id, nickname, email, statistics_id) VALUES(2, false, 5, 'player2', 'adios@gmail.com', 2);
