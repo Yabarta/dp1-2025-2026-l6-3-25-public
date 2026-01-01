@@ -18,6 +18,7 @@
     "filepond-plugin-image-preview": "^4.6.11",
     "formik": "^2.4.6",
     "frontend": "file:",
+    "highcharts-react-official": "^3.2.3",
     "jwt-decode": "^3.1.2",
     "moment": "^2.29.4",
     "react": "^18.2.0",
