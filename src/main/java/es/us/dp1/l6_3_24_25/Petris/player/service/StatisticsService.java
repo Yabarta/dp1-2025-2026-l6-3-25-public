@@ -32,4 +32,16 @@ public class StatisticsService {
     public Statistics saveStatistics(Statistics statistics) {
         return statisticsRepository.save(statistics);
     }
+
+    @Transactional(readOnly = true)
+    public List<Integer> getStatisticsArrayById(Integer id) {
+        Statistics s = getStatisticsById(id);
+        return List.of(
+            s.getGamesPlayed(),
+            s.getGamesWon(),
+            s.getTimePlayed(),
+            s.getSarcinasCreated(),
+            s.getBacteriasCreated()
+        );
+    }
 }
