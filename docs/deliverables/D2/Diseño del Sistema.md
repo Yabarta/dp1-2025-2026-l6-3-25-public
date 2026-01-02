@@ -91,6 +91,36 @@ En la pantalla de juego (`frontend/src/Game/gameScreen.js`) todo el JSX y la ló
 - **Reutilización**: los nuevos componentes pueden emplearse en otros escenarios (por ejemplo, vistas de espectador o pantallas de resumen) sin copiar código.
 - **Facilidad de pruebas y refactor**: aislar el hook y las constantes facilita probar comportamientos en Storybook o tests unitarios, además de reducir los conflictos al trabajar en paralelo.
 
+### Patrón: Contenedor — Presentacional / Composición de Componentes (refactorización de `ProfileScreen`)
+**Tipo**: Diseño de componentes UI / Separación de responsabilidades
+
+**Contexto de Aplicación**
+
+La pantalla `ProfileScreen` originalmente contenía centenares de líneas de JSX y lógica de renderizado para la cabecera, estadísticas, partidas recientes, logros y modales. Para mejorar la mantenibilidad y reducir el acoplamiento entre fragmentos de UI, se aplicó una estrategia de extracción de componentes siguiendo el patrón Contenedor/Presentacional junto con la composición de componentes.
+
+**Clases o componentes creados**
+
+- `frontend/src/profile/components/ProfileHeader.js` — muestra el nombre, email y el icono de edición (presentacional).
+- `frontend/src/profile/components/StatsSection.js` — renderiza las estadísticas del jugador (presentacional).
+- `frontend/src/profile/components/RecentGames.js` — lista las partidas recientes y controla acciones relacionadas (presentacional con callbacks).
+- `frontend/src/profile/components/AchievementsSection.js` — lista los logros y su progreso (presentacional).
+- `frontend/src/profile/components/HistoryPopup.js` — modal para historial de partidas (presentacional).
+- `frontend/src/profile/components/EditPopup.js` — modal de edición que utiliza `Formik` para el formulario (presentacional).
+- `frontend/src/profile/profileScreen.js` — contenedor que mantiene la obtención de datos, estados y callbacks; pasa sólo las props necesarias a los componentes presentacionales.
+
+**Ventajas alcanzadas al aplicar el patrón**
+
+- **Separación de responsabilidades (SRP):** el contenedor gestiona estado, fetches y handlers; los componentes presentacionales sólo renderizan usando las props que reciben.
+- **Menor acoplamiento:** los componentes dependen de una API de props clara en lugar de acceder a estado compartido o lógica interna del contenedor.
+- **Reutilización y testabilidad:** componentes pequeños y puros son más fáciles de testear y reutilizar en otras vistas (por ejemplo, mostrar `StatsSection` en un resumen de usuario).
+- **Lectura y mantenimiento:** `profileScreen.js` queda como orquestador, y el desarrollador puede localizar rápidamente la lógica o la vista que desea modificar.
+
+**Notas de implementación**
+
+- Se priorizó pasar datos y callbacks explícitos por props en lugar de usar un contexto global, para que cada componente sea independiente y fácil de razonar.
+- Donde fue necesario, se conservaron utilidades y helpers en el contenedor (`duracion`, `isWinner`, etc.) y se pasaron como callbacks para evitar replicación de lógica.
+
+
 ### Patrón: Simple Builder
 
 *Tipo*: Creational
