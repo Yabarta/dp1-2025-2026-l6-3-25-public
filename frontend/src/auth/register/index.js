@@ -112,7 +112,7 @@ export default function Register() {
             </button>
             <button
               className="auth-button"
-              value="Vet"
+              value="Admin"
               onClick={handleButtonClick}
             >
               Admin
