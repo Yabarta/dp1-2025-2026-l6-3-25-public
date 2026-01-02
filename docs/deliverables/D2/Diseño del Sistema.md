@@ -56,17 +56,17 @@ La duración de una partida es variable, pero ninguna suele superar los 10 minut
 En esta sección de especificar el conjunto de patrones de diseño y arquitectónicos aplicados durante el proyecto. Para especificar la aplicación de cada patrón puede usar la siguiente plantilla:
 
 ### Patrón: Modelo Vista Controlador (MVC)
-*Tipo*: Arquitectónico 
+**Tipo**: Arquitectónico 
 
-*Contexto de Aplicación*
+**Contexto de Aplicación**
 
 Este patrón arquitectónico se ha usado para organizar y estructurar el backend. Para la capa de la lógica de negocios, primero se han creado clases Modelo para cada tabla que queremos en la base de datos, para más tarde crear los servicios, cuyas funciones se han adaptado a las necesidades que hemos establecido en el frontend. Para acceder a esas tablas hemos accedido a traves de los servicios, en la capa de recursos hemos elegido los repositorios. Finalmente para la capa de presentación tenemos los controladores para cada función establecida en los servicios, con su vista respectiva en el frontend
 
-*Clases o paquetes creados*
+**Clases o paquetes creados**
 
 Hemos creado para las tablas User, Player, Achievement, Statistics, Match y PetriDish su modelo asociado con los atributos correspondientes establecidos en el diagrama de clases. Para todos los modelos les hemos creado sus servicios, repositorios y controladores
 
-*Ventajas alcanzadas al aplicar el patrón*
+**Ventajas alcanzadas al aplicar el patrón**
 
 Es interesante usar este patrón porque nos permite tener un código mejor estructurado por función, separando las responsabilidades de cada componente.
 
@@ -90,6 +90,28 @@ En la pantalla de juego (`frontend/src/Game/gameScreen.js`) todo el JSX y la ló
 - **Responsabilidad única**: cada componente se centra en una parte concreta de la UI, lo que hace que el `GameScreen` actúe solo como orquestador del estado.
 - **Reutilización**: los nuevos componentes pueden emplearse en otros escenarios (por ejemplo, vistas de espectador o pantallas de resumen) sin copiar código.
 - **Facilidad de pruebas y refactor**: aislar el hook y las constantes facilita probar comportamientos en Storybook o tests unitarios, además de reducir los conflictos al trabajar en paralelo.
+
+### Patrón: Simple Builder
+
+*Tipo*: Creational
+
+**Contexto de Aplicación**
+
+Necesitamos una manera rápida y eficiente de crear nuevos jugadores y administradores, así que hemos usado el patrón de diseño Builder para facilitarnos el trabajo. Ahora cada vez que se crea un nuevo usuario se le asigna el rol correspondiente, y si es player, la tabla de estadística. Con el ecosistema de Spring Boot y Java moderno es más eficiente usar la variación simplificada de dicho patrón, denominada Simple Builder.
+
+**Clases o paquetes creados/actualizados**
+- `Player`: añadido @Builder para que se apliquen las funciones del patrón.
+- `Statistics`: añadido @Builder para que se apliquen las funciones del patrón.
+- `User`: añadido @Builder para que se apliquen las funciones del patrón.
+- `UserService`: modificado el crear usuario para aplicar el patrón de diseño al registrar un nuevo usuario en la aplicación.
+
+**Ventajas alcanzadas al aplicar el patrón**
+- **Legibilidad**: al utilizar una interfaz fluida, el código se lee casi como una frase en lenguaje natural.
+- **Elimina el constructor tradicional**: en lugar de tener múltiples constructores que se llaman entre sí con largas listas de parámetros, el Builder permite configurar solo lo que necesitas.
+- **Facilita la Inmutabilidad**: si usas simples setters, el objeto es mutable y puede quedar en un estado inconsistente a medio construir. Por otro lado, con el patrón de diseño Builder:
+     1. El objeto Builder es mutable.
+     2. El método .build() devuelve el objeto final.
+     3. El objeto final puede no tener setters, haciéndolo inmutable y seguro para entornos concurrentes.
 
 ## Decisiones de diseño
 
@@ -213,6 +235,32 @@ Como hacer el lobby en el que esperan los jugadores justo antes de empezar a jug
 #### Justificación de la solución adoptada
 
 Al revisar el problema nos decidimos por la segunda alternativa ya que nos gustó como quedaba y nos resultó más comodo para el usuario y bonito de ver, ademas así reducimos la complejidad del trabajo dividiendolo en una pagina para cada cosa en vez de tener una pantalla de partida que maneja tanto todo a lo que la partida se refiere(logica de juego, usuarios, estilos propios) como, además, la parte de crear un lobby funcional.
+
+### Decisión 6: Aplicar el patrón de diseño Builder en la creación de nuevos usuarios
+#### Descripción del problema:
+La aplicación nos daba error a la hora de crear nuevos usuarios, tanto players como admins.
+
+#### Alternativas de solución evaluadas:
+
+*Alternativa 1.a*: arreglar la creación de la manera "tradicional"
+*Ventajas:*
+•	Es como estaba antes.
+*Inconvenientes:*
+•	Más complejidad a la hora de leer y entender el código.
+•   Mas pesado a la hora de programarlo
+
+*Alternativa 1.b*: aplicar el patrón de diseño Builder
+
+*Ventajas:*
+•	Mayor legibilidad
+•   Más fácil de implementar
+*Inconvenientes:*
+•	Aprender como se usaba
+
+#### Decisión de la solución adoptada
+
+Al final optamos por usar la segunda alternativa, ya que eso mejoraría la calidad de nuestro código a la vez que su legibilidad y a la reducción de la complejidad.
+
 
 ## Refactorizaciones aplicadas
 
