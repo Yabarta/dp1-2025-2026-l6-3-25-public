@@ -15,6 +15,10 @@
  */
 package es.us.dp1.l6_3_24_25.Petris.user;
 
+import es.us.dp1.l6_3_24_25.Petris.player.model.Player;
+import es.us.dp1.l6_3_24_25.Petris.player.model.Statistics;
+import es.us.dp1.l6_3_24_25.Petris.player.repository.PlayerRepository;
+import es.us.dp1.l6_3_24_25.Petris.player.repository.StatisticsRepository;
 import jakarta.validation.Valid;
 
 import org.springframework.beans.BeanUtils;
@@ -29,16 +33,42 @@ import es.us.dp1.l6_3_24_25.Petris.exceptions.ResourceNotFoundException;
 @Service
 public class UserService {
 
-	private UserRepository userRepository;
+    private final StatisticsRepository statisticsRepository;
+    private final PlayerRepository playerRepository;
+    private UserRepository userRepository;
 
-	public UserService(UserRepository userRepository) {
+	public UserService(UserRepository userRepository, StatisticsRepository statisticsRepository, PlayerRepository playerRepository) {
 		this.userRepository = userRepository;
-
-	}
+        this.statisticsRepository = statisticsRepository;
+        this.playerRepository = playerRepository;
+    }
 
 	@Transactional
 	public User saveUser(User user) throws DataAccessException {
-		userRepository.save(user);
+        userRepository.save(user);
+        if(user.hasAuthority("PLAYER")){
+            Statistics statistics = Statistics.builder().
+                gamesPlayed(0).
+                gamesWon(0).
+                timePlayed(0).
+                sarcinasCreated(0).
+                bacteriasCreated(0).
+                build();
+
+            statisticsRepository.save(statistics);
+
+            Player newPlayer = Player.builder().
+                nickname(user.getUsername()).
+                email("example@gmail.com").
+                profilePicture("").
+                isCurrentlyInMatch(false).
+                statistics(statistics).
+                user(user).
+                build();
+
+            playerRepository.save(newPlayer);
+        }
+
 		return user;
 	}
 

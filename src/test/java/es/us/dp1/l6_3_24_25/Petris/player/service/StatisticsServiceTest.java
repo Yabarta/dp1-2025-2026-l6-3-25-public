@@ -1,17 +1,24 @@
 package es.us.dp1.l6_3_24_25.Petris.player.service;
 
-import es.us.dp1.l6_3_24_25.Petris.exceptions.ResourceNotFoundException;
-import es.us.dp1.l6_3_24_25.Petris.player.model.Statistics;
-import io.qameta.allure.*;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
+import es.us.dp1.l6_3_24_25.Petris.exceptions.ResourceNotFoundException;
+import es.us.dp1.l6_3_24_25.Petris.player.model.Statistics;
+import io.qameta.allure.Description;
+import io.qameta.allure.Epic;
+import io.qameta.allure.Feature;
+import io.qameta.allure.Issue;
+import io.qameta.allure.Owner;
+import io.qameta.allure.Severity;
+import io.qameta.allure.SeverityLevel;
 
 @SpringBootTest
 @Epic("Statistics Service")
@@ -29,7 +36,7 @@ class StatisticsServiceTest {
     @Issue("https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/136")
     void getAllStatistics() {
         List<Statistics> statisticsList = statisticsService.getAllStatistics();
-        assertEquals(10, statisticsList.size(), "Incorrect number of statistics");
+        assertEquals(11, statisticsList.size(), "Incorrect number of statistics");
     }
 
     @Test
