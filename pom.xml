@@ -82,6 +82,10 @@
 			<artifactId>spring-boot-starter-cache</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.springframework.batch</groupId>
+			<artifactId>spring-batch-core</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-data-jpa</artifactId>
 		</dependency>
@@ -195,8 +199,13 @@
 			<artifactId>maven-model</artifactId>
 			<version>3.9.4</version>
 		</dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-envers</artifactId>
+            <version>${hibernate.version}</version>
+        </dependency>
 
-	</dependencies>
+    </dependencies>
 
 	<build>
 		<plugins>
@@ -423,6 +432,51 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.2.5</version>
             </plugin>
+
+			<plugin>
+  				<groupId>org.assertj</groupId>
+  				<artifactId>assertj-assertions-generator-maven-plugin</artifactId>
+  				<version>2.2.0</version>
+
+  			<configuration>
+
+    			<!-- List the package of classes you want to generate assertions for -->
+    			<packages>
+      				<param>es.us.dp1.l6_3_24_25.Petris.match.model</param>
+    			</packages>
+
+    			<!--
+      				If true, generate assertions for all fields whatever their visibility is (including private).
+      				Default to false which means assertions are only generated for public fields.
+    			-->
+    			<generateAssertionsForAllFields>true</generateAssertionsForAllFields>
+
+				<!-- Where to generate assertions entry point classes -->
+    			<entryPointClassPackage>org.assertj</entryPointClassPackage>
+
+				<!-- Sets the base directory where to generate assertions -->
+    			<targetDir>src/test/java/generatedAssertions</targetDir>
+
+    			<!-- If true, all files in targetDir are removed before generating new ones (default to false) -->
+    			<cleanTargetDir>true</cleanTargetDir>
+
+   				 <!-- Select which assertions entry point classes to generate -->
+    			<generateAssertions>true</generateAssertions>
+    			<generateBddAssertions>false</generateBddAssertions>
+    			<generateSoftAssertions>false</generateSoftAssertions>
+    			<generateJUnitSoftAssertions>false</generateJUnitSoftAssertions>
+
+    			<!--
+      				The generated assertions report is written to the given file.
+      				The base directory containing the report file is where the plugin is executed.
+   				-->
+    			<writeReportInFile>assertions-generation-report.txt</writeReportInFile>
+
+    			<!-- If true, do not generate assertions, it's a way to disable the plugin -->
+    			<skip>false</skip>
+
+  				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 

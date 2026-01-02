@@ -1,12 +1,5 @@
 package es.us.dp1.l6_3_24_25.Petris.configuration;
 
-import static org.springframework.security.config.Customizer.withDefaults;
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +7,7 @@ import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import static org.springframework.security.config.Customizer.withDefaults;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -42,7 +36,8 @@ public class SecurityConfiguration {
 	DataSource dataSource;
 
 	private static final String ADMIN = "ADMIN";
-	private static final String PLAYER = "PLAYER";
+	@SuppressWarnings("unused")
+    private static final String PLAYER = "PLAYER";
 
 
 	@Bean
@@ -76,7 +71,7 @@ public class SecurityConfiguration {
                 ).permitAll()
 
                 // API pública
-                .requestMatchers("/api/v1/profile").permitAll()
+                .requestMatchers("/api/v1/profile/**").permitAll()
                 .requestMatchers("/api/v1/auth/**").permitAll()
                 .requestMatchers("/api/v1/users/authorities").permitAll()
                 .requestMatchers("/api/v1/plans/**").permitAll()
@@ -92,6 +87,9 @@ public class SecurityConfiguration {
                 .requestMatchers("/topic/**").permitAll()
                 .requestMatchers("/api/v1/statistics/achievements").permitAll()
                 .requestMatchers("/api/v1/statistics/ranking").permitAll()
+                .requestMatchers("/api/v1/friends/**").authenticated()
+                .requestMatchers("/api/v1/achievements/**").permitAll()
+                .requestMatchers("/api/v1/audit/friends/**").permitAll()
 
                 // API restringida para administradores
                 .requestMatchers("/api/v1/users").hasAuthority(ADMIN)

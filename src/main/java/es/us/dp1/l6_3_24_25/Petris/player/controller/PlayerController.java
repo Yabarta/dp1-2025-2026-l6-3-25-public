@@ -4,10 +4,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import es.us.dp1.l6_3_24_25.Petris.player.service.PlayerService;
 import es.us.dp1.l6_3_24_25.Petris.match.model.Match;
 import es.us.dp1.l6_3_24_25.Petris.player.model.Achievement;
@@ -19,11 +19,14 @@ import java.util.List;
 
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.multipart.MultipartFile;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
+
+import es.us.dp1.l6_3_24_25.Petris.exceptions.ResourceNotFoundException;
 import jakarta.annotation.PostConstruct;
 
 
@@ -35,7 +38,6 @@ public class PlayerController {
 
     PlayerService playerservice;
 
-    @Autowired
     public PlayerController(PlayerService ps){
         this.playerservice = ps;
     }
@@ -69,17 +71,8 @@ public class PlayerController {
     }
 
     @GetMapping("/{id}/statistics")
-    public ResponseEntity<List<Statistics>> getPlayerStatsById(@PathVariable("id") Integer id) {
+    public ResponseEntity<Statistics> getPlayerStatsById(@PathVariable("id") Integer id) {
         return new ResponseEntity<>(playerservice.getPlayerById(id).getStatistics(), HttpStatus.OK);
-    }
-
-    @GetMapping("/{id}/statistics/{statId}")
-    public Statistics getPlayerSpecificStatById(@PathVariable("id") Integer id, @PathVariable("statId") Integer statId) {
-        Player player = playerservice.getPlayerById(id);
-        return player.getStatistics().stream()
-                .filter(stat -> stat.getId().equals(statId))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("Statistic not found"));
     }
 
     @GetMapping("/{id}/achievements")
@@ -87,14 +80,9 @@ public class PlayerController {
         return new ResponseEntity<>(playerservice.getPlayerById(id).getAchievements(), HttpStatus.OK);
     }
 
-    @GetMapping("/{id}/game")
-    public ResponseEntity<List<Match>> getPlayerGameById(@PathVariable("id") Integer id) {
-        return new ResponseEntity<>(playerservice.getPlayerById(id).getGame(), HttpStatus.OK);
-    }
-
-    @GetMapping("/{username}")
-    public ResponseEntity<Player> getPlayerByNickname(@PathVariable("username") String username) {
-        return new ResponseEntity<>(playerservice.getPlayerByNickname(username), HttpStatus.OK);
+    @GetMapping("/nickname/{nickname}")
+    public ResponseEntity<Player> getPlayerByNickname(@PathVariable("nickname") String nickname) {
+        return new ResponseEntity<>(playerservice.getPlayerByNickname(nickname), HttpStatus.OK);
     }
 
     @GetMapping("/user/{username}")
@@ -117,7 +105,7 @@ public class PlayerController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Void> updatePlayer(@Valid @RequestBody Player player, @PathVariable("id") Integer id) {
-        Player playerToUpdate = getPlayerById(id).getBody();
+        Player playerToUpdate = playerservice.getPlayerById(id);
         BeanUtils.copyProperties(player, playerToUpdate, "id");
         playerservice.save(playerToUpdate);
 
@@ -167,10 +155,7 @@ public class PlayerController {
     @ResponseStatus(HttpStatus.OK)
     public void updatePlayerStat(@PathVariable("id") Integer id, @PathVariable("statId") Integer statId, @Valid @RequestBody Statistics stat) {
         Player player = playerservice.getPlayerById(id);
-        Statistics statToUpdate = player.getStatistics().stream()
-                .filter(s -> s.getId().equals(statId))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("Statistic not found"));
+        Statistics statToUpdate = player.getStatistics();
         BeanUtils.copyProperties(stat, statToUpdate, "id");
         playerservice.save(player);
     }

@@ -1,50 +1,31 @@
 package es.us.dp1.l6_3_24_25.Petris.match.service;
 
-import java.security.SecureRandom;
+import es.us.dp1.l6_3_24_25.Petris.exceptions.AccessDeniedException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import es.us.dp1.l6_3_24_25.Petris.exceptions.ResourceNotFoundException;
-import es.us.dp1.l6_3_24_25.Petris.match.dto.LobbyDTO;
-import es.us.dp1.l6_3_24_25.Petris.match.dto.MatchDTO;
-import es.us.dp1.l6_3_24_25.Petris.match.dto.PetriDishDTO;
-import es.us.dp1.l6_3_24_25.Petris.match.dto.PlayerSummaryDTO;
 import es.us.dp1.l6_3_24_25.Petris.match.model.Match;
 import es.us.dp1.l6_3_24_25.Petris.match.model.PetriDish;
 import es.us.dp1.l6_3_24_25.Petris.match.model.TurnType;
 import es.us.dp1.l6_3_24_25.Petris.match.repository.MatchRepository;
+import es.us.dp1.l6_3_24_25.Petris.match.util.MatchDataUtil;
+import es.us.dp1.l6_3_24_25.Petris.match.util.MatchMethodUtil;
 import es.us.dp1.l6_3_24_25.Petris.player.model.Player;
+import es.us.dp1.l6_3_24_25.Petris.player.batchProcessing.MatchStatsBatchOrchestrator;
 
 @Service
 public class MatchService {
-    private static final int NUM_PETRI_DISHES = 7;
-    private static final int MAX_BACTERIA_PER_PETRI_DISH = 5;
-    private static final int MAX_MOVABLE_BACTERIA = 4;
-    private static final String CODE_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    private static final int CODE_LENGTH = 4;
 
     private final MatchRepository matchRepository;
-    private final SecureRandom secureRandom = new SecureRandom();
-    private MatchServiceHelper matchServiceHelper;
+    private final MatchStatsBatchOrchestrator matchStatsBatchOrchestrator;
 
-    public MatchService(final MatchRepository matchRepository,
-                        final ObjectProvider<MatchServiceHelper> helperProvider) {
+    public MatchService(final MatchRepository matchRepository, MatchStatsBatchOrchestrator matchStatsBatchOrchestrator) {
         this.matchRepository = matchRepository;
-        this.matchServiceHelper = helperProvider.getIfAvailable();
-        if (this.matchServiceHelper == null) {
-            this.matchServiceHelper = new MatchServiceHelper(null, new ArrayList<>(), 1);
-        }
+        this.matchStatsBatchOrchestrator = matchStatsBatchOrchestrator;
     }
-
 
     @Transactional(readOnly = true)
     public List<Match> getAllMatches(){
@@ -52,13 +33,13 @@ public class MatchService {
     }
 
     @Transactional(readOnly = true)
-    public Match getMatchById(@NonNull Integer id){
+    public Match getMatchById(Integer id) throws ResourceNotFoundException {
         return matchRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Match", "Id", id));
     }
 
     @Transactional(readOnly = true)
-    public Match getMatchByCode(@NonNull String code){
+    public Match getMatchByCode(String code) throws ResourceNotFoundException {
         return matchRepository.findByCode(code)
             .orElseThrow(() -> new ResourceNotFoundException("Match", "Code", code));
     }
@@ -73,334 +54,190 @@ public class MatchService {
         return matchRepository.findByStartedAtNull();
     }
 
-    @Transactional
-    public Match createMatch(@NonNull Match match){
-        match.setCreatedAt(LocalDateTime.now());
-        match.setStartedAt(null);
-        match.setEndedAt(null);
-        match.setPlayer1Score(0);
-        match.setPlayer2Score(0);
-        match.setWinner(null);
-        int turn = 0;
-        match.setTurn(turn);
-        match.setTurnType(matchServiceHelper.getTurnTypeList().get(turn));
-        List<PetriDish> initialBoardState = new ArrayList<>();
-        for(int i = 0; i < 7; i++) {
-            PetriDish pd = new PetriDish();
-            if(i == 2) { // posicion inicial del jugador 1
-                pd.setPlayer1Bacteria(1);
-            } else if(i == 4) { // posicion inicial del jugador 2
-                pd.setPlayer2Bacteria(1);
-            }
-            initialBoardState.add(pd);
+    @Transactional(rollbackFor = {AccessDeniedException.class})
+    public Match createMatch(Player creator, boolean isPrivate) throws AccessDeniedException{
+        if (creator.getIsCurrentlyInMatch()) {
+            throw new AccessDeniedException("Already in a match");
         }
-        match.setBoardState(initialBoardState);
+
+        Match initialMatch = MatchDataUtil.buildInitialMatch(creator, isPrivate);
+
+        return matchRepository.save(initialMatch);
+    }
+
+    @Transactional(rollbackFor = {AccessDeniedException.class})
+    public Match joinMatch(Match match, Player playerToJoin, String code) throws AccessDeniedException{
+        if (playerToJoin.getIsCurrentlyInMatch()) {
+            throw new AccessDeniedException("Already in a match");
+        }
+        if(match.hasEnded()) {
+            throw new AccessDeniedException("The match has already ended");
+        } else if(match.hasStarted()) {
+            throw new AccessDeniedException("The match has already started");
+        }
+        if(!match.isValidCode(code)) {
+            throw new AccessDeniedException("Incorrect code for private match");
+        }
+        if (match.isFull()) {
+            throw new AccessDeniedException("The match is already full");
+        }
+
+        match.setPlayer2(playerToJoin);
+
         return matchRepository.save(match);
     }
 
-    @Transactional
-    public Match joinMatch(@NonNull Match match) {
+    @Transactional(rollbackFor = {AccessDeniedException.class})
+    public Match leaveMatch(Match match, Player playerToLeave) {
+        if(match.hasEnded()) {
+            throw new AccessDeniedException("The match has already ended");
+        } else if(match.hasStarted()) {
+            throw new AccessDeniedException("The match has already started. Concede instead");
+        }
+        if (!match.hasPlayer(playerToLeave)) {
+            throw new AccessDeniedException("Not in this match");
+        } else if(match.hasCreator(playerToLeave)) {
+            Player currentPlayer2 = match.getPlayer2();
+            match.setCreator(currentPlayer2);
+            match.setPlayer1(currentPlayer2);
+        }
+
+        match.setPlayer2(null);
+
         return matchRepository.save(match);
     }
 
-    @Transactional
-    public Match startMatch(@NonNull Match match) {
+    @Transactional(rollbackFor = {AccessDeniedException.class})
+    public Match startMatch(Match match) {
+        if (!match.isFull()) {
+            throw new AccessDeniedException("Two players are required to start the match");
+        }
+        if(match.hasEnded()) {
+            throw new AccessDeniedException("The match has already ended");
+        } else if(match.hasStarted()) {
+            // This method can't be called appropriately (via MatchController) if the match has started
+            throw new AccessDeniedException("Unsupported operation for started match");
+        }
+
         match.setStartedAt(LocalDateTime.now());
+        match.setTurn(0);
+
         return matchRepository.save(match);
     }
 
-    @Transactional
-    public Optional<Match> leaveMatch(@NonNull Match match, @NonNull Player player) {
-        boolean changed = false;
-        if (player.equals(match.getPlayer1())) {
-            match.setPlayer1(null);
-            changed = true;
-        } else if (player.equals(match.getPlayer2())) {
-            match.setPlayer2(null);
-            changed = true;
-        }
-
-        if (!changed) {
-            return Optional.of(match);
-        }
-
-        if (player.equals(match.getCreator())) {
-            match.setCreator(null);
-        }
-
-        if (match.getPlayer1() == null && match.getPlayer2() != null) {
-            match.setPlayer1(match.getPlayer2());
-            match.setPlayer2(null);
-            if (match.getCreator() == null) {
-                match.setCreator(match.getPlayer1());
-            }
-        } else if (match.getPlayer1() == null && match.getPlayer2() == null) {
-            matchRepository.delete(match);
-            return Optional.empty();
-        } else if (match.getCreator() == null) {
-            match.setCreator(match.getPlayer1());
-        }
-
-        Match saved = matchRepository.save(match);
-        return Optional.of(saved);
-    }
-
-    @Transactional
-    public Match nextTurn(@NonNull Match matchToUpdate, Optional<List<PetriDish>> newBoardState) throws IllegalArgumentException {
-        List<TurnType> turnSequence = matchServiceHelper.getTurnTypeList();
+    @Transactional(rollbackFor = {IllegalArgumentException.class, AccessDeniedException.class})
+    public Match nextTurn(Match matchToUpdate, List<PetriDish> newBoardState) throws IllegalArgumentException, AccessDeniedException {
         Integer currentTurn = matchToUpdate.getTurn();
-        if (currentTurn == null) {
-            currentTurn = 0;
-            matchToUpdate.setTurn(currentTurn);
-        }
-        if (currentTurn >= turnSequence.size()) {
-            throw new IllegalStateException("No remaining turns to process");
+        if (currentTurn >= MatchDataUtil.getTurnsNum()) {
+            throw new IllegalArgumentException("No remaining turns to process");
         }
 
-        Match updatedMatch = null;
+        if(!matchToUpdate.hasStarted()) {
+            throw new AccessDeniedException("The match has not yet started");
+        }
+        if(matchToUpdate.hasEnded()) {
+            throw new AccessDeniedException("The match has already ended");
+        }
+
+        Match updatedMatch;
         TurnType currentTurnType = matchToUpdate.getTurnType();
         switch (currentTurnType) {
             case TurnType.P1_PROPAGATION:
-                if (newBoardState.isPresent()) {
-                    updatedMatch = propagation(matchToUpdate, newBoardState.get(), 1);
-                } else {
-                    throw new IllegalArgumentException("New board state not provided");
+                try {
+                    updatedMatch = MatchMethodUtil.propagation(matchToUpdate, newBoardState, 1);
+                } catch(IllegalArgumentException e) {
+                    throw e;
                 }
                 break;
             case TurnType.P2_PROPAGATION:
-                if (newBoardState.isPresent()) {
-                    updatedMatch = propagation(matchToUpdate, newBoardState.get(), 2);
-                } else {
-                    throw new IllegalArgumentException("New board state not provided");
+                try {
+                    updatedMatch = MatchMethodUtil.propagation(matchToUpdate, newBoardState, 2);
+                } catch(IllegalArgumentException e) {
+                    throw e;
                 }
                 break;
             case TurnType.BINARY_FISSION:
-                updatedMatch = matchServiceHelper.binaryFission(matchToUpdate);
+                updatedMatch = MatchMethodUtil.binaryFission(matchToUpdate);
                 break;
             case TurnType.CONTAMINATION:
-                updatedMatch = matchServiceHelper.contamination(matchToUpdate);
+                updatedMatch = MatchMethodUtil.contamination(matchToUpdate);
                 break;
             default:
-                throw new IllegalStateException("Unsupported turn type: " + currentTurnType);
+                throw new IllegalArgumentException("Unsupported turn type: " + currentTurnType);
         }
 
         int nextTurnIndex = currentTurn + 1;
         updatedMatch.setTurn(nextTurnIndex);
-        if (nextTurnIndex < turnSequence.size()) {
-            updatedMatch.setTurnType(turnSequence.get(nextTurnIndex));
+        if (nextTurnIndex < MatchDataUtil.getTurnsNum()) {
+            updatedMatch.setTurnType(MatchDataUtil.getTurnType(nextTurnIndex));
         } else {
             updatedMatch.setTurnType(null);
         }
 
-        Integer winner = matchServiceHelper.getWinner(updatedMatch);
+        Integer winner = MatchMethodUtil.getWinner(updatedMatch);
         if (winner != null) {
             updatedMatch.setEndedAt(LocalDateTime.now());
             updatedMatch.setWinner(winner);
         }
-        return matchRepository.save(updatedMatch);
-    }
 
-    private Match propagation(Match matchToUpdate, List<PetriDish> newBoardState, int player) throws IllegalArgumentException{
-        List<PetriDish> currentBoardState = matchToUpdate.getBoardState();
-        List<String> errors = getPropagationErrors(currentBoardState, newBoardState, player);
-        if(!errors.isEmpty()) {
-            throw new IllegalArgumentException(errors.toString());
+        Match savedMatch = matchRepository.save(updatedMatch);
+        if (winner != null && matchStatsBatchOrchestrator != null) {
+            matchStatsBatchOrchestrator.triggerForMatch(savedMatch);
         }
-        matchToUpdate.setBoardState(newBoardState);
-        return matchToUpdate;
+        return savedMatch;
     }
 
     @Transactional(readOnly = true)
-    public List<String> getPropagationErrors(List<PetriDish> currentBoardState, List<PetriDish> newBoardState, int player) {
-        List<String> errors = new ArrayList<>();
-        if (currentBoardState == null || newBoardState == null) {
-            errors.add("Board state is missing");
-            return errors;
-        }
-        if (currentBoardState.size() != NUM_PETRI_DISHES || newBoardState.size() != NUM_PETRI_DISHES) {
-            errors.add("Board state must contain exactly " + NUM_PETRI_DISHES + " dishes");
-            return errors;
-        }
-
-        Set<Integer> movedBacteriaTo = new HashSet<>();
-        Integer movedBacteriaFrom = null;
-        int movedInBacteriaNum = 0;
-        int movedOutBacteriaNum = 0;
-
-        for (int i = 0; i < NUM_PETRI_DISHES; i++) {
-            PetriDish currentPd = currentBoardState.get(i);
-            PetriDish newPd = newBoardState.get(i);
-            if (currentPd == null || newPd == null) {
-                errors.add("Invalid dish data at index: {" + i + "}");
-                continue;
-            }
-
-            int currentP1 = normalizeCount(currentPd.getPlayer1Bacteria());
-            int currentP2 = normalizeCount(currentPd.getPlayer2Bacteria());
-            int newP1 = normalizeCount(newPd.getPlayer1Bacteria());
-            int newP2 = normalizeCount(newPd.getPlayer2Bacteria());
-
-            if (!isValidCount(newP1) || !isValidCount(newP2)) {
-                errors.add("Bacteria count must stay between 0 and " + MAX_BACTERIA_PER_PETRI_DISH + ": {" + i + "}");
-            }
-
-            if (currentP2 > 0 && newP1 == currentP2) {
-                errors.add("Players can't have the same amount of bacteria on the same dish as another: {" + i + "}");
-            }
-            if (currentP1 > 0 && newP2 == currentP1) {
-                errors.add("Players can't have the same amount of bacteria on the same dish as another: {" + i + "}");
-            }
-
-            if (player == 1 && newP2 != currentP2) {
-                errors.add("Player 1 can't modify Player 2 bacteria: {" + i + "}");
-            }
-            if (player == 2 && newP1 != currentP1) {
-                errors.add("Player 2 can't modify Player 1 bacteria: {" + i + "}");
-            }
-
-            int diffForPlayer = player == 1 ? newP1 - currentP1 : newP2 - currentP2;
-            int opponentCount = player == 1 ? currentP2 : currentP1;
-
-            if (diffForPlayer < 0) {
-                int availableAtSource = player == 1 ? currentP1 : currentP2;
-                if ((player == 1 && currentP1 == MAX_BACTERIA_PER_PETRI_DISH) || (player == 2 && currentP2 == MAX_BACTERIA_PER_PETRI_DISH)) {
-                    errors.add("Sarcinas can't be moved: {" + i + "}");
-                }
-                if (movedBacteriaFrom != null && !movedBacteriaFrom.equals(i)) {
-                    errors.add("Players can't move bacteria from more than one petri dish: {" + i + "}");
-                }
-                movedBacteriaFrom = i;
-                int amountMoved = Math.abs(diffForPlayer);
-                movedOutBacteriaNum += amountMoved;
-                if (amountMoved > availableAtSource) {
-                    errors.add("Players can't move more bacteria than available on the origin dish: {" + i + "}");
-                }
-                if (amountMoved > MAX_MOVABLE_BACTERIA) {
-                    errors.add("Players can't move more than " + MAX_MOVABLE_BACTERIA + " bacteria per turn: {" + i + "}");
-                }
-                if (opponentCount > 0 && availableAtSource - amountMoved == opponentCount) {
-                    errors.add("Players can't leave the same amount of bacteria as the opponent on the origin dish: {" + i + "}");
-                }
-            } else if (diffForPlayer > 0) {
-                movedBacteriaTo.add(i);
-                movedInBacteriaNum += diffForPlayer;
-                if (player == 1 && newP1 > MAX_BACTERIA_PER_PETRI_DISH || player == 2 && newP2 > MAX_BACTERIA_PER_PETRI_DISH) {
-                    errors.add("Players can't exceed the maximum number of bacteria per dish: {" + i + "}");
-                }
-                if (opponentCount > 0 && opponentCount == diffForPlayer) {
-                    errors.add("Players can't move the same amount of bacteria as the opponent has on the target dish: {" + i + "}");
-                }
-            }
+    public List<String> checkErrors(Match matchToCheck, List<PetriDish> newBoardState, Player player) throws AccessDeniedException {
+        int playerNum;
+        if(matchToCheck.hasPlayer1(player)) {
+            playerNum = 1;
+        } else if(matchToCheck.hasPlayer2(player)) {
+            playerNum = 2;
+        } else {
+            throw new AccessDeniedException("Not in this match");
         }
 
-        if (movedBacteriaFrom == null) {
-            errors.add("Players must move at least one bacteria: {atLeastOne}");
+        if(matchToCheck.hasEnded()) {
+            throw new AccessDeniedException("The match has already ended");
         }
-        if (movedOutBacteriaNum != movedInBacteriaNum) {
-            errors.add("Inconsistency in the number of bacteria that moved: {inconsistency}");
-        }
-        if (movedOutBacteriaNum > MAX_MOVABLE_BACTERIA) {
-            errors.add("Players can't move more than " + MAX_MOVABLE_BACTERIA + " bacteria per turn: {tooMany}");
-        }
-        if (movedBacteriaFrom != null) {
-            Set<Integer> allowedTargets = matchServiceHelper.getPetriDishAdjacencies().get(movedBacteriaFrom);
-            if (allowedTargets == null || !allowedTargets.containsAll(movedBacteriaTo)) {
-                errors.add("Players can only move bacteria to adyacent dishes: {adyacency}");
-            }
+        if(!matchToCheck.isTurnOf(player)) {
+            throw new AccessDeniedException("Can only check for errors in your propagation turns");
         }
 
-        return errors;
+        return MatchMethodUtil.getPropagationErrors(matchToCheck.getBoardState(), newBoardState, playerNum);
+    }
+
+    @Transactional(rollbackFor = {AccessDeniedException.class})
+    public Match concedeMatch(Match matchToUpdate, Player playerToConcede) throws AccessDeniedException {
+        int winner;
+        if(matchToUpdate.hasPlayer1(playerToConcede)) {
+            winner = 2;
+        } else if(matchToUpdate.hasPlayer2(playerToConcede)) {
+            winner = 1;
+        } else {
+            throw new AccessDeniedException("Not in this match");
+        }
+
+        if(matchToUpdate.hasEnded()) {
+            throw new AccessDeniedException("The match has already ended");
+        }
+        if(!matchToUpdate.isInPropagationTurn()) {
+            throw new AccessDeniedException("Can only concede in propagation turns");
+        }
+
+        matchToUpdate.setWinner(winner);
+        matchToUpdate.setEndedAt(LocalDateTime.now());
+
+        Match savedMatch = matchRepository.save(matchToUpdate);
+        matchStatsBatchOrchestrator.triggerForMatch(savedMatch);
+
+        return matchRepository.save(matchToUpdate);
     }
 
     @Transactional
-    public Match forceEndMatch(@NonNull Match match) {
-        match.setEndedAt(LocalDateTime.now());
-        return matchRepository.save(match);
-    }
-
-    @Transactional
-    public void delete(@NonNull Integer id){
+    public void delete(Integer id) {
         matchRepository.deleteById(id);
     }
 
-    public LobbyDTO toLobbyDTO(@NonNull Match match) {
-        LobbyDTO dto = new LobbyDTO();
-        dto.setId(match.getId());
-        dto.setCode(match.getCode());
-        dto.setPrivate(match.getCode() != null);
-        dto.setCreatorId(match.getCreator() != null ? match.getCreator().getId() : null);
-        dto.setCreatedAt(match.getCreatedAt());
-        dto.setStartedAt(match.getStartedAt());
-        dto.setPlayers(buildPlayerList(match));
-        return dto;
-    }
-
-    public MatchDTO toMatchDTO(@NonNull Match match) {
-        MatchDTO dto = new MatchDTO();
-        dto.setId(match.getId());
-        dto.setCode(match.getCode());
-        dto.setCreatedAt(match.getCreatedAt());
-        dto.setStartedAt(match.getStartedAt());
-        dto.setEndedAt(match.getEndedAt());
-        dto.setTurn(match.getTurn());
-        dto.setTurnType(match.getTurnType());
-        dto.setPlayer1Score(match.getPlayer1Score());
-        dto.setPlayer2Score(match.getPlayer2Score());
-        dto.setWinner(match.getWinner());
-        dto.setPlayer1(toPlayerSummary(match.getPlayer1()));
-        dto.setPlayer2(toPlayerSummary(match.getPlayer2()));
-        List<PetriDishDTO> board = new ArrayList<>();
-        List<PetriDish> dishes = match.getBoardState();
-        if (dishes != null) {
-            for (int i = 0; i < dishes.size(); i++) {
-                PetriDish dish = dishes.get(i);
-                PetriDishDTO dishDTO = new PetriDishDTO();
-                dishDTO.setIndex(i);
-                dishDTO.setPlayer1Bacteria(dish.getPlayer1Bacteria());
-                dishDTO.setPlayer2Bacteria(dish.getPlayer2Bacteria());
-                board.add(dishDTO);
-            }
-        }
-        dto.setBoard(board);
-        return dto;
-    }
-
-    public String generateLobbyCode() {
-        StringBuilder builder = new StringBuilder(CODE_LENGTH);
-        for (int i = 0; i < CODE_LENGTH; i++) {
-            int index = secureRandom.nextInt(CODE_ALPHABET.length());
-            builder.append(CODE_ALPHABET.charAt(index));
-        }
-        return builder.toString();
-    }
-
-    private List<PlayerSummaryDTO> buildPlayerList(Match match) {
-        List<PlayerSummaryDTO> players = new ArrayList<>();
-        if (match.getPlayer1() != null) {
-            players.add(toPlayerSummary(match.getPlayer1()));
-        }
-        if (match.getPlayer2() != null) {
-            players.add(toPlayerSummary(match.getPlayer2()));
-        }
-        return players;
-    }
-
-    private PlayerSummaryDTO toPlayerSummary(Player player) {
-        if (player == null) {
-            return null;
-        }
-        PlayerSummaryDTO dto = new PlayerSummaryDTO();
-        dto.setId(player.getId());
-        dto.setNickname(player.getNickname());
-        dto.setUsername(player.getUser() != null ? player.getUser().getUsername() : null);
-        return dto;
-    }
-
-    private static int normalizeCount(Integer value) {
-        return value == null ? 0 : value;
-    }
-
-    private static boolean isValidCount(int value) {
-        return value >= 0 && value <= MAX_BACTERIA_PER_PETRI_DISH;
-    }
 }

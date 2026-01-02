@@ -52,6 +52,12 @@ public class PlayerService {
     }
 
     @Transactional
+    public void setIsCurrentlyInMatch(Player player, Boolean isCurrentlyInMatch) {
+        player.setIsCurrentlyInMatch(isCurrentlyInMatch);
+        playerRepository.save(player);
+    }
+
+    @Transactional
     public void delete(Integer id) {
         playerRepository.deleteById(id);
     }
