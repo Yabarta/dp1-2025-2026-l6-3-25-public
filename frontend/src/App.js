@@ -1,5 +1,5 @@
-import React from "react";
-import { Route, Routes } from "react-router-dom";
+import React, { useEffect } from "react";
+import { Route, Routes, useNavigate, useLocation } from "react-router-dom";
 import jwt_decode from "jwt-decode";
 import { ErrorBoundary } from "react-error-boundary";
 import AppNavbar from "./AppNavbar";
@@ -12,6 +12,7 @@ import Login from "./auth/login";
 import Logout from "./auth/logout";
 import PlanList from "./public/plan";
 import tokenService from "./services/token.service";
+import api from "./services/api";
 import UserListAdmin from "./admin/users/UserListAdmin";
 import UserEditAdmin from "./admin/users/UserEditAdmin";
 import SwaggerDocs from "./public/swagger";
@@ -38,6 +39,35 @@ function App() {
   if (jwt) {
     roles = getRolesFromJWT(jwt);
   }
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (!jwt) return;
+    const currentUser = tokenService.getUser();
+    const checkActiveMatch = async () => {
+      try {
+        const resp = await api.get('/api/v1/matches/current');
+        const matches = resp.data || [];
+        const activeMatch = matches.find((m) => (
+          m.startedAt && !m.endedAt && (
+            m.player1?.nickname === currentUser?.username ||
+            m.player2?.nickname === currentUser?.username
+          )
+        ));
+        if (activeMatch) {
+          const target = `/game/${activeMatch.id}`;
+          if (location.pathname !== target) {
+            navigate(target);
+          }
+        }
+      } catch (err) {
+        console.error("Error checking active matches:", err);
+      }
+    };
+    checkActiveMatch();
+    return;
+  }, [jwt, navigate, location.pathname]);
 
   function getRolesFromJWT(jwt) {
     return jwt_decode(jwt).authorities;
