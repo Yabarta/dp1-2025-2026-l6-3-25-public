@@ -2461,3 +2461,54 @@ public class MatchController {
 Comprensión del código por su mala organización, coherencia con las capas de Spring
 #### Ventajas que presenta la nueva versión del código respecto de la versión original
 Código con funcionalidad dividida en las clases adecuadas, más legible y mantenible
+
+### Refactorización 5:
+#### Modularización adicional y contenedor para `ProfileScreen`
+En esta refactorización se finalizó la descomposición y se transformó `ProfileScreen` en un contenedor puro que expone una API de props clara a varios componentes presentacionales. El objetivo fue reducir el acoplamiento, mejorar la testabilidad y facilitar la reutilización de las secciones del perfil.
+
+#### Estado inicial del código
+
+    <div className="profileContainer">{modal}
+        <div className="left"> /* cabecera, avatar, estadísticas y controles inline */ </div>
+        <div className="right"> /* partidas recientes, logros y modales inline */ </div>
+        {showHistoryPopup && (/* modal JSX muy largo */)}
+        {showEditPopup && (/* modal JSX muy largo */)}
+    </div>
+
+#### Estado del código refactorizado
+
+    <div className="profileContainer">
+        {modal}
+        <div className="left">
+            <ProfileHeader {...profileHeaderProps} />
+            <StatsSection {...statsProps} />
+        </div>
+        <div className="right">
+            <RecentGames {...recentGamesProps} />
+            <AchievementsSection {...achievementsProps} />
+        </div>
+        <HistoryPopup {...historyProps} />
+        <EditPopup {...editProps} />
+    </div>
+
+#### Archivos creados / modificados
+
+- `frontend/src/profile/components/ProfileHeader.js`
+- `frontend/src/profile/components/StatsSection.js`
+- `frontend/src/profile/components/RecentGames.js`
+- `frontend/src/profile/components/AchievementsSection.js`
+- `frontend/src/profile/components/HistoryPopup.js`
+- `frontend/src/profile/components/EditPopup.js`
+- `frontend/src/profile/profileScreen.js` (convertido en contenedor que realiza fetches, mantiene estado y pasa callbacks/props)
+
+#### Problema que nos hizo realizar la refactorización
+
+El componente del perfil era muy grande y mezclaba lógica de obtención de datos, handlers, y renderizado complejo en un único archivo. Esto dificultaba localizar la responsabilidad de cada pieza, aumentaba el acoplamiento y hacía más costosa la introducción de pruebas unitarias o la reutilización de secciones.
+
+#### Ventajas que presenta la nueva versión del código respecto de la versión original
+
+- **Reducción del acoplamiento:** los componentes presentacionales sólo reciben props y no dependen del estado global del contenedor.
+- **Mejor testabilidad:** componentes puros y pequeños se pueden testear de forma aislada.
+- **Reutilización:** se pueden incorporar `StatsSection` o `RecentGames` en otras vistas sin arrastrar código innecesario.
+- **Claridad y mantenimiento:** `profileScreen.js` queda como orquestador claro de los datos y handlers; los cambios visuales o de formulario se aplican en archivos pequeños.
+- **UX mejorada:** los modales (`HistoryPopup`, `EditPopup`) se manejan como componentes reutilizables, y `EditPopup` usa `Formik` para robustez en formularios.
