@@ -20,6 +20,7 @@ import ProfileScreen from "./profile/profileScreen";
 import Lobby from "./Game/Lobby";
 import NotStartedGames from "./home/NotStartedGameList"; 
 import LobbyScreen from "./Game/LobbyScreen"; 
+import Leaderboards from "./leaderboards/Leaderboards";
 
 function ErrorFallback({ error, resetErrorBoundary }) {
   return (
@@ -92,6 +93,7 @@ function App() {
         <AppNavbar />
         <Routes>
           <Route path="/" exact={true} element={<Home />} />
+          <Route path="/leaderboards" element={<Leaderboards />} />
           <Route path="/plans" element={<PlanList />} />
           <Route path="/demo" element={<DemoGame />} />
           <Route path="/docs" element={<SwaggerDocs />} />

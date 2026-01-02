@@ -22,16 +22,16 @@ INSERT INTO appusers(id,username,password,authority) VALUES (18,'WHS7046','$2a$1
 INSERT INTO appusers(id,username,password,authority) VALUES (19,'WTS5677','$2a$10$DaS6KIEfF5CRTFrxIoGc7emY3BpZZ0.fVjwA3NiJ.BjpGNmocaS3e',2);
 
 INSERT INTO statistics(id, games_played, games_won, time_played, sarcinas_created, bacterias_created) 
-VALUES (1, 10, 5, 300, 7, 15), 
-(2, 10, 5, 300, 7, 15), 
+VALUES (1, 98, 67, 300, 7, 15), 
+(2, 120, 85, 300, 7, 15), 
 (3, 10, 5, 300, 7, 15) ,
-(4, 10, 5, 300, 7, 15),
-(5, 10, 5, 300, 7, 15),
-(6, 10, 5, 3 , 7 ,15),
-(7, 10, 5, 300, 7, 15),
-(8, 10, 5, 300, 7, 15),
-(9, 10, 5, 300, 7, 15),
-(10, 10, 5, 300, 7, 15),
+(4, 15, 6, 300, 7, 15),
+(5, 12, 7, 300, 7, 15),
+(6, 104, 25, 3 , 7 ,15),
+(7, 70, 50, 300, 7, 15),
+(8, 54, 33, 300, 7, 15),
+(9, 46, 22, 300, 7, 15),
+(10, 31, 13, 300, 7, 15),
 (11, 8, 3, 147, 2, 28);
 
 INSERT INTO players(id, is_currently_in_match, user_id, nickname, email, statistics_id) VALUES(1, false, 4, 'player1', 'hola@gmail.com', 1);
