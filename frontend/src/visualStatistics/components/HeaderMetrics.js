@@ -1,8 +1,16 @@
 import React from 'react';
 import GlassPanel from './GlassPanel';
+import { useNavigate } from 'react-router-dom';
 
 
 export default function Header({ gamesSize, timePlayed, sarcines, playersRegistered }) {
+
+    const navigate = useNavigate()
+
+    const navigateToComparator = () => {
+        navigate('/comparator')
+    }
+
     return (
         <header className="petris-header">
         <div className="header-top">
@@ -15,7 +23,7 @@ export default function Header({ gamesSize, timePlayed, sarcines, playersRegiste
                     <small className="" style={{ letterSpacing: '2px', fontSize: '0.7rem', color: 'white' }}>SISTEMA DE CONTROL</small>
                 </div>
             </div>
-            <input type="text" placeholder="Buscar Científico..." className="search-input text-mono" />
+            <button class="search-btn" onClick={() => { navigateToComparator() }}>¡¡Compara tus estadísticas!!</button>
         </div>
 
         {/* KPI GRID */}
