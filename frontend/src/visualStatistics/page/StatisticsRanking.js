@@ -2,22 +2,41 @@ import React, { useState } from "react";
 import HeaderMetrics from "../components/HeaderMetrics";
 import Podium from "../components/Podium";
 import LeaderboardTable from "../components/LeaderBoardTable";
-import ComparatorDock from "../components/ComparatorDock";
-
+import getErrorModal from "../../util/getErrorModal";
 import '../styles/PetrisStats.css';
 
-const SCIENTISTS_DATA = [
-    { id: 'p1', name: 'Dr. Pasteur', rank: 1, contamination: 12, sarcinas: 45, winRate: '88%', avatar: 'https://i.pravatar.cc/150?u=sci1' },
-    { id: 'p2', name: 'Prof. Curie', rank: 2, contamination: 14, sarcinas: 38, winRate: '78%', avatar: 'https://i.pravatar.cc/150?u=sci2' },
-    { id: 'p3', name: 'Bio_Hazard', rank: 3, contamination: 18, sarcinas: 41, winRate: '72%', avatar: 'https://i.pravatar.cc/150?u=sci3' },
-    { id: 'p4', name: 'Lab_Rat_99', rank: 4, contamination: 22, sarcinas: 30, winRate: '65%', avatar: 'https://i.pravatar.cc/150?u=sci4' },
-    { id: 'p5', name: 'Bacteria_Boss', rank: 5, contamination: 28, sarcinas: 25, winRate: '55%', avatar: 'https://i.pravatar.cc/150?u=sci5' },
-    { id: 'p6', name: 'Agar_King', rank: 6, contamination: 35, sarcinas: 15, winRate: '42%', avatar: 'https://i.pravatar.cc/150?u=sci6' },
-];
+import useFetchState from "../../util/useFetchState";
+import tokenService from "../../services/token.service";
+
+const jwt = tokenService.getLocalAccessToken()
 
 export default function StatisticRanking() {
+  const [message, setMessage] = useState(null)
+  const [visible, setVisible] = useState(false)
 
-    const [selectedScientists, setSelectedScientists] = useState([]);
+  const [globalStats, setGlobalStats, globalLoading] = useFetchState(
+    [],
+    `/api/v1/statistics/global`,
+    jwt,
+    setMessage,
+    setVisible
+  )
+
+  const [leaderboards, setLeaderBoard, boardLoading] = useFetchState(
+    [],
+    `/api/v1/ranking`,
+    jwt,
+    setMessage,
+    setVisible
+  )
+
+  const modal = getErrorModal(setVisible, visible, message);
+  const isLoading = globalLoading || boardLoading
+
+  const topThree = leaderboards?.slice?.(0, 3) ?? [];
+  const restOfBoard = leaderboards?.slice?.(3) ?? [];
+
+  const [selectedScientists, setSelectedScientists] = useState([]);
 
   // Lógica de Negocio: Añadir/Quitar jugadores al comparador
   const toggleSelection = (scientist) => {
@@ -38,28 +57,40 @@ export default function StatisticRanking() {
 
   const clearSelection = () => setSelectedScientists([]);
 
+  if (isLoading) {
+        return (
+            <div className="loadingOverlay">
+                {modal}
+                <div className="loadingCard">
+                    <div className="loadingTitle">Cargando datos de ranking</div>
+                    <div className="loadingSubtitle">Un momento, estamos cargando los datos globales</div>
+                </div>
+            </div>
+        );
+    }
+
   return (
     <div className="petris-container">
       {/* Fondo Decorativo */}
       <div className="bio-background"></div>
 
       {/* Cabecera */}
-      <HeaderMetrics />
+      <HeaderMetrics 
+        gamesSize={globalStats.totalGamesPlayed}
+        timePlayed={globalStats.totalTimePlayed}
+        sarcines={globalStats.totalSarcinasCreated}
+        playersRegistered={globalStats.totalPlayers}
+      />
 
       {/* Top 3 */}
-      <Podium players={SCIENTISTS_DATA.slice(0, 3)} />
+      <Podium players={topThree} jwt={jwt}/>
 
       {/* Tabla del Ranking */}
       <LeaderboardTable 
-        players={SCIENTISTS_DATA.slice(3)} 
+        players={restOfBoard} 
         selectedIds={selectedScientists.map(s => s.id)} 
         onToggle={toggleSelection} 
-      />
-
-      {/* Barra Inferior Flotante */}
-      <ComparatorDock 
-        selectedPlayers={selectedScientists} 
-        onClear={clearSelection} 
+        jwt={jwt}
       />
     </div>
   );

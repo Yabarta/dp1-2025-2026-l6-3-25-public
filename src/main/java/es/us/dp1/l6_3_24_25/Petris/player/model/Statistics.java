@@ -29,4 +29,12 @@ public class Statistics extends BaseEntity {
 
     @NotNull
     private Integer bacteriasCreated ;
+
+    public Double getScore() {
+        if(gamesPlayed < 10) {
+            return null;
+        }
+        double winPercent = ((double) gamesWon / (double) gamesPlayed) * 100.0;
+        return winPercent + 20.0 * Math.log10((double) gamesPlayed);
+    }
 }

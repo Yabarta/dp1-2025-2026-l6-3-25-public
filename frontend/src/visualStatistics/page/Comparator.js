@@ -1,12 +1,17 @@
 import { useEffect, useState } from "react"
 import ChartComparator from "../components/ChartComparator";
+import ChartBoxPlot from "../components/ChartBoxPlot";
 import { useParams } from "react-router-dom";
 import jwt_decode from "jwt-decode";
 import tokenService from "../../services/token.service";
-
+import '../styles/Comparator.css'
+import useFetchState from "../../util/useFetchState";
 
 export default function Comparator (props) {
     const jwt = tokenService.getLocalAccessToken();
+    
+    const [message, setMessage] = useState(null)
+    const [visible, setVisible] = useState(false)
     
     const { username } = useParams()
     const [currentPlayer, setCurrentPlayer] = useState(() => {
@@ -23,34 +28,63 @@ export default function Comparator (props) {
     const [searchTerm, setSearchTerm] = useState('')
     const [opponent, setOpponent] = useState(null);
     const [opponentStats, setOpponentStats] = useState([0, 0, 0, 0, 0, 0])
-
     const [error, setError] = useState('');
-    
+    const [globalStats, setGlobalStats] = useState({
+        totalGames: 0,
+        totalTime: 0,
+        totalSarcinas: 0,
+        totalPlayers: 0
+    });
+
+    const [gamesDistribution, setGameDistribution] = useFetchState(
+        [],
+        `/api/v1/statistics/distribution/gamesPlayed`,
+        jwt,
+        setMessage,
+        setVisible
+    )
+
+    const [timePlayedDistribution, setTimePlayedDistributionDistribution] = useFetchState(
+        [],
+        `/api/v1/statistics/distribution/timePlayed`,
+        jwt,
+        setMessage,
+        setVisible
+    )
+
+    const boxPlotData = {
+        games: [5, 12, 25, 50, 120],  // Distribución de partidas
+        sarcinas: [0, 20, 55, 100, 300] // Distribución de sarcinas
+    };
+
     useEffect(() => {
-        // Cargar estadísticas del jugador actual al iniciar
-        if (currentPlayer) {
-            fetchCurrentPlayerStats();
-        }
+        const fetchGlobalStats = async () => {
+             setGlobalStats({
+                 totalGames: 75,
+                 totalTime: 52, // horas
+                 totalSarcinas: 97,
+                 totalPlayers: 11
+             });
+        };
+        fetchGlobalStats();
+    }, []);
+
+    useEffect(() => {
+        if (currentPlayer) fetchCurrentPlayerStats();
     }, [currentPlayer]);
 
     const fetchCurrentPlayerStats = async () => {
         try {
             const playerResponse = await fetch(`/api/v1/players/user/${encodeURIComponent(currentPlayer)}`, {
                 method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${jwt}` 
-                }
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${jwt}` }
             });
             const playerData = await playerResponse.json();
             
             if (playerData && playerData.id) {
                 const statsResponse = await fetch(`/api/v1/players/${playerData.id}/statistics`, {
                     method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${jwt}` 
-                    }
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${jwt}` }
                 });
                 const stats = await statsResponse.json();
                 setCurrentPlayerStats(stats);
@@ -65,10 +99,7 @@ export default function Comparator (props) {
         try {
             const response = await fetch(opponentURL, {
                 method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${jwt}` 
-                }
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${jwt}` }
             });
             const data = await response.json();
             return data;
@@ -81,10 +112,7 @@ export default function Comparator (props) {
         try {
             const response = await fetch(`/api/v1/players/${playerId}/statistics`, {
                 method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${jwt}` 
-                }
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${jwt}` }
             });
             const stats = await response.json();
             return stats;
@@ -94,48 +122,35 @@ export default function Comparator (props) {
         }
     };
 
-    // Función para transformar las estadísticas al formato del gráfico
     const transformStatsToChartFormat = (stats) => {
-        if (!stats) return null;
+        if (!stats) return [0, 0, 0, 0, 0, 0];
         return [
             stats.bacteriasCreated || 0,
             stats.gamesPlayed || 0,
             stats.gamesWon || 0,
-            (stats.gamesPlayed || 0) - (stats.gamesWon || 0), // Partidas perdidas
+            (stats.gamesPlayed || 0) - (stats.gamesWon || 0),
             stats.sarcinasCreated || 0,
-            (stats.timePlayed || 0) / 60 // Tiempo en minutos
+            (stats.timePlayed || 0) / 60 
         ];
     };
 
-    // Función para obtener el máximo valor de ambas listas de estadísticas
     const getMaxStatValue = () => {
         const myStats = transformStatsToChartFormat(currentPlayerStats);
         const opponentChartStats = transformStatsToChartFormat(opponentStats);
-        
-        let maxValue = 10; // Valor por defecto
-        
-        if (myStats) {
-            maxValue = Math.max(maxValue, Math.max(...myStats));
-        }
-        
-        if (opponentChartStats) {
-            maxValue = Math.max(maxValue, Math.max(...opponentChartStats));
-        }
-        
+        let maxValue = 10;
+        if (myStats && myStats.length > 0) maxValue = Math.max(maxValue, Math.max(...myStats));
+        if (opponentChartStats && opponentChartStats.length > 0) maxValue = Math.max(maxValue, Math.max(...opponentChartStats));
         return Math.ceil(maxValue / 10) * 10;
     };
 
     const handleSearch = async () => {
         if (!searchTerm) return;
-        
         try {
             const opponentData = await fetchOpponentData(searchTerm.trim());
             if (opponentData && opponentData.nickname && opponentData.id) {
                 setOpponent(opponentData);
-                
                 const stats = await fetchOpponentStats(opponentData.id);
                 setOpponentStats(stats);
-                
                 setError('');
             } else {
                 setOpponent(null);
@@ -145,41 +160,68 @@ export default function Comparator (props) {
         } catch (err) {
             setOpponent(null);
             setOpponentStats(null);
-            setError('Error al buscar el jugador. Verifica el username.');
+            setError('Error al buscar el jugador.');
         }
     };
 
+
     return (
-    <div style={{ padding: '40px', backgroundColor: '#222', minHeight: '100vh', color: 'white' }}>
-        <h1 style={{ textAlign: 'center' }}>Comparador de Jugadores</h1>
+        <div className="comparator-container">
+            <h1 className="comparator-title">
+                PETRIS <span className="text-green">COMPARATOR</span>
+            </h1>
+            <div className="boxplot-container" style={{gap: '20px', maxWidth: '1000px', margin: '0 auto 40px auto', alignSelf: 'center'}}>
+    
+                {/* Gráfico de Caja 1: Partidas */}
+                <div className="glass-card" style={{ padding: '20px'}}>
+                    <ChartBoxPlot 
+                        title="Distribución de Partidas"
+                        yAxisTitle="Nº Partidas"
+                        dataDistribution={gamesDistribution}
+                        userValue={currentPlayerStats?.gamesPlayed || 0}
+                    />
+                </div>
 
-        <div style={{ display: 'flex', justifyContent: 'center', margin: '30px 0', gap: '10px' }}>
-            <input
-                type="text"
-                placeholder="Buscar rival..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                style={{ padding: '10px', borderRadius: '5px', border: 'none', width: '200px' }}
-            />
-            <button 
-                onClick={handleSearch}
-                style={{ padding: '10px 20px', borderRadius: '5px', border: 'none', background: '#f1c40f', cursor: 'pointer', fontWeight: 'bold' }}
-            >
-                Comparar
-            </button>
+                    {/* Gráfico de Caja 2: Sarcinas */}
+                <div className="glass-card" style={{ padding: '20px' }}>
+                    <ChartBoxPlot 
+                        title="Tiempo de juego"
+                        yAxisTitle="Tiempo por persona"
+                        dataDistribution={timePlayedDistribution}
+                        userValue={currentPlayerStats?.timePlayed || 0}
+                    />
+                </div>
+
+            </div>
+            <div className="glass-card">
+                <h2 style={{textAlign: 'center', marginBottom: '20px', color: '#00ff9d', fontSize: '1.2rem'}}>COMPARADOR DE JUGADORES</h2>
+                
+                <div className="search-container">
+                    <input
+                        type="text"
+                        placeholder="Buscar rival..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="search-input"
+                    />
+                    <button 
+                        onClick={handleSearch}
+                        className="neon-button"
+                    >
+                        Comparar
+                    </button>
+                </div>
+
+                {error && <p className="error-message">{error}</p>}
+                
+                <ChartComparator 
+                    myName={currentPlayer}
+                    myStats={transformStatsToChartFormat(currentPlayerStats)} 
+                    opponentStats={transformStatsToChartFormat(opponentStats)}
+                    opponentName={opponent ? opponent.nickname : null}
+                    maxValue={getMaxStatValue()}
+                />
+            </div>
         </div>
-
-    {error && <p style={{ color: '#e74c3c', textAlign: 'center' }}>{error}</p>}
-      <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-        <ChartComparator 
-            myName={currentPlayer}
-            myStats={transformStatsToChartFormat(currentPlayerStats)} 
-            opponentStats={transformStatsToChartFormat(opponentStats)}
-            opponentName={opponent ? opponent.nickname : null}
-            maxValue={getMaxStatValue()}
-        />
-      </div>
-
-    </div>
-  );
+    );
 }

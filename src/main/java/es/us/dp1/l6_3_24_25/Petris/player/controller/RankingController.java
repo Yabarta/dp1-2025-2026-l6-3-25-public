@@ -3,6 +3,7 @@ package es.us.dp1.l6_3_24_25.Petris.player.controller;
 import java.util.List;
 import es.us.dp1.l6_3_24_25.Petris.player.model.Player;
 
+import es.us.dp1.l6_3_24_25.Petris.player.model.PlayerRanking;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,7 +25,7 @@ public class RankingController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Player>> getGlobalRanking() {
+    public ResponseEntity<List<PlayerRanking>> getGlobalRanking() {
         return ResponseEntity.ok(rankingService.getGlobalRanking());
     }
 }

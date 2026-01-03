@@ -1,8 +1,16 @@
 import React from 'react';
 import GlassPanel from './GlassPanel';
+import { useNavigate } from 'react-router-dom';
 
 
 export default function Header({ gamesSize, timePlayed, sarcines, playersRegistered }) {
+
+    const navigate = useNavigate()
+
+    const navigateToComparator = () => {
+        navigate('/comparator')
+    }
+
     return (
         <header className="petris-header">
         <div className="header-top">
@@ -15,26 +23,26 @@ export default function Header({ gamesSize, timePlayed, sarcines, playersRegiste
                     <small className="" style={{ letterSpacing: '2px', fontSize: '0.7rem', color: 'white' }}>SISTEMA DE CONTROL</small>
                 </div>
             </div>
-            <input type="text" placeholder="Buscar Científico..." className="search-input text-mono" />
+            <button class="search-btn" onClick={() => { navigateToComparator() }}>¡¡Compara tus estadísticas!!</button>
         </div>
 
         {/* KPI GRID */}
         <div className="kpi-grid">
             <GlassPanel className="kpi-card">
             <div className="kpi-title">Partidas Jugadas</div>
-            <div className="kpi-value text-mono text-white">4,281</div>
+            <div className="kpi-value text-mono text-white">{ gamesSize }</div>
             </GlassPanel>
             <GlassPanel className="kpi-card" style={{ borderLeft: '4px solid var(--alert-red)' }}>
             <div className="kpi-title">Tiempo Jugado</div>
-            <div className="kpi-value text-mono text-red">90 horas</div>
+            <div className="kpi-value text-mono text-red">{ timePlayed } horas</div>
             </GlassPanel>
             <GlassPanel className="kpi-card">
             <div className="kpi-title">Sarcinas Totales</div>
-            <div className="kpi-value text-mono text-blue">12,504</div>
+            <div className="kpi-value text-mono text-blue">{ sarcines }</div>
             </GlassPanel>
             <GlassPanel className="kpi-card">
             <div className="kpi-title">Jugadores registrados</div>
-            <div className="kpi-value text-mono text-gold">35</div>
+            <div className="kpi-value text-mono text-gold">{ playersRegistered }</div>
             </GlassPanel>
         </div>
         </header>

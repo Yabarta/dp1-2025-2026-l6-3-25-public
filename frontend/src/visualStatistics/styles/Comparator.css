@@ -1,0 +1,180 @@
+/* Comparator.css */
+
+/* --- Contenedor Principal (Fondo Radial) --- */
+.comparator-container {
+  padding: 40px;
+  background: radial-gradient(circle at center, #1b4b28 0%, #050a10 100%);
+  min-height: 100vh;
+  color: white;
+  font-family: 'Courier Prime', 'Courier New', monospace;
+  
+  /* AGREGADO: Esto centra todo horizontalmente */
+  display: flex;
+  flex-direction: column;
+  align-items: center; 
+}
+
+/* AGREGADO: Clase para el contenedor de los BoxPlots */
+.boxplot-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Dos columnas iguales */
+  gap: 20px;
+  width: 100%; /* Ocupa todo el espacio disponible... */
+  max-width: 900px; /* ...hasta llegar al MISMO ancho que la .glass-card */
+  margin-bottom: 40px;
+}
+
+/* MODIFICADO: Aseguramos que la tarjeta tenga el mismo ancho máximo */
+.glass-card {
+  width: 100%;
+  max-width: 900px; /* Coincide con .boxplot-container */
+  /* margin: 0 auto;  <-- Ya no es estrictamente necesario gracias al flex del padre, pero no estorba */
+  background: rgba(15, 25, 35, 0.7);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  border: 1px solid #235e6f;
+  border-radius: 16px;
+  padding: 40px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+  box-sizing: border-box; /* Importante para que el padding no rompa el ancho */
+}
+
+/* --- Área de Búsqueda --- */
+.search-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 30px;
+    gap: 15px;
+    flex-wrap: wrap; /* Para móviles */
+}
+
+/* --- Input Estilizado --- */
+.search-input {
+    padding: 12px 20px;
+    border-radius: 8px;
+    border: 1px solid #36324a;
+    background: #0a1014;
+    color: #00ff9d;
+    width: 250px;
+    font-size: 16px;
+    outline: none;
+    font-family: monospace;
+    transition: border-color 0.3s ease;
+}
+
+.search-input::placeholder {
+    color: #4a5a6a;
+}
+
+.search-input:focus {
+    border-color: #00ff9d; /* Borde verde al escribir */
+    box-shadow: 0 0 8px rgba(0, 255, 157, 0.2);
+}
+
+/* --- Botón Neón --- */
+.neon-button {
+    padding: 12px 25px;
+    border-radius: 8px;
+    border: none;
+    background: #00ff9d;
+    color: #050a10;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 14px;
+    text-transform: uppercase;
+    box-shadow: 0 0 15px rgba(0, 255, 157, 0.4);
+    transition: all 0.3s ease;
+}
+
+.neon-button:hover {
+    background-color: #33ffb0;
+    transform: translateY(-2px); /* Se eleva un poco */
+    box-shadow: 0 0 25px rgba(0, 255, 157, 0.7); /* Brilla más */
+}
+
+.neon-button:active {
+    transform: translateY(1px);
+    box-shadow: 0 0 10px rgba(0, 255, 157, 0.4);
+}
+
+/* --- Mensaje de Error --- */
+.error-message {
+    color: #ff4444;
+    text-align: center;
+    margin-bottom: 20px;
+    background: rgba(255, 68, 68, 0.1);
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 68, 68, 0.3);
+}
+
+/* --- Grid de Estadísticas Globales --- */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    max-width: 1000px; /* Un poco más ancho que la tarjeta del gráfico */
+    margin: 0 auto 40px auto; /* Centrado y con margen abajo */
+}
+
+.stat-card {
+    background: rgba(10, 16, 20, 0.8);
+    border: 1px solid #235e6f;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    transition: transform 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    border-color: #00ff9d;
+}
+
+/* Títulos pequeños de las tarjetas */
+.stat-title {
+    font-size: 0.8rem;
+    color: #7a9099;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+/* Números grandes */
+.stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+}
+
+/* --- Variantes de Color (Basadas en tu imagen original) --- */
+
+/* Variante Roja (Tiempo Jugado) */
+.card-red {
+  border-left: 4px solid #ff4444; /* Borde izquierdo rojo estilo sci-fi */
+}
+.card-red .stat-value { color: #ff4444; text-shadow: 0 0 10px rgba(255, 68, 68, 0.4); }
+
+/* Variante Azul (Sarcinas) */
+.card-blue {
+  border-left: 4px solid #3498db;
+}
+.card-blue .stat-value { color: #3498db; text-shadow: 0 0 10px rgba(52, 152, 219, 0.4); }
+
+/* Variante Amarilla (Jugadores) */
+.card-yellow {
+  border-left: 4px solid #f1c40f;
+}
+.card-yellow .stat-value { color: #f1c40f; text-shadow: 0 0 10px rgba(241, 196, 15, 0.4); }
+
+/* Variante Blanca/Verde (Partidas) */
+.card-default {
+  border-left   : 4px solid #fff;
+}
