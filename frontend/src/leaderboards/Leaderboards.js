@@ -40,6 +40,7 @@ function Leaderboards() {
           const stats = p.statistics || {};
           const gp = stats.gamesPlayed || 0;
           const gw = stats.gamesWon || 0;
+          const sc = stats.sarcinasCreated || 0;
           let score = null;
           if (gp >= 10) {
             const winPercent = (gw / gp) * 100.0;
@@ -50,11 +51,18 @@ function Leaderboards() {
             nickname: p.nickname,
             gamesPlayed: gp,
             gamesWon: gw,
+            sarcinasCreated: sc,
             score: score,
           };
         });
 
-        withScores.sort((a, b) => (b.score || 0) - (a.score || 0));
+        withScores.sort((a, b) => {
+          const sa = a.score || 0;
+          const sb = b.score || 0;
+          if (Math.abs(sb - sa) > 1e-9) return sb - sa;
+          // tie-breaker: more sarcinasCreated wins
+          return (b.sarcinasCreated || 0) - (a.sarcinasCreated || 0);
+        });
         // Asignar posición fija para que el rango persista al filtrar en cliente
         withScores.forEach((p, i) => { p.rank = i + 1; });
         setRanking(withScores);

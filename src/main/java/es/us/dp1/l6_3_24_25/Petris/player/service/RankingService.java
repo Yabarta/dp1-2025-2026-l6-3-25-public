@@ -52,7 +52,18 @@ public class RankingService {
             ranking.add(p);
         }
 
-        ranking.sort((a, b) -> Double.compare(scores.get(b.getId()), scores.get(a.getId())));
+        ranking.sort((a, b) -> {
+            double sa = scores.get(a.getId());
+            double sb = scores.get(b.getId());
+            int byScore = Double.compare(sb, sa);
+            if (byScore != 0) return byScore;
+            // tie-breaker: more sarcinasCreated wins
+            Integer as = (a.getStatistics() != null && a.getStatistics().getSarcinasCreated() != null)
+                ? a.getStatistics().getSarcinasCreated() : 0;
+            Integer bs = (b.getStatistics() != null && b.getStatistics().getSarcinasCreated() != null)
+                ? b.getStatistics().getSarcinasCreated() : 0;
+            return Integer.compare(bs, as);
+        });
         return ranking;
     }
 }
