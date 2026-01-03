@@ -20,8 +20,8 @@ import ProfileScreen from "./profile/profileScreen";
 import Lobby from "./Game/Lobby";
 import NotStartedGames from "./home/NotStartedGameList"; 
 import LobbyScreen from "./Game/LobbyScreen"; 
-import ChartComparator from "./visualStatistics/individual/ChartComparator";
 import Comparator from "./visualStatistics/page/Comparator";
+import StatisticRanking from "./visualStatistics/page/StatisticsRanking";
 
 function ErrorFallback({ error, resetErrorBoundary }) {
   return (
@@ -85,6 +85,7 @@ function App() {
         <Route path="/logout" element={<Logout />} />
         <Route path="/login" element={<Login />} />
         <Route path="/comparator" element={<Comparator />}></Route>
+        <Route path="/ranking" element={<StatisticRanking />}></Route>
       </>
     )
   }

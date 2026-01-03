@@ -6,7 +6,6 @@ import jwt_decode from "jwt-decode";
 import mitosisImg from './static/images/mitosis.png';
 import useFetchState from "./util/useFetchState";
 import {Table } from "reactstrap";
-import ChartComparator from './visualStatistics/individual/ChartComparator';
 
 function AppNavbar() {
     const [roles, setRoles] = useState([]);
@@ -274,6 +273,9 @@ useEffect(() => {
                 </NavItem>
                 <NavItem>
                     <NavLink style={{ color: "white" }} id="comparator" tag={Link} to="/comparator">Comparador</NavLink>
+                </NavItem>
+                <NavItem>
+                    <NavLink style={{ color: "white" }} id="statistics" tag={Link} to="/ranking">Ranking</NavLink>
                 </NavItem>
             </>
         )

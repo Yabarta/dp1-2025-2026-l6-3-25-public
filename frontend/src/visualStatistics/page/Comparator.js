@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import ChartComparator from "../individual/ChartComparator";
+import ChartComparator from "../components/ChartComparator";
 import { useParams } from "react-router-dom";
 import jwt_decode from "jwt-decode";
 import tokenService from "../../services/token.service";
