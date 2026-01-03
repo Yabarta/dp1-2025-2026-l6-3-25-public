@@ -60,8 +60,8 @@ function Leaderboards() {
           const sa = a.score || 0;
           const sb = b.score || 0;
           if (Math.abs(sb - sa) > 1e-9) return sb - sa;
-          // tie-breaker: more sarcinasCreated wins
-          return (b.sarcinasCreated || 0) - (a.sarcinasCreated || 0);
+          // tie-breaker: less sarcinasCreated wins
+          return (a.sarcinasCreated || 0) - (b.sarcinasCreated || 0);
         });
         // Asignar posición fija para que el rango persista al filtrar en cliente
         withScores.forEach((p, i) => { p.rank = i + 1; });

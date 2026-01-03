@@ -57,12 +57,12 @@ public class RankingService {
             double sb = scores.get(b.getId());
             int byScore = Double.compare(sb, sa);
             if (byScore != 0) return byScore;
-            // tie-breaker: more sarcinasCreated wins
+            // tie-breaker: less sarcinasCreated wins
             Integer as = (a.getStatistics() != null && a.getStatistics().getSarcinasCreated() != null)
                 ? a.getStatistics().getSarcinasCreated() : 0;
             Integer bs = (b.getStatistics() != null && b.getStatistics().getSarcinasCreated() != null)
                 ? b.getStatistics().getSarcinasCreated() : 0;
-            return Integer.compare(bs, as);
+            return Integer.compare(as, bs);
         });
         return ranking;
     }
