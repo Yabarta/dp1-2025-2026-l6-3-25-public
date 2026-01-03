@@ -2,6 +2,7 @@ package es.us.dp1.l6_3_24_25.Petris.player.service;
 
 import java.util.List;
 
+import es.us.dp1.l6_3_24_25.Petris.player.model.GlobalStatistic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,44 +34,16 @@ public class StatisticsService {
         return statisticsRepository.save(statistics);
     }
 
+
     @Transactional(readOnly = true)
-    public List<Integer> getStatisticsArrayById(Integer id) {
-        Statistics s = getStatisticsById(id);
-        return List.of(
-            s.getGamesPlayed(),
-            s.getGamesWon(),
-            s.getTimePlayed(),
-            s.getSarcinasCreated(),
-            s.getBacteriasCreated()
-        );
-    }
-    
-    @Transactional(readOnly = true)
-    public List<Integer> getGlobalStatisticsArray() {
+    public GlobalStatistic getGlobalStatistics() {
         List<Statistics> all = getAllStatistics();
-        int totalGamesPlayed = 0;
-        int totalGamesWon = 0;
-        int totalTimePlayed = 0;
-        int totalSarcinasCreated = 0;
-        int totalBacteriasCreated = 0;
 
-        for (Statistics s : all) {
-            List<Integer> arr = getStatisticsArrayById(s.getId());
-            if (arr.size() >= 5) {
-                totalGamesPlayed += arr.get(0);
-                totalGamesWon += arr.get(1);
-                totalTimePlayed += arr.get(2);
-                totalSarcinasCreated += arr.get(3);
-                totalBacteriasCreated += arr.get(4);
-            }
-        }
+        Integer totalGamesPlayed = all.stream().map(Statistics::getGamesPlayed).reduce(0, Integer::sum) / 2; // Each game is counted twice, once for each player
+        Integer totalTimePlayed = all.stream().map(Statistics::getTimePlayed).reduce(0, Integer::sum) / 2 / 60; // Each game is counted twice, once for each player, and convert to minutes
+        Integer totalSarcinasCreated = all.stream().map(Statistics::getSarcinasCreated).reduce(0, Integer::sum);
+        Integer totalPlayers = all.size();
 
-        return List.of(
-            totalGamesPlayed,
-            totalGamesWon,
-            totalTimePlayed,
-            totalSarcinasCreated,
-            totalBacteriasCreated
-        );
+        return new GlobalStatistic(totalGamesPlayed, totalTimePlayed, totalSarcinasCreated, totalPlayers);
     }
 }

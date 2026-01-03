@@ -90,6 +90,7 @@ public class SecurityConfiguration {
                 .requestMatchers("/api/v1/friends/**").authenticated()
                 .requestMatchers("/api/v1/achievements/**").permitAll()
                 .requestMatchers("/api/v1/audit/friends/**").permitAll()
+                .requestMatchers("/api/v1/statistics/global").permitAll()
 
                 // API restringida para administradores
                 .requestMatchers("/api/v1/users").hasAuthority(ADMIN)

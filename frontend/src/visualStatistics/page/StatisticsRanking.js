@@ -3,8 +3,12 @@ import HeaderMetrics from "../components/HeaderMetrics";
 import Podium from "../components/Podium";
 import LeaderboardTable from "../components/LeaderBoardTable";
 import ComparatorDock from "../components/ComparatorDock";
-
 import '../styles/PetrisStats.css';
+
+import useFetchState from "../../util/useFetchState";
+import tokenService from "../../services/token.service";
+
+
 
 const SCIENTISTS_DATA = [
     { id: 'p1', name: 'Dr. Pasteur', rank: 1, contamination: 12, sarcinas: 45, winRate: '88%', avatar: 'https://i.pravatar.cc/150?u=sci1' },
@@ -15,7 +19,27 @@ const SCIENTISTS_DATA = [
     { id: 'p6', name: 'Agar_King', rank: 6, contamination: 35, sarcinas: 15, winRate: '42%', avatar: 'https://i.pravatar.cc/150?u=sci6' },
 ];
 
+const jwt = tokenService.getLocalAccessToken()
+
 export default function StatisticRanking() {
+  const [message, setMessage] = useState(null)
+  const [visible, setVisible] = useState(false)
+
+  const [globalStats, setGlobalStats] = useFetchState(
+    [],
+    `/api/v1/statistics/global`,
+    jwt,
+    setMessage,
+    setVisible
+  )
+
+  const [leaderboards, setLeaderBoard] = useFetchState(
+    [],
+    `/api/v1/statistics/global/ranking`,
+    jwt,
+    setMessage,
+    setVisible
+  )
 
     const [selectedScientists, setSelectedScientists] = useState([]);
 
@@ -44,7 +68,12 @@ export default function StatisticRanking() {
       <div className="bio-background"></div>
 
       {/* Cabecera */}
-      <HeaderMetrics />
+      <HeaderMetrics 
+        gamesSize={globalStats.totalGamesPlayed}
+        timePlayed={globalStats.totalTimePlayed}
+        sarcines={globalStats.totalSarcinasCreated}
+        playersRegistered={globalStats.totalPlayers}
+      />
 
       {/* Top 3 */}
       <Podium players={SCIENTISTS_DATA.slice(0, 3)} />

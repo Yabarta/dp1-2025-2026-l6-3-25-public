@@ -1,5 +1,6 @@
 package es.us.dp1.l6_3_24_25.Petris.player.controller;
 
+import es.us.dp1.l6_3_24_25.Petris.player.model.GlobalStatistic;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -33,8 +34,8 @@ public class StatisticsController {
     }
 
     @GetMapping("/global")
-    public ResponseEntity<List<Integer>> getGlobalStatisticsArray() {
-        List<Integer> globalStats = statisticsService.getGlobalStatisticsArray();
+    public ResponseEntity<GlobalStatistic> getGlobalStatisticsArray() {
+        GlobalStatistic globalStats = statisticsService.getGlobalStatistics();
         return ResponseEntity.ok(globalStats);
     }
 
@@ -42,12 +43,6 @@ public class StatisticsController {
 	public ResponseEntity<Statistics> getStatisticsById(@PathVariable Integer id) {
         Statistics statistics = statisticsService.getStatisticsById(id);
         return ResponseEntity.ok(statistics);
-    }
-
-	@GetMapping("/{id}/array")
-	public ResponseEntity<List<Integer>> getStatisticsArrayById(@PathVariable Integer id) {
-        List<Integer> statisticsArray = statisticsService.getStatisticsArrayById(id);
-        return ResponseEntity.ok(statisticsArray);
     }
 
 }
