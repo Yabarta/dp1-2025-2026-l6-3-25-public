@@ -36,36 +36,7 @@ function Leaderboards() {
         if (!res.ok) throw new Error('Network response was not ok');
         const data = await res.json();
         // Computamos el score para cada jugador ya que el backend no lo manda
-        const withScores = data.map((p) => {
-          const stats = p.statistics || {};
-          const gp = stats.gamesPlayed || 0;
-          const gw = stats.gamesWon || 0;
-          const sc = stats.sarcinasCreated || 0;
-          let score = null;
-          if (gp >= 10) {
-            const winPercent = (gw / gp) * 100.0;
-            score = winPercent + 20.0 * Math.log10(gp);
-          }
-          return {
-            id: p.id,
-            nickname: p.nickname,
-            gamesPlayed: gp,
-            gamesWon: gw,
-            sarcinasCreated: sc,
-            score: score,
-          };
-        });
-
-        withScores.sort((a, b) => {
-          const sa = a.score || 0;
-          const sb = b.score || 0;
-          if (Math.abs(sb - sa) > 1e-9) return sb - sa;
-          // tie-breaker: more sarcinasCreated wins
-          return (b.sarcinasCreated || 0) - (a.sarcinasCreated || 0);
-        });
-        // Asignar posición fija para que el rango persista al filtrar en cliente
-        withScores.forEach((p, i) => { p.rank = i + 1; });
-        setRanking(withScores);
+        setRanking(data);
       } catch (err) {
         console.error(err);
       } finally {
@@ -107,10 +78,10 @@ function Leaderboards() {
                 .filter((p) => p.nickname && p.nickname.toLowerCase().includes(search.toLowerCase()))
                 .map((p) => (
                 <tr key={p.id} onClick={() => handleNavigateToProfile(p.nickname)} style={{ cursor: 'pointer' }}>
-                  <td>{p.rank}</td>
+                  <td>{p.rankingPosition}</td>
                   <td>{p.nickname}</td>
-                  <td>{p.gamesPlayed}</td>
-                  <td>{p.gamesWon}</td>
+                  <td>{p.partidasJugadas}</td>
+                  <td>{p.partidasGanadas}</td>
                   <td>{p.score !== null ? p.score.toFixed(2) : 'N/A'}</td>
                 </tr>
               ))}
