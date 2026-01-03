@@ -47,4 +47,12 @@ public class StatisticsController {
         return ResponseEntity.ok(statistics);
     }
 
+    @GetMapping("/distribution/{fieldName}")
+    public ResponseEntity<List<Double>> getStatisticsDistribution(@PathVariable String fieldName) {
+        List<Double> distribution = statisticsService.getBoxPlotStatsForField(fieldName);
+        return ResponseEntity.ok(distribution);
+    }
+
+
+
 }

@@ -3,6 +3,7 @@ package es.us.dp1.l6_3_24_25.Petris.player.service;
 import java.util.List;
 
 import es.us.dp1.l6_3_24_25.Petris.player.model.GlobalStatistic;
+import es.us.dp1.l6_3_24_25.Petris.player.model.StatsUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,5 +57,33 @@ public class StatisticsService {
         Integer totalPlayers = all.size();
 
         return new GlobalStatistic(totalGamesPlayed, totalTimePlayed, totalSarcinasCreated, totalPlayers);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Double> getBoxPlotStatsForField(String fieldName) {
+        List<Statistics> allStats = getAllStatistics();
+        List<Integer> fieldValues;
+
+        switch (fieldName) {
+            case "gamesPlayed":
+                fieldValues = allStats.stream().map(Statistics::getGamesPlayed).toList();
+                break;
+            case "gamesWon":
+                fieldValues = allStats.stream().map(Statistics::getGamesWon).toList();
+                break;
+            case "timePlayed":
+                fieldValues = allStats.stream().map(Statistics::getTimePlayed).toList();
+                break;
+            case "sarcinasCreated":
+                fieldValues = allStats.stream().map(Statistics::getSarcinasCreated).toList();
+                break;
+            case "bacteriasCreated":
+                fieldValues = allStats.stream().map(Statistics::getBacteriasCreated).toList();
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid field name: " + fieldName);
+        }
+
+        return StatsUtil.calculateBoxPlotStats(fieldValues);
     }
 }
