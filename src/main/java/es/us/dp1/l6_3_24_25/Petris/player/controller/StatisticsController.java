@@ -29,6 +29,12 @@ public class StatisticsController {
         return ResponseEntity.ok(statisticsService.getAllStatistics());
     }
 
+    @GetMapping
+    public ResponseEntity<List<Integer>> getGlobalStatisticsArray() {
+        List<Integer> globalStats = statisticsService.getGlobalStatisticsArray();
+        return ResponseEntity.ok(globalStats);
+    }
+
 	@GetMapping("/{id}")
 	public ResponseEntity<Statistics> getStatisticsById(@PathVariable Integer id) {
         Statistics statistics = statisticsService.getStatisticsById(id);
@@ -40,4 +46,5 @@ public class StatisticsController {
         List<Integer> statisticsArray = statisticsService.getStatisticsArrayById(id);
         return ResponseEntity.ok(statisticsArray);
     }
+
 }
