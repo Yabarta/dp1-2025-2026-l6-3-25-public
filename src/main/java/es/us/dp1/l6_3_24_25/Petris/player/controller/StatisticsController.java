@@ -29,7 +29,7 @@ public class StatisticsController {
         return ResponseEntity.ok(statisticsService.getAllStatistics());
     }
 
-    @GetMapping
+    @GetMapping("/global")
     public ResponseEntity<List<Integer>> getGlobalStatisticsArray() {
         List<Integer> globalStats = statisticsService.getGlobalStatisticsArray();
         return ResponseEntity.ok(globalStats);

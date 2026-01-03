@@ -44,7 +44,7 @@ public class StatisticsService {
             s.getBacteriasCreated()
         );
     }
-
+    
     @Transactional(readOnly = true)
     public List<Integer> getGlobalStatisticsArray() {
         List<Statistics> all = getAllStatistics();

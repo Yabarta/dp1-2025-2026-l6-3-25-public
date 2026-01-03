@@ -89,8 +89,8 @@ function Leaderboards() {
               <tr>
                 <th>Rank</th>
                 <th>Nombre</th>
-                <th>Juegos Jugados</th>
-                <th>Juegos Ganados</th>
+                <th>Partidas Jugadas</th>
+                <th>Partidas Ganadas</th>
                 <th>Puntuación</th>
               </tr>
             </thead>
