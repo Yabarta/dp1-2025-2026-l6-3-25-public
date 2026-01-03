@@ -6,7 +6,6 @@ import java.util.List;
 import es.us.dp1.l6_3_24_25.Petris.model.BaseEntity;
 import es.us.dp1.l6_3_24_25.Petris.user.User;
 import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
