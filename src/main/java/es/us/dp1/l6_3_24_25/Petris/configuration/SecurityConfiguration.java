@@ -86,7 +86,7 @@ public class SecurityConfiguration {
                 .requestMatchers("/app/**").permitAll()
                 .requestMatchers("/topic/**").permitAll()
                 .requestMatchers("/api/v1/statistics/achievements").permitAll()
-                .requestMatchers("/api/v1/statistics/ranking").permitAll()
+                .requestMatchers("/api/v1/ranking").permitAll()
                 .requestMatchers("/api/v1/friends/**").authenticated()
                 .requestMatchers("/api/v1/achievements/**").permitAll()
                 .requestMatchers("/api/v1/audit/friends/**").permitAll()
