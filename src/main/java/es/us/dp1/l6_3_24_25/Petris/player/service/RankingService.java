@@ -1,12 +1,11 @@
 package es.us.dp1.l6_3_24_25.Petris.player.service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.IntStream;
 
 import es.us.dp1.l6_3_24_25.Petris.exceptions.ResourceNotFoundException;
 
+import es.us.dp1.l6_3_24_25.Petris.player.model.PlayerRanking;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,49 +20,30 @@ public class RankingService {
     private PlayerRepository playerRepository;
 
     @Transactional(readOnly = true)
-    public Double getScore(Integer playerId) {
-        Player p = playerRepository.findById(playerId)
-                .orElseThrow(() -> new ResourceNotFoundException("Player", "id", playerId));
-
-        if (p.getStatistics() == null)
-            return null;
-
-        Integer gp = p.getStatistics().getGamesPlayed();
-        Integer gw = p.getStatistics().getGamesWon();
-        if (gp == null || gw == null || gp < 10)
-            return null;
-
-        double winPercent = ((double) gw / (double) gp) * 100.0;
-        return winPercent + 20.0 * Math.log10((double) gp);
-    }
-
-    @Transactional(readOnly = true)
-    public List<Player> getGlobalRanking() {
+    public List<PlayerRanking> getGlobalRanking() {
         List<Player> players = playerRepository.findAll();
-        List<Player> ranking = new ArrayList<>();
-        Map<Integer, Double> scores = new HashMap<>();
-        for (Player p : players) {
-            if (p == null)
-                continue;
-            Double sc = getScore(p.getId());
-            if (sc == null)
-                continue; // not eligible or no data
-            scores.put(p.getId(), sc);
-            ranking.add(p);
+        List<PlayerRanking> ranking = new ArrayList<>();
+        for (Player player : players) {
+            PlayerRanking playerRanking = new PlayerRanking();
+            Double score = player.getStatistics().getScore();
+            if (score != null) {
+                playerRanking.setNickname(player.getNickname());
+                playerRanking.setPartidasJugadas(player.getStatistics().getGamesPlayed());
+                playerRanking.setPartidasGanadas(player.getStatistics().getGamesWon());
+                playerRanking.setSarcinasCreadas(player.getStatistics().getSarcinasCreated());
+                playerRanking.setScore(score);
+                ranking.add(playerRanking);
+            }
         }
 
-        ranking.sort((a, b) -> {
-            double sa = scores.get(a.getId());
-            double sb = scores.get(b.getId());
-            int byScore = Double.compare(sb, sa);
-            if (byScore != 0) return byScore;
-            // tie-breaker: more sarcinasCreated wins
-            Integer as = (a.getStatistics() != null && a.getStatistics().getSarcinasCreated() != null)
-                ? a.getStatistics().getSarcinasCreated() : 0;
-            Integer bs = (b.getStatistics() != null && b.getStatistics().getSarcinasCreated() != null)
-                ? b.getStatistics().getSarcinasCreated() : 0;
-            return Integer.compare(bs, as);
-        });
+        ranking.sort(Comparator.comparing(PlayerRanking::getScore)
+            .reversed()
+            .thenComparing(PlayerRanking::getSarcinasCreadas, Comparator.reverseOrder()));
+
+        for (int i = 0; i < ranking.size(); i++) {
+            ranking.get(i).setRankingPosition(i + 1);
+        }
+
         return ranking;
     }
 }

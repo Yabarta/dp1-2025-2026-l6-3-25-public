@@ -39,6 +39,8 @@ public class StatisticsController {
         return ResponseEntity.ok(globalStats);
     }
 
+
+
 	@GetMapping("/{id}")
 	public ResponseEntity<Statistics> getStatisticsById(@PathVariable Integer id) {
         Statistics statistics = statisticsService.getStatisticsById(id);
