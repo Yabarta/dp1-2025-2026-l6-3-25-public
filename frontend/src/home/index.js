@@ -14,6 +14,7 @@ export default function Home(){
   const [showMainMenu, setShowMainMenu] = useState(false);
   const [showJoinGameScreen, setShowJoinGameScreen] = useState(false);
   const [username] = useState(() => jwt ? jwt_decode(jwt).sub : "");
+  const isPlayer = jwt ? jwt_decode(jwt).authorities.includes("PLAYER") : false;
   // profile will be shown via a dedicated route /profile
 
 
@@ -82,9 +83,9 @@ export default function Home(){
           <div className="heroDiv">
             <h1 style={{ color: '#ffffff' }}>Petris</h1>
             <img src={logo} width={255} height={369} alt=""/>
-            <button className="blueButton" onClick={handlePlayButtonClick}>
+            {isPlayer && <button className="blueButton" onClick={handlePlayButtonClick}>
               ¿Empezamos a Jugar?
-            </button>
+            </button>}
           </div>
         )}
       </div>

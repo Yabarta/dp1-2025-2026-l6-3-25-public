@@ -3,14 +3,20 @@ import { useNavigate, useParams } from "react-router-dom";
 import jwt_decode from "jwt-decode";
 import tokenService from "../services/token.service";
 import '../static/css/profile/profile.css';
+import bacteria from '../static/images/bacteria.png';
 import useFetchState from "../util/useFetchState";
 import getErrorModal from "../util/getErrorModal";
-import { Formik, Form, Field, ErrorMessage } from 'formik';
+import ProfileHeader from './components/ProfileHeader';
+import StatsSection from './components/StatsSection';
+import RecentGames from './components/RecentGames';
+import AchievementsSection from './components/AchievementsSection';
+import HistoryPopup from './components/HistoryPopup';
+import EditPopup from './components/EditPopup';
 import * as Yup from 'yup';
-import { Button } from "reactstrap";
+// Button is used inside extracted components
 
 // Constants
-const DEFAULT_PROFILE_PIC = "https://www.dsac.gov/image-repository/blank-profile-picuture.png/@@images/image.png";
+const DEFAULT_PROFILE_PIC = bacteria;
 
 export default function ProfileScreen() {
     // State declarations
@@ -43,6 +49,7 @@ export default function ProfileScreen() {
     const [UserAchievements, , userAchievementsLoading] = useFetchState([], userAchievementsUrl, jwt, setMessage, setVisible, playerData?.id);
     const statsUrl = playerData?.id ? `/api/v1/players/${playerData.id}/statistics` : "";
     const [playerStats, , statsLoading] = useFetchState([], statsUrl, jwt, setMessage, setVisible, playerData?.id);
+    console.log("Player Stats:", playerStats);
 
     // Effects
     useEffect(() => {
@@ -70,8 +77,12 @@ export default function ProfileScreen() {
 
     const getStatValue = useCallback((name) => {
         if (!playerStats) return 0;
-        const stat = playerStats.find(s => s.name?.toLowerCase() === name.toLowerCase());
-        return stat ? stat.valor : 0;
+            const sanitizedName = name.toLowerCase();
+            const lowerCamelCaseName = sanitizedName.replace(/_([a-z])/g, (g) => g[1].toUpperCase());
+            const value = playerStats?.[lowerCamelCaseName];
+            if (value === null || value === undefined) return 0;
+            return value;
+        
     }, [playerStats]);
 
     const achievementProgress = useCallback((achievement) => {
@@ -80,11 +91,6 @@ export default function ProfileScreen() {
         return `${Math.min(progress, target)}/${target}`;
     }, [getStatValue]);
 
-    // Computed values
-    const hoursPlayed = useMemo(() => {
-        if (!userGames.length) return 0;
-        return userGames.reduce((total, game) => total + duracion(game), 0) / 60;
-    }, [userGames, duracion]);
 
     const modal = getErrorModal(setVisible, visible, message);
     const isLoading = playerLoading || gamesLoading || achievementsLoading || userAchievementsLoading || statsLoading;
@@ -190,49 +196,6 @@ export default function ProfileScreen() {
             .required('El correo electrónico es requerido'),
     });
 
-    // Sub-components
-    const ProfileHeader = () => (
-        <div>
-            <div className="profileHeader">
-                <span className="profileNickname">{playerData.nickname}</span>
-                {currentPlayer && currentPlayer===username && <span onClick={() => setShowEditPopup(true)} className="editIcon">✏️</span>}
-                {/* TO DO:
-                Si no son amigos, mostrar un boton de mandar solicitud
-                Si son amigos, mostrar boton de invitar a partida */}
-            </div>
-            <div className="profileHeaderEmail">{playerData.email}</div>
-        </div>
-    );
-
-    const StatsSection = () => (
-        <div className="mainStatContainer">
-            <div className="statItem">
-                <span className="statLabel">Fecha de Creación</span>
-                <span className="statValue">{playerData.createdAt ? new Date(playerData.createdAt).toLocaleDateString() : new Date().toLocaleDateString()}</span>
-            </div>
-            <div className="statItem">
-                <span className="statLabel">Tiempo de Juego</span>
-                <span className="statValue">{Math.floor(hoursPlayed)} horas y {Math.round((hoursPlayed - Math.floor(hoursPlayed)) * 60)} minutos</span>
-            </div>
-            <div className="statItem">
-                <span className="statLabel">Partidas Online</span>
-                <span className="statValue">{userGames.length}</span>
-            </div>
-            <div className="statItem">
-                <span className="statLabel">Victorias</span>
-                <span className="statValue">{getStatValue('games_won')}</span>
-            </div>
-            <div className="statItem">
-                <span className="statLabel">Derrotas</span>
-                <span className="statValue">{userGames.filter(game => !isWinner(game)).length}</span>
-            </div>
-            <div className="statItem">
-                <span className="statLabel">Sarcinas</span>
-                <span className="statValue">{getStatValue('sarcines_created')}</span>
-            </div>
-        </div>
-    );
-
     const handleNavigateToProfile = async (nickname) => {
         try {
             const res = await fetch(`/api/v1/players/nickname/${encodeURIComponent(nickname)}`);
@@ -242,144 +205,6 @@ export default function ProfileScreen() {
             console.error('Unable to go to profile', err);
         }
     }
-
-    const RecentGames = () => (
-        <div className="bg">
-            <h1 className="title">Partidas Recientes</h1>
-            <div className="recentGamesContainer">
-                {userGames.slice(0, 3).map(game => (
-                    <div key={game.id} className={isWinner(game) ? "gameWinBg" : "gameLoseBg"}>
-                        <div className="gameHeader">
-                            <div className="gameResult">
-                                {isWinner(game) ? "Victoria" : "Derrota"}
-                                <span className="gameTurns">({game.turn} turnos)</span>
-                            </div>
-                            <span className="gameDate">Fecha de creación: {new Date(game.createdAt).toLocaleDateString()}</span>
-                        </div>
-                        <div className="gamePlayersContainer">
-                            <div className="scorePlayer1">
-                                <Button className="gamePlayerInfo player2Info" onClick={() => handleNavigateToProfile(game.player2.nickname)}>
-                                    <img src={getPlayerProfilePic(game.player2)} alt={game.player2.nickname} className="gamePlayerPic" /> {game.player2.nickname}
-                                </Button>
-                                <div className="score">{game.finalP2Score}</div>
-                            </div>
-                            <span className="gameVs">vs</span>
-                            <div className="scorePlayer2">
-                                <Button className="gamePlayerInfo player1Info" onClick={() => handleNavigateToProfile(game.player1.nickname)}>
-                                    {game.player1.nickname} <img src={getPlayerProfilePic(game.player1)} alt={game.player1.nickname} className="gamePlayerPic" />
-                                </Button>
-                                <div className="score">{game.finalP1Score}</div>
-                            </div>
-                        </div>
-                        <div className="gameDetailsContainer">
-                            <div className="gameDetail">Código de la partida: {game.code}</div>
-                            <div className="gameDetail">Duración: {duracion(game)} mins</div>
-                        </div>
-                    </div>
-                ))}
-            </div>
-            <div className="watchHistoryContainer">
-                <button className="watchHistoryButton" onClick={() => setShowHistoryPopup(true)}>Ver Historial</button>
-            </div>
-        </div>
-    );
-
-    const AchievementsSection = () => (
-        <div className="bg">
-            <h1 className="title">Logros</h1>
-            <h4>Completado {UserAchievements.length}/{Achievements.length}</h4>
-            <div className="mainStatContainer">
-                {Achievements.map(achievement => {
-                    const isCompleted = UserAchievements.some(a => a.id === achievement.id);
-                    return (
-                        <div key={achievement.id} className={`achievement ${isCompleted ? 'completed' : ''}`}>
-                            <div className="achievementHeader">
-                                <img src={achievement.icon} alt={achievement.name} className="achievementIcon" />
-                                <h3 className="achievementName">{achievement.name}</h3>
-                                <p className="achievementProgress">{achievementProgress(achievement)}</p>
-                            </div>
-                            <div className="achievementInfo">
-                                <p className="achievementDescriptionContainer achievementDescription">{achievement.description}</p>
-                            </div>
-                        </div>
-                    );
-                })}
-            </div>
-        </div>
-    );
-
-    const HistoryPopup = () => (
-        showHistoryPopup && (
-            <div className="popupOverlay">
-                <div className="popupContent">
-                    <h2 className="title">Historial de Partidas</h2>
-                    <button onClick={() => setShowHistoryPopup(false)} className="closePopupButton">X</button>
-                    <div className="gamesList">
-                        {userGames.length > 0 ? userGames.map(game => (
-                            <div key={game.id} className={isWinner(game) ? "gameWinBg" : "gameLoseBg"}>
-                                <div className="gameHeader">
-                                    <div className="gameResult">
-                                        {isWinner(game) ? "Victoria" : "Derrota"}
-                                        <span className="gameTurns">({game.turns} turnos)</span>
-                                    </div>
-                                    <span className="gameDate">Fecha de creación: {new Date(game.createdAt).toLocaleDateString()}</span>
-                                </div>
-                                <div className="gamePlayersContainer">
-                                    <Button className="gamePlayerInfo" onClick={() => {setShowHistoryPopup(false); handleNavigateToProfile(game.player2.nickname)}}>
-                                        <img src={getPlayerProfilePic(game.player2)} alt={game.player2.nickname} className="gamePlayerPic" /> {game.player2.nickname}
-                                    </Button>
-                                    <span className="gameVs">vs</span>
-                                    <Button className="gamePlayerInfo" onClick={() => {setShowHistoryPopup(false); handleNavigateToProfile(game.player1.nickname)}}>
-                                        {game.player1.nickname} <img src={getPlayerProfilePic(game.player1)} alt={game.player1.nickname} className="gamePlayerPic" />
-                                    </Button>
-                                </div>
-                                <div className="gameDetailsContainer">
-                                    <div className="gameDetail">Código de la partida: {game.code}</div>
-                                    <div className="gameDetail">Puntuación: {game.score}</div>
-                                    <div className="gameDetail">Duración: {duracion(game)} mins</div>
-                                </div>
-                            </div>
-                        )) : <p>No hay partidas para mostrar.</p>}
-                    </div>
-                </div>
-            </div>
-        )
-    );
-
-    const EditPopup = () => (
-        showEditPopup && (
-            <div className="popupOverlay">
-                <div className="popupContent">
-                    <h2 className="title">Editar Perfil</h2>
-                    <button onClick={() => setShowEditPopup(false)} className="closePopupButton">X</button>
-                    <Formik
-                        initialValues={{ nickname: playerData.nickname, email: playerData.email }}
-                        validationSchema={validationSchema}
-                        onSubmit={handleEditSubmit}
-                    >
-                        {({ isSubmitting }) => (
-                            <Form>
-                                <div className="formGroup">
-                                    <label htmlFor="nickname">Nombre de usuario</label>
-                                    <Field name="nickname" type="text" className="formControl" />
-                                    <ErrorMessage name="nickname" component="div" className="error" />
-                                </div>
-                                <div className="formGroup">
-                                    <label htmlFor="email">Email</label>
-                                    <Field name="email" type="email" className="formControl" />
-                                    <ErrorMessage name="email" component="div" className="error" />
-                                </div>
-                                <div className="formButtons">
-                                    <button type="submit" className="editProfileButton" disabled={isSubmitting}>Guardar Cambios</button>
-                                    <button type="button" className="watchHistoryButton" onClick={() => setShowEditPopup(false)}>Cancelar</button>
-                                </div>
-                            </Form>
-                        )}
-                    </Formik>
-                </div>
-            </div>
-        )
-    );
 
     // Loading state
     if (isLoading) {
@@ -399,20 +224,56 @@ export default function ProfileScreen() {
         <div className="profileContainer">
             {modal}
             <div className="left">
-                <ProfileHeader />
+                <ProfileHeader 
+                    playerData={playerData}
+                    currentPlayer={currentPlayer} 
+                    username={username} 
+                    setShowEditPopup={setShowEditPopup} 
+                />
                 <div className="bg">
-                    { currentPlayer && currentPlayer===username ? <img src={profilePic} onClick={handleChangeProfilePicture} alt="provisional" className="profilePicture" /> :
-                    <img src={profilePic} alt="provisional" className="profilePicture" />} 
-                    { currentPlayer && currentPlayer===username && <input type="file" ref={imageInputRef} onChange={handleFileChange} className="hiddenFileInput" accept="image/*" /> }
-                    <StatsSection />
+                    { currentPlayer && currentPlayer===username ? 
+                        <img src={profilePic} onClick={handleChangeProfilePicture} alt="provisional" className="profilePicture" /> :
+                        <img src={profilePic} alt="provisional" className="profilePicture" />
+                    } 
+                    { currentPlayer && currentPlayer===username && 
+                        <input type="file" ref={imageInputRef} onChange={handleFileChange} className="hiddenFileInput" accept="image/*" /> 
+                    }
+                    <StatsSection 
+                        playerData={playerData} 
+                        playerStats={playerStats} 
+                    />
                 </div>
             </div>
             <div className="right">
-                <RecentGames />
-                <AchievementsSection />
+                <RecentGames
+                    userGames={userGames}
+                    isWinner={isWinner}
+                    duracion={duracion}
+                    getPlayerProfilePic={getPlayerProfilePic}
+                    handleNavigateToProfile={handleNavigateToProfile}
+                    setShowHistoryPopup={setShowHistoryPopup}
+                />
+                <AchievementsSection 
+                    Achievements={Achievements} 
+                    UserAchievements={UserAchievements} 
+                    achievementProgress={achievementProgress} 
+                />
             </div>
-            <HistoryPopup />
-            <EditPopup />
+            <HistoryPopup 
+                showHistoryPopup={showHistoryPopup} 
+                setShowHistoryPopup={setShowHistoryPopup} 
+                userGames={userGames} isWinner={isWinner} 
+                getPlayerProfilePic={getPlayerProfilePic} 
+                handleNavigateToProfile={handleNavigateToProfile} 
+                duracion={duracion} 
+            />
+            <EditPopup 
+                showEditPopup={showEditPopup} 
+                setShowEditPopup={setShowEditPopup} 
+                validationSchema={validationSchema} 
+                playerData={playerData} 
+                handleEditSubmit={handleEditSubmit} 
+            />
         </div>
     );
 }

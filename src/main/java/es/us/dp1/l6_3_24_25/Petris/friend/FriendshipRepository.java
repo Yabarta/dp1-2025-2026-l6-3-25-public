@@ -9,10 +9,10 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface FriendshipRepository extends JpaRepository<Friend, Integer> {
-    
+public interface FriendshipRepository extends JpaRepository<Friend, Integer> { //TODO jose tonto pon el crudRepository
+
     Optional<Friend> findFriendById(Integer id);
-    
+
     // Encontrar amigos aceptados (complicado porque el user puede ser requester o receiver)
     @Query("SELECT f FROM Friend f WHERE (f.requester.nickname = :nickname OR f.receiver.nickname = :nickname) AND f.status = 1")
     List<Friend> findAcceptedFriendships(@Param("nickname") String nickname);

@@ -23,15 +23,16 @@ INSERT INTO appusers(id,username,password,authority) VALUES (19,'WTS5677','$2a$1
 
 INSERT INTO statistics(id, games_played, games_won, time_played, sarcinas_created, bacterias_created) 
 VALUES (1, 10, 5, 300, 7, 15), 
-(2, 10, 5, 300, 7, 15), 
-(3, 10, 5, 300, 7, 15) ,
-(4, 10, 5, 300, 7, 15),
-(5, 10, 5, 300, 7, 15),
-(6, 10, 5, 3 , 7 ,15),
-(7, 10, 5, 300, 7, 15),
-(8, 10, 5, 300, 7, 15),
-(9, 10, 5, 300, 7, 15),
-(10, 10, 5, 300, 7, 15);
+(2, 9, 3, 200, 2, 30), 
+(3, 3, 1, 60, 0, 10),
+(4, 25, 15, 1500, 18, 42),
+(5, 12, 7, 450, 9, 22),
+(6, 8, 2, 240, 4, 18),
+(7, 20, 12, 900, 14, 35),
+(8, 15, 8, 600, 11, 28),
+(9, 18, 10, 720, 13, 40),
+(10, 22, 16, 1200, 17, 50),
+(11, 8, 3, 147, 2, 28);
 
 INSERT INTO players(id, is_currently_in_match, user_id, nickname, email, statistics_id) VALUES(1, false, 4, 'player1', 'hola@gmail.com', 1);
 INSERT INTO players(id, is_currently_in_match, user_id, nickname, email, statistics_id) VALUES(2, false, 5, 'player2', 'adios@gmail.com', 2);
@@ -47,10 +48,10 @@ INSERT INTO players(id, is_currently_in_match, user_id, nickname, email, statist
 
 
 INSERT INTO achievements(id, name, description, valor, statistic_name, image) VALUES (1, 'First Win', 'Win your first game', 1, 'games_won', 'imagelin.png'),
-                                                                                    (2, 'Sarcine Creator', 'Create 5 sarcines', 5, 'sarcines_created', 'imagelin.png'),
+                                                                                    (2, 'Sarcine Creator', 'Create 5 sarcines', 5, 'sarcinas_created', 'imagelin.png'),
                                                                                     (3, 'Gamer', 'Play 10 games', 10, 'games_played', 'imagelin.png');
                                                                                     
-INSERT INTO players_achievements(player_id, achievements_id) VALUES (1, 1), (1, 2);
+INSERT INTO players_achievements(player_id, achievements_id) VALUES (1, 1), (1, 2), (1, 3);
 
 
 INSERT INTO matches(id, code, created_at, started_at, ended_at, creator_id, player1_id, player2_id, turn, turn_type, player1score, player2score, winner)
@@ -63,7 +64,7 @@ INSERT INTO matches(id, code, created_at, started_at, ended_at, creator_id, play
            (7, 'QRST', '2025-10-26 14:00:00', '2025-10-26 14:01:00', '2025-10-26 14:11:00', 7, 7, 8, 4, 0, 9, 1, 1),
            (8, 'UVWX', '2025-10-26 15:00:00', null, null, 8, null, null, 0, 0, 0, 0, null),
            (9, 'YZAB', '2025-10-26 16:00:00', null, null, 9, null, null, 0, 0, 0, 0, null),
-           (10, 'CDEF', '2025-10-26 17:00:00', '2025-10-26 17:01:00', null, 10, 10, 1, 7, 1, 3, 4, null);
+           (10, 'CDEF', '2025-10-26 17:00:00', '2025-10-26 17:01:00', null, 10, 10, 3, 7, 1, 3, 4, null);
 
 INSERT INTO friend(id, receiver_id, requester_id, status) VALUES (1, 1, 2, 1);
 INSERT INTO friend(id,  receiver_id,  requester_id, status) VALUES (2, 1, 3, 0);

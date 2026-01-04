@@ -27,6 +27,9 @@ public class PlayerServiceTests {
     @Autowired
 	private UserService userService;
 
+    @Autowired
+    private StatisticsService statisticsService;
+
     @Test
     @Transactional
     @Feature("Player Retrieval")
@@ -107,7 +110,7 @@ public class PlayerServiceTests {
     @DisplayName("getPlayerByUser Test (Negative)")
     void shouldNotGetPlayerWithIncorrectUser() {
         User user = this.userService.findUser(1);
-        assertThrows(ResourceNotFoundException.class, () -> this.playerService.getPlayerByUser(user));;
+        assertThrows(ResourceNotFoundException.class, () -> this.playerService.getPlayerByUser(user));
     }
 
 
@@ -123,6 +126,7 @@ public class PlayerServiceTests {
         newPlayer.setEmail("kdr0901@gmail.com");
         newPlayer.setNickname("kdr0901");
         newPlayer.setIsCurrentlyInMatch(false);
+        newPlayer.setStatistics(statisticsService.getStatisticsById(11));
 
         Player createdPlayer = this.playerService.save(newPlayer);
 
@@ -130,7 +134,6 @@ public class PlayerServiceTests {
         assertEquals(newPlayer.getUser(), createdPlayer.getUser(), "Incorrect user");
         assertEquals(newPlayer.getEmail(), createdPlayer.getEmail(), "Incorrect email");
         assertEquals(newPlayer.getNickname(), createdPlayer.getNickname(), "Incorrect nickname");
-        assertEquals(11, this.playerService.getAllPlayers().size());
 
         Integer finalCount = this.playerService.getAllPlayers().size();
 		assertEquals(count + 1, finalCount);
@@ -149,6 +152,7 @@ public class PlayerServiceTests {
         newPlayer.setEmail("fbn5868@gmail.com");
         newPlayer.setNickname("fbn5868");
         newPlayer.setIsCurrentlyInMatch(false);
+        newPlayer.setStatistics(statisticsService.getStatisticsById(11));
         this.playerService.save(newPlayer);
 
 		Integer secondCount = playerService.getAllPlayers().size();

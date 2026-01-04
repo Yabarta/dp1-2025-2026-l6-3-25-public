@@ -31,7 +31,7 @@ La duración de una partida es variable, pero ninguna suele superar los 10 minut
 
 ### Diagrama de Dominio/Diseño
 
-![alt text](ImagenesD2/DiagramDominio.png)
+![alt text](ImagenesD2/DiagramaDominio.jpg)
 
 ### Diagrama de Capas (incluyendo Controladores, Servicios y Repositorios)
 ![alt text](ImagenesD2/Diagrama%20de%20capas.jpg)
@@ -56,17 +56,17 @@ La duración de una partida es variable, pero ninguna suele superar los 10 minut
 En esta sección de especificar el conjunto de patrones de diseño y arquitectónicos aplicados durante el proyecto. Para especificar la aplicación de cada patrón puede usar la siguiente plantilla:
 
 ### Patrón: Modelo Vista Controlador (MVC)
-*Tipo*: Arquitectónico 
+**Tipo**: Arquitectónico 
 
-*Contexto de Aplicación*
+**Contexto de Aplicación**
 
 Este patrón arquitectónico se ha usado para organizar y estructurar el backend. Para la capa de la lógica de negocios, primero se han creado clases Modelo para cada tabla que queremos en la base de datos, para más tarde crear los servicios, cuyas funciones se han adaptado a las necesidades que hemos establecido en el frontend. Para acceder a esas tablas hemos accedido a traves de los servicios, en la capa de recursos hemos elegido los repositorios. Finalmente para la capa de presentación tenemos los controladores para cada función establecida en los servicios, con su vista respectiva en el frontend
 
-*Clases o paquetes creados*
+**Clases o paquetes creados**
 
 Hemos creado para las tablas User, Player, Achievement, Statistics, Match y PetriDish su modelo asociado con los atributos correspondientes establecidos en el diagrama de clases. Para todos los modelos les hemos creado sus servicios, repositorios y controladores
 
-*Ventajas alcanzadas al aplicar el patrón*
+**Ventajas alcanzadas al aplicar el patrón**
 
 Es interesante usar este patrón porque nos permite tener un código mejor estructurado por función, separando las responsabilidades de cada componente.
 
@@ -90,6 +90,58 @@ En la pantalla de juego (`frontend/src/Game/gameScreen.js`) todo el JSX y la ló
 - **Responsabilidad única**: cada componente se centra en una parte concreta de la UI, lo que hace que el `GameScreen` actúe solo como orquestador del estado.
 - **Reutilización**: los nuevos componentes pueden emplearse en otros escenarios (por ejemplo, vistas de espectador o pantallas de resumen) sin copiar código.
 - **Facilidad de pruebas y refactor**: aislar el hook y las constantes facilita probar comportamientos en Storybook o tests unitarios, además de reducir los conflictos al trabajar en paralelo.
+
+### Patrón: Contenedor — Presentacional / Composición de Componentes (refactorización de `ProfileScreen`)
+**Tipo**: Diseño de componentes UI / Separación de responsabilidades
+
+**Contexto de Aplicación**
+
+La pantalla `ProfileScreen` originalmente contenía centenares de líneas de JSX y lógica de renderizado para la cabecera, estadísticas, partidas recientes, logros y modales. Para mejorar la mantenibilidad y reducir el acoplamiento entre fragmentos de UI, se aplicó una estrategia de extracción de componentes siguiendo el patrón Contenedor/Presentacional junto con la composición de componentes.
+
+**Clases o componentes creados**
+
+- `frontend/src/profile/components/ProfileHeader.js` — muestra el nombre, email y el icono de edición (presentacional).
+- `frontend/src/profile/components/StatsSection.js` — renderiza las estadísticas del jugador (presentacional).
+- `frontend/src/profile/components/RecentGames.js` — lista las partidas recientes y controla acciones relacionadas (presentacional con callbacks).
+- `frontend/src/profile/components/AchievementsSection.js` — lista los logros y su progreso (presentacional).
+- `frontend/src/profile/components/HistoryPopup.js` — modal para historial de partidas (presentacional).
+- `frontend/src/profile/components/EditPopup.js` — modal de edición que utiliza `Formik` para el formulario (presentacional).
+- `frontend/src/profile/profileScreen.js` — contenedor que mantiene la obtención de datos, estados y callbacks; pasa sólo las props necesarias a los componentes presentacionales.
+
+**Ventajas alcanzadas al aplicar el patrón**
+
+- **Separación de responsabilidades (SRP):** el contenedor gestiona estado, fetches y handlers; los componentes presentacionales sólo renderizan usando las props que reciben.
+- **Menor acoplamiento:** los componentes dependen de una API de props clara en lugar de acceder a estado compartido o lógica interna del contenedor.
+- **Reutilización y testabilidad:** componentes pequeños y puros son más fáciles de testear y reutilizar en otras vistas (por ejemplo, mostrar `StatsSection` en un resumen de usuario).
+- **Lectura y mantenimiento:** `profileScreen.js` queda como orquestador, y el desarrollador puede localizar rápidamente la lógica o la vista que desea modificar.
+
+**Notas de implementación**
+
+- Se priorizó pasar datos y callbacks explícitos por props en lugar de usar un contexto global, para que cada componente sea independiente y fácil de razonar.
+- Donde fue necesario, se conservaron utilidades y helpers en el contenedor (`duracion`, `isWinner`, etc.) y se pasaron como callbacks para evitar replicación de lógica.
+
+
+### Patrón: Simple Builder
+
+*Tipo*: Creational
+
+**Contexto de Aplicación**
+
+Necesitamos una manera rápida y eficiente de crear nuevos jugadores y administradores, así que hemos usado el patrón de diseño Builder para facilitarnos el trabajo. Ahora cada vez que se crea un nuevo usuario se le asigna el rol correspondiente, y si es player, la tabla de estadística. Con el ecosistema de Spring Boot y Java moderno es más eficiente usar la variación simplificada de dicho patrón, denominada Simple Builder.
+
+**Clases o paquetes creados/actualizados**
+- `Player`: añadido @Builder para que se apliquen las funciones del patrón.
+- `Statistics`: añadido @Builder para que se apliquen las funciones del patrón.
+- `User`: añadido @Builder para que se apliquen las funciones del patrón.
+- `UserService`: modificado el crear usuario para aplicar el patrón de diseño al registrar un nuevo usuario en la aplicación.
+
+**Ventajas alcanzadas al aplicar el patrón**
+- **Legibilidad**: al utilizar una interfaz fluida, el código se lee casi como una frase en lenguaje natural.
+- **Elimina el constructor tradicional**: en lugar de tener múltiples constructores que se llaman entre sí con largas listas de parámetros, el Builder permite configurar solo lo que necesitas.
+- **Facilita la Inmutabilidad**: si usas simples setters, el objeto es mutable y puede quedar en un estado inconsistente a medio construir. Por otro lado, con el patrón de diseño Builder:
+     1. El objeto Builder es mutable.
+     2. El método .build() devuelve el objeto final.
+     3. El objeto final puede no tener setters, haciéndolo inmutable y seguro para entornos concurrentes.
 
 ## Decisiones de diseño
 
@@ -213,6 +265,32 @@ Como hacer el lobby en el que esperan los jugadores justo antes de empezar a jug
 #### Justificación de la solución adoptada
 
 Al revisar el problema nos decidimos por la segunda alternativa ya que nos gustó como quedaba y nos resultó más comodo para el usuario y bonito de ver, ademas así reducimos la complejidad del trabajo dividiendolo en una pagina para cada cosa en vez de tener una pantalla de partida que maneja tanto todo a lo que la partida se refiere(logica de juego, usuarios, estilos propios) como, además, la parte de crear un lobby funcional.
+
+### Decisión 6: Aplicar el patrón de diseño Builder en la creación de nuevos usuarios
+#### Descripción del problema:
+La aplicación nos daba error a la hora de crear nuevos usuarios, tanto players como admins.
+
+#### Alternativas de solución evaluadas:
+
+*Alternativa 1.a*: arreglar la creación de la manera "tradicional"
+*Ventajas:*
+•	Es como estaba antes.
+*Inconvenientes:*
+•	Más complejidad a la hora de leer y entender el código.
+•   Mas pesado a la hora de programarlo
+
+*Alternativa 1.b*: aplicar el patrón de diseño Builder
+
+*Ventajas:*
+•	Mayor legibilidad
+•   Más fácil de implementar
+*Inconvenientes:*
+•	Aprender como se usaba
+
+#### Decisión de la solución adoptada
+
+Al final optamos por usar la segunda alternativa, ya que eso mejoraría la calidad de nuestro código a la vez que su legibilidad y a la reducción de la complejidad.
+
 
 ## Refactorizaciones aplicadas
 
@@ -2383,3 +2461,192 @@ public class MatchController {
 Comprensión del código por su mala organización, coherencia con las capas de Spring
 #### Ventajas que presenta la nueva versión del código respecto de la versión original
 Código con funcionalidad dividida en las clases adecuadas, más legible y mantenible
+
+### Refactorización 5:
+#### Modularización adicional y contenedor para `ProfileScreen`
+En esta refactorización se finalizó la descomposición y se transformó `ProfileScreen` en un contenedor puro que expone una API de props clara a varios componentes presentacionales. El objetivo fue reducir el acoplamiento, mejorar la testabilidad y facilitar la reutilización de las secciones del perfil.
+
+#### Estado inicial del código
+```
+    <div className="profileContainer">{modal}
+        <div className="left"> /* cabecera, avatar, estadísticas y controles inline */ </div>
+        <div className="right"> /* partidas recientes, logros y modales inline */ </div>
+        {showHistoryPopup && (/* modal JSX muy largo */)}
+        {showEditPopup && (/* modal JSX muy largo */)}
+    </div>
+```
+#### Estado del código refactorizado
+```
+    <div className="profileContainer">
+        {modal}
+        <div className="left">
+            <ProfileHeader {...profileHeaderProps} />
+            <StatsSection {...statsProps} />
+        </div>
+        <div className="right">
+            <RecentGames {...recentGamesProps} />
+            <AchievementsSection {...achievementsProps} />
+        </div>
+        <HistoryPopup {...historyProps} />
+        <EditPopup {...editProps} />
+    </div>
+```
+
+#### Archivos creados / modificados
+
+- `frontend/src/profile/components/ProfileHeader.js`
+- `frontend/src/profile/components/StatsSection.js`
+- `frontend/src/profile/components/RecentGames.js`
+- `frontend/src/profile/components/AchievementsSection.js`
+- `frontend/src/profile/components/HistoryPopup.js`
+- `frontend/src/profile/components/EditPopup.js`
+- `frontend/src/profile/profileScreen.js` (convertido en contenedor que realiza fetches, mantiene estado y pasa callbacks/props)
+
+#### Problema que nos hizo realizar la refactorización
+
+El componente del perfil era muy grande y mezclaba lógica de obtención de datos, handlers, y renderizado complejo en un único archivo. Esto dificultaba localizar la responsabilidad de cada pieza, aumentaba el acoplamiento y hacía más costosa la introducción de pruebas unitarias o la reutilización de secciones.
+
+#### Ventajas que presenta la nueva versión del código respecto de la versión original
+
+- **Reducción del acoplamiento:** los componentes presentacionales sólo reciben props y no dependen del estado global del contenedor.
+- **Mejor testabilidad:** componentes puros y pequeños se pueden testear de forma aislada.
+- **Reutilización:** se pueden incorporar `StatsSection` o `RecentGames` en otras vistas sin arrastrar código innecesario.
+- **Claridad y mantenimiento:** `profileScreen.js` queda como orquestador claro de los datos y handlers; los cambios visuales o de formulario se aplican en archivos pequeños.
+- **UX mejorada:** los modales (`HistoryPopup`, `EditPopup`) se manejan como componentes reutilizables, y `EditPopup` usa `Formik` para robustez en formularios.
+
+
+### Refactorización 6:  
+En esta refactorización se ha separado la lógica de cálculo del ranking de jugadores del servicio genérico de estadísticas, se ha creado un DTO específico (`PlayerRanking`) para la respuesta del ranking, y se ha movido el cálculo del score a la entidad `Statistics`.
+#### Estado inicial del código
+```Java 
+@RestController
+@RequestMapping("/api/v1/ranking")
+public class RankingController {
+    
+    @Autowired
+    private PlayerService playerService;
+    
+    @GetMapping
+    public ResponseEntity<List<Player>> getRanking() {
+        List<Player> players = playerService.findAll();
+        // Lógica de ordenamiento y filtrado inline
+        List<Player> ranking = players.stream()
+            .filter(p -> p.getStatistics() != null)
+            .sorted((p1, p2) -> {
+                // Cálculo de score inline repetido
+                double score1 = calculateScore(p1.getStatistics());
+                double score2 = calculateScore(p2.getStatistics());
+                return Double.compare(score2, score1);
+            })
+            .collect(Collectors.toList());
+        return ResponseEntity.ok(ranking);
+    }
+    
+    private double calculateScore(Statistics stats) {
+        if (stats.getGamesPlayed() < 10) return 0;
+        double winRate = stats.getGamesWon() * 100.0 / stats.getGamesPlayed();
+        return winRate + 20 * Math.log10(stats.getGamesPlayed());
+    }
+}
+``` 
+```Java
+@Entity
+public class Statistics {
+    private Integer gamesPlayed;
+    private Integer gamesWon;
+    private Integer sarcinasCreated;
+    // ... otros campos
+    // No había método getScore()
+}
+```
+
+#### Estado del código refactorizado
+```Java
+// Nueva clase DTO
+@Getter
+@Setter
+public class PlayerRanking {
+    Integer rankingPosition;
+    String nickname;
+    Integer partidasJugadas;
+    Integer partidasGanadas;
+    Integer sarcinasCreadas;
+    Double score;
+}
+```
+
+```Java
+// quitar el método getScore()
+
+@Transactional(readOnly = true)
+    public List<PlayerRanking> getGlobalRanking() {
+        List<Player> players = playerRepository.findAll();
+        List<PlayerRanking> ranking = new ArrayList<>();
+        for (Player player : players) {
+            PlayerRanking playerRanking = new PlayerRanking();
+            Double score = player.getStatistics().getScore();
+            if (score != null) {
+                playerRanking.setNickname(player.getNickname());
+                playerRanking.setPartidasJugadas(player.getStatistics().getGamesPlayed());
+                playerRanking.setPartidasGanadas(player.getStatistics().getGamesWon());
+                playerRanking.setSarcinasCreadas(player.getStatistics().getSarcinasCreated());
+                playerRanking.setScore(score);
+                ranking.add(playerRanking);
+            }
+        }
+
+        ranking.sort(Comparator.comparing(PlayerRanking::getScore)
+            .reversed()
+            .thenComparing(PlayerRanking::getSarcinasCreadas, Comparator.reverseOrder()));
+
+        for (int i = 0; i < ranking.size(); i++) {
+            ranking.get(i).setRankingPosition(i + 1);
+        }
+
+        return ranking;
+    }
+```
+
+```Java
+@Getter
+@Setter
+@Entity
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@Table(name = "statistics")
+public class Statistics extends BaseEntity {
+
+    // atributos de la clase
+
+    public Double getScore() {
+        if(gamesPlayed < 10) {
+            return null;
+        }
+        double winPercent = ((double) gamesWon / (double) gamesPlayed) * 100.0;
+        return winPercent + 20.0 * Math.log10((double) gamesPlayed);
+    }
+}
+```
+
+```Java
+// en el RankingController.java 
+
+ @GetMapping
+    public ResponseEntity<List<PlayerRanking>> getGlobalRanking() {
+        return ResponseEntity.ok(rankingService.getGlobalRanking());
+    }
+```
+
+#### Problema que nos hizo realizar la refactorización
+El endpoint de ranking devolvía objetos Player completos con toda su información (usuario, estadísticas anidadas, etc.), cuando solo necesitábamos unos pocos campos. Además, la lógica de cálculo del score estaba duplicada entre el controlador y otros lugares, y no había una separación clara de responsabilidades entre servicios.
+#### Ventajas que presenta la nueva versión del código respecto de la versión original
+**Separación de responsabilidades (SRP)**
+- `RankingService` se encarga exclusivamente de construir el ranking.
+- `Statistics` encapsula la lógica de cálculo del score.
+**Contrato de AI más limpio**
+- El DTO `PlayerRanking` expone solo los datos necesarios para el ranking.
+- Evita exponer información sensible o innecesaria del `Player`
+**Reutilización y DRY**
+- El método `getScore()` en `Statistics` es reutilizable en cualquier contexto
+
