@@ -76,7 +76,8 @@ A continuación se definen  todas las historias de usuario a implementar:
 ### Barra de contaminación (jugador)
 ![alt text](ImagenesD1/m5.png)
 
-- ## HU-07 (ISSUE#ID): **Control de fase de fisión binaria (jugador)** - Como jugador quiero que en la fase de fisión binaria se añada una bacteria del jugador al que pertenece un disco para poder proseguir una partida con normalidad.
+- ## HU-07 (ISSUE#ID): **Control de fase de fisión binaria (jugador)** 
+    - Como jugador quiero que en la fase de fisión binaria se añada una bacteria del jugador al que pertenece un disco para poder proseguir una partida con normalidad.
     - _Se requiere la automatización para que por cada disco en el que solo existan bacterias de un jugador, se agrege a dicho disco una más._
 ### Control de fase de fisión binaria (jugador)
 ![alt text](ImagenesD1/m38.png)
@@ -222,13 +223,25 @@ A continuación se definen  todas las historias de usuario a implementar:
 ### Ver perfil de otro jugador (jugador)
 ![TO DO](ImagenesD1/m26.png)
 
-- ## HU-30 (ISSUE#ID): **Ver ranking de jugadores (jugador)**
+- ## HU-30 (ISSUE#149): **Ver ranking de jugadores (jugador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/149
     - Como jugador quiero ver el ranking de jugadores para poder ver quienes son los mejores.
     - _Se requiere una opción para poder ver un ranking con el top de los mejores jugadores ordenados por más partidas ganadas y porcentaje de victorias._
 ### Ver ranking de jugadores (jugador)
 ![alt text](ImagenesD1/m27.png)
 
-- ## HU-31 (ISSUE#ID): **Definir nuevos logros (administrador)**
+- ## HU-31 (ISSUE#143): **Ver estadisticas globales junto al ranking(jugador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/143
+    - Como jugador quiero ver algunas estadísticas globales para saber 
+    - _Se requiere un sistema que recoja las estadísticas de todos los jugadores para mostrarla como una sola_
+### Ver estadísticas globales
+![Estadísticas globales](ImagenesD1/estadisticasGlobales.jpeg)
+
+- ## HU-32 (ISSUE#143): **Comparar tus estadísticas con la de otra persona o todo el mundo(jugador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/143
+    - Como jugador quiero poder compararme con otros jugadores para ver en que soy mejor que los demás
+    - _Se requiere mostrar diagramas los cuales enseñen dichas comparaciones_
+![Comparación global](ImagenesD1/comparacionGlobal.jpeg)
+![Comparación individual](ImagenesD1/comparacionIndividual.jpeg)
+
+- ## HU-33 (ISSUE#ID): **Definir nuevos logros (administrador)**
     - Como administrador quiero definir nuevos logros para poder agregar nuevas razones por las que jugar al juego.
     - _Se requiere una opción para los administradores para publicar un nuevo logro._
 ### Definir nuevos logros (administrador)
@@ -237,53 +250,54 @@ A continuación se definen  todas las historias de usuario a implementar:
 ---
 ## **Módulo de juego social (opcional)**
 
-- ## HU-32 (ISSUE#ID): **Añadir amigo (jugador)**
+- ## HU-34 (ISSUE#ID): **Añadir amigo (jugador)**
     - Como jugador quiero añadir un amigo para poder conectar rápidamente con una persona con la que frecuento jugar.
     - _Se requiere una opción que permita agregar a un jugador mediante un código de amigo siempre que la otra persona lo acepte._
 ### Añadir amigo (jugador)
 ![alt text](ImagenesD1/m29.png)
 
-- ## HU-33 (ISSUE#ID): **Ver estado de amigos (jugador)**
+- ## HU-35 (ISSUE#ID): **Ver estado de amigos (jugador)**
     - Como jugador quiero ver si mis amigos están en línea para poder jugar con ellos.
     - _Se requiere un sistema que permita ver la lista de amigos y si se encuentran en estado conectado o desconectado._
 ### Ver estado de amigos (jugador)
 ![alt text](ImagenesD1/m30.png)
 
-- ## HU-34 (ISSUE#ID): **Eliminar amigo (jugador)**
+- ## HU-36 (ISSUE#ID): **Eliminar amigo (jugador)** 
     - Como jugador quiero eliminar un amigo para poder hacer hueco en la lista de amistades.
     - _Se requiere una opción que permita sin la confirmación del otro jugador eliminarlo de la lista de amigos._
 ### Eliminar amigo (jugador)
 ![alt text](ImagenesD1/m31.png)
 
-- ## HU-35 (ISSUE#95): **Chat en partida (jugador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/95
+- ## HU-37 (ISSUE#95): **Chat en partida (jugador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/95
     - Como jugador quiero conversar con mi oponente para poder aumentar la comunicación entre ambos.
     - _Se requiere un chat de juego dentro de las partidas para poder intercambiar mensajes entre jugadores._
 ### Chat en partida (jugador)
 ![alt text](ImagenesD1/m32.png)
 
-- ## HU-36 (ISSUE#ID): **Silenciar chat (jugador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/135
+- ## HU-38 (ISSUE#ID): **Silenciar chat (jugador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/135
     - Como jugador quiero silenciar el chat para poder aislarme de cualquier tipo de interacción con otros jugadores por el motivo que sea.
     - _Se requiere una opción para silenciar el chat en una partida._
 ### Silenciar chat (jugador)
 ![alt text](ImagenesD1/m33.png)
 
-- ## HU-37 (ISSUE#ID): **Reportar jugador (jugador)**
+- ## HU-39 (ISSUE#ID): **Reportar jugador (jugador)**
     - Como jugador quiero reportar a otro jugador para poder hacer que le llamen la atención por comportamiento inapropiado.
     - _Se requiere una opción para que un jugador pueda enviar al equipo de soporte una petición de queja, además de silenciar el chat, que permita a los administradores tomar acciones sobre la cuenta de un jugador que está teniendo comportamientos inapropiados hacia otros jugadores._
 ### Reportar jugador (jugador)
 ![alt text](ImagenesD1/m34.png)
 
-- ## HU-38 (ISSUE#ID): **Bloquear jugador (jugador)**
+- ## HU-40 (ISSUE#ID): **Bloquear jugador (jugador)**
     - Como jugador quiero bloquear a jugadores para poder aislarme de cualquier tipo de interacción con ellos.
     - _Se requiere una opción para bloquear a un jugador y que estos no puedan interactuar de ninguna manera entre ellos._
 ### Bloquear jugador (jugador)
 ![alt text](ImagenesD1/m35.png)
 
-- ## HU-39 (ISSUE#ID): **Monitorizar chat (administrador)**
+- ## HU-41 (ISSUE#ID): **Monitorizar chat (administrador)**
     - Como administrador quiero monitorizar el chat de cualquier partida para poder ocultar cualquier mensaje que propicie un mal ambiente.
     - _Se requiere que el administrador pueda ocultar o eliminar cualquier mensaje dentro del chat de partida por el bienestar de los jugadores._
 ### Monitorizar chat (administrador)
 ![alt text](ImagenesD1/m36.png)---
+
 
 # Diagrama conceptual del sistema
 
