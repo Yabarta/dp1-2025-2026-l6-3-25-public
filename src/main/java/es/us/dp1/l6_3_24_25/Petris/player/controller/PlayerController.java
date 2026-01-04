@@ -41,22 +41,16 @@ public class PlayerController {
     public PlayerController(PlayerService ps){
         this.playerservice = ps;
     }
-    //Cada vez que que arranca la aplicación, se borran las imágenes antiguas de la carpeta uploads
+    
     @PostConstruct
     public void init() {
         try {
             Path uploadsPath = Paths.get("uploads");
-            if (Files.exists(uploadsPath) && Files.isDirectory(uploadsPath)) {
-                try (var paths = Files.walk(uploadsPath)) {
-                    paths.filter(Files::isRegularFile).forEach(path -> {
-                        try {
-                            Files.delete(path);
-                        } catch (IOException e) {
-                        }
-                    });
-                }
+            if (!Files.exists(uploadsPath)) {
+                Files.createDirectories(uploadsPath);
             }
         } catch (IOException e) {
+            // If we can't create the uploads directory, the app will fail later when saving files.
         }
     }
 

@@ -1,4 +1,5 @@
 import React from 'react';
+import trofeo from '../../static/images/trofeo.png';
 
 export default function AchievementsSection({ Achievements = [], UserAchievements = [], achievementProgress }) {
   return (
@@ -11,7 +12,7 @@ export default function AchievementsSection({ Achievements = [], UserAchievement
           return (
             <div key={achievement.id} className={`achievement ${isCompleted ? 'completed' : ''}`}>
               <div className="achievementHeader">
-                <img src={achievement.icon} alt={achievement.name} className="achievementIcon" />
+                <img src={achievement.icon || trofeo} alt={achievement.name} className="achievementIcon" />
                 <h3 className="achievementName">{achievement.name}</h3>
                 <p className="achievementProgress">{achievementProgress(achievement)}</p>
               </div>

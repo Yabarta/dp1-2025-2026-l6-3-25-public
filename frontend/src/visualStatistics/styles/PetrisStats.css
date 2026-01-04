@@ -4,8 +4,12 @@
     --bg-panel: #08191299;
     --primary-green: #22c55e;
     --alert-red: #ef4444;
+    --alert-green: #22c55e;
+    --alert-blue: #3b82f6;
+    --alert-gold: #eab308;
     --info-blue: #60a5fa;
     --gold: #eab308;
+    --orange: #f97316;
     --text-main: #e2e8f0;
     --text-muted: #94a3b8;
     --border-glass: rgba(255, 255, 255, 0.1);
@@ -54,6 +58,7 @@ body {
 .text-red { color: var(--alert-red); }
 .text-blue { color: var(--info-blue); }
 .text-gold { color: var(--gold); }
+.text-orange { color: var(--orange); }
 
 /* --- HEADER --- */
 .petris-header {

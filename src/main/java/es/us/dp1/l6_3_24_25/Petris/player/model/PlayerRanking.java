@@ -12,4 +12,5 @@ public class PlayerRanking {
     Integer partidasGanadas;
     Integer sarcinasCreadas;
     Double score;
+    String profilePicture;
 }
