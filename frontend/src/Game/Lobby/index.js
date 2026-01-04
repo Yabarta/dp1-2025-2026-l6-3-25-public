@@ -114,6 +114,7 @@ const Lobby = () => {
                         <button className="lobby-button lobby-button--secondary" onClick={() => handleCreateLobby(true)} disabled={isLoading || !isAuthenticated}>
                             Crear sala privada
                         </button>
+                        <button className="lobby-back-button" onClick={() => navigate('/')}>Volver al Inicio</button>
                     </div>
                     <section className="lobby-list">
                         {availableLobbies.length === 0 ? (

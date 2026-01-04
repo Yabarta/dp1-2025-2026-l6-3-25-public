@@ -158,8 +158,12 @@ public class MatchController {
             } else {
                 matchService.delete(id);
 
-                playerService.setIsCurrentlyInMatch(matchToUpdate.getPlayer1(), false);
-                playerService.setIsCurrentlyInMatch(matchToUpdate.getPlayer2(), false);
+                if (matchToUpdate.getPlayer1() != null) {
+                    playerService.setIsCurrentlyInMatch(matchToUpdate.getPlayer1(), false);
+                }
+                if (matchToUpdate.getPlayer2() != null) {
+                    playerService.setIsCurrentlyInMatch(matchToUpdate.getPlayer2(), false);
+                }
             }
 
             if (updatedMatch != null) {
@@ -276,8 +280,12 @@ public class MatchController {
             
             matchService.delete(id);
 
-            playerService.setIsCurrentlyInMatch(matchToDelete.getPlayer1(), false);
-            playerService.setIsCurrentlyInMatch(matchToDelete.getPlayer2(), false);
+            if (matchToDelete.getPlayer1() != null) {
+                playerService.setIsCurrentlyInMatch(matchToDelete.getPlayer1(), false);
+            }
+            if (matchToDelete.getPlayer2() != null) {
+                playerService.setIsCurrentlyInMatch(matchToDelete.getPlayer2(), false);
+            }
 
             webSocketMatchService.broadcastLobbyClosed(id);
 

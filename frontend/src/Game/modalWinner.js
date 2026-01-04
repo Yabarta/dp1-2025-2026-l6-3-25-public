@@ -62,7 +62,7 @@ export default function ModalWinner({ winner, currentUser, onGoToMenu }) {
                 : <>Ha ganado el jugador: <strong>{winner}</strong></>}
         </p>
         <button style={buttonStyle} onClick={handleGoToMenu}>
-          Volver al Menú Principal
+          Volver al Menú 
         </button>
       </div>
     </div>
