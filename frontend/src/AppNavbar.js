@@ -291,7 +291,7 @@ useEffect(() => {
             <Navbar expand="md" dark color="dark">
                 <NavbarBrand tag={Link} to="/">
                     <img alt="logo" src={mitosisImg} style={{ height: 40, width: 40, paddingRight: 8 }} />
-                    Petris
+                    <texto style={{ color: "#00b318ff", fontWeight: "bold"}}>Inicio</texto>
                 </NavbarBrand>
                 <NavbarToggler onClick={toggleNavbar} className="ms-2" />
                 <Collapse isOpen={!collapsed} navbar>
