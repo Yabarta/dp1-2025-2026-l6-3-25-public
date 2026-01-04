@@ -23,7 +23,6 @@ import NotStartedGames from "./home/NotStartedGameList";
 import LobbyScreen from "./Game/LobbyScreen"; 
 import Comparator from "./visualStatistics/page/Comparator";
 import StatisticRanking from "./visualStatistics/page/StatisticsRanking";
-import Leaderboards from "./leaderboards/Leaderboards";
 
 function ErrorFallback({ error, resetErrorBoundary }) {
   return (
@@ -127,7 +126,6 @@ function App() {
         <AppNavbar />
         <Routes>
           <Route path="/" exact={true} element={<Home />} />
-          <Route path="/leaderboards" element={<Leaderboards />} />
           <Route path="/plans" element={<PlanList />} />
           <Route path="/demo" element={<DemoGame />} />
           <Route path="/docs" element={<SwaggerDocs />} />
