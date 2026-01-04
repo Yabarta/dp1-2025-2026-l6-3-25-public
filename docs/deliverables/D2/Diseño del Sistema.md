@@ -31,7 +31,7 @@ La duración de una partida es variable, pero ninguna suele superar los 10 minut
 
 ### Diagrama de Dominio/Diseño
 
-![alt text](ImagenesD2/DiagramDominio.png)
+![alt text](ImagenesD2/DiagramaDominio.jpg)
 
 ### Diagrama de Capas (incluyendo Controladores, Servicios y Repositorios)
 ![alt text](ImagenesD2/Diagrama%20de%20capas.jpg)
@@ -2467,16 +2467,16 @@ Código con funcionalidad dividida en las clases adecuadas, más legible y mante
 En esta refactorización se finalizó la descomposición y se transformó `ProfileScreen` en un contenedor puro que expone una API de props clara a varios componentes presentacionales. El objetivo fue reducir el acoplamiento, mejorar la testabilidad y facilitar la reutilización de las secciones del perfil.
 
 #### Estado inicial del código
-
+```
     <div className="profileContainer">{modal}
         <div className="left"> /* cabecera, avatar, estadísticas y controles inline */ </div>
         <div className="right"> /* partidas recientes, logros y modales inline */ </div>
         {showHistoryPopup && (/* modal JSX muy largo */)}
         {showEditPopup && (/* modal JSX muy largo */)}
     </div>
-
+```
 #### Estado del código refactorizado
-
+```
     <div className="profileContainer">
         {modal}
         <div className="left">
@@ -2490,6 +2490,7 @@ En esta refactorización se finalizó la descomposición y se transformó `Profi
         <HistoryPopup {...historyProps} />
         <EditPopup {...editProps} />
     </div>
+```
 
 #### Archivos creados / modificados
 
@@ -2512,3 +2513,140 @@ El componente del perfil era muy grande y mezclaba lógica de obtención de dato
 - **Reutilización:** se pueden incorporar `StatsSection` o `RecentGames` en otras vistas sin arrastrar código innecesario.
 - **Claridad y mantenimiento:** `profileScreen.js` queda como orquestador claro de los datos y handlers; los cambios visuales o de formulario se aplican en archivos pequeños.
 - **UX mejorada:** los modales (`HistoryPopup`, `EditPopup`) se manejan como componentes reutilizables, y `EditPopup` usa `Formik` para robustez en formularios.
+
+
+### Refactorización 6:  
+En esta refactorización se ha separado la lógica de cálculo del ranking de jugadores del servicio genérico de estadísticas, se ha creado un DTO específico (`PlayerRanking`) para la respuesta del ranking, y se ha movido el cálculo del score a la entidad `Statistics`.
+#### Estado inicial del código
+```Java 
+@RestController
+@RequestMapping("/api/v1/ranking")
+public class RankingController {
+    
+    @Autowired
+    private PlayerService playerService;
+    
+    @GetMapping
+    public ResponseEntity<List<Player>> getRanking() {
+        List<Player> players = playerService.findAll();
+        // Lógica de ordenamiento y filtrado inline
+        List<Player> ranking = players.stream()
+            .filter(p -> p.getStatistics() != null)
+            .sorted((p1, p2) -> {
+                // Cálculo de score inline repetido
+                double score1 = calculateScore(p1.getStatistics());
+                double score2 = calculateScore(p2.getStatistics());
+                return Double.compare(score2, score1);
+            })
+            .collect(Collectors.toList());
+        return ResponseEntity.ok(ranking);
+    }
+    
+    private double calculateScore(Statistics stats) {
+        if (stats.getGamesPlayed() < 10) return 0;
+        double winRate = stats.getGamesWon() * 100.0 / stats.getGamesPlayed();
+        return winRate + 20 * Math.log10(stats.getGamesPlayed());
+    }
+}
+``` 
+```Java
+@Entity
+public class Statistics {
+    private Integer gamesPlayed;
+    private Integer gamesWon;
+    private Integer sarcinasCreated;
+    // ... otros campos
+    // No había método getScore()
+}
+```
+
+#### Estado del código refactorizado
+```Java
+// Nueva clase DTO
+@Getter
+@Setter
+public class PlayerRanking {
+    Integer rankingPosition;
+    String nickname;
+    Integer partidasJugadas;
+    Integer partidasGanadas;
+    Integer sarcinasCreadas;
+    Double score;
+}
+```
+
+```Java
+// quitar el método getScore()
+
+@Transactional(readOnly = true)
+    public List<PlayerRanking> getGlobalRanking() {
+        List<Player> players = playerRepository.findAll();
+        List<PlayerRanking> ranking = new ArrayList<>();
+        for (Player player : players) {
+            PlayerRanking playerRanking = new PlayerRanking();
+            Double score = player.getStatistics().getScore();
+            if (score != null) {
+                playerRanking.setNickname(player.getNickname());
+                playerRanking.setPartidasJugadas(player.getStatistics().getGamesPlayed());
+                playerRanking.setPartidasGanadas(player.getStatistics().getGamesWon());
+                playerRanking.setSarcinasCreadas(player.getStatistics().getSarcinasCreated());
+                playerRanking.setScore(score);
+                ranking.add(playerRanking);
+            }
+        }
+
+        ranking.sort(Comparator.comparing(PlayerRanking::getScore)
+            .reversed()
+            .thenComparing(PlayerRanking::getSarcinasCreadas, Comparator.reverseOrder()));
+
+        for (int i = 0; i < ranking.size(); i++) {
+            ranking.get(i).setRankingPosition(i + 1);
+        }
+
+        return ranking;
+    }
+```
+
+```Java
+@Getter
+@Setter
+@Entity
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@Table(name = "statistics")
+public class Statistics extends BaseEntity {
+
+    // atributos de la clase
+
+    public Double getScore() {
+        if(gamesPlayed < 10) {
+            return null;
+        }
+        double winPercent = ((double) gamesWon / (double) gamesPlayed) * 100.0;
+        return winPercent + 20.0 * Math.log10((double) gamesPlayed);
+    }
+}
+```
+
+```Java
+// en el RankingController.java 
+
+ @GetMapping
+    public ResponseEntity<List<PlayerRanking>> getGlobalRanking() {
+        return ResponseEntity.ok(rankingService.getGlobalRanking());
+    }
+```
+
+#### Problema que nos hizo realizar la refactorización
+El endpoint de ranking devolvía objetos Player completos con toda su información (usuario, estadísticas anidadas, etc.), cuando solo necesitábamos unos pocos campos. Además, la lógica de cálculo del score estaba duplicada entre el controlador y otros lugares, y no había una separación clara de responsabilidades entre servicios.
+#### Ventajas que presenta la nueva versión del código respecto de la versión original
+**Separación de responsabilidades (SRP)**
+- `RankingService` se encarga exclusivamente de construir el ranking.
+- `Statistics` encapsula la lógica de cálculo del score.
+**Contrato de AI más limpio**
+- El DTO `PlayerRanking` expone solo los datos necesarios para el ranking.
+- Evita exponer información sensible o innecesaria del `Player`
+**Reutilización y DRY**
+- El método `getScore()` en `Statistics` es reutilizable en cualquier contexto
+

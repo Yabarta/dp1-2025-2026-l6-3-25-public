@@ -267,8 +267,15 @@ useEffect(() => {
                     <Button style={{ color: "white" }} id="friends-btn" onClick={toggleMenu} className="btn btn-link nav-link">Friends</Button>
                 </NavItem>
                 <NavItem>
-                    <NavLink style={{ color: "white" }} id="leaderboards" tag={Link} to="/leaderboards">Leaderboards</NavLink>
+                    <NavLink style={{ color: "white" }} id="comparator" tag={Link} to="/comparator">Comparador</NavLink>
                 </NavItem>
+                <NavItem>
+                    <NavLink style={{ color: "white" }} id="statistics" tag={Link} to="/ranking">Ranking</NavLink>
+                </NavItem>
+                <NavItem>
+                    <NavLink style={{ color: "white" }} id="leaderboards" tag={Link} to="/leaderboards">Leaderboards</NavLink>    
+                </NavItem>
+
             </>
         )
         userLogout = (

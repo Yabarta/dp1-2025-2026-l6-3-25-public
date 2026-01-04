@@ -2,6 +2,8 @@ package es.us.dp1.l6_3_24_25.Petris.player.service;
 
 import java.util.List;
 
+import es.us.dp1.l6_3_24_25.Petris.player.model.GlobalStatistic;
+import es.us.dp1.l6_3_24_25.Petris.player.model.StatsUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,33 +46,44 @@ public class StatisticsService {
             s.getBacteriasCreated()
         );
     }
-    
-    @Transactional(readOnly = true)
-    public List<Integer> getGlobalStatisticsArray() {
-        List<Statistics> all = getAllStatistics();
-        int totalGamesPlayed = 0;
-        int totalGamesWon = 0;
-        int totalTimePlayed = 0;
-        int totalSarcinasCreated = 0;
-        int totalBacteriasCreated = 0;
 
-        for (Statistics s : all) {
-            List<Integer> arr = getStatisticsArrayById(s.getId());
-            if (arr.size() >= 5) {
-                totalGamesPlayed += arr.get(0);
-                totalGamesWon += arr.get(1);
-                totalTimePlayed += arr.get(2);
-                totalSarcinasCreated += arr.get(3);
-                totalBacteriasCreated += arr.get(4);
-            }
+    @Transactional(readOnly = true)
+    public GlobalStatistic getGlobalStatistics() {
+        List<Statistics> all = getAllStatistics();
+
+        Integer totalGamesPlayed = all.stream().map(Statistics::getGamesPlayed).reduce(0, Integer::sum) / 2; // Each game is counted twice, once for each player
+        Integer totalTimePlayed = all.stream().map(Statistics::getTimePlayed).reduce(0, Integer::sum) / 2 / 60; // Each game is counted twice, once for each player, and convert to minutes
+        Integer totalSarcinasCreated = all.stream().map(Statistics::getSarcinasCreated).reduce(0, Integer::sum);
+        Integer totalPlayers = all.size();
+
+        return new GlobalStatistic(totalGamesPlayed, totalTimePlayed, totalSarcinasCreated, totalPlayers);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Double> getBoxPlotStatsForField(String fieldName) {
+        List<Statistics> allStats = getAllStatistics();
+        List<Integer> fieldValues;
+
+        switch (fieldName) {
+            case "gamesPlayed":
+                fieldValues = allStats.stream().map(Statistics::getGamesPlayed).toList();
+                break;
+            case "gamesWon":
+                fieldValues = allStats.stream().map(Statistics::getGamesWon).toList();
+                break;
+            case "timePlayed":
+                fieldValues = allStats.stream().map(Statistics::getTimePlayed).toList();
+                break;
+            case "sarcinasCreated":
+                fieldValues = allStats.stream().map(Statistics::getSarcinasCreated).toList();
+                break;
+            case "bacteriasCreated":
+                fieldValues = allStats.stream().map(Statistics::getBacteriasCreated).toList();
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid field name: " + fieldName);
         }
 
-        return List.of(
-            totalGamesPlayed,
-            totalGamesWon,
-            totalTimePlayed,
-            totalSarcinasCreated,
-            totalBacteriasCreated
-        );
+        return StatsUtil.calculateBoxPlotStats(fieldValues);
     }
 }
