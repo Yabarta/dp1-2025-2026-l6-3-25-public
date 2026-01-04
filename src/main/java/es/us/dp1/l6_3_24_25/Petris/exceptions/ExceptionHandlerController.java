@@ -75,4 +75,12 @@ public class ExceptionHandlerController {
 		return new ResponseEntity<>(message, HttpStatus.FORBIDDEN);
 	}
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Map<String, String> handleIllegalArgumentException(IllegalArgumentException ex) {
+        Map<String, String> errorResponse = new HashMap<>();
+        errorResponse.put("message", ex.getMessage());
+        return errorResponse;
+    }
+
 }
