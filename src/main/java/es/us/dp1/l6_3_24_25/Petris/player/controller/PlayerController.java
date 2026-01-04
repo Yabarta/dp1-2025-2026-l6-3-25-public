@@ -41,7 +41,7 @@ public class PlayerController {
     public PlayerController(PlayerService ps){
         this.playerservice = ps;
     }
-    
+
     @PostConstruct
     public void init() {
         try {
@@ -107,7 +107,7 @@ public class PlayerController {
     }
 
     @PutMapping(value = "/{id}", consumes = "multipart/form-data")
-    public ResponseEntity<Player> updatePlayerWithImage(@PathVariable("id") Integer id, 
+    public ResponseEntity<Player> updatePlayerWithImage(@PathVariable("id") Integer id,
                                                         @RequestParam(value = "profilePicture", required = false) MultipartFile file,
                                                         @RequestParam(value = "nickname", required = false) String nickname,
                                                         @RequestParam(value = "email", required = false) String email) {
@@ -143,15 +143,6 @@ public class PlayerController {
             Path oldFilePath = Paths.get("uploads").resolve(oldFileName);
             Files.deleteIfExists(oldFilePath);
         }
-    }
-
-    @PutMapping("/{id}/statistics/{statId}")
-    @ResponseStatus(HttpStatus.OK)
-    public void updatePlayerStat(@PathVariable("id") Integer id, @PathVariable("statId") Integer statId, @Valid @RequestBody Statistics stat) {
-        Player player = playerservice.getPlayerById(id);
-        Statistics statToUpdate = player.getStatistics();
-        BeanUtils.copyProperties(stat, statToUpdate, "id");
-        playerservice.save(player);
     }
 
     @DeleteMapping("/{id}")

@@ -3,6 +3,8 @@ package es.us.dp1.l6_3_24_25.Petris.player.controller;
 import java.io.InputStream;
 import java.time.LocalDateTime;
 
+import io.qameta.allure.Issue;
+import io.qameta.allure.Owner;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -69,10 +71,10 @@ public class PlayerControllerTests {
 
     @MockBean
     private PlayerService playerService;
-    
+
     @Autowired
     private PlayerController playerController;
-    /* 
+
     @BeforeEach
     void setUp() {
         playerController = new PlayerController(playerService);
@@ -90,7 +92,7 @@ public class PlayerControllerTests {
         statistics.setId(1);
         statistics.setGamesPlayed(10);
         statistics.setGamesWon(4);
-        statistics.setSarcinesCreated(7);
+        statistics.setSarcinasCreated(7);
 
         Achievement ach1 = new Achievement();
         ach1.setId(1);
@@ -177,7 +179,7 @@ public class PlayerControllerTests {
             .andExpect(jsonPath("$.id").value(1))
             .andExpect(jsonPath("$.gamesPlayed").value(10))
             .andExpect(jsonPath("$.gamesWon").value(4))
-            .andExpect(jsonPath("$.sarcinesCreated").value(7));
+            .andExpect(jsonPath("$.sarcinasCreated").value(7));
     }
 
 
@@ -186,16 +188,8 @@ public class PlayerControllerTests {
     @DisplayName("Get Player Specific Statistic by Id (Successfully)")
     void testGetPlayerSpecificStatById() throws Exception {
         when(playerService.getPlayerById(1)).thenReturn(player);
-        mockMvc.perform(get(BASE_URL + "/1/statistics/1")).andExpect(status().isOk())
+        mockMvc.perform(get(BASE_URL + "/1/statistics")).andExpect(status().isOk())
             .andExpect(jsonPath("$.gamesPlayed").value(10));
-    }
-
-    @Test
-    @Feature("Get Player Specific Statistic by Id")
-    @DisplayName("Get Player Specific Statistic by Id (Stat not found)")
-    void testGetPlayerSpecificStatById_NotFound() throws Exception {
-        when(playerService.getPlayerById(1)).thenReturn(player);
-        mockMvc.perform(get(BASE_URL + "/1/statistics/1000")).andExpect(status().isNotFound());
     }
 
     @Test
@@ -265,22 +259,45 @@ public class PlayerControllerTests {
     @Test
     @Feature("Create Player")
     @DisplayName("Create Player (Successfully)")
+    @Owner("dlozaco(FBN588)")
+    @Issue("https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/160")
     void testCreatePlayer() throws Exception {
+        Statistics statistics = Statistics.builder()
+            .gamesPlayed(0)
+            .gamesWon(0)
+            .timePlayed(0)
+            .sarcinasCreated(0)
+            .bacteriasCreated(0)
+            .build();
+        User user = User.builder()
+            .username("newPlayer")
+            .password("securepassword")
+            .authority(auth)
+            .build();
+        Player newPlayer = Player.builder()
+            .nickname("newPlayer")
+            .email("newplayer@example.com")
+            .isCurrentlyInMatch(false)
+            .statistics(statistics)
+            .user(user)
+            .build();
 
-        User user2 = new User();
-        user2.setId(2);
-        user2.setUsername("user2");
-        user2.setPassword("password2");
-        user2.setAuthority(auth);
+        when(playerService.save(any(Player.class))).thenAnswer(invocation -> {
+            Player savedPlayer = invocation.getArgument(0);
+            savedPlayer.setId(2);
+            return savedPlayer;
+        });
 
-        Player aux = new Player();
-        aux.setId(2);
-        aux.setNickname("player2");
-        aux.setIsCurrentlyInMatch(false);
-        aux.setUser(user2);
+        mockMvc.perform(post(BASE_URL)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(newPlayer)))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.id").value(2))
+            .andExpect(jsonPath("$.nickname").value("newPlayer"))
+            .andExpect(jsonPath("$.email").value("newplayer@example.com"));
 
-        mockMvc.perform(post(BASE_URL).with(csrf()).contentType(MediaType.APPLICATION_JSON)
-			.content(objectMapper.writeValueAsString(aux))).andExpect(status().isCreated());
+        verify(playerService, times(1)).save(any(Player.class));
     }
 
     @Test
@@ -307,47 +324,9 @@ public class PlayerControllerTests {
 
         when(this.playerService.getPlayerById(100)).thenThrow(ResourceNotFoundException.class);
         when(this.playerService.save(any(Player.class))).thenReturn(player);
-        
+
         mockMvc.perform(put(BASE_URL + "/100").with(csrf()).contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(player))).andExpect(status().isNotFound());
-    }
-
-    @Test
-    @Feature("Update Player Statistic")
-    @DisplayName("Update Player Statistic (Successfully)")
-    void testUpdatePlayerStat() throws Exception {
-        Statistics statToUpdate = player.getStatistics();
-
-        statToUpdate.setGamesPlayed(50);
-        statToUpdate.setGamesWon(25);
-        statToUpdate.setSarcinesCreated(30);
-
-        when(this.playerService.getPlayerById(1)).thenReturn(player);
-
-        mockMvc.perform(put(BASE_URL + "/1/statistics/1") 
-            .with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(statToUpdate))) 
-            .andExpect(status().isOk());
-    }
-
-    @Test
-    @Feature("Update Player Statistic")
-    @DisplayName("Update Player Statistic (Not Found)")
-    void testUpdatePlayerStat_NotFound() throws Exception {
-        Statistics statToUpdate = player.getStatistics();
-
-        statToUpdate.setGamesPlayed(50);
-        statToUpdate.setGamesWon(25);
-        statToUpdate.setSarcinesCreated(30);
-
-        when(this.playerService.getPlayerById(1)).thenReturn(player);
-
-        mockMvc.perform(put(BASE_URL + "/1/statistics/1000") 
-            .with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(statToUpdate))) 
-            .andExpect(status().isNotFound());
     }
 
     @Test
@@ -392,15 +371,15 @@ public class PlayerControllerTests {
 
             uuidMock.when(UUID::randomUUID).thenReturn(fakeUuid);
             filesMock.when(() -> Files.exists(any(Path.class))).thenReturn(true);
-            filesMock.when(() -> Files.copy(any(InputStream.class), any(Path.class))).thenReturn(100L);            
+            filesMock.when(() -> Files.copy(any(InputStream.class), any(Path.class))).thenReturn(100L);
             filesMock.when(() -> Files.deleteIfExists(any(Path.class))).thenReturn(true);
 
             mockMvc.perform(multipart(BASE_URL + "/{id}", playerId)
                     .file(mockFile)
                     .param("nickname", newNickname)
                     .with(csrf())
-                    .with(request -> { 
-                        request.setMethod("PUT"); 
+                    .with(request -> {
+                        request.setMethod("PUT");
                         return request;
                     }))
                     .andExpect(status().isOk());
@@ -408,12 +387,12 @@ public class PlayerControllerTests {
             filesMock.verify(() -> Files.copy(any(InputStream.class), any(Path.class)), times(1));
             ArgumentCaptor<Player> playerCaptor = ArgumentCaptor.forClass(Player.class);
             verify(playerService, times(1)).save(playerCaptor.capture());
-            
+
             Player savedPlayer = playerCaptor.getValue();
             String expectedUrl = "/uploads/" + fakeUuid.toString() + "_" + originalFileName;
 
             assertEquals(newNickname, savedPlayer.getNickname());
             assertEquals(expectedUrl, savedPlayer.getProfilePicture());
         }
-    } */
+    }
 }
