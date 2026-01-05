@@ -47,6 +47,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import es.us.dp1.l6_3_24_25.Petris.configuration.SecurityConfiguration;
 import es.us.dp1.l6_3_24_25.Petris.exceptions.AccessDeniedException;
 import es.us.dp1.l6_3_24_25.Petris.match.model.Match;
+import es.us.dp1.l6_3_24_25.Petris.match.model.TurnType;
 import es.us.dp1.l6_3_24_25.Petris.match.service.MatchService;
 import es.us.dp1.l6_3_24_25.Petris.match.service.WebSocketMatchService;
 import es.us.dp1.l6_3_24_25.Petris.player.model.Player;
@@ -103,13 +104,41 @@ class MatchControllerTest {
     }
 
     @Test
+    @DisplayName("Should not create match if exception thrown")
+    @Description("Test that if an exception is thrown when creating a match, FORBIDDEN is returned")
+    @Owner("josbardel1(WHS7046)")
+    @Story("Create a new game")
+    @WithMockUser(username = "player", authorities = "PLAYER")
+    public void testCreateMatchNegative() throws Exception {
+        Boolean isPrivate = true;
+
+        when(matchService.createMatch(any(), anyBoolean())).thenThrow(new AccessDeniedException());
+
+        mvc.perform(post(BASE_URL)
+            .with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
+            .param("isPrivate", objectMapper.writeValueAsString(isPrivate)))
+            .andExpect(status().isForbidden());
+
+        verifyGetCurrentPlayer();
+        verify(playerService, never()).setIsCurrentlyInMatch(any(), any());
+        verify(webSocketMatchService, never()).broadcastLobbyState(any());
+    }
+
+    @Test
     @DisplayName("Should create match and set player to currently in a match")
     @Description("Test that if a player creates a match, CREATED is returned and isCurrentlyInMatch is set to true for the creator")
     @Owner("josbardel1(WHS7046)")
     @Story("Create a new game")
     @WithMockUser(username = "player", authorities = "PLAYER")
     public void testCreateMatchPositive() throws Exception {
-        boolean isPrivate = true;
+        Match match = new Match();
+        match.setTurnType(TurnType.BINARY_FISSION);
+        Player creator = new Player();
+        Boolean isPrivate = true;
+
+        stubCurrentPlayer(creator);
+        when(matchService.createMatch(creator, isPrivate)).thenReturn(match);
 
         mvc.perform(post(BASE_URL)
             .with(csrf())
@@ -117,10 +146,30 @@ class MatchControllerTest {
             .param("isPrivate", objectMapper.writeValueAsString(isPrivate)))
             .andExpect(status().isCreated());
 
+        verify(playerService, times(1)).setIsCurrentlyInMatch(creator, true);
+        verify(webSocketMatchService, times(1)).broadcastLobbyState(match);
+    }
+
+    @Test
+    @DisplayName("Should not join match if exception thrown")
+    @Description("Test that if an exception is thrown when joining a match, FORBIDDEN is returned")
+    @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
+    @WithMockUser(username = "player", authorities = "PLAYER")
+    public void testJoinMatchNegative() throws Exception {
+        int id = 1;
+
+        when(matchService.joinMatch(any(), any(), any())).thenThrow(new AccessDeniedException());
+
+        mvc.perform(put(BASE_URL + "/{id}", id)
+            .with(csrf())
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isForbidden());
+
+        verify(matchService, times(1)).getMatchById(id);
         verifyGetCurrentPlayer();
-        verify(matchService, times(1)).createMatch(any(), eq(isPrivate));
-        verify(webSocketMatchService, times(1)).broadcastLobbyState(any());
-        verify(playerService, times(1)).setIsCurrentlyInMatch(any(), anyBoolean());
+        verify(playerService, never()).setIsCurrentlyInMatch(any(), any());
+        verify(webSocketMatchService, never()).broadcastLobbyAndMatchState(any());
     }
 
     @Test
@@ -133,21 +182,130 @@ class MatchControllerTest {
         int id = 1;
         String code = "AAAA";
         Match match = new Match();
+        match.setTurnType(TurnType.BINARY_FISSION);
         Player playerToJoin = new Player();
+
+        when(matchService.getMatchById(id)).thenReturn(match);
+        stubCurrentPlayer(playerToJoin);
+        when(matchService.joinMatch(match, playerToJoin, code)).thenReturn(match);
+
+        mvc.perform(put(BASE_URL + "/{id}", id)
+            .with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
+            .param("code", code))
+            .andExpect(status().isOk());
+
+        verify(playerService, times(1)).setIsCurrentlyInMatch(playerToJoin, true);
+        verify(webSocketMatchService, times(1)).broadcastLobbyAndMatchState(match);
+    }
+
+    @Test
+    @DisplayName("Should return match if already in the match")
+    @Description("Test that if a player already in a match attempts to join that match, OK is returned")
+    @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
+    @WithMockUser(username = "player", authorities = "PLAYER")
+    public void testJoinMatchPositive2() throws Exception {
+        int id = 1;
+        Match match = new Match();
+        match.setTurnType(TurnType.BINARY_FISSION);
+        Player playerToJoin = new Player();
+        match.setPlayer1(playerToJoin);
 
         when(matchService.getMatchById(id)).thenReturn(match);
         stubCurrentPlayer(playerToJoin);
 
         mvc.perform(put(BASE_URL + "/{id}", id)
             .with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .param("code", code))
-            .andExpect(status().isOk())
-            .andDo(print());
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk());
 
-        verify(matchService, times(1)).joinMatch(match, playerToJoin, code);
-        verify(playerService, times(1)).setIsCurrentlyInMatch(playerToJoin, true);
-        verify(webSocketMatchService, times(1)).broadcastLobbyAndMatchState(any());
+        verify(matchService, never()).joinMatch(any(), any(), any());
+        verify(playerService, never()).setIsCurrentlyInMatch(any(), anyBoolean());
+        verify(webSocketMatchService, never()).broadcastLobbyAndMatchState(any());
+    }
+
+    @Test
+    @DisplayName("Should not leave match if exception thrown")
+    @Description("Test that if an exception is thrown when leaving a match, FORBIDDEN is returned")
+    @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
+    @WithMockUser(username = "player", authorities = "PLAYER")
+    public void testLeaveMatchNegative() throws Exception {
+        int id = 1;
+        Player player1 = new Player();
+        Player player2 = new Player();
+        Match match = new Match();
+        match.setTurnType(TurnType.BINARY_FISSION);
+        match.setPlayer1(player1);
+        match.setPlayer2(player2);
+
+        when(matchService.getMatchById(id)).thenReturn(match);
+        
+        when(matchService.leaveMatch(any(), any())).thenThrow(new AccessDeniedException());
+
+        mvc.perform(put(BASE_URL + "/{id}/leave", id)
+            .with(csrf())
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isForbidden());
+
+        verifyGetCurrentPlayer();
+        verify(playerService, never()).setIsCurrentlyInMatch(any(), any());
+        verify(webSocketMatchService, never()).broadcastLobbyState(any());
+    }
+
+    @Test
+    @DisplayName("Should leave match and set player to not currently in a match")
+    @Description("Test that if a player leaves a match, NO_CONTENT is returned and isCurrentlyInMatch is set to false for that player")
+    @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
+    @WithMockUser(username = "player", authorities = "PLAYER")
+    public void testLeaveMatchPositive() throws Exception {
+        int id = 1;
+        Player player1 = new Player();
+        Player player2 = new Player();
+        Match match = new Match();
+        match.setTurnType(TurnType.BINARY_FISSION);
+        match.setPlayer1(player1);
+        match.setPlayer2(player2);
+        Player playerToLeave = player2;
+
+        when(matchService.getMatchById(id)).thenReturn(match);
+        stubCurrentPlayer(playerToLeave);
+        when(matchService.leaveMatch(match, playerToLeave)).thenReturn(match);
+
+        mvc.perform(put(BASE_URL + "/{id}/leave", id)
+            .with(csrf())
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isNoContent());
+
+        verify(playerService, times(1)).setIsCurrentlyInMatch(playerToLeave, false);
+        verify(webSocketMatchService, times(1)).broadcastLobbyState(match);
+    }
+
+    @Test
+    @DisplayName("Should leave match and set player to not currently in a match")
+    @Description("Test that if a player leaves a match, NO_CONTENT is returned and isCurrentlyInMatch is set to false for that player")
+    @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
+    @WithMockUser(username = "player", authorities = "PLAYER")
+    public void testLeaveMatchPositive2() throws Exception {
+        int id = 1;
+        Match match = new Match();
+        match.setTurnType(TurnType.BINARY_FISSION);
+        Player playerToLeave = new Player();
+
+        when(matchService.getMatchById(id)).thenReturn(match);
+        stubCurrentPlayer(playerToLeave);
+
+        mvc.perform(put(BASE_URL + "/{id}/leave", id)
+            .with(csrf())
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isNoContent());
+        
+        verify(matchService, times(1)).delete(id);
+        verify(playerService, times(1)).setIsCurrentlyInMatch(playerToLeave, false);
+        verify(webSocketMatchService, times(1)).broadcastLobbyClosed(id);
     }
 }
 

@@ -53,8 +53,10 @@ public class PlayerService {
 
     @Transactional
     public void setIsCurrentlyInMatch(Player player, Boolean isCurrentlyInMatch) {
-        player.setIsCurrentlyInMatch(isCurrentlyInMatch);
-        playerRepository.save(player);
+        if(player != null) {
+            player.setIsCurrentlyInMatch(isCurrentlyInMatch);
+            playerRepository.save(player);
+        }
     }
 
     @Transactional

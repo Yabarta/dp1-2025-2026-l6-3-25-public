@@ -75,7 +75,7 @@ public class MatchService {
         } else if(match.hasStarted()) {
             throw new AccessDeniedException("The match has already started");
         }
-        if(!match.isValidCode(code)) {
+        if(!match.isCorrectCode(code)) {
             throw new AccessDeniedException("Incorrect code for private match");
         }
         if (match.isFull()) {

@@ -50,7 +50,7 @@ public class Match extends BaseEntity{
     @ManyToOne()
     private Player player2;
 
-    public boolean isValidCode(String code) {
+    public boolean isCorrectCode(String code) {
         return this.getCode() == null || this.getCode().equalsIgnoreCase(code);
     }
 

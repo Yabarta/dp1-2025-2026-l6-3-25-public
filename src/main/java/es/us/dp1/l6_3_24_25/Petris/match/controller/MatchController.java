@@ -30,8 +30,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
-import org.springframework.web.server.ResponseStatusException;
-
 @RestController
 @RequestMapping("/api/v1/matches")
 @Tag(name = "Matches", description = "API for the management of Matches")
@@ -75,23 +73,23 @@ public class MatchController {
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<Match> getMatchById(@PathVariable(required = true) Integer id) throws ResponseStatusException {
+    public ResponseEntity<?> getMatchById(@PathVariable(required = true) Integer id) {
         try {
             Match result = matchService.getMatchById(id);
             return new ResponseEntity<>(result, HttpStatus.OK);
         } catch(ResourceNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
 
     @GetMapping("/code/{code}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<Match> getMatchByCode(@PathVariable(required = true) String code) throws ResponseStatusException {
+    public ResponseEntity<?> getMatchByCode(@PathVariable(required = true) String code) {
         try {
             Match result = matchService.getMatchByCode(code);
             return new ResponseEntity<>(result, HttpStatus.OK);
         } catch(ResourceNotFoundException e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
 
@@ -103,7 +101,7 @@ public class MatchController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<Match> createMatch(@RequestParam(defaultValue = "false") Boolean isPrivate) throws ResponseStatusException {
+    public ResponseEntity<?> createMatch(@RequestParam(defaultValue = "false") Boolean isPrivate) {
         try {
             Player currentPlayer = getCurrentPlayer();
             Match createdMatch = matchService.createMatch(currentPlayer, isPrivate);
@@ -113,20 +111,17 @@ public class MatchController {
 
             return new ResponseEntity<>(createdMatch, HttpStatus.CREATED);
         } catch(Exception e) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
         }
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<Match> joinMatch(@PathVariable(required = true) Integer id,
-            @RequestParam(defaultValue = "") String code)
-            throws ResponseStatusException {
-
+    public ResponseEntity<?> joinMatch(@PathVariable(required = true) Integer id, @RequestParam(defaultValue = "") String code) {
         try {
             Match result;
-            Match matchToUpdate = matchService.getMatchById(id);
             Player currentPlayer = getCurrentPlayer();
+            Match matchToUpdate = matchService.getMatchById(id);
             if (matchToUpdate.hasPlayer(currentPlayer)) {
                 // Can't join if already in the match. Result is the match without updating it
                 result = matchToUpdate;
@@ -139,13 +134,13 @@ public class MatchController {
 
             return new ResponseEntity<>(result, HttpStatus.OK);
         } catch(Exception e){
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
         }
     }
 
     @PutMapping("/{id}/leave")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public ResponseEntity<Void> leaveMatch(@PathVariable(required = true) Integer id) throws ResponseStatusException {
+    public ResponseEntity<?> leaveMatch(@PathVariable(required = true) Integer id) {
         try {
             Match matchToUpdate = matchService.getMatchById(id);
             Player currentPlayer = getCurrentPlayer();
@@ -153,37 +148,32 @@ public class MatchController {
             Match updatedMatch = null;
             if (matchToUpdate.isFull()) {
                 updatedMatch = matchService.leaveMatch(matchToUpdate, currentPlayer);
-                
-                playerService.setIsCurrentlyInMatch(currentPlayer, false);
+
+                webSocketMatchService.broadcastLobbyState(Objects.requireNonNull(updatedMatch));
             } else {
                 matchService.delete(id);
 
-                playerService.setIsCurrentlyInMatch(matchToUpdate.getPlayer1(), false);
-                playerService.setIsCurrentlyInMatch(matchToUpdate.getPlayer2(), false);
+                webSocketMatchService.broadcastLobbyClosed(id);
             }
 
-            if (updatedMatch != null) {
-                webSocketMatchService.broadcastLobbyState(Objects.requireNonNull(updatedMatch));
-            } else {
-                webSocketMatchService.broadcastLobbyClosed(matchToUpdate.getId());
-            }
+            playerService.setIsCurrentlyInMatch(currentPlayer, false);
 
             return ResponseEntity.noContent().build();
         } catch(Exception e) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
         }
     }
 
     @PutMapping("/{id}/start")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<Match> startMatch(@PathVariable(required = true) Integer id) throws ResponseStatusException {
+    public ResponseEntity<?> startMatch(@PathVariable(required = true) Integer id) {
         try {
             Match result;
             Match matchToUpdate = matchService.getMatchById(id);
             Player currentPlayer = getCurrentPlayer();
 
             if (!matchToUpdate.hasCreator(currentPlayer)) {
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Only the match creator can start the match");
+                return new ResponseEntity<>("Only the match creator can start the match", HttpStatus.FORBIDDEN);
             } else if (matchToUpdate.hasStarted()) {
                 // Can't start if already started. Result is the match without updating it
                 result = matchToUpdate;
@@ -195,22 +185,21 @@ public class MatchController {
 
             return new ResponseEntity<>(result, HttpStatus.OK);
         } catch(Exception e) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
         }
     }
 
     @PutMapping("/{id}/nextTurn")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<Match> nextTurn(@PathVariable(required = true) Integer id,
-            @Valid @RequestBody(required = false) Optional<List<PetriDish>> newBoardState)
-            throws ResponseStatusException {
+    public ResponseEntity<?> nextTurn(@PathVariable(required = true) Integer id,
+            @Valid @RequestBody(required = false) Optional<List<PetriDish>> newBoardState) {
 
         try {
             Player currentPlayer = getCurrentPlayer();
             Match matchToUpdate = matchService.getMatchById(id);
 
             if (!matchToUpdate.isTurnOf(currentPlayer)) {
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "It's not your turn");
+                return new ResponseEntity<>("It's not your turn", HttpStatus.FORBIDDEN);
             }
             
             Match updatedMatch = matchService.nextTurn(matchToUpdate, newBoardState.orElse(null));
@@ -226,15 +215,14 @@ public class MatchController {
 
             return new ResponseEntity<>(updatedMatch, HttpStatus.OK);
         } catch(Exception e) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
         }
     }
 
     @GetMapping("/{id}/checkErrors")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<List<String>> checkErrors(@PathVariable(required = true) Integer id,
-            @Valid @RequestBody List<PetriDish> newBoardState)
-            throws ResponseStatusException {
+    public ResponseEntity<?> checkErrors(@PathVariable(required = true) Integer id,
+            @Valid @RequestBody List<PetriDish> newBoardState) {
 
         try {
             Player currentPlayer = getCurrentPlayer();
@@ -244,13 +232,13 @@ public class MatchController {
 
             return new ResponseEntity<>(errors, HttpStatus.OK);
         } catch(Exception e) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
         }
     }
 
     @PutMapping("/{id}/endMatch")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<Match> concedeMatch(@PathVariable(required = true) Integer id) throws ResponseStatusException {
+    public ResponseEntity<?> concedeMatch(@PathVariable(required = true) Integer id) {
         try {
             Player currentPlayer = getCurrentPlayer();
             Match matchToUpdate = matchService.getMatchById(id);
@@ -264,13 +252,13 @@ public class MatchController {
 
             return new ResponseEntity<>(updatedMatch, HttpStatus.OK);
         } catch(Exception e) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
         }
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public ResponseEntity<Void> deleteMatch(@PathVariable(required = true) Integer id) throws ResponseStatusException {
+    public ResponseEntity<?> deleteMatch(@PathVariable(required = true) Integer id) {
         try {
             Match matchToDelete = matchService.getMatchById(id);
             
@@ -283,7 +271,7 @@ public class MatchController {
 
             return ResponseEntity.noContent().build();
         } catch(Exception e) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
         }
     }
 }
