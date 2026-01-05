@@ -20,7 +20,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
-@Epic("Achievement module")
+@Epic("Achievement Service")
 class AchievementServiceTest {
 
     @Autowired

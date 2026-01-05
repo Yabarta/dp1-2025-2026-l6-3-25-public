@@ -27,9 +27,12 @@ public class PlayerServiceTests {
     @Autowired
 	private UserService userService;
 
+    @Autowired
+    private StatisticsService statisticsService;
+
     @Test
     @Transactional
-    @Feature("Get All Players")
+    @Feature("Player Retrieval")
     @DisplayName("getAllPlayers Test")
     void shouldGetAllPlayers() {
         List<Player> players = this.playerService.getAllPlayers();
@@ -40,7 +43,7 @@ public class PlayerServiceTests {
 
 
     @Test
-    @Feature("Get Player by Id")
+    @Feature("Player Retrieval")
     @Transactional
     @DisplayName("getPlayerById Test")
     void shouldGetPlayerById() {
@@ -49,7 +52,7 @@ public class PlayerServiceTests {
     }
 
     @Test
-    @Feature("Get Player by Id")
+    @Feature("Player Retrieval")
     @Transactional
     @DisplayName("getPlayerById Test (Negative)")
     void shouldNotGetPlayerByIncorrectId() {
@@ -57,7 +60,7 @@ public class PlayerServiceTests {
     }
 
     @Test
-    @Feature("Get Player by Nickname")
+    @Feature("Player Retrieval")
     @Transactional
     @DisplayName("getPlayerByNickname Test")
     void shouldGetPlayerByNickname() {
@@ -66,7 +69,7 @@ public class PlayerServiceTests {
     }
 
     @Test
-    @Feature("Get Player by Nickname")
+    @Feature("Player Retrieval")
     @Transactional
     @DisplayName("getPlayerByNickname Test (Negative)")
     void shouldNotGetPlayerByIncorrectNickname() {
@@ -74,7 +77,7 @@ public class PlayerServiceTests {
     }
 
     @Test
-    @Feature("Get Player by Username")
+    @Feature("Player Retrieval")
     @Transactional
     @DisplayName("getPlayerByUsername Test")
     void shouldGetPlayerByUsername() {
@@ -84,7 +87,7 @@ public class PlayerServiceTests {
     }
 
     @Test
-    @Feature("Get Player by Username")
+    @Feature("Player Retrieval")
     @Transactional
     @DisplayName("getPlayerByUsername Test (Negative)")
     void shouldNotGetPlayerByIncorrectUsername() {
@@ -92,7 +95,7 @@ public class PlayerServiceTests {
     }
 
     @Test
-    @Feature("Get Player by User")
+    @Feature("Player Retrieval")
     @Transactional
     @DisplayName("getPlayerByUser Test")
     void shouldGetPlayerByUser() {
@@ -102,17 +105,17 @@ public class PlayerServiceTests {
     }
 
     @Test
-    @Feature("Get Player by User")
+    @Feature("Player Retrieval")
     @Transactional
     @DisplayName("getPlayerByUser Test (Negative)")
     void shouldNotGetPlayerWithIncorrectUser() {
         User user = this.userService.findUser(1);
-        assertThrows(ResourceNotFoundException.class, () -> this.playerService.getPlayerByUser(user));;
+        assertThrows(ResourceNotFoundException.class, () -> this.playerService.getPlayerByUser(user));
     }
 
 
     @Test
-    @Feature("Save Player")
+    @Feature("Player Management")
     @Transactional
     @DisplayName("Save Test")
     void shouldSave() {
@@ -123,6 +126,7 @@ public class PlayerServiceTests {
         newPlayer.setEmail("kdr0901@gmail.com");
         newPlayer.setNickname("kdr0901");
         newPlayer.setIsCurrentlyInMatch(false);
+        newPlayer.setStatistics(statisticsService.getStatisticsById(11));
 
         Player createdPlayer = this.playerService.save(newPlayer);
 
@@ -130,7 +134,6 @@ public class PlayerServiceTests {
         assertEquals(newPlayer.getUser(), createdPlayer.getUser(), "Incorrect user");
         assertEquals(newPlayer.getEmail(), createdPlayer.getEmail(), "Incorrect email");
         assertEquals(newPlayer.getNickname(), createdPlayer.getNickname(), "Incorrect nickname");
-        assertEquals(11, this.playerService.getAllPlayers().size());
 
         Integer finalCount = this.playerService.getAllPlayers().size();
 		assertEquals(count + 1, finalCount);
@@ -138,7 +141,7 @@ public class PlayerServiceTests {
 
 
     @Test
-    @Feature("Delete Player")
+    @Feature("Player Management")
     @Transactional
     @DisplayName("Delete Test")
     void shouldDelete() {
@@ -149,6 +152,7 @@ public class PlayerServiceTests {
         newPlayer.setEmail("fbn5868@gmail.com");
         newPlayer.setNickname("fbn5868");
         newPlayer.setIsCurrentlyInMatch(false);
+        newPlayer.setStatistics(statisticsService.getStatisticsById(11));
         this.playerService.save(newPlayer);
 
 		Integer secondCount = playerService.getAllPlayers().size();

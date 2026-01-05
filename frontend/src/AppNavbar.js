@@ -177,7 +177,10 @@ useEffect(() => {
 }, [username , change]);
 
     const filterPlayers = players.filter((player) => {
-        return player.nickname.toLowerCase().includes(nombreBuscadoPlayer.toLowerCase()) && player.nickname !== username && nombreBuscadoPlayer!== "" && !friendList.map(friend => friend.props.children[0].props.children).includes(player.nickname) &&  !requestList.map(request => request.props.children[0].props.children).includes(player.nickname);
+        return player.nickname.toLowerCase().includes(nombreBuscadoPlayer.toLowerCase()) && 
+        player.nickname !== username && nombreBuscadoPlayer!== "" && 
+        !friendList.map(friend => friend.props.children[0].props.children).includes(player.nickname) &&  
+        !requestList.map(request => request.props.children[0].props.children).includes(player.nickname);
     }
     );
 
@@ -248,12 +251,7 @@ useEffect(() => {
     if (!jwt) {
         publicLinks = (
             <>
-                <NavItem>
-                    <NavLink style={{ color: "white" }} id="docs" tag={Link} to="/docs">Docs</NavLink>
-                </NavItem>
-                <NavItem>
-                    <NavLink style={{ color: "white" }} id="plans" tag={Link} to="/plans">Pricing Plans</NavLink>
-                </NavItem>
+    
                 <NavItem>
                     <NavLink style={{ color: "white" }} id="login" tag={Link} to="/login">Login</NavLink>
                 </NavItem>
@@ -268,16 +266,20 @@ useEffect(() => {
                 <NavItem>
                     <Button style={{ color: "white" }} id="friends-btn" onClick={toggleMenu} className="btn btn-link nav-link">Friends</Button>
                 </NavItem>
+                <NavItem>
+                    <NavLink style={{ color: "white" }} id="comparator" tag={Link} to="/comparator">Comparador</NavLink>
+                </NavItem>
+                <NavItem>
+                    <NavLink style={{ color: "white" }} id="statistics" tag={Link} to="/ranking">Ranking</NavLink>
+                </NavItem>
+                <NavItem>
+                    <NavLink style={{ color: "white" }} id="leaderboards" tag={Link} to="/leaderboards">Leaderboards</NavLink>    
+                </NavItem>
+
             </>
         )
         userLogout = (
             <>
-                <NavItem>
-                    <NavLink style={{ color: "white" }} id="docs" tag={Link} to="/docs">Docs</NavLink>
-                </NavItem>
-                <NavItem>
-                    <NavLink style={{ color: "white" }} id="plans" tag={Link} to="/plans">Pricing Plans</NavLink>
-                </NavItem>
                 <NavbarText style={{ color: "white" }} className="justify-content-end">{username}</NavbarText>
                 <NavItem className="d-flex">
                     <NavLink style={{ color: "white" }} id="logout" tag={Link} to="/logout">Logout</NavLink>
@@ -308,7 +310,7 @@ useEffect(() => {
                 </Collapse>
             </Navbar>
 
-            <Offcanvas isOpen={isOpenFriends} onClose={toggleMenu} direction='start'  style={{width: "33%" , overflowY: "scroll"}} className="bg-dark text-white">
+            <Offcanvas isOpen={isOpenFriends} onClose={toggleMenu} direction='start'  style={{width: "33%" , overflowY: "scroll", borderLeftColor: "white"}} className="bg-dark text-white">
                 <div className="barra-busqueda-Friends d-flex justify-content-center align-items-center position-relative p-3">
                     <input type="search" value={nombreBuscadoFriend} onChange={(usuario) => setNombreFriend(usuario.target.value)} placeholder="Buscar usuario" />
                     <Button color="secondary" onClick={toggleMenu} style={{width: '10%'}} className= "position-absolute end-0">X</Button>

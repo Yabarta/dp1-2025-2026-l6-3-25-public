@@ -61,7 +61,7 @@ export default function Register() {
               else {
                 tokenService.setUser(data);
                 tokenService.updateLocalAccessToken(data.token);
-                window.location.href = "/dashboard";
+                window.location.href = "/";
               }
             })
             .catch((message) => {
@@ -112,7 +112,7 @@ export default function Register() {
             </button>
             <button
               className="auth-button"
-              value="Vet"
+              value="Admin"
               onClick={handleButtonClick}
             >
               Admin

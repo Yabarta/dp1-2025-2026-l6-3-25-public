@@ -198,7 +198,7 @@ public class MatchController {
             Player currentPlayer = getCurrentPlayer();
             Match matchToUpdate = matchService.getMatchById(id);
 
-            if (!matchToUpdate.isTurnOf(currentPlayer)) {
+            if (!matchToUpdate.isTurnOf(currentPlayer) && !matchToUpdate.isFissionOrContaminationTurn(currentPlayer)) {
                 return new ResponseEntity<>("It's not your turn", HttpStatus.FORBIDDEN);
             }
             
