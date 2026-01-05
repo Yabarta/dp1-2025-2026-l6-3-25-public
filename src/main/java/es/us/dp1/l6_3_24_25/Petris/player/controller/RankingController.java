@@ -12,6 +12,11 @@ import org.springframework.web.bind.annotation.RestController;
 import es.us.dp1.l6_3_24_25.Petris.player.service.RankingService;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 @RestController
 @RequestMapping("/api/v1/ranking")
@@ -24,6 +29,14 @@ public class RankingController {
         this.rankingService = rankingService;
     }
 
+    @Operation(
+        summary = "Retrieve the global ranking of players",
+        tags = { "ranking", "get global ranking" }
+    )
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Ranking retrieved successfully", content = { @Content(schema = @Schema(implementation = PlayerRanking.class),
+                mediaType = "application/json")})
+    })
     @GetMapping
     public ResponseEntity<List<PlayerRanking>> getGlobalRanking() {
         return ResponseEntity.ok(rankingService.getGlobalRanking());
