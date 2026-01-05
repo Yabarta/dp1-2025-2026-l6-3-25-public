@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import jwt_decode from "jwt-decode";
 import tokenService from "../services/token.service";
 import '../static/css/profile/profile.css';
+import bacteria from '../static/images/bacteria.png';
 import useFetchState from "../util/useFetchState";
 import getErrorModal from "../util/getErrorModal";
 import ProfileHeader from './components/ProfileHeader';
@@ -15,7 +16,7 @@ import * as Yup from 'yup';
 // Button is used inside extracted components
 
 // Constants
-const DEFAULT_PROFILE_PIC = "https://www.dsac.gov/image-repository/blank-profile-picuture.png/@@images/image.png";
+const DEFAULT_PROFILE_PIC = bacteria;
 
 export default function ProfileScreen() {
     // State declarations

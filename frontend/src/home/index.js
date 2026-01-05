@@ -1,95 +1,84 @@
 import { useState } from 'react';
 import '../static/css/home/home.css';
-import JoinGameScreen from './joinGameScreen';
-import logo from '../static/images/petris3D_recortado.png'
+import logo from '../static/images/petris3D_recortado.png';
 import tokenService from '../services/token.service.js';
-import {ToastContainer, toast} from 'react-toastify';
+import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import jwt_decode from "jwt-decode";
+import { FaPlay, FaUser, FaTrophy, FaSignOutAlt } from 'react-icons/fa';
 
 const jwt = tokenService.getLocalAccessToken();
 
-export default function Home(){
+export default function Home() {
   const navigate = useNavigate();
-  const [showMainMenu, setShowMainMenu] = useState(false);
-  const [showJoinGameScreen, setShowJoinGameScreen] = useState(false);
-  const [username] = useState(() => jwt ? jwt_decode(jwt).sub : "");
-  const isPlayer = jwt ? jwt_decode(jwt).authorities.includes("PLAYER") : false;
-  // profile will be shown via a dedicated route /profile
+  const [username] = useState(() => {
+    if (!jwt) return "";
+    try {
+      return jwt_decode(jwt).sub;
+    } catch (e) {
+      return "";
+    }
+  });
+  
+  const isLoggedIn = !!jwt;
 
-
-  const handlePlayButtonClick = () => {
-    if (!jwt) {
+  const handlePlay = () => {
+    if (!isLoggedIn) {
       navigate('/login');
     } else {
-      setShowMainMenu(true);
+      navigate('/lobby');
     }
   };
 
-  const handleBackToMenu = () => {
-    setShowJoinGameScreen(false);
-    setShowMainMenu(true);
-  };
-
-  
-  const handleShowProfile = () => {
-    if (jwt == null) {
-      return toast.error("User not logged in")
+  const handleProfile = () => {
+    if (!isLoggedIn) {
+      toast.error("Debes iniciar sesión");
+      navigate('/login');
     } else {
-        navigate(`/profile/${username}`);
+      navigate(`/profile/${username}`);
     }
-  }
-
-  if (showJoinGameScreen) {
-    return <JoinGameScreen onBackToMenu={handleBackToMenu} />;
-  }
-
-  // Lógica para crear una sala con código aleatorio
-
-
-  const handleCreatePrivateGame = () => {
-    navigate('/lobby');
   };
 
-  const handleDemoGame = () => {  
-    setShowMainMenu(false);
-    navigate('/demo');
+  const handleLogout = () => {
+    navigate('/logout');
   };
-
-
 
   return (
     <div className="homePageContainer">
-      <div >
-        {showMainMenu ? (
-          <div className="mainMenu">
-            <h1>Menú Principal</h1>
-            <div className="menuButtonsBox">
-              <button className="menuButton" onClick={handleCreatePrivateGame}>
-                Jugar
-              </button>
-              <button className="menuButton" onClick={handleShowProfile}>
-                Ver Perfil
-              </button>
-              <button className="menuButton" onClick={handleDemoGame}>
-                Ver Demo
-              </button>
-              <button className="menuButton" onClick={() => toast.error('Funcionalidad pendiente')}>
-                Ajustes
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div className="heroDiv">
-            <h1 style={{ color: '#ffffff' }}>Petris</h1>
-            <img src={logo} width={255} height={369} alt=""/>
-            {isPlayer && <button className="blueButton" onClick={handlePlayButtonClick}>
-              ¿Empezamos a Jugar?
-            </button>}
-          </div>
-        )}
+      <div className="mainMenuCard">
+        
+        <div className="logo-section">
+          <img src={logo} width={180} alt="Petris Logo" className="logo-img" />
+          <h1 className="game-title">PETRIS</h1>
+          <div className="game-subtitle">Sistema de Defensa Bacteriana</div>
+        </div>
+
+        <div className="menu-grid">
+          <button className="menu-btn primary" onClick={handlePlay}>
+            <FaPlay /> {isLoggedIn ? "Jugar Ahora" : "Iniciar Sesión para Jugar"}
+          </button>
+
+          {isLoggedIn && (
+            <button className="menu-btn" onClick={handleProfile}>
+              <FaUser /> Mi Perfil
+            </button>
+          )}
+          {isLoggedIn && (
+          <button className="menu-btn" onClick={() => navigate('/ranking')}>
+            <FaTrophy /> Ranking Global
+          </button>
+          )}
+        </div>
+
+        <div className="menu-footer">
+          {isLoggedIn && (
+            <button className="icon-btn" onClick={handleLogout} title="Cerrar Sesión">
+              <FaSignOutAlt />
+            </button>
+          )}
+        </div>
+
       </div>
-      <ToastContainer />
     </div>
   );
 }

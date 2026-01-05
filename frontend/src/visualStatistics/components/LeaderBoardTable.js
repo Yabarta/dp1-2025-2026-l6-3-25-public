@@ -2,6 +2,7 @@ import React from 'react';
 import GlassPanel from './GlassPanel';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import bacteria from '../../static/images/bacteria.png';
 
 
 export default function Leaderboard({ players, selectedIds, jwt, onToggle }) {
@@ -50,7 +51,7 @@ export default function Leaderboard({ players, selectedIds, jwt, onToggle }) {
                     <div className="text-mono text-white" style={{textAlign: 'center'}}>{player.rankingPosition}</div>
                     
                     <div className="player-info">
-                        <img src={player.avatar} alt="" />
+                        <img src={player.profilePicture || bacteria} alt="" />
                         <span 
                             className='text-white'
                             style={{ fontWeight: isSelected ? 'bold' : 'normal', color: isSelected ? 'var(--primary-green)' : 'inherit' }}>
@@ -58,13 +59,13 @@ export default function Leaderboard({ players, selectedIds, jwt, onToggle }) {
                         </span>
                     </div>
 
-                    <div className={"text-mono text-white"} style={{textAlign: 'center', fontWeight: 'bold'}}>
+                    <div className={"text-mono text-gold"} style={{textAlign: 'center', fontWeight: 'bold'}}>
                         {player.partidasJugadas}
                     </div>
                     
-                    <div className="hide-mobile text-mono text-blue" style={{textAlign: 'center'}}>{player.sarcinasCreadas}</div>
+                    <div className="hide-mobile text-mono text-red" style={{textAlign: 'center'}}>{player.sarcinasCreadas}</div>
                     <div className="hide-mobile text-mono text-green" style={{textAlign: 'center'}}>{(player.partidasGanadas / player.partidasJugadas * 100).toFixed(2)}%</div>
-                    <div className="hide-mobile text-mono text-red" style={{textAlign: 'center'}}>{player.score.toFixed(2)}</div>
+                    <div className="hide-mobile text-mono text-blue" style={{textAlign: 'center'}}>{player.score.toFixed(2)}</div>
                 </div>
             );
             })}

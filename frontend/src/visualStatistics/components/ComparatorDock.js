@@ -1,4 +1,5 @@
 import React from 'react';
+import bacteria from '../../static/images/bacteria.png';
 
 export default function ComparatorDock({ selectedPlayers, onClear }) {
     const isOpen = selectedPlayers.length > 0;
@@ -16,7 +17,7 @@ export default function ComparatorDock({ selectedPlayers, onClear }) {
             <div className="avatars-area">
                 {[0, 1].map((idx) => (
                 selectedPlayers[idx] ? (
-                    <img key={idx} src={selectedPlayers[idx].avatar} className="dock-avatar" alt="" />
+                    <img key={idx} src={selectedPlayers[idx].profilePicture || bacteria} className="dock-avatar" alt="" />
                 ) : (
                     <div key={idx} className="dock-placeholder">{idx + 1}</div>
                 )

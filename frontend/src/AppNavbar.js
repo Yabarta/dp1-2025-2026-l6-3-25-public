@@ -272,9 +272,6 @@ useEffect(() => {
                 <NavItem>
                     <NavLink style={{ color: "white" }} id="statistics" tag={Link} to="/ranking">Ranking</NavLink>
                 </NavItem>
-                <NavItem>
-                    <NavLink style={{ color: "white" }} id="leaderboards" tag={Link} to="/leaderboards">Leaderboards</NavLink>    
-                </NavItem>
 
             </>
         )
@@ -294,7 +291,7 @@ useEffect(() => {
             <Navbar expand="md" dark color="dark">
                 <NavbarBrand tag={Link} to="/">
                     <img alt="logo" src={mitosisImg} style={{ height: 40, width: 40, paddingRight: 8 }} />
-                    Petris
+                    <texto style={{ color: "#00b318ff", fontWeight: "bold"}}>Inicio</texto>
                 </NavbarBrand>
                 <NavbarToggler onClick={toggleNavbar} className="ms-2" />
                 <Collapse isOpen={!collapsed} navbar>

@@ -63,7 +63,7 @@
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
-    background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url('../../images/home_background2.jpg');
+    background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url('../../images/mainmenu.png');
     background-size: cover;
 }
 

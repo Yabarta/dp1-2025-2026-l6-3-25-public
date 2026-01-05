@@ -28,21 +28,21 @@ export default function Header({ gamesSize, timePlayed, sarcines, playersRegiste
 
         {/* KPI GRID */}
         <div className="kpi-grid">
-            <GlassPanel className="kpi-card">
+            <GlassPanel className="kpi-card" style={{ borderLeft: '4px solid var(--alert-gold)' }}>
             <div className="kpi-title">Partidas Jugadas</div>
-            <div className="kpi-value text-mono text-white">{ gamesSize }</div>
+            <div className="kpi-value text-mono text-gold">{ gamesSize }</div>
             </GlassPanel>
             <GlassPanel className="kpi-card" style={{ borderLeft: '4px solid var(--alert-red)' }}>
-            <div className="kpi-title">Tiempo Jugado</div>
-            <div className="kpi-value text-mono text-red">{ timePlayed } horas</div>
-            </GlassPanel>
-            <GlassPanel className="kpi-card">
             <div className="kpi-title">Sarcinas Totales</div>
-            <div className="kpi-value text-mono text-blue">{ sarcines }</div>
+            <div className="kpi-value text-mono text-red">{ sarcines }</div>
             </GlassPanel>
-            <GlassPanel className="kpi-card">
+            <GlassPanel className="kpi-card" style={{ borderLeft: '4px solid var(--alert-green)' }}>
+            <div className="kpi-title">Tiempo Jugado</div>
+            <div className="kpi-value text-mono text-green">{ timePlayed } horas</div>
+            </GlassPanel>
+            <GlassPanel className="kpi-card" style={{ borderLeft: '4px solid var(--alert-blue)' }}>
             <div className="kpi-title">Jugadores registrados</div>
-            <div className="kpi-value text-mono text-gold">{ playersRegistered }</div>
+            <div className="kpi-value text-mono text-blue">{ playersRegistered }</div>
             </GlassPanel>
         </div>
         </header>

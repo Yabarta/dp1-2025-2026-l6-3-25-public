@@ -41,22 +41,16 @@ public class PlayerController {
     public PlayerController(PlayerService ps){
         this.playerservice = ps;
     }
-    //Cada vez que que arranca la aplicación, se borran las imágenes antiguas de la carpeta uploads
+
     @PostConstruct
     public void init() {
         try {
             Path uploadsPath = Paths.get("uploads");
-            if (Files.exists(uploadsPath) && Files.isDirectory(uploadsPath)) {
-                try (var paths = Files.walk(uploadsPath)) {
-                    paths.filter(Files::isRegularFile).forEach(path -> {
-                        try {
-                            Files.delete(path);
-                        } catch (IOException e) {
-                        }
-                    });
-                }
+            if (!Files.exists(uploadsPath)) {
+                Files.createDirectories(uploadsPath);
             }
         } catch (IOException e) {
+            // If we can't create the uploads directory, the app will fail later when saving files.
         }
     }
 
@@ -113,7 +107,7 @@ public class PlayerController {
     }
 
     @PutMapping(value = "/{id}", consumes = "multipart/form-data")
-    public ResponseEntity<Player> updatePlayerWithImage(@PathVariable("id") Integer id, 
+    public ResponseEntity<Player> updatePlayerWithImage(@PathVariable("id") Integer id,
                                                         @RequestParam(value = "profilePicture", required = false) MultipartFile file,
                                                         @RequestParam(value = "nickname", required = false) String nickname,
                                                         @RequestParam(value = "email", required = false) String email) {
@@ -149,15 +143,6 @@ public class PlayerController {
             Path oldFilePath = Paths.get("uploads").resolve(oldFileName);
             Files.deleteIfExists(oldFilePath);
         }
-    }
-
-    @PutMapping("/{id}/statistics/{statId}")
-    @ResponseStatus(HttpStatus.OK)
-    public void updatePlayerStat(@PathVariable("id") Integer id, @PathVariable("statId") Integer statId, @Valid @RequestBody Statistics stat) {
-        Player player = playerservice.getPlayerById(id);
-        Statistics statToUpdate = player.getStatistics();
-        BeanUtils.copyProperties(stat, statToUpdate, "id");
-        playerservice.save(player);
     }
 
     @DeleteMapping("/{id}")
