@@ -16,6 +16,12 @@ import java.util.List;
 
 import io.micrometer.core.ipc.http.HttpSender.Response;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/api/v1/statistics")
@@ -28,23 +34,60 @@ public class StatisticsController {
         this.statisticsService = ss;
     }
 
+    @Operation(
+        summary = "Retrieve all statistics",
+        tags = { "statistics", "get all" }
+    )
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Statistics found", content = { @Content(schema = @Schema(implementation = Statistics.class),
+                mediaType = "application/json")}),
+        @ApiResponse(responseCode = "404", description = "Statistics not found", content = @Content(schema = @Schema()))
+    })
 	@GetMapping
 	public ResponseEntity<List<Statistics>> getAllStatistics() {
         return ResponseEntity.ok(statisticsService.getAllStatistics());
     }
 
+
+    @Operation(
+        summary = "Retrieve global statistics",
+        tags = { "statistics", "get global statistics" }
+    )
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Global statistics found", content = { @Content(schema = @Schema(implementation = GlobalStatistic.class),
+                mediaType = "application/json")}),
+        @ApiResponse(responseCode = "404", description = "Global statistics not found", content = @Content(schema = @Schema()))
+    })
     @GetMapping("/global")
     public ResponseEntity<GlobalStatistic> getGlobalStatisticsArray() {
         GlobalStatistic globalStats = statisticsService.getGlobalStatistics();
         return ResponseEntity.ok(globalStats);
     }
 
+    @Operation(
+        summary = "Retrieve a statistics entry by ID",
+        tags = { "statistics", "get by id" }
+    )
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Statistics entry found", content = { @Content(schema = @Schema(implementation = Statistics.class),
+                mediaType = "application/json")}),
+        @ApiResponse(responseCode = "404", description = "Statistics entry not found", content = @Content(schema = @Schema()))
+    })
 	@GetMapping("/{id}")
 	public ResponseEntity<Statistics> getStatisticsById(@PathVariable Integer id) {
         Statistics statistics = statisticsService.getStatisticsById(id);
         return ResponseEntity.ok(statistics);
     }
 
+    @Operation(
+        summary = "Retrieve box plot statistics distribution for a specific field",
+        tags = { "statistics", "get box plot distribution" }
+    )
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Box plot statistics distribution retrieved successfully", content = { @Content(schema = @Schema(implementation = Double.class),
+                mediaType = "application/json")}),
+        @ApiResponse(responseCode = "404", description = "Field not found", content = @Content(schema = @Schema()))
+    })
     @GetMapping("/distribution/{fieldName}")
     public ResponseEntity<List<Double>> getStatisticsDistribution(@PathVariable String fieldName) {
         List<Double> distribution = statisticsService.getBoxPlotStatsForField(fieldName);

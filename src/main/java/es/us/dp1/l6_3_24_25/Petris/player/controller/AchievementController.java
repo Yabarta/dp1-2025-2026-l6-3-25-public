@@ -3,6 +3,11 @@ package es.us.dp1.l6_3_24_25.Petris.player.controller;
 import es.us.dp1.l6_3_24_25.Petris.exceptions.ResourceNotFoundException;
 import es.us.dp1.l6_3_24_25.Petris.player.model.Achievement;
 import es.us.dp1.l6_3_24_25.Petris.player.service.AchievementService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
@@ -25,11 +30,28 @@ public class AchievementController {
         this.achievementService = as;
     }
 
+    @Operation(
+        summary = "Retrieve all achievements",
+        tags = { "achievements", "get all" }
+    )
+    @ApiResponses(
+        @ApiResponse(responseCode = "200", description = "Achievements found", content = { @Content(schema = @Schema(implementation = Achievement.class),
+                mediaType = "application/json")})
+    )
     @GetMapping
     public List<Achievement> getAllAchievements() {
         return achievementService.getAllAchievements();
     }
 
+    @Operation(
+        summary = "Retrieve an achievement by ID",
+        tags = { "achievements", "get by id" }
+    )
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Achievement found", content = { @Content(schema = @Schema(implementation = Achievement.class),
+                mediaType = "application/json")}),
+        @ApiResponse(responseCode = "404", description = "Achievement not found", content = @Content(schema = @Schema()))
+    })
     @GetMapping("/{id}")
     public Achievement getAchievementById(@PathVariable("id") Integer id) {
         Achievement achievement = achievementService.getAchievementById(id);
@@ -41,6 +63,15 @@ public class AchievementController {
 
     // TODO: Add GET method by name
 
+    @Operation(
+        summary = "Create a new achievement",
+        tags = { "achievements", "create" }
+    )
+    @ApiResponses({
+        @ApiResponse(responseCode = "201", description = "Achievement created", content = { @Content(schema = @Schema(implementation = Achievement.class),
+                mediaType = "application/json")}),
+        @ApiResponse(responseCode = "400", description = "Invalid input", content = @Content(schema = @Schema()))
+    })
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<Achievement> createAchievement(@Valid @RequestBody Achievement achievement) {
@@ -53,6 +84,15 @@ public class AchievementController {
     return ResponseEntity.created(location).body(saved);
     }
 
+    @Operation(
+        summary = "Update an existing achievement",
+        tags = { "achievements", "update" }
+    )
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Achievement updated", content = { @Content(schema = @Schema(implementation = Achievement.class),
+                mediaType = "application/json")}),
+        @ApiResponse(responseCode = "404", description = "Achievement not found", content = @Content(schema = @Schema()))
+    })
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public Achievement updateAchievement(@PathVariable("id") Integer id, @Valid @RequestBody Achievement newAchievement) {
@@ -68,6 +108,14 @@ public class AchievementController {
         return achievementService.saveAchievement(achievement);
     }
 
+    @Operation(
+        summary = "Delete an achievement",
+        tags = { "achievements", "delete" }
+    )
+    @ApiResponses({
+        @ApiResponse(responseCode = "204", description = "Achievement deleted", content = @Content(schema = @Schema())),
+        @ApiResponse(responseCode = "404", description = "Achievement not found", content = @Content(schema = @Schema()))
+    })
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteAchievement(@PathVariable("id") Integer id) {
