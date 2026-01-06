@@ -76,7 +76,7 @@ function App() {
   }
 
   let adminRoutes = <></>;
-  let ownerRoutes = <></>;
+  let playerRoutes = <></>;
   let userRoutes = <></>;
   let vetRoutes = <></>;
   let publicRoutes = <></>;
@@ -92,10 +92,14 @@ function App() {
         </>)
     }
     if (role === "PLAYER") {
-      ownerRoutes = (
+      playerRoutes = (
         <>
           <Route path="/gameScreen" element={<GameScreen />} />
           <Route path="/notStarted" element={<NotStartedGames/>}/>
+          <Route path="/comparator" element={<Comparator />}></Route>
+          <Route path="/profile/:username" element={<PrivateRoute><ProfileScreen /></PrivateRoute>} />
+          <Route path="/lobby/:id" element={<PrivateRoute><LobbyScreen /></PrivateRoute>} />       
+          <Route path="/lobby" element={<PrivateRoute><Lobby /></PrivateRoute>} /> 
         </>)
     }    
   })
@@ -111,12 +115,8 @@ function App() {
       <>
         {/* <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} /> */} 
         <Route path="/game/:id" element={<PrivateRoute><GameScreen /></PrivateRoute>} />
-        <Route path="/lobby/:id" element={<PrivateRoute><LobbyScreen /></PrivateRoute>} />       
-        <Route path="/lobby" element={<PrivateRoute><Lobby /></PrivateRoute>} />       
-        <Route path="/profile/:username" element={<PrivateRoute><ProfileScreen /></PrivateRoute>} />
         <Route path="/logout" element={<Logout />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/comparator" element={<Comparator />}></Route>
         <Route path="/ranking" element={<StatisticRanking />}></Route>
       </>
     )
@@ -134,7 +134,7 @@ function App() {
           {publicRoutes}
           {userRoutes}
           {adminRoutes}
-          {ownerRoutes}
+          {playerRoutes}
           {vetRoutes}
         </Routes>
       </ErrorBoundary>
