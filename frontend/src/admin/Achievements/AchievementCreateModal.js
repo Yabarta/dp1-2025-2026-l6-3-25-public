@@ -1,5 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Input, Label, Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from "reactstrap";
+import tokenService from "../../services/token.service";
+import trofeo from "../../static/images/trofeo.png";
+
+const DEFAULT_ACHIEVEMENT_IMAGE = trofeo;
 
 export default function AchievementCreateModal({ isOpen, toggle, onSave, statistics }) {
     const [newAchievement, setNewAchievement] = useState({
@@ -9,6 +13,12 @@ export default function AchievementCreateModal({ isOpen, toggle, onSave, statist
         valor: ""
     });
     const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [achievementImage, setAchievementImage] = useState(DEFAULT_ACHIEVEMENT_IMAGE);
+    const imageInputRef = useRef(null);
+
+    useEffect(() => {
+        setAchievementImage(DEFAULT_ACHIEVEMENT_IMAGE);
+    }, [isOpen]);
 
     const handleClose = () => {
         setNewAchievement({
@@ -18,12 +28,40 @@ export default function AchievementCreateModal({ isOpen, toggle, onSave, statist
             valor: ""
         });
         setDropdownOpen(false);
+        setAchievementImage(DEFAULT_ACHIEVEMENT_IMAGE);
         toggle();
     };
 
     const handleSave = () => {
-        onSave(newAchievement);
+        onSave(newAchievement, achievementImage);
         handleClose();
+    };
+
+    const handleChangeImage = () => {
+        imageInputRef.current.click();
+    };
+
+    const handleFileChange = async (event) => {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        // Validación del tipo y tamaño de archivo
+        if (!file.type.startsWith('image/')) {
+            alert('Por favor, selecciona un archivo de imagen válido.');
+            return;
+        }
+        if (file.size > 5 * 1024 * 1024) { // 5MB limit
+            alert('El archivo es demasiado grande. Máximo 5MB.');
+            return;
+        }
+
+        // Crear una URL local para previsualización
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            setAchievementImage(e.target.result);
+            setNewAchievement({ ...newAchievement, imageFile: file });
+        };
+        reader.readAsDataURL(file);
     };
 
     return (
@@ -32,6 +70,32 @@ export default function AchievementCreateModal({ isOpen, toggle, onSave, statist
                 Crear Nuevo Logro
             </ModalHeader>
             <ModalBody>
+                <Label for="condition-input" className="achievement-modal-label">
+                    Imagen del Logro:
+                </Label>
+                <div className="achievement-image-preview-container">
+                    <img 
+                        src={achievementImage} 
+                        onClick={handleChangeImage}
+                        alt="Logro" 
+                        className="achievement-image-preview"
+                    />
+                </div>
+                <Button 
+                    color="info" 
+                    onClick={handleChangeImage}
+                    className="achievement-change-image-btn"
+                >
+                    Cambiar Imagen
+                </Button>
+                <input 
+                    type="file" 
+                    ref={imageInputRef} 
+                    onChange={handleFileChange} 
+                    className="hiddenFileInput" 
+                    accept="image/*" 
+                    style={{ display: 'none' }}
+                />
                 <Label for="new-name" className="achievement-modal-label">
                     Nombre:
                 </Label>

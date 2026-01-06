@@ -40,7 +40,7 @@ public class Player extends BaseEntity{
     private User user;
     @NotAudited
     @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
-    private List<Achievement> achievements;
+    private List<Achievement> achievements = new ArrayList<>();
     @NotAudited
     @NotNull
     @OneToOne

@@ -45,44 +45,14 @@ export default function AchievementListAdmin() {
     };
 
     const handleSaveCondition = (achievement, conditionValue) => {
-        const parsedValue = parseInt(conditionValue, 10);
-        if (isNaN(parsedValue)) {
-            setMessage("Por favor ingresa un número válido");
-            setVisible(true);
-            return;
-        }
-        const updatedAchievement = {
-            ...achievement,
-            valor: parsedValue
-        };
-
-        fetch(`/api/v1/achievements/${achievement.id}`, {
-            method: "PUT",
-            headers: {
-                Authorization: `Bearer ${jwt}`,
-                Accept: "application/json",
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(updatedAchievement),
-        })
-            .then((response) => response.json())
-            .then((json) => {
-                if (json.message) {
-                    setMessage(json.message);
-                    setVisible(true);
-                } else {
-                    const updatedAchievements = achievements.map((a) =>
-                        a.id === achievement.id ? updatedAchievement : a
-                    );
-                    setAchievements(updatedAchievements);
-                    setEditModalOpen(false);
-                    setEditingAchievement(null);
-                }
-            })
-            .catch((err) => {
-                setMessage("Error al actualizar el logro" + err.message);
-                setVisible(true);
-            });
+        // El modal se encarga de guardar los datos ahora
+        // Solo actualizamos el estado local
+        const updatedAchievements = achievements.map((a) =>
+            a.id === achievement.id ? achievement : a
+        );
+        setAchievements(updatedAchievements);
+        setEditModalOpen(false);
+        setEditingAchievement(null);
     };
 
     const handleDelete = (id) => {
@@ -96,7 +66,7 @@ export default function AchievementListAdmin() {
         );
     };
 
-    const handleSaveNewAchievement = (newAchievementData) => {
+    const handleSaveNewAchievement = (newAchievementData, achievementImage) => {
         if (!newAchievementData.name || !newAchievementData.description || !newAchievementData.statisticName || !newAchievementData.valor) {
             setMessage("Por favor completa todos los campos");
             setVisible(true);
@@ -110,22 +80,23 @@ export default function AchievementListAdmin() {
             return;
         }
 
-        const achievementData = {
-            name: newAchievementData.name,
-            description: newAchievementData.description,
-            image: "imagelin.png",
-            statisticName: newAchievementData.statisticName,
-            valor: valorValue
-        };
+        const formData = new FormData();
+        formData.append('name', newAchievementData.name);
+        formData.append('description', newAchievementData.description);
+        formData.append('statisticName', newAchievementData.statisticName);
+        formData.append('valor', valorValue);
+        
+        // Agregar imagen si existe
+        if (newAchievementData.imageFile) {
+            formData.append('image', newAchievementData.imageFile);
+        }
 
         fetch(`/api/v1/achievements`, {
             method: "POST",
             headers: {
                 Authorization: `Bearer ${jwt}`,
-                Accept: "application/json",
-                "Content-Type": "application/json",
             },
-            body: JSON.stringify(achievementData),
+            body: formData,
         })
             .then((response) => response.json())
             .then((json) => {

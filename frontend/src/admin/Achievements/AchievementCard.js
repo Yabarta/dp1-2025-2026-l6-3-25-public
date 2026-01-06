@@ -3,12 +3,22 @@ import { Button, ButtonGroup } from "reactstrap";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import trofeo from "../../static/images/trofeo.png";
 
-export default function AchievementCard({ achievement, onEdit, onDelete, editingAchievementValue }) {
+export default function AchievementCard({ achievement, onEdit, onDelete, isEditing }) {
+    const getImageUrl = (image) => {
+        if (!image) return trofeo;
+        // Si comienza con /, es una ruta absoluta (uploads/)
+        if (image.startsWith('/')) {
+            return `url(${image})`;
+        }
+        // Si no, es una imagen en static/images/
+        return `url(${trofeo})`;
+    };
+
     return (
         <div 
             key={achievement.id} 
             className="achievement-card"
-            style={{ '--achievement-image': `url(${trofeo})` }}
+            style={{ '--achievement-image': getImageUrl(achievement.image) }}
         >
             <div className="achievement-card-header">
                 <h3 className="achievement-name">{achievement.name}</h3>
@@ -19,7 +29,7 @@ export default function AchievementCard({ achievement, onEdit, onDelete, editing
             </div>
             <div className="achievement-card-footer">
                 <div className="achievement-value">
-                    <strong>Valor:</strong> {editingAchievementValue || achievement.valor || "N/A"}
+                    <strong>Valor:</strong> {achievement.valor || "N/A"}
                 </div>
                 <ButtonGroup>
                     <Button

@@ -15,7 +15,7 @@ export default function AchievementGrid({ achievements, editingAchievement, onEd
                         achievement={achievement}
                         onEdit={onEdit}
                         onDelete={onDelete}
-                        editingAchievementValue={editingAchievement?.valor}
+                        isEditing={editingAchievement?.id === achievement.id}
                     />
                 ))
             )}
