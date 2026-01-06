@@ -227,7 +227,7 @@ useEffect(() => {
     const toggleMenu = () => setIsOpenFriends(!isOpenFriends);
 
     let adminLinks = <></>;
-    let ownerLinks = <></>;
+    let playerLinks = <></>;
     let userLinks = <></>;
     let userLogout = <></>;
     let publicLinks = <></>;
@@ -245,7 +245,11 @@ useEffect(() => {
                     
                 </>
             )
-        }
+        } else {playerLinks = (
+            <NavItem>
+                <NavLink style={{ color: "white" }} id="comparator" tag={Link} to="/comparator">Comparador</NavLink>
+            </NavItem>
+        )}
     })
 
     if (!jwt) {
@@ -265,9 +269,6 @@ useEffect(() => {
             <>
                 <NavItem>
                     <Button style={{ color: "white" }} id="friends-btn" onClick={toggleMenu} className="btn btn-link nav-link">Friends</Button>
-                </NavItem>
-                <NavItem>
-                    <NavLink style={{ color: "white" }} id="comparator" tag={Link} to="/comparator">Comparador</NavLink>
                 </NavItem>
                 <NavItem>
                     <NavLink style={{ color: "white" }} id="statistics" tag={Link} to="/ranking">Ranking</NavLink>
@@ -298,7 +299,7 @@ useEffect(() => {
                     <Nav className="me-auto mb-2 mb-lg-0" navbar>
                         {userLinks}
                         {adminLinks}
-                        {ownerLinks}
+                        {playerLinks}
                     </Nav>
                     <Nav className="ms-auto mb-2 mb-lg-0" navbar>
                         {publicLinks}
