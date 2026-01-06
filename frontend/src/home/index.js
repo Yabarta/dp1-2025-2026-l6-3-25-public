@@ -58,7 +58,7 @@ export default function Home() {
               };
   const AdminIndex = () => {return (
               <div className="menu-grid">
-                <button className="menu-btn primary" onClick={() => navigate('/users')}>
+                <button className="menu-btn primary" onClick={() => navigate('/currentGames')}>
                   <FaClock /> Partidas Activas
                 </button>
                 <button className="menu-btn" onClick={() => navigate('/users')}>
