@@ -5,7 +5,7 @@ import tokenService from '../services/token.service.js';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import jwt_decode from "jwt-decode";
-import { FaPlay, FaUser, FaTrophy, FaSignOutAlt, FaUsers, FaTimes, FaRegTimesCircle, FaRegCalendarTimes, FaClock } from 'react-icons/fa';
+import { FaPlay, FaUser, FaTrophy, FaSignOutAlt, FaUsers, FaClock, FaArchive } from 'react-icons/fa';
 
 const jwt = tokenService.getLocalAccessToken();
 
@@ -63,6 +63,9 @@ export default function Home() {
                 </button>
                 <button className="menu-btn" onClick={() => navigate('/users')}>
                   <FaUsers /> Usuarios
+                </button>
+                <button className="menu-btn" onClick={() => navigate('/achievements')}>
+                  <FaArchive /> Logros
                 </button>
                 <button className="menu-btn" onClick={() => navigate('/ranking')}>
                   <FaTrophy /> Ranking Global

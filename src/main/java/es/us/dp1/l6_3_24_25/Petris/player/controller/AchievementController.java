@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URI;
 import java.util.List;
@@ -85,6 +86,31 @@ public class AchievementController {
     }
 
     @Operation(
+        summary = "Create a new achievement with image",
+        tags = { "achievements", "create with image" }
+    )
+    @ApiResponses({
+        @ApiResponse(responseCode = "201", description = "Achievement created", content = { @Content(schema = @Schema(implementation = Achievement.class),
+                mediaType = "application/json")}),
+        @ApiResponse(responseCode = "400", description = "Invalid input", content = @Content(schema = @Schema()))
+    })
+    @PostMapping(consumes = "multipart/form-data")
+    public ResponseEntity<Achievement> createAchievementWithImage(
+                                                                  @RequestParam(value = "name") String name,
+                                                                  @RequestParam(value = "description") String description,
+                                                                  @RequestParam(value = "valor") Integer valor,
+                                                                  @RequestParam(value = "statisticName") String statisticName,
+                                                                  @RequestParam(value = "image", required = false) MultipartFile file) {
+        Achievement saved = achievementService.createAchievementWithImage(name, description, valor, statisticName, file);
+        URI location = ServletUriComponentsBuilder
+            .fromCurrentRequest()
+            .path("/{id}")
+            .buildAndExpand(saved.getId())
+            .toUri();
+        return ResponseEntity.created(location).body(saved);
+    }
+
+    @Operation(
         summary = "Update an existing achievement",
         tags = { "achievements", "update" }
     )
@@ -106,6 +132,26 @@ public class AchievementController {
         achievement.setStatisticName(newAchievement.getStatisticName());
         achievement.setImage(newAchievement.getImage());
         return achievementService.saveAchievement(achievement);
+    }
+
+    @Operation(
+        summary = "Update an achievement with image",
+        tags = { "achievements", "update with image" }
+    )
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Achievement updated", content = { @Content(schema = @Schema(implementation = Achievement.class),
+                mediaType = "application/json")}),
+        @ApiResponse(responseCode = "404", description = "Achievement not found", content = @Content(schema = @Schema()))
+    })
+    @PutMapping(value = "/{id}", consumes = "multipart/form-data")
+    public ResponseEntity<Achievement> updateAchievementWithImage(@PathVariable("id") Integer id,
+                                                                  @RequestParam(value = "image", required = false) MultipartFile file,
+                                                                  @RequestParam(value = "name", required = false) String name,
+                                                                  @RequestParam(value = "description", required = false) String description,
+                                                                  @RequestParam(value = "valor", required = false) Integer valor,
+                                                                  @RequestParam(value = "statisticName", required = false) String statisticName) {
+        Achievement achievement = achievementService.updateAchievementWithImage(id, file, name, description, valor, statisticName);
+        return ResponseEntity.ok(achievement);
     }
 
     @Operation(
