@@ -1,19 +1,19 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, ButtonGroup, Modal, ModalHeader, ModalBody, ModalFooter, Input, Label, Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from "reactstrap";
-import { FaEdit, FaTrash, FaTrophy } from "react-icons/fa";
 import tokenService from "../../services/token.service";
 import useFetchState from "../../util/useFetchState";
 import deleteFromList from "../../util/deleteFromList";
 import getErrorModal from "../../util/getErrorModal";
-import trofeo from "../../static/images/trofeo.png";
+import AchievementHeader from "./AchievementHeader";
+import AchievementCreateModal from "./AchievementCreateModal";
+import AchievementEditModal from "./AchievementEditModal";
+import AchievementGrid from "./AchievementGrid";
 import "../../static/css/admin/achievementListAdmin.css";
 
 const jwt = tokenService.getLocalAccessToken();
 
 export default function AchievementListAdmin() {
     const Statistics = ["games_played", "games_won", "sarcines_created", "bacterias_created", "time_played"];
-    const DEFAULT_PROFILE_PIC = trofeo;
     const navigate = useNavigate();
     const [message, setMessage] = useState(null);
     const [visible, setVisible] = useState(false);
@@ -22,14 +22,6 @@ export default function AchievementListAdmin() {
     const [editModalOpen, setEditModalOpen] = useState(false);
     const [createModalOpen, setCreateModalOpen] = useState(false);
     const [editingAchievement, setEditingAchievement] = useState(null);
-    const [editCondition, setEditCondition] = useState("");
-    const [dropdownOpen, setDropdownOpen] = useState(false);
-    const [newAchievement, setNewAchievement] = useState({
-        name: "",
-        description: "",
-        statisticName: "",
-        valor: ""
-    });
     const [achievements, setAchievements] = useFetchState(
         [],
         `/api/v1/achievements`,
@@ -43,33 +35,28 @@ export default function AchievementListAdmin() {
             navigate('/login');
         }
     }, [navigate]);
-console.log(achievements);
     const filteredAchievements = achievements.filter((achievement) =>
         achievement.name.toLowerCase().includes(searchName.toLowerCase())
     );
 
     const handleEdit = (achievement) => {
         setEditingAchievement(achievement);
-        setEditCondition(achievement.condition ? achievement.condition.toString() : "");
         setEditModalOpen(true);
     };
 
-    const handleSaveCondition = () => {
-        if (!editingAchievement) return;
-
-        const conditionValue = parseInt(editCondition, 10);
-        if (isNaN(conditionValue)) {
+    const handleSaveCondition = (achievement, conditionValue) => {
+        const parsedValue = parseInt(conditionValue, 10);
+        if (isNaN(parsedValue)) {
             setMessage("Por favor ingresa un número válido");
             setVisible(true);
             return;
         }
-
         const updatedAchievement = {
-            ...editingAchievement,
-            valor: conditionValue
+            ...achievement,
+            valor: parsedValue
         };
 
-        fetch(`/api/v1/achievements/${editingAchievement.id}`, {
+        fetch(`/api/v1/achievements/${achievement.id}`, {
             method: "PUT",
             headers: {
                 Authorization: `Bearer ${jwt}`,
@@ -85,48 +72,38 @@ console.log(achievements);
                     setVisible(true);
                 } else {
                     const updatedAchievements = achievements.map((a) =>
-                        a.id === editingAchievement.id ? updatedAchievement : a
+                        a.id === achievement.id ? updatedAchievement : a
                     );
                     setAchievements(updatedAchievements);
                     setEditModalOpen(false);
                     setEditingAchievement(null);
-                    setEditCondition("");
                 }
             })
             .catch((err) => {
-                setMessage("Error al actualizar el logro");
+                setMessage("Error al actualizar el logro" + err.message);
                 setVisible(true);
             });
     };
 
-    const handleCloseModal = () => {
-        setEditModalOpen(false);
-        setEditingAchievement(null);
-        setEditCondition("");
+    const handleDelete = (id) => {
+        deleteFromList(
+            `/api/v1/achievements/${id}`,
+            id,
+            [achievements, setAchievements],
+            [alerts, setAlerts],
+            setMessage,
+            setVisible
+        );
     };
 
-    const handleOpenCreateModal = () => {
-        setCreateModalOpen(true);
-    };
-
-    const handleCloseCreateModal = () => {
-        setCreateModalOpen(false);
-        setNewAchievement({
-            name: "",
-            description: "",
-            statisticName: "",
-            valor: ""
-        });
-    };
-
-    const handleSaveNewAchievement = () => {
-        if (!newAchievement.name || !newAchievement.description || !newAchievement.statisticName || !newAchievement.valor) {
+    const handleSaveNewAchievement = (newAchievementData) => {
+        if (!newAchievementData.name || !newAchievementData.description || !newAchievementData.statisticName || !newAchievementData.valor) {
             setMessage("Por favor completa todos los campos");
             setVisible(true);
             return;
         }
 
-        const valorValue = parseInt(newAchievement.valor, 10);
+        const valorValue = parseInt(newAchievementData.valor, 10);
         if (isNaN(valorValue)) {
             setMessage("El valor debe ser un número válido");
             setVisible(true);
@@ -134,10 +111,10 @@ console.log(achievements);
         }
 
         const achievementData = {
-            name: newAchievement.name,
-            description: newAchievement.description,
+            name: newAchievementData.name,
+            description: newAchievementData.description,
             image: "imagelin.png",
-            statisticName: newAchievement.statisticName,
+            statisticName: newAchievementData.statisticName,
             valor: valorValue
         };
 
@@ -157,227 +134,45 @@ console.log(achievements);
                     setVisible(true);
                 } else {
                     setAchievements([...achievements, json]);
-                    handleCloseCreateModal();
+                    setCreateModalOpen(false);
                     setMessage("Logro creado exitosamente");
                     setVisible(true);
                 }
             })
             .catch((err) => {
-                setMessage("Error al crear el logro");
+                setMessage("Error al crear el logro" + err.message);
                 setVisible(true);
             });
     };
-
-    const handleDelete = (id) => {
-        deleteFromList(
-            `/api/v1/achievements/${id}`,
-            id,
-            [achievements, setAchievements],
-            [alerts, setAlerts],
-            setMessage,
-            setVisible
-        );
-    };
-
     const modal = getErrorModal(setVisible, visible, message);
-
     return (
         <div className="achievement-admin-container">
-            <div className="achievement-header">
-                <div className="achievement-title-section">
-                    <FaTrophy className="achievement-icon" />
-                    <h1 className="achievement-title">Gestionar Logros</h1>
-                </div>
-                <div className="achievement-header-controls">
-                    <input
-                        type="text"
-                        placeholder="Buscar logro..."
-                        className="achievement-search"
-                        value={searchName}
-                        onChange={(e) => setSearchName(e.target.value)}
-                    />
-                    <Button 
-                        color="success" 
-                        onClick={handleOpenCreateModal}
-                        className="achievement-create-btn"
-                    >
-                        + Crear Logro
-                    </Button>
-                </div>
-            </div>
-
+            <AchievementHeader 
+                searchName={searchName} 
+                setSearchName={setSearchName}
+                onCreateClick={() => setCreateModalOpen(true)}
+            />
             {alerts.map((a) => a.alert)}
             {modal}
-
-            <Modal isOpen={createModalOpen} toggle={handleCloseCreateModal} className="achievement-edit-modal">
-                <ModalHeader toggle={handleCloseCreateModal}>
-                    Crear Nuevo Logro
-                </ModalHeader>
-                <ModalBody>
-                    <Label for="new-name" className="achievement-modal-label">
-                        Nombre:
-                    </Label>
-                    <Input
-                        id="new-name"
-                        type="text"
-                        placeholder="Ingresa el nombre del logro..."
-                        value={newAchievement.name}
-                        onChange={(e) => setNewAchievement({ ...newAchievement, name: e.target.value })}
-                        className="achievement-condition-input"
-                    />
-                    <Label for="new-description" className="achievement-modal-label">
-                        Descripción:
-                    </Label>
-                    <Input
-                        id="new-description"
-                        type="textarea"
-                        placeholder="Ingresa la descripción del logro..."
-                        value={newAchievement.description}
-                        onChange={(e) => setNewAchievement({ ...newAchievement, description: e.target.value })}
-                        className="achievement-condition-input"
-                    />
-                    <Label for="new-statistic" className="achievement-modal-label">
-                        Estadistica de la que depende:
-                    </Label>
-                    <Dropdown isOpen={dropdownOpen} toggle={() => setDropdownOpen(!dropdownOpen)}>
-                        <DropdownToggle caret className="achievement-condition-dropdown">
-                            {newAchievement.statisticName || "Selecciona una estadística"}
-                        </DropdownToggle>
-                        <DropdownMenu>
-                            {Statistics.map((statistic) => (
-                                <DropdownItem
-                                    key={statistic}
-                                    onClick={() => {
-                                        setNewAchievement({ ...newAchievement, statisticName: statistic });
-                                        setDropdownOpen(false);
-                                    }}
-                                >
-                                    {statistic}
-                                </DropdownItem>
-                            ))}
-                        </DropdownMenu>
-                    </Dropdown>
-                    <Label for="new-valor" className="achievement-modal-label">
-                        Valor:
-                    </Label>
-                    <Input
-                        id="new-valor"
-                        type="number"
-                        placeholder="Ingresa el valor..."
-                        value={newAchievement.valor}
-                        onChange={(e) => setNewAchievement({ ...newAchievement, valor: e.target.value })}
-                        className="achievement-condition-input"
-                    />
-                </ModalBody>
-                <ModalFooter>
-                    <Button color="secondary" onClick={handleCloseCreateModal}>
-                        Cancelar
-                    </Button>
-                    <Button color="success" onClick={handleSaveNewAchievement}>
-                        Crear
-                    </Button>
-                </ModalFooter>
-            </Modal>
-
-            <Modal isOpen={editModalOpen} toggle={handleCloseModal} className="achievement-edit-modal">
-                <ModalHeader toggle={handleCloseModal}>
-                    Editando Logro: {editingAchievement?.name}
-                </ModalHeader>
-                <ModalBody>
-                    <Label for="condition-input" className="achievement-modal-label">
-                        Estadistica de la que depende:
-                    </Label>
-                    <Dropdown isOpen={dropdownOpen} toggle={() => setDropdownOpen(!dropdownOpen)}>
-                        <DropdownToggle caret className="achievement-condition-dropdown">
-                            {editingAchievement?.statisticName || "Selecciona una estadística"}
-                        </DropdownToggle>
-                        <DropdownMenu>
-                            {Statistics.map((statistic) => (
-                                <DropdownItem
-                                    key={statistic}
-                                    onClick={() => {
-                                        setEditingAchievement({
-                                            ...editingAchievement,
-                                            statisticName: statistic,
-                                        });
-                                        setDropdownOpen(false);
-                                    }}
-                                >
-                                    {statistic}
-                                </DropdownItem>
-                            ))}
-                        </DropdownMenu>
-                    </Dropdown>
-                    <Label for="condition-input" className="achievement-modal-label">
-                        Valor:
-                    </Label>
-                    <Input
-                        id="condition-input"
-                        type="number"
-                        placeholder="Ingresa el nuevo valor..."
-                        value={editCondition}
-                        onChange={(e) => setEditCondition(e.target.value)}
-                        className="achievement-condition-input"
-                    />
-                </ModalBody>
-                <ModalFooter>
-                    <Button color="secondary" onClick={handleCloseModal}>
-                        Cancelar
-                    </Button>
-                    <Button color="success" onClick={handleSaveCondition}>
-                        Guardar
-                    </Button>
-                </ModalFooter>
-            </Modal>
-
-            <div className="achievement-grid">
-                {filteredAchievements.length === 0 ? (
-                    <div className="achievement-empty">
-                        <p>No hay logros disponibles</p>
-                    </div>
-                ) : (
-                    filteredAchievements.map((achievement) => (
-                        <div 
-                            key={achievement.id} 
-                            className="achievement-card"
-                            style={{ '--achievement-image': `url(${DEFAULT_PROFILE_PIC})` }}
-                        >
-                            <div className="achievement-card-header">
-                                <h3 className="achievement-name">{achievement.name}</h3>
-                                <span className="achievement-badge">ID: {achievement.id}</span>
-                            </div>
-                            <div className="achievement-card-body">
-                                <p className="achievement-description">{achievement.description}</p>
-                            </div>
-                            <div className="achievement-card-footer">
-                                <div className="achievement-value">
-                                    <strong>Valor:</strong> {editingAchievement?.valor || achievement.valor || "N/A"}
-                                </div>
-                                <ButtonGroup>
-                                    <Button
-                                        size="sm"
-                                        color="info"
-                                        aria-label={`edit-${achievement.id}`}
-                                        onClick={() => handleEdit(achievement)}
-                                        className="action-btn edit-btn"
-                                    >
-                                        <FaEdit /> Editar
-                                    </Button>
-                                    <Button
-                                        size="sm"
-                                        color="danger"
-                                        aria-label={`delete-${achievement.id}`}
-                                        onClick={() => handleDelete(achievement.id)}
-                                        className="action-btn delete-btn"
-                                    >
-                                        <FaTrash /> Borrar
-                                    </Button>
-                                </ButtonGroup>
-                            </div>
-                        </div>
-                    ))
-                )}
-            </div>
+            <AchievementCreateModal 
+                isOpen={createModalOpen}
+                toggle={() => setCreateModalOpen(!createModalOpen)}
+                onSave={handleSaveNewAchievement}
+                statistics={Statistics}
+            />
+            <AchievementEditModal 
+                isOpen={editModalOpen}
+                toggle={() => setEditModalOpen(!editModalOpen)}
+                achievement={editingAchievement}
+                onSave={handleSaveCondition}
+                statistics={Statistics}
+            />
+            <AchievementGrid 
+                achievements={filteredAchievements}
+                editingAchievement={editingAchievement}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+            />
         </div>
     );
 }
