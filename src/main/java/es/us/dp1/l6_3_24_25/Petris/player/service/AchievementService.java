@@ -8,12 +8,16 @@ import org.springframework.transaction.annotation.Transactional;
 import es.us.dp1.l6_3_24_25.Petris.exceptions.ResourceNotFoundException;
 import es.us.dp1.l6_3_24_25.Petris.player.model.Achievement;
 import es.us.dp1.l6_3_24_25.Petris.player.repository.AchievementRepository;
+import es.us.dp1.l6_3_24_25.Petris.player.repository.PlayerRepository;
 
 @Service
 public class AchievementService {
 
     @Autowired
     private AchievementRepository achievementRepository;
+
+    @Autowired
+    private PlayerRepository playerRepository;
 
     @Transactional(readOnly = true)
     public List<Achievement> getAllAchievements() {
@@ -39,6 +43,14 @@ public class AchievementService {
 
     @Transactional
     public void deleteAchievement(Integer id) {
+        Achievement achievement = achievementRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Achievement", "id", id));
+        playerRepository.findAll().forEach(player -> {
+            if (player.getAchievements().contains(achievement)) {
+                player.getAchievements().remove(achievement);
+                playerRepository.save(player);
+            }
+        });
         achievementRepository.deleteById(id);
     }
 }
