@@ -1,7 +1,7 @@
 import React from "react";
 import AchievementCard from "./AchievementCard";
 
-export default function AchievementGrid({ achievements, editingAchievement, onEdit, onDelete }) {
+export default function AchievementGrid({ achievements, editingAchievement, onEdit, onDelete, isAdmin }) {
     return (
         <div className="achievement-grid">
             {achievements.length === 0 ? (
@@ -16,6 +16,7 @@ export default function AchievementGrid({ achievements, editingAchievement, onEd
                         onEdit={onEdit}
                         onDelete={onDelete}
                         isEditing={editingAchievement?.id === achievement.id}
+                        isAdmin={isAdmin}
                     />
                 ))
             )}

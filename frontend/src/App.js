@@ -88,7 +88,6 @@ function App() {
           <Route path="/users" exact={true} element={<PrivateRoute><UserListAdmin /></PrivateRoute>} />
           <Route path="/users/:username" exact={true} element={<PrivateRoute><UserEditAdmin /></PrivateRoute>} />
           <Route path="/currentGames" element={<CurrentGames />} />
-          <Route path="/achievements" element={<PrivateRoute><AchievementListAdmin /></PrivateRoute>} />
         </>)
     }
     if (role === "PLAYER") {
@@ -118,6 +117,7 @@ function App() {
         <Route path="/logout" element={<Logout />} />
         <Route path="/login" element={<Login />} />
         <Route path="/ranking" element={<StatisticRanking />}></Route>
+        <Route path="/achievements" element={<PrivateRoute><AchievementListAdmin /></PrivateRoute>} />
       </>
     )
   }
