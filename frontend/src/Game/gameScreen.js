@@ -622,7 +622,8 @@ export default function GameScreen() {
           <div className="chatList" style={{
             height: '85%'
             }}>
-            <Chat nickname={nickname}/>
+            <Chat nickname={nickname}
+            id = {id}/>
           </div>
         }
         {waitingForPlayer && (
