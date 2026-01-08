@@ -29,17 +29,12 @@ jobs:
         env:
           API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
         run: |
-          # Configuración de usuario
           git config --global user.email "perezsornipablo@gmail.com"
           git config --global user.name "Yabarta"
           
-          # Creamos el archivo de credenciales manual para evitar el error del bot
-          # Esto codifica tu usuario:token en base64 para la cabecera HTTP
           git config --global http.extraheader "Authorization: Basic $(echo -n Yabarta:${API_TOKEN_GITHUB} | base64)"
           
-          # Añadimos el remoto SIN el token en la URL (ya va en la cabecera)
-          git remote add publico https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25-public.git
+          git remote add publico https://github.com/Yabarta/dp1-2025-2026-l6-3-25-public.git
           
-          # Empujamos
           echo "Iniciando Push..."
           git push publico main --force
