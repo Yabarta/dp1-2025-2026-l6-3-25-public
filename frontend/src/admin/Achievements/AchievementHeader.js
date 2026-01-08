@@ -3,12 +3,13 @@ import { Button } from "reactstrap";
 import { FaTrophy } from "react-icons/fa";
 import "../../static/css/admin/achievementListAdmin.css";
 
-export default function AchievementHeader({ searchName, setSearchName, onCreateClick }) {
+export default function AchievementHeader({ searchName, setSearchName, onCreateClick, isAdmin }) {
+    const title = isAdmin ? 'Gestionar Logros' : 'Ver logros'
     return (
         <div className="achievement-header">
             <div className="achievement-title-section">
                 <FaTrophy className="achievement-icon" />
-                <h1 className="achievement-title">Gestionar Logros</h1>
+                <h1 className="achievement-title">{ title }</h1>
             </div>
             <div className="achievement-header-controls">
                 <input
@@ -18,13 +19,20 @@ export default function AchievementHeader({ searchName, setSearchName, onCreateC
                     value={searchName}
                     onChange={(e) => setSearchName(e.target.value)}
                 />
-                <Button 
+                {
+                    isAdmin
+
+                    &&
+                    
+                    <Button 
                     color="success" 
                     onClick={onCreateClick}
                     className="achievement-create-btn"
                 >
                     + Crear Logro
                 </Button>
+                }
+                
             </div>
         </div>
     );

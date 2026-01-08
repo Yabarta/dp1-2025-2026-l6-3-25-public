@@ -273,6 +273,9 @@ useEffect(() => {
                 <NavItem>
                     <NavLink style={{ color: "white" }} id="statistics" tag={Link} to="/ranking">Ranking</NavLink>
                 </NavItem>
+                <NavItem>
+                    <NavLink style={{ color: "white" }} id="achievement" tag={Link} to="/achievements">Achievements</NavLink>
+                </NavItem>
 
             </>
         )

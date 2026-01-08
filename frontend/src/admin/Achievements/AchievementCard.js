@@ -2,8 +2,9 @@ import React from "react";
 import { Button, ButtonGroup } from "reactstrap";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import trofeo from "../../static/images/trofeo.png";
+import AchievementProgressBar from "./AchievementProgressBar";
 
-export default function AchievementCard({ achievement, onEdit, onDelete, isEditing }) {
+export default function AchievementCard({ achievement, onEdit, onDelete, isEditing, isAdmin }) {
     const getImageUrl = (image) => {
         if (!image) return trofeo;
         // Si comienza con /, es una ruta absoluta (uploads/)
@@ -19,15 +20,23 @@ export default function AchievementCard({ achievement, onEdit, onDelete, isEditi
             key={achievement.id} 
             className="achievement-card"
             style={{ '--achievement-image': getImageUrl(achievement.image) }}
-        >
+        >   
             <div className="achievement-card-header">
                 <h3 className="achievement-name">{achievement.name}</h3>
-                <span className="achievement-badge">ID: {achievement.id}</span>
+                {
+                    isAdmin
+                    &&                
+                    <span className="achievement-badge">ID: {achievement.id}</span>
+                }
+
             </div>
             <div className="achievement-card-body">
                 <p className="achievement-description">{achievement.description}</p>
             </div>
-            <div className="achievement-card-footer">
+            {
+                isAdmin
+                && 
+                <div className="achievement-card-footer">
                 <div className="achievement-value">
                     <strong>Valor:</strong> {achievement.valor || "N/A"}
                 </div>
@@ -52,6 +61,14 @@ export default function AchievementCard({ achievement, onEdit, onDelete, isEditi
                     </Button>
                 </ButtonGroup>
             </div>
+            }
+            {
+                !isAdmin
+                &&
+                <AchievementProgressBar
+                    achievement={achievement}
+                />
+            }
         </div>
     );
 }

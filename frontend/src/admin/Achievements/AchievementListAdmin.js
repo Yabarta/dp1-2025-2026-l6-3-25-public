@@ -9,11 +9,16 @@ import AchievementCreateModal from "./AchievementCreateModal";
 import AchievementEditModal from "./AchievementEditModal";
 import AchievementGrid from "./AchievementGrid";
 import "../../static/css/admin/achievementListAdmin.css";
+import jwt_decode from "jwt-decode";
+import AchievementProgressBar from "./AchievementProgressBar";
+
 
 const jwt = tokenService.getLocalAccessToken();
 
 export default function AchievementListAdmin() {
     const Statistics = ["games_played", "games_won", "sarcines_created", "bacterias_created", "time_played"];
+    const isAdmin = jwt ? jwt_decode(jwt).authorities.includes("ADMIN") : false;
+    
     const navigate = useNavigate();
     const [message, setMessage] = useState(null);
     const [visible, setVisible] = useState(false);
@@ -29,6 +34,10 @@ export default function AchievementListAdmin() {
         setMessage,
         setVisible
     );
+
+    useEffect(() => {
+
+    }, [jwt])
 
     useEffect(() => {
         if (!jwt) {
@@ -122,6 +131,7 @@ export default function AchievementListAdmin() {
                 searchName={searchName} 
                 setSearchName={setSearchName}
                 onCreateClick={() => setCreateModalOpen(true)}
+                isAdmin={isAdmin}
             />
             {alerts.map((a) => a.alert)}
             {modal}
@@ -143,6 +153,7 @@ export default function AchievementListAdmin() {
                 editingAchievement={editingAchievement}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
+                isAdmin={isAdmin}
             />
         </div>
     );
