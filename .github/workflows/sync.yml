@@ -12,20 +12,9 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          persist-credentials: false  
 
-      - name: Depuración de Secreto (Verificar si existe)
-        env:
-          MY_TOKEN: ${{ secrets.API_TOKEN_GITHUB }}
-        run: |
-          if [ -z "$MY_TOKEN" ]; then
-            echo "🔴 ERROR CRÍTICO: El secreto API_TOKEN_GITHUB está VACÍO o no se encuentra."
-            echo "Asegúrate de que está en 'Repository Secrets' y no en 'Environment Secrets'."
-            exit 1
-          else
-            echo "🟢 El secreto ha sido detectado correctamente (longitud: ${#MY_TOKEN} caracteres)."
-          fi
-
-      - name: Empujar al repositorio público
+      - name: Empujar al repositorio público (Fork)
         env:
           API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
         run: |
@@ -36,5 +25,5 @@ jobs:
           
           git remote add publico https://github.com/Yabarta/dp1-2025-2026-l6-3-25-public.git
           
-          echo "Iniciando Push..."
+          echo "Iniciando Push al Fork..."
           git push publico main --force
