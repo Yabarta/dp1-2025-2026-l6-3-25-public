@@ -32,15 +32,15 @@ public class MatchService {
         return matchRepository.findAll();
     }
 
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, rollbackFor = ResourceNotFoundException.class)
     public Match getMatchById(Integer id) throws ResourceNotFoundException {
         return matchRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Match", "Id", id));
     }
 
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, rollbackFor = ResourceNotFoundException.class)
     public Match getMatchByCode(String code) throws ResourceNotFoundException {
-        return matchRepository.findByCode(code)
+        return matchRepository.findByCodeAndEndedAtNotNull(code)
             .orElseThrow(() -> new ResourceNotFoundException("Match", "Code", code));
     }
 
@@ -75,7 +75,7 @@ public class MatchService {
         } else if(match.hasStarted()) {
             throw new AccessDeniedException("The match has already started");
         }
-        if(!match.isValidCode(code)) {
+        if(!match.isCorrectCode(code)) {
             throw new AccessDeniedException("Incorrect code for private match");
         }
         if (match.isFull()) {
@@ -88,7 +88,8 @@ public class MatchService {
     }
 
     @Transactional(rollbackFor = {AccessDeniedException.class})
-    public Match leaveMatch(Match match, Player playerToLeave) {
+    public Match leaveMatch(Match match, Player playerToLeave) throws AccessDeniedException {
+        Match result = null;
         if(match.hasEnded()) {
             throw new AccessDeniedException("The match has already ended");
         } else if(match.hasStarted()) {
@@ -96,19 +97,24 @@ public class MatchService {
         }
         if (!match.hasPlayer(playerToLeave)) {
             throw new AccessDeniedException("Not in this match");
-        } else if(match.hasCreator(playerToLeave)) {
+        } else if(match.isFull()) {
+            if(match.hasCreator(playerToLeave)) {
             Player currentPlayer2 = match.getPlayer2();
             match.setCreator(currentPlayer2);
             match.setPlayer1(currentPlayer2);
+            }
+            match.setPlayer2(null);
+            result = matchRepository.save(match);
+        } else {
+            matchRepository.delete(match);
+            result = null;
         }
 
-        match.setPlayer2(null);
-
-        return matchRepository.save(match);
+        return result;
     }
 
     @Transactional(rollbackFor = {AccessDeniedException.class})
-    public Match startMatch(Match match) {
+    public Match startMatch(Match match) throws AccessDeniedException {
         if (!match.isFull()) {
             throw new AccessDeniedException("Two players are required to start the match");
         }
@@ -184,10 +190,11 @@ public class MatchService {
         if (winner != null && matchStatsBatchOrchestrator != null) {
             matchStatsBatchOrchestrator.triggerForMatch(savedMatch);
         }
+        
         return savedMatch;
     }
 
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, rollbackFor = {AccessDeniedException.class})
     public List<String> checkErrors(Match matchToCheck, List<PetriDish> newBoardState, Player player) throws AccessDeniedException {
         int playerNum;
         if(matchToCheck.hasPlayer1(player)) {

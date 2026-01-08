@@ -118,16 +118,16 @@ class MatchServiceTest {
     }
 
     @Test
-    @DisplayName("Obtener partida por code")
+    @DisplayName("Obtener partida no acabada por code")
     @Description("Método para obtener partida por código no existente")
     @Owner("dlozaco(FBN5868)")
     @Story("Retrieve matches")
     @Severity(SeverityLevel.NORMAL)
     void testGetMatchByCode() {
         String code = "TRJU";
-        when(matchRepository.findByCode(code)).thenReturn(Optional.of(new Match()));
+        when(matchRepository.findByCodeAndEndedAtNotNull(code)).thenReturn(Optional.of(new Match()));
         matchService.getMatchByCode(code);
-        verify(matchRepository, times(1)).findByCode(code);
+        verify(matchRepository, times(1)).findByCodeAndEndedAtNotNull(code);
     }
 
     @Test
@@ -158,8 +158,6 @@ class MatchServiceTest {
     @Owner("josbardel1(WHS7046)")
     @Story("Create a new game")
     void testCreateMatchNegative() {
-        verify(matchRepository, never()).save(any(Match.class));
-        verifyNoMoreInteractions(matchRepository);
 
         Boolean isPrivate = false;
         Player creator = new Player();
@@ -168,6 +166,8 @@ class MatchServiceTest {
         assertThatExceptionOfType(AccessDeniedException.class)
             .isThrownBy(() -> matchService.createMatch(creator, isPrivate))
             .withMessage("Already in a match");
+        verify(matchRepository, never()).save(any(Match.class));
+        verifyNoMoreInteractions(matchRepository);
     }
 
     @Test
@@ -191,8 +191,6 @@ class MatchServiceTest {
     @Owner("josbardel1(WHS7046)")
     @Story("Play game")
     void testJoinMatchNegative() {
-        verify(matchRepository, never()).save(any(Match.class));
-        verifyNoMoreInteractions(matchRepository);
 
         String code = "AAAA";
         Match match = new Match();
@@ -203,6 +201,8 @@ class MatchServiceTest {
         assertThatExceptionOfType(AccessDeniedException.class)
             .isThrownBy(() -> matchService.joinMatch(match, playerToJoin, code))
             .withMessage("Already in a match");
+        verify(matchRepository, never()).save(any(Match.class));
+        verifyNoMoreInteractions(matchRepository);
     }
 
     @Test
@@ -211,8 +211,6 @@ class MatchServiceTest {
     @Owner("josbardel1(WHS7046)")
     @Story("Play game")
     void testJoinMatchNegative2() {
-        verify(matchRepository, never()).save(any(Match.class));
-        verifyNoMoreInteractions(matchRepository);
 
         String code = "AAAA";
         LocalDateTime startedAt = LocalDateTime.now();
@@ -225,6 +223,8 @@ class MatchServiceTest {
         assertThatExceptionOfType(AccessDeniedException.class)
             .isThrownBy(() -> matchService.joinMatch(match, playerToJoin, code))
             .withMessage("The match has already started");
+        verify(matchRepository, never()).save(any(Match.class));
+        verifyNoMoreInteractions(matchRepository);
     }
 
     @Test
@@ -233,8 +233,6 @@ class MatchServiceTest {
     @Owner("josbardel1(WHS7046)")
     @Story("Play game")
     void testJoinMatchNegative3() {
-        verify(matchRepository, never()).save(any(Match.class));
-        verifyNoMoreInteractions(matchRepository);
 
         String code = "AAAA";
         LocalDateTime startedAt = LocalDateTime.now();
@@ -249,6 +247,8 @@ class MatchServiceTest {
         assertThatExceptionOfType(AccessDeniedException.class)
             .isThrownBy(() -> matchService.joinMatch(match, playerToJoin, code))
             .withMessage("The match has already ended");
+        verify(matchRepository, never()).save(any(Match.class));
+        verifyNoMoreInteractions(matchRepository);
     }
 
     @Test
@@ -257,8 +257,6 @@ class MatchServiceTest {
     @Owner("josbardel1(WHS7046)")
     @Story("Play game")
     void testJoinMatchNegative4() {
-        verify(matchRepository, never()).save(any(Match.class));
-        verifyNoMoreInteractions(matchRepository);
 
         String code = "AAAA";
         String incorrectCode = "BBBB";
@@ -270,6 +268,8 @@ class MatchServiceTest {
         assertThatExceptionOfType(AccessDeniedException.class)
             .isThrownBy(() -> matchService.joinMatch(match, playerToJoin, incorrectCode))
             .withMessage("Incorrect code for private match");
+        verify(matchRepository, never()).save(any(Match.class));
+        verifyNoMoreInteractions(matchRepository);
     }
 
     @Test
@@ -278,8 +278,6 @@ class MatchServiceTest {
     @Owner("josbardel1(WHS7046)")
     @Story("Play game")
     void testJoinMatchNegative5() {
-        verify(matchRepository, never()).save(any(Match.class));
-        verifyNoMoreInteractions(matchRepository);
 
         Player player1 = new Player();
         Player player2 = new Player();
@@ -294,6 +292,8 @@ class MatchServiceTest {
         assertThatExceptionOfType(AccessDeniedException.class)
             .isThrownBy(() -> matchService.joinMatch(match, playerToJoin, code))
             .withMessage("The match is already full");
+        verify(matchRepository, never()).save(any(Match.class));
+        verifyNoMoreInteractions(matchRepository);
     }
 
     @Test
@@ -335,8 +335,6 @@ class MatchServiceTest {
     @Owner("josbardel1(WHS7046)")
     @Story("Play game")
     void testLeaveMatchNegative() {
-        verify(matchRepository, never()).save(any(Match.class));
-        verifyNoMoreInteractions(matchRepository);
 
         Match match = new Match();
         Player playerToLeave = new Player();
@@ -344,6 +342,8 @@ class MatchServiceTest {
         assertThatExceptionOfType(AccessDeniedException.class)
             .isThrownBy(() -> matchService.leaveMatch(match, playerToLeave))
             .withMessage("Not in this match");
+        verify(matchRepository, never()).save(any(Match.class));
+        verifyNoMoreInteractions(matchRepository);
     }
 
     @Test
@@ -352,8 +352,6 @@ class MatchServiceTest {
     @Owner("josbardel1(WHS7046)")
     @Story("Play game")
     void testLeaveMatchNegative2() {
-        verify(matchRepository, never()).save(any(Match.class));
-        verifyNoMoreInteractions(matchRepository);
 
         LocalDateTime startedAt = LocalDateTime.now();
         Player playerToLeave = new Player();
@@ -364,6 +362,8 @@ class MatchServiceTest {
         assertThatExceptionOfType(AccessDeniedException.class)
             .isThrownBy(() -> matchService.leaveMatch(match, playerToLeave))
             .withMessage("The match has already started. Concede instead");
+        verify(matchRepository, never()).save(any(Match.class));
+        verifyNoMoreInteractions(matchRepository);
     }
 
     @Test
@@ -372,8 +372,6 @@ class MatchServiceTest {
     @Owner("josbardel1(WHS7046)")
     @Story("Play game")
     void testLeaveMatchNegative3() {
-        verify(matchRepository, never()).save(any(Match.class));
-        verifyNoMoreInteractions(matchRepository);
 
         LocalDateTime startedAt = LocalDateTime.now();
         LocalDateTime endedAt = LocalDateTime.now();
@@ -386,11 +384,13 @@ class MatchServiceTest {
         assertThatExceptionOfType(AccessDeniedException.class)
             .isThrownBy(() -> matchService.leaveMatch(match, playerToLeave))
             .withMessage("The match has already ended");
+        verify(matchRepository, never()).save(any(Match.class));
+        verifyNoMoreInteractions(matchRepository);
     }
 
     @Test
-    @DisplayName("Should leave not started match if creator and player 2 becomes creator")
-    @Description("Test that if the creator attempts to leave a not started match, the player leaves, player2 is set to null and both player1 and creator are set to player2")
+    @DisplayName("Should leave full not started match if creator and player 2 becomes creator")
+    @Description("Test that if the creator attempts to leave a full not started match, the player leaves, player2 is set to null and both player1 and creator are set to player2")
     @Owner("josbardel1(WHS7046)")
     @Story("Play game")
     void testLeaveMatchPositive() {
@@ -411,8 +411,8 @@ class MatchServiceTest {
     }
 
     @Test
-    @DisplayName("Should leave not started match if player 2")
-    @Description("Test that if a player2 attempts to leave a not started match, the player leaves and player2 is set to null")
+    @DisplayName("Should leave full not started match if player 2")
+    @Description("Test that if a player2 attempts to leave a full not started match, the player leaves and player2 is set to null")
     @Owner("josbardel1(WHS7046)")
     @Story("Play game")
     void testLeaveMatchPositive2() {
@@ -430,13 +430,27 @@ class MatchServiceTest {
     }
 
     @Test
+    @DisplayName("Should leave not full not started match if creator")
+    @Description("Test that if a creator attempts to leave a not full not started match, the creator leaves and the match is deleted")
+    @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
+    void testLeaveMatchPositive3() {
+        Player creatorAndPlayer1 = new Player();
+        creatorAndPlayer1.setId(1);
+        Match match = new Match();
+        match.setCreator(creatorAndPlayer1);
+        match.setPlayer1(creatorAndPlayer1);
+
+        assertThat(matchService.leaveMatch(match, creatorAndPlayer1)).isNull();
+        verify(matchRepository, times(1)).delete(match);
+    }
+
+    @Test
     @DisplayName("Should not start match if there are less than 2 players")
     @Description("Test that if a player attempts to start a match where player2 is null, AccessDeniedException is thrown and the match doesn't start")
     @Owner("josbardel1(WHS7046)")
     @Story("Play game")
     void testStartMatchNegative() {
-        verify(matchRepository, never()).save(any(Match.class));
-        verifyNoMoreInteractions(matchRepository);
 
         Player playerThatStarts = new Player();
         Match match = new Match();
@@ -445,6 +459,8 @@ class MatchServiceTest {
         assertThatExceptionOfType(AccessDeniedException.class)
             .isThrownBy(() -> matchService.startMatch(match))
             .withMessage("Two players are required to start the match");
+        verify(matchRepository, never()).save(any(Match.class));
+        verifyNoMoreInteractions(matchRepository);
     }
 
     @Test
@@ -453,8 +469,6 @@ class MatchServiceTest {
     @Owner("josbardel1(WHS7046)")
     @Story("Play game")
     void testStartMatchNegative2() {
-        verify(matchRepository, never()).save(any(Match.class));
-        verifyNoMoreInteractions(matchRepository);
 
         Player player2 = new Player();
         Player playerThatStarts = new Player();
@@ -469,6 +483,8 @@ class MatchServiceTest {
         assertThatExceptionOfType(AccessDeniedException.class)
             .isThrownBy(() -> matchService.startMatch(match))
             .withMessage("Unsupported operation for started match");
+        verify(matchRepository, never()).save(any(Match.class));
+        verifyNoMoreInteractions(matchRepository);
     }
 
     @Test
@@ -477,8 +493,6 @@ class MatchServiceTest {
     @Owner("josbardel1(WHS7046)")
     @Story("Play game")
     void testStartMatchNegative3() {
-        verify(matchRepository, never()).save(any(Match.class));
-        verifyNoMoreInteractions(matchRepository);
 
         Player player2 = new Player();
         Player playerThatStarts = new Player();
@@ -495,6 +509,8 @@ class MatchServiceTest {
         assertThatExceptionOfType(AccessDeniedException.class)
             .isThrownBy(() -> matchService.startMatch(match))
             .withMessage("The match has already ended");
+        verify(matchRepository, never()).save(any(Match.class));
+        verifyNoMoreInteractions(matchRepository);
     }
 
     @Test
@@ -524,8 +540,6 @@ class MatchServiceTest {
     @Owner("josbardel1(WHS7046)")
     @Story("Play game")
     void testNextTurnNegative() {
-        verify(matchRepository, never()).save(any(Match.class));
-        verifyNoMoreInteractions(matchRepository);
 
         int turn = MatchDataUtil.getTurnsNum();
         Match matchToAdvanceTurn = new Match();
@@ -535,6 +549,8 @@ class MatchServiceTest {
         assertThatExceptionOfType(IllegalArgumentException.class)
             .isThrownBy(() -> matchService.nextTurn(matchToAdvanceTurn, newBoardState))
             .withMessage("No remaining turns to process");
+        verify(matchRepository, never()).save(any(Match.class));
+        verifyNoMoreInteractions(matchRepository);
     }
 
     @Test
@@ -543,8 +559,6 @@ class MatchServiceTest {
     @Owner("josbardel1(WHS7046)")
     @Story("Play game")
     void testNextTurnNegative2() {
-        verify(matchRepository, never()).save(any(Match.class));
-        verifyNoMoreInteractions(matchRepository);
 
         int turn = 0;
         LocalDateTime startedAt = LocalDateTime.now();
@@ -558,6 +572,8 @@ class MatchServiceTest {
         assertThatExceptionOfType(AccessDeniedException.class)
             .isThrownBy(() -> matchService.nextTurn(matchToAdvanceTurn, newBoardState))
             .withMessage("The match has already ended");
+        verify(matchRepository, never()).save(any(Match.class));
+        verifyNoMoreInteractions(matchRepository);
     }
 
     @Test
@@ -566,8 +582,6 @@ class MatchServiceTest {
     @Owner("josbardel1(WHS7046)")
     @Story("Play game")
     void testNextTurnNegative3() {
-        verify(matchRepository, never()).save(any(Match.class));
-        verifyNoMoreInteractions(matchRepository);
 
         int turn = 0;
         Match matchToAdvanceTurn = new Match();
@@ -577,6 +591,8 @@ class MatchServiceTest {
         assertThatExceptionOfType(AccessDeniedException.class)
             .isThrownBy(() -> matchService.nextTurn(matchToAdvanceTurn, newBoardState))
             .withMessage("The match has not yet started");
+        verify(matchRepository, never()).save(any(Match.class));
+        verifyNoMoreInteractions(matchRepository);
     }
 
     @Test
@@ -644,7 +660,6 @@ class MatchServiceTest {
     @Story("Play game")
     void testCheckErrorsNegative() {
         try (MockedStatic<MatchMethodUtil> utility = Mockito.mockStatic(MatchMethodUtil.class)) {
-            utility.verify(() -> MatchMethodUtil.getPropagationErrors(anyList(), anyList(), any(int.class)), never());
 
             Match matchToCheck = new Match();
             Player playerNotInTheMatch = new Player();
@@ -653,6 +668,7 @@ class MatchServiceTest {
             assertThatExceptionOfType(AccessDeniedException.class)
                 .isThrownBy(() -> matchService.checkErrors(matchToCheck, newBoardState, playerNotInTheMatch))
                 .withMessage("Not in this match");
+            utility.verify(() -> MatchMethodUtil.getPropagationErrors(anyList(), anyList(), any(int.class)), never());
         }
     }
 
@@ -664,7 +680,6 @@ class MatchServiceTest {
     @EnumSource(value = TurnType.class, names = {"P2_PROPAGATION", "BINARY_FISSION", "CONTAMINATION"})
     void testCheckErrorsNegative2WithEnumSource(TurnType turnType) {
         try (MockedStatic<MatchMethodUtil> utility = Mockito.mockStatic(MatchMethodUtil.class)) {
-            utility.verify(() -> MatchMethodUtil.getPropagationErrors(anyList(), anyList(), any(int.class)), never());
 
             Player player1 = new Player();
             Match matchToCheck = new Match();
@@ -675,6 +690,7 @@ class MatchServiceTest {
             assertThatExceptionOfType(AccessDeniedException.class)
                 .isThrownBy(() -> matchService.checkErrors(matchToCheck, newBoardState, player1))
                 .withMessage("Can only check for errors in your propagation turns");
+            utility.verify(() -> MatchMethodUtil.getPropagationErrors(anyList(), anyList(), any(int.class)), never());
         }
     }
 
@@ -685,7 +701,6 @@ class MatchServiceTest {
     @Story("Play game")
     void testCheckErrorsNegative3() {
         try (MockedStatic<MatchMethodUtil> utility = Mockito.mockStatic(MatchMethodUtil.class)) {
-            utility.verify(() -> MatchMethodUtil.getPropagationErrors(anyList(), anyList(), any(int.class)), never());
 
             Player player1 = new Player();
             LocalDateTime endedAt = LocalDateTime.now();
@@ -698,6 +713,7 @@ class MatchServiceTest {
             assertThatExceptionOfType(AccessDeniedException.class)
                 .isThrownBy(() -> matchService.checkErrors(matchToCheck, newBoardState, player1))
                 .withMessage("The match has already ended");
+            utility.verify(() -> MatchMethodUtil.getPropagationErrors(anyList(), anyList(), any(int.class)), never());
         }
     }
 
@@ -727,8 +743,6 @@ class MatchServiceTest {
     @Owner("josbardel1(WHS7046)")
     @Story("Play game")
     void testConcedeMatchNegative() {
-        verify(matchRepository, never()).save(any(Match.class));
-        verifyNoMoreInteractions(matchRepository);
 
         Match matchToConcede = new Match();
         Player playerNotInTheMatch = new Player();
@@ -736,6 +750,8 @@ class MatchServiceTest {
         assertThatExceptionOfType(AccessDeniedException.class)
             .isThrownBy(() -> matchService.concedeMatch(matchToConcede, playerNotInTheMatch))
             .withMessage("Not in this match");
+        verify(matchRepository, never()).save(any(Match.class));
+        verifyNoMoreInteractions(matchRepository);
     }
 
     @ParameterizedTest
@@ -745,8 +761,6 @@ class MatchServiceTest {
     @Story("Play game")
     @EnumSource(value = TurnType.class, names = {"BINARY_FISSION", "CONTAMINATION"})
     void testConcedeMatchNegative2WithEnumSource(TurnType turnType) {
-        verify(matchRepository, never()).save(any(Match.class));
-        verifyNoMoreInteractions(matchRepository);
 
         Player player1 = new Player();
         Match matchToConcede = new Match();
@@ -756,6 +770,8 @@ class MatchServiceTest {
         assertThatExceptionOfType(AccessDeniedException.class)
             .isThrownBy(() -> matchService.concedeMatch(matchToConcede, player1))
             .withMessage("Can only concede in propagation turns");
+        verify(matchRepository, never()).save(any(Match.class));
+        verifyNoMoreInteractions(matchRepository);
     }
 
     @Test
@@ -764,8 +780,6 @@ class MatchServiceTest {
     @Owner("josbardel1(WHS7046)")
     @Story("Play game")
     void testConcedeMatchNegative3() {
-        verify(matchRepository, never()).save(any(Match.class));
-        verifyNoMoreInteractions(matchRepository);
 
         Player player1 = new Player();
         LocalDateTime endedAt = LocalDateTime.now();
@@ -777,6 +791,8 @@ class MatchServiceTest {
         assertThatExceptionOfType(AccessDeniedException.class)
             .isThrownBy(() -> matchService.concedeMatch(matchToConcede, player1))
             .withMessage("The match has already ended");
+        verify(matchRepository, never()).save(any(Match.class));
+        verifyNoMoreInteractions(matchRepository);
     }
 
     @ParameterizedTest

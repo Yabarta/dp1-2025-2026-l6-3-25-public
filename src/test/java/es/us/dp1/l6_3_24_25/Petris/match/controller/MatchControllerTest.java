@@ -1,7 +1,5 @@
 package es.us.dp1.l6_3_24_25.Petris.match.controller;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
@@ -9,56 +7,42 @@ import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
-import java.net.URI;
 import java.time.LocalDateTime;
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
-import org.springframework.web.server.ResponseStatusException;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import es.us.dp1.l6_3_24_25.Petris.configuration.SecurityConfiguration;
 import es.us.dp1.l6_3_24_25.Petris.exceptions.AccessDeniedException;
 import es.us.dp1.l6_3_24_25.Petris.match.model.Match;
+import es.us.dp1.l6_3_24_25.Petris.match.model.PetriDish;
+import es.us.dp1.l6_3_24_25.Petris.match.model.TurnType;
 import es.us.dp1.l6_3_24_25.Petris.match.service.MatchService;
 import es.us.dp1.l6_3_24_25.Petris.match.service.WebSocketMatchService;
 import es.us.dp1.l6_3_24_25.Petris.player.model.Player;
 import es.us.dp1.l6_3_24_25.Petris.player.service.PlayerService;
-import es.us.dp1.l6_3_24_25.Petris.user.Authorities;
 import es.us.dp1.l6_3_24_25.Petris.user.User;
 import es.us.dp1.l6_3_24_25.Petris.user.UserService;
+
 import io.qameta.allure.Description;
 import io.qameta.allure.Epic;
 import io.qameta.allure.Feature;
 import io.qameta.allure.Owner;
-import io.qameta.allure.Severity;
-import io.qameta.allure.SeverityLevel;
 import io.qameta.allure.Story;
 
 @Epic("Game module")
@@ -96,6 +80,68 @@ class MatchControllerTest {
         verify(playerService, times(1)).getPlayerByUser(any());
     }
 
+    private void stubCurrentPlayer(Player player) {
+        when(userService.findCurrentUser()).thenReturn(new User());
+        when(playerService.getPlayerByUser(any())).thenReturn(player);
+    }
+
+    @Test
+    @DisplayName("Should return the match with the provided id")
+    @Description("Test that if the match with the id as parameter is requested and exists, OK is returned")
+    @Owner("josbardel1(WHS7046)")
+    @Story("Create a new game")
+    @WithMockUser(username = "player", authorities = "PLAYER")
+    public void testGetMatchByIdPositive() throws Exception {
+        int id = 1;
+        Match match = new Match();
+        match.setTurnType(TurnType.BINARY_FISSION);
+
+        when(matchService.getMatchById(id)).thenReturn(match);
+
+        mvc.perform(get(BASE_URL + "/{id}", id)
+            .with(csrf()))
+            .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("Should return the not ended match with the provided code")
+    @Description("Test that if a not started match with the code as parameter is requested and exists, OK is returned")
+    @Owner("josbardel1(WHS7046)")
+    @Story("Create a new game")
+    @WithMockUser(username = "player", authorities = "PLAYER")
+    public void testGetMatchByCodePositive() throws Exception {
+        String code = "AAAA";
+        Match match = new Match();
+        match.setTurnType(TurnType.BINARY_FISSION);
+
+        when(matchService.getMatchByCode(code)).thenReturn(match);
+
+        mvc.perform(get(BASE_URL + "/code/{code}", code)
+            .with(csrf()))
+            .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("Should not create match if exception thrown")
+    @Description("Test that if an exception is thrown when creating a match, FORBIDDEN is returned")
+    @Owner("josbardel1(WHS7046)")
+    @Story("Create a new game")
+    @WithMockUser(username = "player", authorities = "PLAYER")
+    public void testCreateMatchNegative() throws Exception {
+        Boolean isPrivate = true;
+
+        when(matchService.createMatch(any(), anyBoolean())).thenThrow(new AccessDeniedException());
+
+        mvc.perform(post(BASE_URL)
+            .with(csrf())
+            .param("isPrivate", objectMapper.writeValueAsString(isPrivate)))
+            .andExpect(status().isForbidden());
+
+        verifyGetCurrentPlayer();
+        verify(playerService, never()).setIsCurrentlyInMatch(any(), any());
+        verify(webSocketMatchService, never()).broadcastLobbyState(any());
+    }
+
     @Test
     @DisplayName("Should create match and set player to currently in a match")
     @Description("Test that if a player creates a match, CREATED is returned and isCurrentlyInMatch is set to true for the creator")
@@ -103,22 +149,44 @@ class MatchControllerTest {
     @Story("Create a new game")
     @WithMockUser(username = "player", authorities = "PLAYER")
     public void testCreateMatchPositive() throws Exception {
-        boolean isPrivate = true;
+        Match match = new Match();
+        match.setTurnType(TurnType.BINARY_FISSION);
+        Player creator = new Player();
+        Boolean isPrivate = true;
+
+        stubCurrentPlayer(creator);
+        when(matchService.createMatch(creator, isPrivate)).thenReturn(match);
 
         mvc.perform(post(BASE_URL)
             .with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
             .param("isPrivate", objectMapper.writeValueAsString(isPrivate)))
             .andExpect(status().isCreated());
 
-        verifyGetCurrentPlayer();
-        verify(matchService, times(1)).createMatch(any(), eq(isPrivate));
-        verify(webSocketMatchService, times(1)).broadcastLobbyState(any());
-        verify(playerService, times(1)).setIsCurrentlyInMatch(any(), anyBoolean());
+        verify(playerService, times(1)).setIsCurrentlyInMatch(creator, true);
+        verify(webSocketMatchService, times(1)).broadcastLobbyState(match);
     }
 
-    // TODO Status 500, ni idea de por qué
-    /*
+    @Test
+    @DisplayName("Should not join match if exception thrown")
+    @Description("Test that if an exception is thrown when joining a match, FORBIDDEN is returned")
+    @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
+    @WithMockUser(username = "player", authorities = "PLAYER")
+    public void testJoinMatchNegative() throws Exception {
+        int id = 1;
+
+        when(matchService.joinMatch(any(), any(), any())).thenThrow(new AccessDeniedException());
+
+        mvc.perform(put(BASE_URL + "/{id}", id)
+            .with(csrf()))
+            .andExpect(status().isForbidden());
+
+        verify(matchService, times(1)).getMatchById(id);
+        verifyGetCurrentPlayer();
+        verify(playerService, never()).setIsCurrentlyInMatch(any(), any());
+        verify(webSocketMatchService, never()).broadcastLobbyAndMatchState(any());
+    }
+
     @Test
     @DisplayName("Should join match and set player to currently in a match")
     @Description("Test that if a player joins a match, OK is returned and isCurrentlyInMatch is set to true for that player")
@@ -128,353 +196,406 @@ class MatchControllerTest {
     public void testJoinMatchPositive() throws Exception {
         int id = 1;
         String code = "AAAA";
+        Match match = new Match();
+        match.setTurnType(TurnType.BINARY_FISSION);
+        Player playerToJoin = new Player();
+
+        when(matchService.getMatchById(id)).thenReturn(match);
+        stubCurrentPlayer(playerToJoin);
+        when(matchService.joinMatch(match, playerToJoin, code)).thenReturn(match);
 
         mvc.perform(put(BASE_URL + "/{id}", id)
             .with(csrf())
-            .contentType(MediaType.APPLICATION_JSON)
-            .param("code", objectMapper.writeValueAsString(code)))
-            .andExpect(status().isOk())
-            .andDo(print());
+            .param("code", code))
+            .andExpect(status().isOk());
 
-        verify(matchService, times(1)).getMatchById(id);
-        verifyGetCurrentPlayer();
-        verify(matchService, times(1)).joinMatch(any(), any(), eq(code));
-        verify(playerService, times(1)).setIsCurrentlyInMatch(any(), anyBoolean());
-        verify(webSocketMatchService, times(1)).broadcastLobbyAndMatchState(any());
-    }
-    */
-}
-
-
-/* TODO descomentar y aprovechar tests
-@ExtendWith(MockitoExtension.class)
-@Epic("Match module")
-@Feature("REST controller")
-@Owner("match-rest-team")
-class MatchControllerTest {
-
-    @Mock
-    private MatchService matchService;
-
-    @Mock
-    private WebSocketMatchService webSocketMatchService;
-
-    @Mock
-    private UserService userService;
-
-    @Mock
-    private PlayerService playerService;
-
-    private MatchController matchController;
-
-    @BeforeEach
-    void setup() {
-        matchController = new MatchController(matchService, webSocketMatchService, userService, playerService);
+        verify(playerService, times(1)).setIsCurrentlyInMatch(playerToJoin, true);
+        verify(webSocketMatchService, times(1)).broadcastLobbyAndMatchState(match);
     }
 
-    @AfterEach
-    void tearDownRequestContext() {
-        RequestContextHolder.resetRequestAttributes();
-    }
-
-    @SuppressWarnings("null")
     @Test
-    @DisplayName("Crear lobby privado asigna código y marca al creador")
-    @Story("Create lobby")
-    @Description("When a player creates a private lobby, a code is generated, the player state changes and notifications are broadcast.")
-    @Severity(SeverityLevel.CRITICAL)
-    void createMatch_generatesCodeForPrivateLobbyAndMarksPlayerBusy() throws Exception {
-        Player creator = buildPlayer(1, "creator", false);
-        Match persisted = new Match();
-        persisted.setId(77);
-        persisted.setCode("ABCD");
-        persisted.setPlayer1(creator);
-        persisted.setCreator(creator);
-        when(userService.findCurrentUser()).thenReturn(creator.getUser());
-        when(playerService.getPlayerByUser(creator.getUser())).thenReturn(creator);
-        when(matchService.generateLobbyCode(true)).thenReturn("ABCD");
-        ArgumentCaptor<Match> matchCaptor = ArgumentCaptor.forClass(Match.class);
-        when(matchService.createMatch(creator, true)).thenReturn(persisted);
-
-        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/api/v1/matches");
-        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
-
-        ResponseEntity<Match> response = matchController.createMatch(true);
-
-        assertEquals(HttpStatus.CREATED, response.getStatusCode());
-        Match body = response.getBody();
-        assertNotNull(body);
-        assertEquals("ABCD", body.getCode());
-        assertTrue(creator.getIsCurrentlyInMatch(), "Creator should be flagged as in match");
-        verify(playerService).save(creator);
-        verify(webSocketMatchService).broadcastLobbyState(persisted);
-        Match matchSentToService = matchCaptor.getValue();
-        assertEquals("ABCD", matchSentToService.getCode());
-        assertSame(creator, matchSentToService.getPlayer1());
-        assertSame(creator, matchSentToService.getCreator());
-        URI location = response.getHeaders().getLocation();
-        assertNotNull(location);
-        assertTrue(location.getPath().endsWith("/77"));
-    }
-
-    @SuppressWarnings("null")
-    @Test
-    @DisplayName("Crear lobby falla si el jugador ya está ocupado")
-    @Story("Create lobby")
-    @Description("A player already flagged as in-match cannot start a new lobby.")
-    @Severity(SeverityLevel.MINOR)
-    void createMatch_rejectsPlayerAlreadyInLobby() throws Exception {
-        Player creator = buildPlayer(2, "busy", true);
-        when(userService.findCurrentUser()).thenReturn(creator.getUser());
-        when(playerService.getPlayerByUser(creator.getUser())).thenReturn(creator);
-
-        assertThrows(AccessDeniedException.class, () -> matchController.createMatch(false));
-        verify(matchService, never()).createMatch(any(Player.class), any(Boolean.class));
-        verifyNoInteractions(webSocketMatchService);
-    }
-
-    @SuppressWarnings("null")
-    @Test
-    @DisplayName("joinMatch añade al segundo jugador si hay hueco")
-    @Story("Join lobby")
-    @Description("Joining an open lobby should add the guest, set flags, and broadcast the updated states.")
-    @Severity(SeverityLevel.CRITICAL)
-    void joinMatch_addsSecondPlayerWhenLobbyOpen() throws Exception {
-        Player player1 = buildPlayer(3, "host", true);
-        Player player2 = buildPlayer(4, "guest", false);
-        Match match = buildMatch(100, player1, null);
-        when(matchService.getMatchById(100)).thenReturn(match);
-        when(userService.findCurrentUser()).thenReturn(player2.getUser());
-        when(playerService.getPlayerByUser(player2.getUser())).thenReturn(player2);
-        when(matchService.joinMatch(match, playerService.getPlayerByUser(player2.getUser()), "aaaa")).thenReturn(match);
-
-        ResponseEntity<Match> response = matchController.joinMatch(100, Optional.empty());
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertSame(player2, match.getPlayer2());
-        assertTrue(player2.getIsCurrentlyInMatch());
-        verify(playerService).save(player2);
-        verify(matchService).joinMatch(match, player2, "aaaa");
-        verify(webSocketMatchService).broadcastLobbyAndMatchState(match);
-    }
-
-    @SuppressWarnings("null")
-    @Test
-    @DisplayName("joinMatch devuelve la lobby si el usuario ya está dentro")
-    @Story("Join lobby")
-    @Description("If the current user already belongs to the lobby, the controller should simply return it without changes.")
-    @Severity(SeverityLevel.NORMAL)
-    void joinMatch_returnsExistingLobbyWhenAlreadyParticipant() throws Exception {
-        Player player1 = buildPlayer(5, "self", true);
-        Match match = buildMatch(101, player1, null);
-        when(matchService.getMatchById(101)).thenReturn(match);
-        when(userService.findCurrentUser()).thenReturn(player1.getUser());
-        when(playerService.getPlayerByUser(player1.getUser())).thenReturn(player1);
-
-        ResponseEntity<Match> response = matchController.joinMatch(101, Optional.empty());
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        verify(matchService, never()).joinMatch(any(Match.class), any(Player.class), any(String.class));
-        verifyNoInteractions(webSocketMatchService);
-    }
-
-    @SuppressWarnings("null")
-    @Test
-    @DisplayName("joinMatch rechaza códigos privados incorrectos")
-    @Story("Join lobby")
-    @Description("Private lobbies must validate the invitation code before allowing entry.")
-    @Severity(SeverityLevel.NORMAL)
-    void joinMatch_rejectsWhenCodeMismatch() throws Exception {
-        Player player1 = buildPlayer(6, "lock", true);
-        Match match = buildMatch(102, player1, null);
-        match.setCode("ABCD");
-        when(matchService.getMatchById(102)).thenReturn(match);
-
-        assertThrows(AccessDeniedException.class, () -> matchController.joinMatch(102, Optional.of("WXYZ")));
-        verifyNoInteractions(webSocketMatchService);
-    }
-
-    @SuppressWarnings("null")
-    @Test
-    @DisplayName("joinMatch rechaza lobbies completos")
-    @Story("Join lobby")
-    @Description("A lobby that already has two players must reject additional participants.")
-    @Severity(SeverityLevel.NORMAL)
-    void joinMatch_rejectsFullLobby() throws Exception {
-        Player player1 = buildPlayer(7, "full", true);
-        Player player2 = buildPlayer(8, "taken", true);
-        Player intruder = buildPlayer(28, "intruder", false);
-        Match match = buildMatch(103, player1, player2);
-        when(matchService.getMatchById(103)).thenReturn(match);
-        when(userService.findCurrentUser()).thenReturn(intruder.getUser());
-        when(playerService.getPlayerByUser(intruder.getUser())).thenReturn(intruder);
-
-        assertThrows(AccessDeniedException.class, () -> matchController.joinMatch(103, Optional.empty()));
-        verifyNoInteractions(webSocketMatchService);
-    }
-
-    @SuppressWarnings("null")
-    @Test
-    @DisplayName("leaveMatch elimina invitado y actualiza flags")
-    @Story("Leave lobby")
-    @Description("When a guest leaves, their flag resets and remaining players/lobbies are notified.")
-    @Severity(SeverityLevel.CRITICAL)
-    void leaveMatch_removesPlayerAndUpdatesFlags() throws Exception {
-        Player player1 = buildPlayer(9, "host", true);
-        Player player2 = buildPlayer(10, "leaver", true);
-        Match match = buildMatch(104, player1, player2);
-        when(matchService.getMatchById(104)).thenReturn(match);
-        when(userService.findCurrentUser()).thenReturn(player2.getUser());
-        when(playerService.getPlayerByUser(player2.getUser())).thenReturn(player2);
-        when(matchService.leaveMatch(match, player2)).thenReturn(match);
-
-        ResponseEntity<Void> response = matchController.leaveMatch(104);
-
-        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
-        assertFalse(player2.getIsCurrentlyInMatch());
-        verify(playerService).save(player2);
-        verify(matchService).leaveMatch(match, player2);
-        verify(webSocketMatchService).broadcastLobbyState(match);
-    }
-
-    @SuppressWarnings("null")
-    @Test
-    @DisplayName("leaveMatch cierra la lobby al irse el último jugador")
-    @Story("Leave lobby")
-    @Description("If the last player leaves, the lobby must be closed and closure broadcasted.")
-    @Severity(SeverityLevel.CRITICAL)
-    void leaveMatch_closesLobbyWhenLastPlayerLeaves() throws Exception {
-        Player player1 = buildPlayer(29, "solo", true);
-        Match match = buildMatch(204, player1, null);
-        when(matchService.getMatchById(204)).thenReturn(match);
-        when(userService.findCurrentUser()).thenReturn(player1.getUser());
-        when(playerService.getPlayerByUser(player1.getUser())).thenReturn(player1);
-        when(matchService.leaveMatch(match, player1)).thenReturn(null);
-
-        ResponseEntity<Void> response = matchController.leaveMatch(204);
-
-        assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
-        assertFalse(player1.getIsCurrentlyInMatch());
-        verify(playerService).save(player1);
-        verify(matchService).leaveMatch(match, player1);
-        verify(webSocketMatchService).broadcastLobbyClosed(204);
-    }
-
-    @SuppressWarnings("null")
-    @Test
-    @DisplayName("leaveMatch rechaza peticiones de usuarios externos")
-    @Story("Leave lobby")
-    @Description("Only players inside the lobby can request to leave; outsiders get rejected.")
-    @Severity(SeverityLevel.NORMAL)
-    void leaveMatch_rejectsPlayerOutsideLobby() throws Exception {
-        Player player1 = buildPlayer(11, "host", true);
-        Player outsider = buildPlayer(12, "outsider", true);
-        Match match = buildMatch(105, player1, null);
-        when(matchService.getMatchById(105)).thenReturn(match);
-        when(userService.findCurrentUser()).thenReturn(outsider.getUser());
-        when(playerService.getPlayerByUser(outsider.getUser())).thenReturn(outsider);
-
-        assertThrows(AccessDeniedException.class, () -> matchController.leaveMatch(105));
-        verifyNoInteractions(webSocketMatchService);
-    }
-
-    @SuppressWarnings("null")
-    @Test
-    @DisplayName("startMatch solo permite al creador iniciar la partida")
-    @Story("Start match")
-    @Description("The lobby creator is the only one allowed to start the match, broadcasting updated state.")
-    @Severity(SeverityLevel.CRITICAL)
-    void startMatch_onlyCreatorCanStart() throws Exception {
-        Player creator = buildPlayer(13, "creator", true);
-        Player guest = buildPlayer(14, "guest", true);
-        Match match = buildMatch(106, creator, guest);
-        when(matchService.getMatchById(106)).thenReturn(match);
-        when(userService.findCurrentUser()).thenReturn(creator.getUser());
-        when(playerService.getPlayerByUser(creator.getUser())).thenReturn(creator);
-        Match started = buildMatch(106, creator, guest);
-        started.setStartedAt(LocalDateTime.now());
-        when(matchService.startMatch(match)).thenReturn(started);
-
-        ResponseEntity<Match> response = matchController.startMatch(106);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        Match body = response.getBody();
-        assertNotNull(body);
-        assertNotNull(body.getStartedAt());
-        verify(matchService).startMatch(match);
-        verify(webSocketMatchService).broadcastLobbyAndMatchState(started);
-    }
-
-    @SuppressWarnings("null")
-    @Test
-    @DisplayName("startMatch rechaza a usuarios que no son el creador")
-    @Story("Start match")
-    @Description("Non-creators attempting to start should receive an access denied error.")
-    @Severity(SeverityLevel.NORMAL)
-    void startMatch_rejectsNonCreator() throws Exception {
-        Player creator = buildPlayer(15, "creator", true);
-        Player guest = buildPlayer(16, "guest", true);
-        Player intruder = buildPlayer(17, "intruder", true);
-        Match match = buildMatch(107, creator, guest);
-        when(matchService.getMatchById(107)).thenReturn(match);
-        when(userService.findCurrentUser()).thenReturn(intruder.getUser());
-        when(playerService.getPlayerByUser(intruder.getUser())).thenReturn(intruder);
-
-        assertThrows(AccessDeniedException.class, () -> matchController.startMatch(107));
-        verifyNoInteractions(webSocketMatchService);
-    }
-
-    @SuppressWarnings("null")
-    @Test
-    @DisplayName("startMatch devuelve el estado si ya estaba iniciada")
-    @Story("Start match")
-    @Description("If the match already started, the controller returns the current state without re-triggering logic.")
-    @Severity(SeverityLevel.NORMAL)
-    void startMatch_returnsExistingWhenAlreadyStarted() throws Exception {
-        Player creator = buildPlayer(18, "creator", true);
-        Player guest = buildPlayer(19, "guest", true);
-        Match match = buildMatch(108, creator, guest);
-        match.setStartedAt(LocalDateTime.now());
-        when(matchService.getMatchById(108)).thenReturn(match);
-
-        ResponseEntity<Match> response = matchController.startMatch(108);
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        Match body = response.getBody();
-        assertNotNull(body);
-        assertSame(match, body);
-        verify(matchService, never()).startMatch(any(Match.class));
-        verifyNoInteractions(webSocketMatchService);
-    }
-
-    private Match buildMatch(int id, Player player1, Player player2) {
+    @DisplayName("Should return match if already in the match")
+    @Description("Test that if a player already in a match attempts to join that match, OK is returned")
+    @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
+    @WithMockUser(username = "player", authorities = "PLAYER")
+    public void testJoinMatchPositive2() throws Exception {
+        int id = 1;
         Match match = new Match();
-        match.setId(id);
+        match.setTurnType(TurnType.BINARY_FISSION);
+        Player playerToJoin = new Player();
+        match.setPlayer1(playerToJoin);
+
+        when(matchService.getMatchById(id)).thenReturn(match);
+        stubCurrentPlayer(playerToJoin);
+
+        mvc.perform(put(BASE_URL + "/{id}", id)
+            .with(csrf()))
+            .andExpect(status().isOk());
+
+        verify(matchService, never()).joinMatch(any(), any(), any());
+        verify(playerService, never()).setIsCurrentlyInMatch(any(), anyBoolean());
+        verify(webSocketMatchService, never()).broadcastLobbyAndMatchState(any());
+    }
+
+    @Test
+    @DisplayName("Should not leave match if exception thrown")
+    @Description("Test that if an exception is thrown when leaving a match, FORBIDDEN is returned")
+    @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
+    @WithMockUser(username = "player", authorities = "PLAYER")
+    public void testLeaveMatchNegative() throws Exception {
+        int id = 1;
+        Player player1 = new Player();
+        Player player2 = new Player();
+        Match match = new Match();
+        match.setTurnType(TurnType.BINARY_FISSION);
         match.setPlayer1(player1);
         match.setPlayer2(player2);
-        match.setCreator(player1);
-        match.setPlayer1Score(0);
-        match.setPlayer2Score(0);
-        match.setBoardState(new java.util.ArrayList<>());
-        return match;
+
+        when(matchService.getMatchById(id)).thenReturn(match);
+        when(matchService.leaveMatch(any(), any())).thenThrow(new AccessDeniedException());
+
+        mvc.perform(put(BASE_URL + "/{id}/leave", id)
+            .with(csrf()))
+            .andExpect(status().isForbidden());
+
+        verifyGetCurrentPlayer();
+        verify(playerService, never()).setIsCurrentlyInMatch(any(), any());
+        verify(webSocketMatchService, never()).broadcastLobbyState(any());
     }
 
-    private Player buildPlayer(int id, String prefix, boolean inMatch) {
-        Authorities authority = new Authorities();
-        authority.setAuthority("PLAYER");
+    @Test
+    @DisplayName("Should leave match and set player to not currently in a match")
+    @Description("Test that if a player leaves a match, NO_CONTENT is returned and isCurrentlyInMatch is set to false for that player")
+    @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
+    @WithMockUser(username = "player", authorities = "PLAYER")
+    public void testLeaveMatchPositive() throws Exception {
+        int id = 1;
+        Player player1 = new Player();
+        Player player2 = new Player();
+        Match match = new Match();
+        match.setTurnType(TurnType.BINARY_FISSION);
+        match.setPlayer1(player1);
+        match.setPlayer2(player2);
+        Player playerToLeave = player2;
 
-        User user = new User();
-        user.setId(id);
-        user.setUsername(prefix + "_user");
-        user.setAuthority(authority);
+        when(matchService.getMatchById(id)).thenReturn(match);
+        stubCurrentPlayer(playerToLeave);
+        when(matchService.leaveMatch(match, playerToLeave)).thenReturn(match);
 
+        mvc.perform(put(BASE_URL + "/{id}/leave", id)
+            .with(csrf()))
+            .andExpect(status().isNoContent());
+
+        verify(playerService, times(1)).setIsCurrentlyInMatch(playerToLeave, false);
+        verify(webSocketMatchService, times(1)).broadcastLobbyState(match);
+    }
+
+    @Test
+    @DisplayName("Should leave match and set player to not currently in a match")
+    @Description("Test that if a player leaves a match, NO_CONTENT is returned and isCurrentlyInMatch is set to false for that player")
+    @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
+    @WithMockUser(username = "player", authorities = "PLAYER")
+    public void testLeaveMatchPositive2() throws Exception {
+        int id = 1;
+        Match match = new Match();
+        match.setTurnType(TurnType.BINARY_FISSION);
+        Player playerToLeave = new Player();
+
+        when(matchService.getMatchById(id)).thenReturn(match);
+        stubCurrentPlayer(playerToLeave);
+
+        mvc.perform(put(BASE_URL + "/{id}/leave", id)
+            .with(csrf()))
+            .andExpect(status().isNoContent());
+        
+        verify(matchService, times(1)).leaveMatch(match, playerToLeave);
+        verify(playerService, times(1)).setIsCurrentlyInMatch(playerToLeave, false);
+        verify(webSocketMatchService, times(1)).broadcastLobbyClosed(id);
+    }
+
+    @Test
+    @DisplayName("Should not start match if exception thrown")
+    @Description("Test that if an exception is thrown when leaving a match, FORBIDDEN is returned")
+    @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
+    @WithMockUser(username = "player", authorities = "PLAYER")
+    public void testStartMatchNegative() throws Exception {
+        int id = 1;
+        Player creator = new Player();
+        Match match = new Match();
+        match.setTurnType(TurnType.BINARY_FISSION);
+        match.setCreator(creator);
+
+        when(matchService.getMatchById(id)).thenReturn(match);
+        stubCurrentPlayer(creator);
+        when(matchService.startMatch(any())).thenThrow(new AccessDeniedException());
+
+        mvc.perform(put(BASE_URL + "/{id}/start", id)
+            .with(csrf()))
+            .andExpect(status().isForbidden());
+
+        verify(webSocketMatchService, never()).broadcastLobbyAndMatchState(any());
+    }
+
+    @Test
+    @DisplayName("Should not start match only if non-creator requested")
+    @Description("Test that if a non-creator attempts to start the match, FORBIDDEN is returned")
+    @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
+    @WithMockUser(username = "player", authorities = "PLAYER")
+    public void testStartMatchNegative2() throws Exception {
+        int id = 1;
+        Player notCreator = new Player();
+        Match match = new Match();
+        match.setTurnType(TurnType.BINARY_FISSION);
+
+        when(matchService.getMatchById(id)).thenReturn(match);
+        stubCurrentPlayer(notCreator);
+
+        mvc.perform(put(BASE_URL + "/{id}/start", id)
+            .with(csrf()))
+            .andExpect(status().isForbidden());
+        
+        verify(matchService, never()).startMatch(any());
+        verify(webSocketMatchService, never()).broadcastLobbyAndMatchState(any());
+    }
+
+    @Test
+    @DisplayName("Should start match if creator requested")
+    @Description("Test that if the creator attempts to start the match, the match starts and OK is returned")
+    @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
+    @WithMockUser(username = "player", authorities = "PLAYER")
+    public void testStartMatchPositive() throws Exception {
+        int id = 1;
+        Player creator = new Player();
+        Match match = new Match();
+        match.setTurnType(TurnType.BINARY_FISSION);
+        match.setCreator(creator);
+
+        when(matchService.getMatchById(id)).thenReturn(match);
+        stubCurrentPlayer(creator);
+        when(matchService.startMatch(match)).thenReturn(match);
+
+        mvc.perform(put(BASE_URL + "/{id}/start", id)
+            .with(csrf()))
+            .andExpect(status().isOk());
+        
+        verify(webSocketMatchService, times(1)).broadcastLobbyAndMatchState(match);
+    }
+
+    @Test
+    @DisplayName("Should return match if creator requested starting when already started")
+    @Description("Test that if the creator attempts to start an already started match, OK is returned")
+    @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
+    @WithMockUser(username = "player", authorities = "PLAYER")
+    public void testStartMatchPositive2() throws Exception {
+        int id = 1;
+        Player creator = new Player();
+        Match match = new Match();
+        match.setTurnType(TurnType.BINARY_FISSION);
+        match.setCreator(creator);
+        match.setStartedAt(LocalDateTime.now());
+
+        when(matchService.getMatchById(id)).thenReturn(match);
+        stubCurrentPlayer(creator);
+
+        mvc.perform(put(BASE_URL + "/{id}/start", id)
+            .with(csrf()))
+            .andExpect(status().isOk());
+        
+        verify(matchService, never()).startMatch(any());
+        verify(webSocketMatchService, never()).broadcastLobbyAndMatchState(any());
+    }
+
+    @Test
+    @DisplayName("Should not advance turn if not the player's propagation turn")
+    @Description("Test that if a player attempts to advance the turn of a match with turnType propagation of the other player, FORBIDDEN is returned")
+    @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
+    @WithMockUser(username = "player", authorities = "PLAYER")
+    public void testNextTurnNegative() throws Exception {
+        int id = 1;
+        Player player2 = new Player();
+        Match match = new Match();
+        match.setTurnType(TurnType.P1_PROPAGATION);
+        match.setPlayer2(player2);
+
+        when(matchService.getMatchById(id)).thenReturn(match);
+        stubCurrentPlayer(player2);
+
+        mvc.perform(put(BASE_URL + "/{id}/nextTurn", id)
+            .with(csrf()))
+            .andExpect(status().isForbidden());
+
+        verify(matchService, never()).nextTurn(any(), any());
+        verify(playerService, never()).setIsCurrentlyInMatch(any(), anyBoolean());
+        verify(webSocketMatchService, never()).broadcastMatchEnded(any());
+        verify(webSocketMatchService, never()).publishMatchSnapshot(any());
+    }
+
+    @Test
+    @DisplayName("Should not advance turn if exception thrown")
+    @Description("Test that if an exception is thrown when advancing turn, FORBIDDEN is returned")
+    @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
+    @WithMockUser(username = "player", authorities = "PLAYER")
+    public void testNextTurnNegative2() throws Exception {
+        int id = 1;
+        Player player1 = new Player();
+        Match match = new Match();
+        match.setTurnType(TurnType.P1_PROPAGATION);
+        match.setPlayer2(player1);
+
+        when(matchService.getMatchById(id)).thenReturn(match);
+        stubCurrentPlayer(player1);
+        when(matchService.nextTurn(match, null)).thenThrow(new AccessDeniedException());
+
+        mvc.perform(put(BASE_URL + "/{id}/nextTurn", id)
+            .with(csrf()))
+            .andExpect(status().isForbidden());
+
+        verify(playerService, never()).setIsCurrentlyInMatch(any(), anyBoolean());
+        verify(webSocketMatchService, never()).broadcastMatchEnded(any());
+        verify(webSocketMatchService, never()).publishMatchSnapshot(any());
+    }
+
+    @Test
+    @DisplayName("Should advance turn if appropriate player")
+    @Description("Test that if turnType is the propagation of the requesting player, the turn advances and OK is returned")
+    @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
+    @WithMockUser(username = "player", authorities = "PLAYER")
+    public void testNextTurnPositive() throws Exception {
+        int id = 1;
+        Player player1 = new Player();
+        Player player2 = new Player();
+        Match match = new Match();
+        match.setTurnType(TurnType.P1_PROPAGATION);
+        match.setPlayer1(player1);
+        match.setPlayer2(player2);
+
+        when(matchService.getMatchById(id)).thenReturn(match);
+        stubCurrentPlayer(player1);
+        when(matchService.nextTurn(match, null)).thenReturn(match);
+
+        mvc.perform(put(BASE_URL + "/{id}/nextTurn", id)
+            .with(csrf()))
+            .andExpect(status().isOk());
+
+        verify(playerService, never()).setIsCurrentlyInMatch(any(), anyBoolean());
+        verify(webSocketMatchService, never()).broadcastMatchEnded(any());
+        verify(webSocketMatchService, times(1)).publishMatchSnapshot(match);
+    }
+
+    @Test
+    @DisplayName("Should set players not in a match after it ends")
+    @Description("Test that if a valid turn advance results in the end of the match, the turn advances, isCurrentlyInMatch is set to false for both players and OK is returned")
+    @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
+    @WithMockUser(username = "player", authorities = "PLAYER")
+    public void testNextTurnPositive2() throws Exception {
+        int id = 1;
+        Player player1 = new Player();
+        Player player2 = new Player();
+        Match match = new Match();
+        match.setTurnType(TurnType.CONTAMINATION);
+        match.setPlayer1(player1);
+        match.setPlayer2(player2);
+        Match endedMatch = new Match();
+        endedMatch.setTurnType(TurnType.CONTAMINATION);
+        endedMatch.setEndedAt(LocalDateTime.now());
+
+        when(matchService.getMatchById(id)).thenReturn(match);
+        stubCurrentPlayer(player1);
+        match.setEndedAt(LocalDateTime.now());
+        when(matchService.nextTurn(match, null)).thenReturn(endedMatch);
+
+        mvc.perform(put(BASE_URL + "/{id}/nextTurn", id)
+            .with(csrf()))
+            .andExpect(status().isOk());
+
+        verify(playerService, times(2)).setIsCurrentlyInMatch(any(), eq(false));
+        verify(webSocketMatchService, times(1)).broadcastMatchEnded(endedMatch);
+        verify(webSocketMatchService, never()).publishMatchSnapshot(any());
+    }
+
+    @Test
+    @DisplayName("Should return propagation errors")
+    @Description("Test that when propagation errors are requested, OK is returned")
+    @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
+    @WithMockUser(username = "player", authorities = "PLAYER")
+    public void testCheckErrorsPositive() throws Exception {
+        int id = 1;
         Player player = new Player();
-        player.setId(id);
-        player.setNickname(prefix + "_nick");
-        player.setEmail(prefix + "@example.com");
-        player.setIsCurrentlyInMatch(inMatch);
-        player.setUser(user);
-        return player;
+        Match match = new Match();
+        match.setTurnType(TurnType.P1_PROPAGATION);
+        List<PetriDish> newBoardState = new ArrayList<>();
+
+        when(matchService.getMatchById(id)).thenReturn(match);
+        stubCurrentPlayer(player);
+        when(matchService.checkErrors(match, newBoardState, player)).thenReturn(new ArrayList<>());
+
+        mvc.perform(get(BASE_URL + "/{id}/checkErrors", id)
+            .with(csrf())
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(newBoardState)))
+            .andExpect(status().isOk());
+        
+        verify(matchService, times(1)).checkErrors(match, newBoardState, player);
+    }
+
+    @Test
+    @DisplayName("Should concede match for requesting player")
+    @Description("Test that when a player requests to concede a match, it ends and OK is returned")
+    @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
+    @WithMockUser(username = "player", authorities = "PLAYER")
+    public void testConcedeMatchPositive() throws Exception {
+        int id = 1;
+        Player player = new Player();
+        Match match = new Match();
+        match.setTurnType(TurnType.P1_PROPAGATION);
+
+        when(matchService.getMatchById(id)).thenReturn(match);
+        stubCurrentPlayer(player);
+        when(matchService.concedeMatch(match, player)).thenReturn(match);
+
+        mvc.perform(put(BASE_URL + "/{id}/endMatch", id)
+            .with(csrf())
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk());
+        
+        verify(playerService, times(2)).setIsCurrentlyInMatch(any(), eq(false));
+        verify(webSocketMatchService, times(1)).broadcastMatchEnded(match);
+    }
+
+    @Test
+    @DisplayName("Should delete match for requesting admin")
+    @Description("Test that when an administrator requests to delete a match, it is deleted and NO_CONTENT is returned")
+    @Owner("josbardel1(WHS7046)")
+    @Story("Play game")
+    @WithMockUser(username = "admin", authorities = "ADMIN")
+    public void testDeleteMatchPositive() throws Exception {
+        int id = 1;
+        Match match = new Match();
+        match.setTurnType(TurnType.P1_PROPAGATION);
+
+        when(matchService.getMatchById(id)).thenReturn(match);
+
+        mvc.perform(delete(BASE_URL + "/delete/{id}", id)
+            .with(csrf())
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isNoContent());
+        
+        verify(matchService, times(1)).delete(id);
+        verify(playerService, times(2)).setIsCurrentlyInMatch(any(), eq(false));
+        verify(webSocketMatchService, times(1)).broadcastLobbyClosed(id);
     }
 }
-*/

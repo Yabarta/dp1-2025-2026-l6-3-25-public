@@ -13,7 +13,7 @@ public interface MatchRepository extends CrudRepository<Match, Integer> {
 
     List<Match> findByStartedAtNull();
 
-    Optional<Match> findByCode(String code);
+    Optional<Match> findByCodeAndEndedAtNotNull(String code);
 
     List<Match> findByEndedAtNullAndStartedAtNotNull();
 }
