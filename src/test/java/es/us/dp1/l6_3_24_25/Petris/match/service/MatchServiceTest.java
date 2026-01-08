@@ -125,9 +125,9 @@ class MatchServiceTest {
     @Severity(SeverityLevel.NORMAL)
     void testGetMatchByCode() {
         String code = "TRJU";
-        when(matchRepository.findByCodeAndEndedAtNotNull(code)).thenReturn(Optional.of(new Match()));
+        when(matchRepository.findByCodeAndEndedAtNull(code)).thenReturn(Optional.of(new Match()));
         matchService.getMatchByCode(code);
-        verify(matchRepository, times(1)).findByCodeAndEndedAtNotNull(code);
+        verify(matchRepository, times(1)).findByCodeAndEndedAtNull(code);
     }
 
     @Test
