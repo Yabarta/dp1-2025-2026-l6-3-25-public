@@ -49,7 +49,6 @@ export default function ProfileScreen() {
     const [UserAchievements, , userAchievementsLoading] = useFetchState([], userAchievementsUrl, jwt, setMessage, setVisible, playerData?.id);
     const statsUrl = playerData?.id ? `/api/v1/players/${playerData.id}/statistics` : "";
     const [playerStats, , statsLoading] = useFetchState([], statsUrl, jwt, setMessage, setVisible, playerData?.id);
-    console.log("Player Stats:", playerStats);
 
     // Effects
     useEffect(() => {

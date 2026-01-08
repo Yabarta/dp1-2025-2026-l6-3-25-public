@@ -3,7 +3,7 @@ import { Stomp } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import './chatStyles.css'
 
-export default function Chat(props){
+export default function Chat({nickname, id}) {
     const [messages, setMessages] = useState([])
     const [message, setMessage] = useState('')
     const [stompClient, setStompClient] = useState([])
@@ -13,7 +13,7 @@ export default function Chat(props){
         const client = Stomp.over(socket);
 
         client.connect({}, () => {
-            client.subscribe('/topic/messages', (message) => {
+            client.subscribe(`/topic/messages/${id}`, (message) => {
                 const receivedMessage = JSON.parse(message.body)
                 setMessages((prevMessages) => [...prevMessages, receivedMessage])
             })
@@ -22,7 +22,7 @@ export default function Chat(props){
         return () =>{
             client.disconnect()
         }
-    }, [])
+    }, [id])
 
     const handleMessageChange = (msg) => {
         setMessage(msg.target.value)
@@ -31,10 +31,10 @@ export default function Chat(props){
     const sendMessage = () => {
         if(message.trim()){
             const chatMessage = {
-                nickname: props.nickname,
+                nickname: nickname,
                 message: message.trim()
             }
-            stompClient.send('/app/chat', {}, JSON.stringify(chatMessage))
+            stompClient.send(`/app/chat/${id}`, {}, JSON.stringify(chatMessage))
             setMessage('')
         }
     }

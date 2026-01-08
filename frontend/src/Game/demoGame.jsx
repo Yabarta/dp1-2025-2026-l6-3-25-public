@@ -231,7 +231,6 @@ export default function Game({onBackToMenu}) {
         setGameState(prev => ({ ...prev, winner: gameState.players[0].name }));
       }
       if(timeLeft === 0){
-        console.log(gameState.players[0].name, jwt_decode(jwt).sub, turnOrder[gameState.currentPhaseIndex])
         if(gameState.players[0].name === jwt_decode(jwt).sub && turnOrder[gameState.currentPhaseIndex] == "J1"){
           setGameState(prev => ({ ...prev, winner: gameState.players[1].name }));
         } else if (gameState.players[1].name === jwt_decode(jwt).sub && turnOrder[gameState.currentPhaseIndex] == "J2"){
