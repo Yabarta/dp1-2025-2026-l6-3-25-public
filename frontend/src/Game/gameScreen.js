@@ -193,7 +193,6 @@ export default function GameScreen() {
   const currentPlayerKey = isPlayer1 ? 'player1Bacteria' : isPlayer2 ? 'player2Bacteria' : 'player1Bacteria';
   const opponentPlayerKey = currentPlayerKey === 'player1Bacteria' ? 'player2Bacteria' : 'player1Bacteria';
   const isPropagationTurn = match?.turnType === 'P1_PROPAGATION' || match?.turnType === 'P2_PROPAGATION';
-  console.log('match', match);
   const isMyPropagationTurn = (match?.turnType === 'P1_PROPAGATION' && isPlayer1) || (match?.turnType === 'P2_PROPAGATION' && isPlayer2);
   const canEditBoard = Boolean(isMyPropagationTurn && !match?.endedAt);
   const waitingForPlayer = useMemo(() => !match || !match.player2, [match]);
@@ -216,7 +215,6 @@ export default function GameScreen() {
   const isMyTurn = Boolean(match && !matchEnded && (isPropagationTurn ? isMyPropagationTurn : iAmParticipant));
   const totalTurnPhases = TURN_SEQUENCE.length;
   const rawTurnIndex = typeof match?.turn === 'number' ? match.turn : -1;
-  console.log('Turnosiguiente', rawTurnIndex+1);
   const consumedAllPhases = rawTurnIndex >= totalTurnPhases;
   const clampedTurnIndex = rawTurnIndex >= 0
     ? Math.min(rawTurnIndex, totalTurnPhases - 1)
@@ -624,7 +622,8 @@ export default function GameScreen() {
           <div className="chatList" style={{
             height: '85%'
             }}>
-            <Chat nickname={nickname}/>
+            <Chat nickname={nickname}
+            id = {id}/>
           </div>
         }
         {waitingForPlayer && (

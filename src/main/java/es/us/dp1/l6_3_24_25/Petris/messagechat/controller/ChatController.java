@@ -7,6 +7,8 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+
+import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
@@ -26,9 +28,9 @@ public class ChatController {
                 mediaType = "application/json")}),
         @ApiResponse(responseCode = "400", description = "Invalid message format", content = @Content(schema = @Schema()))
     })
-    @MessageMapping("/chat")
-    @SendTo("/topic/messages")
-    public ChatMessage sendMessage(@Payload ChatMessage chatMessage){
+    @MessageMapping("/chat/{id}")
+    @SendTo("/topic/messages/{id}")
+    public ChatMessage sendMessage(@DestinationVariable String id, @Payload ChatMessage chatMessage){
         chatMessage.setTimeStamp(new Date());
         return chatMessage;
     }
