@@ -18,6 +18,13 @@ jobs:
           git config --global user.email "perezsornipablo@gmail.com"
           git config --global user.name "Yabarta"
           
-          git remote add publico https://Yabarta:${{ secrets.API_TOKEN_GITHUB }}@github.com/gii-is-DP1/dp1-2025-2026-l6-3-25-public.git
-          
-          git push publico main --force
+          # Verificar que el PAT tiene acceso al repo público
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" -H "Authorization: token ${{ secrets.API_TOKEN_GITHUB }}" https://api.github.com/repos/gii-is-DP1/dp1-2025-2026-l6-3-25-public)
+          if [ "$STATUS" != "200" ]; then
+            echo "ERROR: El token no tiene acceso al repositorio público (HTTP $STATUS). Comprueba el PAT y la autorización SSO si aplica."
+            exit 1
+          fi
+
+          # Añadir remoto usando el token (usuario genérico) y empujar la rama actual a main
+          git remote add publico https://x-access-token:${{ secrets.API_TOKEN_GITHUB }}@github.com/gii-is-DP1/dp1-2025-2026-l6-3-25-public.git
+          git push publico HEAD:main --force
