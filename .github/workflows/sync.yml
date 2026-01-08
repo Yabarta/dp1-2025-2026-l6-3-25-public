@@ -1,25 +1,23 @@
-name: Sincronizar con Repo Público
+name: Sincronizar Manualmente
 
 on:
   push:
-    branches: [ main ] 
+    branches: [ main ]
 
 jobs:
-  build:
+  copy-file:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout del código
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Push a repositorio público
-        uses: cpina/github-action-push-to-another-repository@main
-        env:
-          API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
-        with:
-          source-directory: '.'
-          destination-github-username: 'gii-is-DP1'
-          destination-repository-name: 'dp1-2025-2026-l6-3-25-public'
-          user-email: 'perezsornipablo@gmail.com'
-          user-name: 'Pablo Perez Sorni'
-          target-branch: main 
+      - name: Empujar al repositorio público
+        run: |
+          git config --global user.email "perezsornipablo@gmail.com"
+          git config --global user.name "Yabarta"
+          
+          git remote add publico https://Yabarta:${{ secrets.API_TOKEN_GITHUB }}@github.com/gii-is-DP1/dp1-2025-2026-l6-3-25-public.git
+          
+          git push publico main --force
