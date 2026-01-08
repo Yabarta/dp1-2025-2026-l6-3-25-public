@@ -146,13 +146,11 @@ public class MatchController {
             Player currentPlayer = getCurrentPlayer();
 
             Match updatedMatch = null;
+            updatedMatch = matchService.leaveMatch(matchToUpdate, currentPlayer);
+            
             if (matchToUpdate.isFull()) {
-                updatedMatch = matchService.leaveMatch(matchToUpdate, currentPlayer);
-
                 webSocketMatchService.broadcastLobbyState(Objects.requireNonNull(updatedMatch));
             } else {
-                matchService.delete(id);
-
                 webSocketMatchService.broadcastLobbyClosed(id);
             }
 
@@ -195,10 +193,10 @@ public class MatchController {
             @Valid @RequestBody(required = false) Optional<List<PetriDish>> newBoardState) {
 
         try {
-            Player currentPlayer = getCurrentPlayer();
             Match matchToUpdate = matchService.getMatchById(id);
+            Player currentPlayer = getCurrentPlayer();
 
-            if (!matchToUpdate.isTurnOf(currentPlayer) && !matchToUpdate.isFissionOrContaminationTurn(currentPlayer)) {
+            if (!matchToUpdate.isTurnOf(currentPlayer) && matchToUpdate.isInPropagationTurn()) {
                 return new ResponseEntity<>("It's not your turn", HttpStatus.FORBIDDEN);
             }
             
@@ -225,8 +223,8 @@ public class MatchController {
             @Valid @RequestBody List<PetriDish> newBoardState) {
 
         try {
-            Player currentPlayer = getCurrentPlayer();
             Match matchToCheck = matchService.getMatchById(id);
+            Player currentPlayer = getCurrentPlayer();
             
             List<String> errors = matchService.checkErrors(matchToCheck, newBoardState, currentPlayer);
 
@@ -240,8 +238,8 @@ public class MatchController {
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<?> concedeMatch(@PathVariable(required = true) Integer id) {
         try {
-            Player currentPlayer = getCurrentPlayer();
             Match matchToUpdate = matchService.getMatchById(id);
+            Player currentPlayer = getCurrentPlayer();
 
             Match updatedMatch = matchService.concedeMatch(matchToUpdate, currentPlayer);
 
@@ -256,7 +254,7 @@ public class MatchController {
         }
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/delete/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public ResponseEntity<?> deleteMatch(@PathVariable(required = true) Integer id) {
         try {
