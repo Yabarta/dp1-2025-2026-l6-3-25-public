@@ -29,6 +29,13 @@ import java.util.UUID;
 import es.us.dp1.l6_3_24_25.Petris.exceptions.ResourceNotFoundException;
 import jakarta.annotation.PostConstruct;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 
 
 @RestController
@@ -41,7 +48,7 @@ public class PlayerController {
     public PlayerController(PlayerService ps){
         this.playerservice = ps;
     }
-    
+
     @PostConstruct
     public void init() {
         try {
@@ -54,36 +61,104 @@ public class PlayerController {
         }
     }
 
+
+    @Operation(
+        summary = "Retrieve all players",
+        tags = { "players", "get all" }
+    )
+    @ApiResponses(
+        @ApiResponse(responseCode = "200", description = "Players found", content = { @Content(schema = @Schema(implementation = Player.class),
+                mediaType = "application/json")})
+    )
     @GetMapping
     public ResponseEntity<List<Player>> getAllPlayers() {
         return new ResponseEntity<>(playerservice.getAllPlayers(), HttpStatus.OK);
     }
 
+
+    @Operation(
+        summary = "Retrieve a player by ID",
+        tags = { "players", "get by id" }
+    )
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Player found", content = { @Content(schema = @Schema(implementation = Player.class),
+                mediaType = "application/json")}),
+        @ApiResponse(responseCode = "404", description = "Player not found", content = @Content(schema = @Schema()))
+    })
     @GetMapping("/{id}")
     public ResponseEntity<Player> getPlayerById(@PathVariable("id") Integer id) {
         return new ResponseEntity<>(playerservice.getPlayerById(id) , HttpStatus.OK);
     }
 
+
+    @Operation(
+        summary = "Retrieve player statistics by ID",
+        tags = { "players", "get by id" }
+    )
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Statistics found", content = { @Content(schema = @Schema(implementation = Statistics.class),
+                mediaType = "application/json")}),
+        @ApiResponse(responseCode = "404", description = "Player not found", content = @Content(schema = @Schema()))
+    })
     @GetMapping("/{id}/statistics")
     public ResponseEntity<Statistics> getPlayerStatsById(@PathVariable("id") Integer id) {
         return new ResponseEntity<>(playerservice.getPlayerById(id).getStatistics(), HttpStatus.OK);
     }
 
+    @Operation(
+        summary = "Retrieve player achievements by ID",
+        tags = { "players", "get by id" }
+    )
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Achievements found", content = { @Content(schema = @Schema(implementation = Achievement.class),
+                mediaType = "application/json")}),
+        @ApiResponse(responseCode = "404", description = "Player not found", content = @Content(schema = @Schema()))
+    })
     @GetMapping("/{id}/achievements")
     public ResponseEntity<List<Achievement>> getPlayerAchievementById(@PathVariable("id") Integer id) {
         return new ResponseEntity<>(playerservice.getPlayerById(id).getAchievements(), HttpStatus.OK);
     }
 
+
+    @Operation(
+        summary = "Retrieve a player by nickname",
+        tags = { "players", "get by nickname" }
+    )
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Player found", content = { @Content(schema = @Schema(implementation = Player.class),
+                mediaType = "application/json")}),
+        @ApiResponse(responseCode = "404", description = "Player not found", content = @Content(schema = @Schema()))
+    })
     @GetMapping("/nickname/{nickname}")
     public ResponseEntity<Player> getPlayerByNickname(@PathVariable("nickname") String nickname) {
         return new ResponseEntity<>(playerservice.getPlayerByNickname(nickname), HttpStatus.OK);
     }
 
+
+    @Operation(
+        summary = "Retrieve a player by username",
+        tags = { "players", "get by username" }
+    )
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Player found", content = { @Content(schema = @Schema(implementation = Player.class),
+                mediaType = "application/json")}),
+        @ApiResponse(responseCode = "404", description = "Player not found", content = @Content(schema = @Schema()))
+    })
     @GetMapping("/user/{username}")
     public ResponseEntity<Player> getPlayerByUsername(@PathVariable("username") String username) {
         return new ResponseEntity<>(playerservice.getPlayerByUsername(username), HttpStatus.OK);
     }
 
+
+    @Operation(
+        summary = "Create a new player",
+        tags = { "players", "create" }
+    )
+    @ApiResponses({
+        @ApiResponse(responseCode = "201", description = "Player created", content = { @Content(schema = @Schema(implementation = Player.class),
+                mediaType = "application/json")}),
+        @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(schema = @Schema()))
+    })
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<Player> createPlayer(@Valid @RequestBody Player player) {
@@ -97,6 +172,16 @@ public class PlayerController {
         return ResponseEntity.created(location).body(player);
     }
 
+
+    @Operation(
+        summary = "Update a player",
+        tags = { "players", "update" }
+    )
+    @ApiResponses({
+        @ApiResponse(responseCode = "204", description = "Player updated", content = { @Content(schema = @Schema(implementation = Player.class),
+                mediaType = "application/json")}),
+        @ApiResponse(responseCode = "404", description = "Player not found", content = @Content(schema = @Schema()))
+    })
     @PutMapping("/{id}")
     public ResponseEntity<Void> updatePlayer(@Valid @RequestBody Player player, @PathVariable("id") Integer id) {
         Player playerToUpdate = playerservice.getPlayerById(id);
@@ -106,8 +191,18 @@ public class PlayerController {
         return ResponseEntity.noContent().build();
     }
 
+
+    @Operation(
+        summary = "Update a player with profile picture",
+        tags = { "players", "update with image" }
+    )
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Player updated", content = { @Content(schema = @Schema(implementation = Player.class),
+                mediaType = "application/json")}),
+        @ApiResponse(responseCode = "404", description = "Player not found", content = @Content(schema = @Schema()))
+    })
     @PutMapping(value = "/{id}", consumes = "multipart/form-data")
-    public ResponseEntity<Player> updatePlayerWithImage(@PathVariable("id") Integer id, 
+    public ResponseEntity<Player> updatePlayerWithImage(@PathVariable("id") Integer id,
                                                         @RequestParam(value = "profilePicture", required = false) MultipartFile file,
                                                         @RequestParam(value = "nickname", required = false) String nickname,
                                                         @RequestParam(value = "email", required = false) String email) {
@@ -145,15 +240,15 @@ public class PlayerController {
         }
     }
 
-    @PutMapping("/{id}/statistics/{statId}")
-    @ResponseStatus(HttpStatus.OK)
-    public void updatePlayerStat(@PathVariable("id") Integer id, @PathVariable("statId") Integer statId, @Valid @RequestBody Statistics stat) {
-        Player player = playerservice.getPlayerById(id);
-        Statistics statToUpdate = player.getStatistics();
-        BeanUtils.copyProperties(stat, statToUpdate, "id");
-        playerservice.save(player);
-    }
 
+    @Operation(
+        summary = "Delete a player",
+        tags = { "players", "delete" }
+    )
+    @ApiResponses({
+        @ApiResponse(responseCode = "204", description = "Player deleted", content = @Content(schema = @Schema())),
+        @ApiResponse(responseCode = "404", description = "Player not found", content = @Content(schema = @Schema()))
+    })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePlayer(@PathVariable("id") Integer id){
         if(getPlayerById(id)!=null){

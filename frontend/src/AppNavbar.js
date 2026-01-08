@@ -38,7 +38,7 @@ function AppNavbar() {
     }, [username]);
 
     let adminLinks = <></>;
-    let ownerLinks = <></>;
+    let playerLinks = <></>;
     let userLinks = <></>;
     let userLogout = <></>;
     let publicLinks = <></>;
@@ -56,23 +56,11 @@ function AppNavbar() {
                     
                 </>
             )
-        }
-        else {
-            userLinks = (
-            
-            <>
-                <NavItem>
-                    <Button style={{ color: "white" }} id="friends-btn" onClick={toggleMenu} className="btn btn-link nav-link">Friends</Button>
-                </NavItem>
-                <NavItem>
-                    <NavLink style={{ color: "white" }} id="comparator" tag={Link} to="/comparator">Comparador</NavLink>
-                </NavItem>
-                <NavItem>
-                    <NavLink style={{ color: "white" }} id="statistics" tag={Link} to="/ranking">Ranking</NavLink>
-                </NavItem>
-
-            </>)
-        }
+        } else {playerLinks = (
+            <NavItem>
+                <NavLink style={{ color: "white" }} id="comparator" tag={Link} to="/comparator">Comparador</NavLink>
+            </NavItem>
+        )}
     })
 
     if (!jwt) {
@@ -88,6 +76,13 @@ function AppNavbar() {
             </>
         )
     } else {
+        userLinks = (
+            <>
+                <NavItem>
+                    <NavLink style={{ color: "white" }} id="achievement" tag={Link} to="/achievements">Achievements</NavLink>
+                </NavItem>
+            </>
+        )
         userLogout = (
             <>
                 <NavbarText style={{ color: "white" }} className="justify-content-end">{username}</NavbarText>
@@ -104,14 +99,14 @@ function AppNavbar() {
             <Navbar expand="md" dark color="dark">
                 <NavbarBrand tag={Link} to="/">
                     <img alt="logo" src={mitosisImg} style={{ height: 40, width: 40, paddingRight: 8 }} />
-                    Petris
+                    <texto style={{ color: "#00b318ff", fontWeight: "bold"}}>Inicio</texto>
                 </NavbarBrand>
                 <NavbarToggler onClick={toggleNavbar} className="ms-2" />
                 <Collapse isOpen={!collapsed} navbar>
                     <Nav className="me-auto mb-2 mb-lg-0" navbar>
                         {userLinks}
                         {adminLinks}
-                        {ownerLinks}
+                        {playerLinks}
                     </Nav>
                     <Nav className="ms-auto mb-2 mb-lg-0" navbar>
                         {publicLinks}

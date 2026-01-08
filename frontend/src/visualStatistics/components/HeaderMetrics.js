@@ -1,11 +1,16 @@
 import React from 'react';
 import GlassPanel from './GlassPanel';
 import { useNavigate } from 'react-router-dom';
+import tokenService from '../../services/token.service';
+import jwt_decode from "jwt-decode";
 
 
 export default function Header({ gamesSize, timePlayed, sarcines, playersRegistered }) {
 
     const navigate = useNavigate()
+    const jwt = tokenService.getLocalAccessToken();
+    const isPlayer = jwt ? jwt_decode(jwt).authorities.includes("PLAYER") : false;
+
 
     const navigateToComparator = () => {
         navigate('/comparator')
@@ -23,7 +28,7 @@ export default function Header({ gamesSize, timePlayed, sarcines, playersRegiste
                     <small className="" style={{ letterSpacing: '2px', fontSize: '0.7rem', color: 'white' }}>SISTEMA DE CONTROL</small>
                 </div>
             </div>
-            <button class="search-btn" onClick={() => { navigateToComparator() }}>¡¡Compara tus estadísticas!!</button>
+            {isPlayer && <button class="search-btn" onClick={() => { navigateToComparator() }}>¡¡Compara tus estadísticas!!</button>}
         </div>
 
         {/* KPI GRID */}

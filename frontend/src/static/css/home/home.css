@@ -1,109 +1,180 @@
+:root {
+    --petris-green: #22c55e;
+    --petris-green-dark: #15803d;
+    --petris-bg-dark: #020617;
+    --petris-panel-bg: rgba(15, 23, 42, 0.85);
+    --petris-text: #f8fafc;
+    --petris-text-muted: #94a3b8;
+    --petris-border: rgba(34, 197, 94, 0.3);
+}
+
 .homePageContainer{
     position: absolute;
     top: 60px;
     left: 0;
     right: 0;
     bottom: 0;
-    z-index: -1;
-    background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url('../../images/home_background2.jpg');
+    z-index: 0;
+    background-image: linear-gradient(rgba(2, 6, 23, 0.7), rgba(2, 6, 23, 0.8)), url('../../images/mainmenu.png');
     background-size: cover;
+    background-position: center;
     display: flex;
     justify-content: center;
     align-items: center;
-}
-.heroDiv{
-    background-color: rgba(255, 255, 255, 0.3);
-    padding: 2rem;
-    border-radius: 25px;
-    backdrop-filter: blur(10px);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+    overflow: hidden;
 }
 
-.blueButton {
-    background-color: #4CAF50;
-    color: white;
-    padding: 15px 32px;
+.mainMenuCard {
+    background-color: var(--petris-panel-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--petris-border);
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(34, 197, 94, 0.1);
+    padding: 3rem;
+    border-radius: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 500px;
+    width: 90%;
+    animation: fadeIn 0.8s ease-out;
+    position: relative;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.logo-section {
+    margin-bottom: 2rem;
     text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 16px;
-    border: none;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: background-color 0.3s;
 }
 
-.blueButton:hover {
-    background-color: #45a049;
+.logo-img {
+    filter: drop-shadow(0 0 15px rgba(34, 197, 94, 0.4));
+    transition: transform 0.5s ease;
 }
 
-.mainMenu {
-    background-color: rgba(255, 255, 255, 0.3);
-    padding: 2rem;
-    border-radius: 25px;
-    backdrop-filter: blur(10px);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    min-width: 26rem;
-    height: 42rem;
+.logo-img:hover {
+    transform: scale(1.05) rotate(2deg);
 }
 
-.mainMenu h1 {
+.game-title {
+    font-family: 'Courier New', monospace; /* Or game font */
     font-size: 3rem;
-    font-weight: 700;
-    color: #ffffff;
-    text-align: center;
+    font-weight: 900;
+    color: white;
+    margin: 0;
+    letter-spacing: 4px;
+    text-shadow: 0 0 10px var(--petris-green);
+}
+
+.game-subtitle {
+    color: var(--petris-text-muted);
+    font-size: 0.9rem;
+    letter-spacing: 2px;
     text-transform: uppercase;
-    margin-bottom: 1rem;
+    margin-top: 0.5rem;
 }
 
-.menuButtonsBox {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 2.5rem;
-    align-items: center;
+.menu-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
     width: 100%;
-    height: 100%;
 }
 
-.menuButton {
-    background-color: #2196F3;
-    color: white;
-    padding: 15px 32px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 34px;
-    border: none;
-    border-radius: 12px;
+.menu-btn {
+    background: linear-gradient(45deg, rgba(34, 197, 94, 0.1), transparent);
+    border: 1px solid var(--petris-border);
+    color: var(--petris-text);
+    padding: 16px 24px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
     cursor: pointer;
-    transition: background-color 0.3s;
-    width: 20rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    position: relative;
+    overflow: hidden;
 }
 
-.menuButton:hover {
-    background-color: #1976D2;
+.menu-btn::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; width: 4px; height: 100%;
+    background-color: var(--petris-green);
+    transform: scaleY(0);
+    transition: transform 0.3s ease;
 }
 
-.backButton {
-    background-color: #f44336;
-    color: white;
-    padding: 12px 24px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 14px;
+.menu-btn:hover {
+    background: rgba(34, 197, 94, 0.2);
+    border-color: var(--petris-green);
+    transform: translateX(5px);
+    box-shadow: 0 0 15px rgba(34, 197, 94, 0.2);
+}
+
+.menu-btn:hover::before {
+    transform: scaleY(1);
+}
+
+.menu-btn.primary {
+    background: var(--petris-green);
+    color: #000;
     border: none;
-    border-radius: 12px;
+    font-weight: 800;
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.4);
+}
+
+.menu-btn.primary:hover {
+    background: #4ade80;
+    transform: scale(1.02);
+    box-shadow: 0 0 30px rgba(34, 197, 94, 0.6);
+}
+
+.menu-btn.primary::before { display: none; }
+
+.menu-footer {
+    margin-top: 2rem;
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.icon-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--petris-text-muted);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
-    transition: background-color 0.3s;
-    margin-top: 1rem;
+    transition: all 0.3s;
+}
+
+.icon-btn:hover {
+    background: var(--petris-green);
+    color: #000;
+    transform: translateY(-3px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .mainMenuCard {
+        padding: 2rem;
+        width: 95%;
+    }
+    .game-title { font-size: 2.5rem; }
 }
 
 .backButton:hover {
