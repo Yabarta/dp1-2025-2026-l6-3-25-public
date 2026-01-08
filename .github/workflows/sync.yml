@@ -18,7 +18,7 @@ jobs:
           API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
         with:
           source-directory: '.'
-          destination-github-username: 'Yabarta'
+          destination-github-username: 'gii-is-DP1'
           destination-repository-name: 'dp1-2025-2026-l6-3-25-public'
           user-email: 'perezsornipablo@gmail.com'
           user-name: 'Pablo Perez Sorni'
