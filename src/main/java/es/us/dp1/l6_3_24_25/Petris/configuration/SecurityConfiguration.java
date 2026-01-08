@@ -95,6 +95,7 @@ public class SecurityConfiguration {
 
                 // API restringida para administradores
                 .requestMatchers("/api/v1/users").hasAuthority(ADMIN)
+                .requestMatchers("/api/v1/matches/delete/**").hasAuthority(ADMIN)
 
                 // El resto denegado
                 .anyRequest().denyAll()
