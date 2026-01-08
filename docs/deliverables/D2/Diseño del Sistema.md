@@ -2650,3 +2650,135 @@ El endpoint de ranking devolvía objetos Player completos con toda su informaci�
 **Reutilización y DRY**
 - El método `getScore()` en `Statistics` es reutilizable en cualquier contexto
 
+### Refactorización 7:
+#### Descomposición de `AchievementListAdmin` en componentes especializados
+En esta refactorización hemos dividido el componente `AchievementListAdmin` en piezas más pequeñas y especializadas siguiendo el patrón Contenedor-Presentacional, separando la lógica de gestión de logros de la presentación visual.
+
+#### Estado inicial del código
+```jsx
+export default function AchievementListAdmin() {
+    const Statistics = ["games_played", "games_won", "sarcines_created", "bacterias_created", "time_played"];
+    const navigate = useNavigate();
+    const [message, setMessage] = useState(null);
+    const [visible, setVisible] = useState(false);
+    const [searchName, setSearchName] = useState("");
+    const [alerts, setAlerts] = useState([]);
+    const [editModalOpen, setEditModalOpen] = useState(false);
+    const [createModalOpen, setCreateModalOpen] = useState(false);
+    const [editingAchievement, setEditingAchievement] = useState(null);
+    const [editCondition, setEditCondition] = useState("");
+    const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [newAchievement, setNewAchievement] = useState({...});
+    
+    // ... lógica de obtención de datos, handlers y renderizado en un mismo componente
+    
+    return (
+        <div className="achievement-admin-container">
+            <div className="achievement-header">
+                ...
+            </div>
+            <Modal isOpen={createModalOpen}>
+                ...
+            </Modal>
+            <Modal isOpen={editModalOpen}>
+                ...
+            </Modal>
+            <div className="achievement-grid">
+                {filteredAchievements.map((achievement) => (
+                    <div className="achievement-card">...</div>
+                ))}
+            </div>
+        </div>
+    );
+}
+```
+
+#### Estado del código refactorizado
+```jsx
+// Componente contenedor
+export default function AchievementListAdmin() {
+    const Statistics = [...];
+    const [message, setMessage] = useState(null);
+    const [visible, setVisible] = useState(false);
+    const [searchName, setSearchName] = useState("");
+    // ... estado simplificado
+    
+    return (
+        <div className="achievement-admin-container">
+            <AchievementHeader 
+                searchName={searchName}
+                setSearchName={setSearchName}
+                onCreateClick={() => setCreateModalOpen(true)}
+            />
+            
+            <AchievementCreateModal 
+                isOpen={createModalOpen}
+                toggle={() => setCreateModalOpen(!createModalOpen)}
+                onSave={handleSaveNewAchievement}
+                statistics={Statistics}
+            />
+            
+            <AchievementEditModal 
+                isOpen={editModalOpen}
+                toggle={() => setEditModalOpen(!editModalOpen)}
+                achievement={editingAchievement}
+                onSave={handleSaveCondition}
+                statistics={Statistics}
+            />
+            
+            <AchievementGrid 
+                achievements={filteredAchievements}
+                editingAchievement={editingAchievement}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+            />
+        </div>
+    );
+}
+```
+
+#### Nuevos componentes creados
+- `frontend/src/admin/Achievements/AchievementHeader.js` — encapsula la cabecera con el título, barra de búsqueda y botón de crear logro.
+- `frontend/src/admin/Achievements/AchievementCreateModal.js` — modal presentacional para crear nuevos logros con su propia gestión de estado de formulario.
+- `frontend/src/admin/Achievements/AchievementEditModal.js` — modal presentacional para editar logros existentes.
+- `frontend/src/admin/Achievements/AchievementGrid.js` — contenedor de las tarjetas de logros que mapea la lista.
+- `frontend/src/admin/Achievements/AchievementCard.js` — componente presentacional para renderizar una tarjeta individual de logro.
+
+#### Problema que nos hizo realizar la refactorización
+El componente `AchievementListAdmin` se había convertido en una bola de más de cuatrocientas líneas de codigo que contenía:
+- Gestión de múltiples estados (búsqueda, modales, formularios)
+- Lógica de validación y peticiones HTTP
+- Renderizado de cinco secciones distintas (header, dos modales, grid y tarjetas)
+- Handlers complejos para crear, editar y eliminar logros
+
+Esto hacía el código difícil de mantener, entender y testear. Además, la reutilización de componentes como `AchievementCard` era imposible sin duplicar código.
+
+#### Ventajas que presenta la nueva versión del código respecto de la versión original
+
+##### Separación de responsabilidades (SRP)
+- `AchievementListAdmin` actúa como contenedor orquestador: gestiona estado global, handles y lógica de negocio.
+- Cada componente presentacional tiene una responsabilidad clara y única (header, modales, tarjetas).
+
+##### Legibilidad y mantenibilidad
+- El componente principal se reduce significativamente, mostrando la estructura conceptual de la página.
+- Es mucho más fácil localizar y modificar el código de una sección específica sin afectar otras.
+- Los desarrolladores nuevos pueden entender rápidamente qué hace cada pieza.
+
+##### Reutilización
+- `AchievementCard` puede emplearse en otras vistas (ranking, perfil, etc.) sin copiar código.
+- `AchievementHeader` es genérico y puede adaptarse para otras listas de administración.
+- Los modales pueden exportarse para usarlos en otros contextos.
+
+##### Testabilidad
+- Componentes presentacionales pequeños y puros son fáciles de testear en aislamiento con diferentes props.
+- La lógica de validación y peticiones HTTP en el contenedor se puede testear sin dependencias visuales.
+- Cada modal puede testearse sin el contexto completo de la página.
+
+##### Escalabilidad
+- Añadir nuevas funcionalidades (filtros, paginación, etc.) es más sencillo sin romper componentes existentes.
+- Cambios en los modales o validaciones no afectan al grid de logros.
+
+##### Mejor gestión de estado
+- El estado se distribuye lógicamente: el contenedor mantiene lo global, cada modal maneja su propio estado de formulario.
+- Esto reduce la complejidad y los efectos secundarios no deseados.
+
