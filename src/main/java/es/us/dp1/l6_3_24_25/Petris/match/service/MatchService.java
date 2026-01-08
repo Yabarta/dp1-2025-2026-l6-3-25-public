@@ -40,7 +40,7 @@ public class MatchService {
 
     @Transactional(readOnly = true, rollbackFor = ResourceNotFoundException.class)
     public Match getMatchByCode(String code) throws ResourceNotFoundException {
-        return matchRepository.findByCodeAndEndedAtNotNull(code)
+        return matchRepository.findByCodeAndEndedAtNull(code)
             .orElseThrow(() -> new ResourceNotFoundException("Match", "Code", code));
     }
 
@@ -190,7 +190,7 @@ public class MatchService {
         if (winner != null && matchStatsBatchOrchestrator != null) {
             matchStatsBatchOrchestrator.triggerForMatch(savedMatch);
         }
-        
+
         return savedMatch;
     }
 
