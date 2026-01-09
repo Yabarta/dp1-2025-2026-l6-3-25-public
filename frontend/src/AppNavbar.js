@@ -12,7 +12,9 @@ function AppNavbar() {
     const jwt = tokenService.getLocalAccessToken();
     const [collapsed, setCollapsed] = useState(true);
     const [isOpenFriends, setIsOpenFriends] = useState(false);
-                
+    const [id, setId] = useState("");
+
+
     const toggleNavbar = () => setCollapsed(!collapsed);
     const toggleMenu = () => setIsOpenFriends(!isOpenFriends);
     // Deteccion de roles y username
@@ -23,6 +25,18 @@ function AppNavbar() {
             setUsername(jwt_decode(jwt).sub);
     }
     }, [jwt]);
+
+    // Deteccion de id
+    useEffect(() => {
+        async function idPlayer() {
+            const response = await fetch(`http://localhost:8080/api/v1/players/nickname/${username}`);
+            const data = await response.json();
+            setId(data.id);
+        }
+        if (username){
+            idPlayer();
+        }
+    }, [username]);
 
     let adminLinks = <></>;
     let playerLinks = <></>;
@@ -112,6 +126,7 @@ function AppNavbar() {
                     toggle={toggleMenu} 
                     username={username} 
                     jwt={jwt} 
+                    id={id}
                 />
             )}
             
