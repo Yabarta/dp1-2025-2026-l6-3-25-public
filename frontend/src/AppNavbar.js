@@ -12,10 +12,11 @@ function AppNavbar() {
     const jwt = tokenService.getLocalAccessToken();
     const [collapsed, setCollapsed] = useState(true);
     const [isOpenFriends, setIsOpenFriends] = useState(false);
-                
+    const [id, setId] = useState("");
+
+
     const toggleNavbar = () => setCollapsed(!collapsed);
     const toggleMenu = () => setIsOpenFriends(!isOpenFriends);
-    const [id, setId] = useState("");
     // Deteccion de roles y username
 
     useEffect(() => {
@@ -60,9 +61,6 @@ function AppNavbar() {
             <>
             <NavItem>
                     <Button style={{ color: "white" }} id="friends-btn" onClick={toggleMenu} className="btn btn-link nav-link">Friends</Button>
-                </NavItem>
-                <NavItem>
-                    <NavLink style={{ color: "white" }} id="statistics" tag={Link} to="/ranking">Ranking</NavLink>
                 </NavItem>
             <NavItem>
                 <NavLink style={{ color: "white" }} id="comparator" tag={Link} to="/comparator">Comparador</NavLink>
@@ -128,7 +126,7 @@ function AppNavbar() {
                     toggle={toggleMenu} 
                     username={username} 
                     jwt={jwt} 
-                    id = { id}
+                    id={id}
                 />
             )}
             
