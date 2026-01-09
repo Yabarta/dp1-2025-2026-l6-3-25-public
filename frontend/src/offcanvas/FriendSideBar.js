@@ -5,7 +5,7 @@ import useWebSocket from '../hooks/useWebSocket';
 import { Stomp } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 
-function FriendsSidebar({ isOpen, toggle, username, jwt, id }) {
+function FriendsSidebar({ isOpen, toggle, username, jwt}) {
 
 
     const [nombreBuscadoFriend , setNombreFriend] = useState("");
@@ -18,9 +18,9 @@ function FriendsSidebar({ isOpen, toggle, username, jwt, id }) {
     );
     const[requester, setRequester] = useState([]);
     const [requests, setRequests] = useState([]);
+    const [inLobby, setInLobby] = useState(false);
 
-        const [message, setMessage] = useState('')
-        const [stompClient, setStompClient] = useState([])
+    const [stompClient, setStompClient] = useState([])
 
     useEffect(() => {
             const socket = new SockJS('http://localhost:8080/ws');
@@ -103,6 +103,13 @@ function FriendsSidebar({ isOpen, toggle, username, jwt, id }) {
                         
                         <td>
                             <ButtonGroup>
+                                { inLobby &&
+                                <Button
+                                    style={{justifyContent: 'flex-end', backgroundColor: 'green'}}
+                                    onClick={() => {}}>
+                                    
+                                    Invitar a partida
+                                </Button>}
                                 <Button
                                     style={{justifyContent: 'flex-end', backgroundColor: 'red'}}
                                     onClick={() => {handleDelete(friend.id);}}>
