@@ -1,31 +1,77 @@
-.auth-page-container {
-  height: 100%;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  margin-top: 10rem;
-  justify-content: space-evenly;
-  align-items: center;
+:root {
+  --petris-green: #22c55e;
+  --petris-green-dark: #15803d;
+  --petris-bg-dark: #020617;
+  --petris-panel-bg: rgba(15, 23, 42, 0.85);
+  --petris-text: #f8fafc;
+  --petris-text-muted: #94a3b8;
+  --petris-border: rgba(34, 197, 94, 0.3);
 }
 
-.auth-form-container{
-    max-height: 800px;
-    max-width: 500px;
-    height: 90%;
-    width: 90%;
+.auth-page-container {
+  position: absolute;
+  top: 60px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
+  background-image: linear-gradient(rgba(2, 6, 23, 0.7), rgba(2, 6, 23, 0.8)), url('../../images/mainmenu.png');
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.auth-form-container {
+  background-color: var(--petris-panel-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--petris-border);
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(34, 197, 94, 0.1);
+  padding: 3rem;
+  border-radius: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 500px;
+  width: 90%;
+  animation: fadeIn 0.8s ease-out;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .auth-page-container h1 {
   text-align: center;
-  font-size: 5em;
+  font-family: 'Courier New', monospace;
+  font-size: 3rem;
+  font-weight: 900;
+  color: var(--petris-text);
+  margin-bottom: 2rem;
+  letter-spacing: 4px;
+  text-shadow: 0 0 10px var(--petris-green);
+}
+
+.auth-page-container h2 {
+    color: var(--petris-text);
+    text-align: center;
+    margin-bottom: 1.5rem;
 }
 
 .options-row {
   display: flex;
   justify-content: space-evenly;
+  gap: 1rem;
   align-items: center;
   width: 100%;
-  margin-top: 30px;
+  margin-top: 20px;
 }
 
 @media screen and (max-width: 768px) {
@@ -34,7 +80,10 @@
     margin-top: 0;
   }
 
-  .options-row button{
+  .options-row button,
+  .options-row a {
     margin: 10px 0;
+    width: 100%;
+    text-align: center;
   }
 }

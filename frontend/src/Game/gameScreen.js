@@ -5,6 +5,7 @@ import ExitGameModal from '../components/modal/ExitGameModal';
 import useWebSocket from '../hooks/useWebSocket';
 import api from '../services/api';
 import tokenService from '../services/token.service';
+import jwt_decode from 'jwt-decode';
 import Chat from '../Game/Chat/Chat';
 import ModalWinner from './modalWinner';
 import PlayerColumn from './components/PlayerColumn';
@@ -270,7 +271,9 @@ export default function GameScreen() {
   }, [handleTimeUp, timeLeft]);
 
   const handleBackToMenu = () => {
-    navigate('/lobby');
+    const jwt = tokenService.getLocalAccessToken();
+    const isAdmin = jwt ? jwt_decode(jwt).authorities?.includes("ADMIN") : false;
+    navigate(isAdmin ? '/currentGames' : '/lobby');
   };
 
   const handleExit = async () => {
