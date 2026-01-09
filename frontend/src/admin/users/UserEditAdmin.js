@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Form, Input, Label } from "reactstrap";
 import tokenService from "../../services/token.service";
 import "../../static/css/admin/adminPage.css";
+import "../../static/css/auth/authPage.css";
 import getErrorModal from "../../util/getErrorModal";
 import getIdFromUrl from "../../util/getIdFromUrl";
 import useFetchData from "../../util/useFetchData";
@@ -74,7 +75,7 @@ export default function UserEditAdmin() {
       {<h2>{user.id ? "Edit User" : "Add User"}</h2>}
       {modal}
       <div className="auth-form-container">
-        <Form onSubmit={handleSubmit}>
+        <Form onSubmit={handleSubmit} style={{width: '100%'}}>
           <div className="custom-form-input">
             <Label for="username" className="custom-form-input-label">
               Username
@@ -103,43 +104,29 @@ export default function UserEditAdmin() {
               className="custom-input"
             />
           </div>
-          <Label for="authority" className="custom-form-input-label">
-            Authority
-          </Label>
           <div className="custom-form-input">
-            {user.id ? (
-              <Input
-                type="select"
-                disabled
-                name="authority"
-                id="authority"
-                value={user.authority?.id || ""}
-                onChange={handleChange}
-                className="custom-input"
-              >
-                <option value="">None</option>
-                {authOptions}
-              </Input>
-            ) : (
-              <Input
-                type="select"
-                required
-                name="authority"
-                id="authority"
-                value={user.authority?.id || ""}
-                onChange={handleChange}
-                className="custom-input"
-              >
-                <option value="">None</option>
-                {authOptions}
-              </Input>
-            )}
+            <Label for="authority" className="custom-form-input-label">
+              Authority
+            </Label>
+            <Input
+              type="select"
+              required={!user.id}
+              disabled={!!user.id}
+              name="authority"
+              id="authority"
+              value={user.authority?.id || ""}
+              onChange={handleChange}
+              className="custom-input"
+            >
+              <option value="">None</option>
+              {authOptions}
+            </Input>
           </div>
           <div className="custom-button-row">
             <button className="auth-button">Save</button>
             <Link
               to={`/users`}
-              className="auth-button"
+              className="auth-button danger"
               style={{ textDecoration: "none" }}
             >
               Cancel

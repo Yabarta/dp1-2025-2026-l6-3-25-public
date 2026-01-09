@@ -59,19 +59,17 @@ export default function UserListAdmin() {
         <td>{user.username}</td>
         <td>{user.authority.authority}</td>
         <td>
-          <ButtonGroup>
-            <Button
-              size="sm"
-              color="primary"
-              aria-label={"edit-" + user.id}
-              tag={Link}
+          <div className="options-row" style={{ gap: '0.5rem', margin: 0 }}>
+            <Link
               to={"/users/" + user.id}
+              className="auth-button blue"
+              aria-label={"edit-" + user.id}
+              style={{ padding: '0.5rem 1rem', fontSize: '0.8rem', minWidth: 'auto' }}
             >
               Edit
-            </Button>
-            <Button
-              size="sm"
-              color="danger"
+            </Link>
+            <button
+              className="auth-button danger"
               aria-label={"delete-" + user.id}
               onClick={() =>
                 deleteFromList(
@@ -83,10 +81,11 @@ export default function UserListAdmin() {
                   setVisible
                 )
               }
+              style={{ padding: '0.5rem 1rem', fontSize: '0.8rem', minWidth: 'auto' }}
             >
               Delete
-            </Button>
-          </ButtonGroup>
+            </button>
+          </div>
         </td>
       </tr>
     );
@@ -98,21 +97,43 @@ export default function UserListAdmin() {
       <h1 className="text-center">Users</h1>
       {alerts.map((a) => a.alert)}
       {modal}
-  <div class="barra-busqueda">
-      <input type="search" value={nombreBuscado} onChange={(usuario) => setname(usuario.target.value)} placeholder="Buscar usuario" />
-      
-      
-  </div>
+      <div className="custom-form-input" style={{ maxWidth: '400px', margin: '0 auto 1rem auto' }}>
+        <input 
+          type="search" 
+          className="custom-input" 
+          value={nombreBuscado} 
+          onChange={(usuario) => setname(usuario.target.value)} 
+          placeholder="Buscar usuario" 
+        />
+      </div>
 
-  <div class = "autorithy-button">
-    <button id="0" onClick={() => setboton(0)} style={{backgroundColor: botonAll ? "#11c9d6ff" : "gray"}}> All</button>
-    <button id="1" onClick={() => setboton(1)} style={{backgroundColor: botonAdmin ? "#11c9d6ff" : "gray"}}> Admin</button>
-    <button id="2" onClick={() => setboton(2)} style={{backgroundColor: botonPlayer ? "#11c9d6ff" : "gray"}}> Player</button>
-  </div>
+      <div className="options-row">
+        <button 
+          id="0" 
+          onClick={() => setboton(0)} 
+          className={`auth-button ${botonAll ? "selected" : ""}`}
+        > 
+          All
+        </button>
+        <button 
+          id="1" 
+          onClick={() => setboton(1)} 
+          className={`auth-button ${botonAdmin ? "selected" : ""}`}
+        > 
+          Admin
+        </button>
+        <button 
+          id="2" 
+          onClick={() => setboton(2)} 
+          className={`auth-button ${botonPlayer ? "selected" : ""}`}
+        > 
+          Player
+        </button>
+      </div>
     
-      <Button color="success" tag={Link} to="/users/new">
+      <Link className="auth-button" style={{textDecoration: "none", marginBottom: "2rem"}} to="/users/new">
         Add User
-      </Button>
+      </Link>
 
       <div>
         <Table aria-label="users" className="mt-4">
