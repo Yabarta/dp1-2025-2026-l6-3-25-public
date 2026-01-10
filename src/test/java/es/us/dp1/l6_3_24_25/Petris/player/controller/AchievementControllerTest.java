@@ -4,14 +4,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import es.us.dp1.l6_3_24_25.Petris.exceptions.ResourceNotFoundException;
 import es.us.dp1.l6_3_24_25.Petris.player.model.Achievement;
 import es.us.dp1.l6_3_24_25.Petris.player.service.AchievementService;
+import es.us.dp1.l6_3_24_25.Petris.player.service.PlayerService;
 import io.qameta.allure.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -20,6 +23,7 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -36,6 +40,9 @@ class AchievementControllerTest {
 
     @MockBean
     private AchievementService achievementService;
+
+    @MockBean
+    private PlayerService playerService;
 
     @Autowired
     private MockMvc mockMvc;
@@ -210,5 +217,57 @@ class AchievementControllerTest {
 
         mockMvc.perform(delete(BASE_URL + "/{id}", TEST_ACHIEVEMENT_ID).with(csrf()))
             .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @Feature("Achievement creation")
+    @DisplayName("Create achievement with image assigns to eligible players")
+    @Severity(SeverityLevel.CRITICAL)
+    @Owner("DiegoVicenteCamara(RXW1249)")
+    @WithMockUser("admin")
+    void createAchievementWithImage_AssignsToEligiblePlayers() throws Exception {
+        Achievement saved = new Achievement();
+        saved.setId(5);
+        saved.setName("Champion");
+        saved.setDescription("Win 5 games.");
+        saved.setValor(5);
+        saved.setStatisticName("games_won");
+        saved.setImage("champion.png");
+
+        Achievement notEligible = new Achievement();
+        notEligible.setId(6);
+        notEligible.setName("Builder");
+        notEligible.setDescription("Create 10");
+        notEligible.setValor(10);
+        notEligible.setStatisticName("sarcinas_created");
+        notEligible.setImage("builder.png");
+
+        es.us.dp1.l6_3_24_25.Petris.player.model.Statistics stats = new es.us.dp1.l6_3_24_25.Petris.player.model.Statistics();
+        stats.setGamesPlayed(6);
+        stats.setGamesWon(6);
+        stats.setSarcinasCreated(0);
+        stats.setBacteriasCreated(0);
+        stats.setTimePlayed(0);
+
+        es.us.dp1.l6_3_24_25.Petris.player.model.Player eligible = new es.us.dp1.l6_3_24_25.Petris.player.model.Player();
+        eligible.setId(10);
+        eligible.setAchievements(new java.util.ArrayList<>());
+        eligible.setStatistics(stats);
+
+        when(achievementService.createAchievementWithImage(any(), any(), any(), any(), any())).thenReturn(saved);
+        when(playerService.getAllPlayers()).thenReturn(java.util.List.of(eligible));
+        MockMultipartFile file = new MockMultipartFile("image", "image.png", "image/png", "data".getBytes());
+
+        mockMvc.perform(multipart(BASE_URL)
+                .file(file)
+                .with(csrf())
+                .param("name", saved.getName())
+                .param("description", saved.getDescription())
+                .param("valor", String.valueOf(saved.getValor()))
+                .param("statisticName", saved.getStatisticName()))
+            .andExpect(status().isCreated());
+
+        verify(playerService).save(eligible);
+        assertTrue(eligible.getAchievements().contains(saved));
     }
 }
