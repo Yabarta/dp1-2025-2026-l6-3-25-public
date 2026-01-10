@@ -93,6 +93,9 @@ export default function ProfileScreen() {
 
     const modal = getErrorModal(setVisible, visible, message);
     const isLoading = playerLoading || gamesLoading || achievementsLoading || userAchievementsLoading || statsLoading;
+    const playerExists = useMemo(() => {
+        return playerData && Object.keys(playerData).length > 0 && playerData.id;
+    }, [playerData]);
 
     // Event handlers
     const handleChangeProfilePicture = () => imageInputRef.current.click();
@@ -195,18 +198,11 @@ export default function ProfileScreen() {
             .required('El correo electrónico es requerido'),
     });
 
-    const handleNavigateToProfile = async (nickname) => {
-        try {
-            const res = await fetch(`/api/v1/players/nickname/${encodeURIComponent(nickname)}`);
-            const user = await res.json();
-            navigate(`/profile/${encodeURIComponent(user.username ?? nickname)}`);
-        } catch (err) {
-            console.error('Unable to go to profile', err);
-        }
-    }
 
     // Loading state
     if (isLoading) {
+        if (!playerExists) navigate('/');
+            
         return (
             <div className="loadingOverlay">
                 {modal}
@@ -249,8 +245,9 @@ export default function ProfileScreen() {
                     isWinner={isWinner}
                     duracion={duracion}
                     getPlayerProfilePic={getPlayerProfilePic}
-                    handleNavigateToProfile={handleNavigateToProfile}
+                    handleNavigateToProfile={navigateToProfile}
                     setShowHistoryPopup={setShowHistoryPopup}
+                    navigate={navigate}
                 />
                 <AchievementsSection 
                     Achievements={Achievements} 
@@ -263,8 +260,9 @@ export default function ProfileScreen() {
                 setShowHistoryPopup={setShowHistoryPopup} 
                 userGames={userGames} isWinner={isWinner} 
                 getPlayerProfilePic={getPlayerProfilePic} 
-                handleNavigateToProfile={handleNavigateToProfile} 
+                handleNavigateToProfile={navigateToProfile} 
                 duracion={duracion} 
+                navigate={navigate}
             />
             <EditPopup 
                 showEditPopup={showEditPopup} 
@@ -276,3 +274,13 @@ export default function ProfileScreen() {
         </div>
     );
 }
+export const navigateToProfile = async (nickname, navigate) => {
+    try {
+        const res = await fetch(`/api/v1/players/nickname/${encodeURIComponent(nickname)}`);
+        const user = await res.json();
+        
+        navigate(`/profile/${encodeURIComponent(user.username ?? nickname)}`);
+    } catch (err) {
+        console.error('Unable to go to profile', err);
+    }
+};

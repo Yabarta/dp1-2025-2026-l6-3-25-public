@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from 'reactstrap';
 
-export default function RecentGames({ userGames = [], isWinner, duracion, getPlayerProfilePic, handleNavigateToProfile, setShowHistoryPopup }) {
+export default function RecentGames({ userGames = [], isWinner, duracion, getPlayerProfilePic, handleNavigateToProfile, setShowHistoryPopup, navigate }) {
   return (
     <div className="bg">
       <h1 className="title">Partidas Recientes</h1>
@@ -17,14 +17,14 @@ export default function RecentGames({ userGames = [], isWinner, duracion, getPla
             </div>
             <div className="gamePlayersContainer">
               <div className="scorePlayer1">
-                <Button className="gamePlayerInfo player2Info" onClick={() => handleNavigateToProfile(game.player2.nickname)}>
+                <Button className="gamePlayerInfo player2Info" onClick={() => handleNavigateToProfile(game.player2.nickname, navigate)}>
                   <img src={getPlayerProfilePic(game.player2)} alt={game.player2.nickname} className="gamePlayerPic" /> {game.player2.nickname}
                 </Button>
                 <div className="score">{game.finalP2Score}</div>
               </div>
               <span className="gameVs">vs</span>
               <div className="scorePlayer2">
-                <Button className="gamePlayerInfo player1Info" onClick={() => handleNavigateToProfile(game.player1.nickname)}>
+                <Button className="gamePlayerInfo player1Info" onClick={() => handleNavigateToProfile(game.player1.nickname, navigate)}>
                   {game.player1.nickname} <img src={getPlayerProfilePic(game.player1)} alt={game.player1.nickname} className="gamePlayerPic" />
                 </Button>
                 <div className="score">{game.finalP1Score}</div>
