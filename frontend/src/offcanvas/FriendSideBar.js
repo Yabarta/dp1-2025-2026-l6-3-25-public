@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Offcanvas, ButtonGroup } from 'reactstrap';
+import { Table, Button, Offcanvas, ButtonGroup, Toast } from 'reactstrap';
 import useFetchState from "../util/useFetchState";
-import useWebSocket from '../hooks/useWebSocket';
 import { Stomp } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
+import { useNavigate } from 'react-router-dom';
+import api from '../services/api';
 
-function FriendsSidebar({ isOpen, toggle, username, jwt, id }) {
+function FriendsSidebar({ isOpen, toggle, username, jwt, id}) {
 
 
     const [nombreBuscadoFriend , setNombreFriend] = useState("");
@@ -18,9 +19,35 @@ function FriendsSidebar({ isOpen, toggle, username, jwt, id }) {
     );
     const[requester, setRequester] = useState([]);
     const [requests, setRequests] = useState([]);
+    const [inLobby, setInLobby] = useState(false);
 
-        const [message, setMessage] = useState('')
-        const [stompClient, setStompClient] = useState([])
+    const [path , setPath] = useState(window.location.pathname);
+
+    const [showToast, setShowToast] = useState(false);
+    const [invitationData, setInvitationData] = useState(null);
+    const [invitationId, setInvitationId] = useState(null);
+
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const navigate = useNavigate();
+
+    const [stompClient, setStompClient] = useState([])
+
+    const [lobbyId , setLobbyId] = useState(null);
+
+    if (window.location.pathname !== path) {
+        setPath(window.location.pathname);
+    }
+
+    useEffect(() => {
+        if (window.location.pathname.includes("/lobby/")) {
+            setInLobby(true);
+            setLobbyId(window.location.pathname.replace("/lobby/", ""));
+        } else {
+            setInLobby(false);
+            setLobbyId(null);
+        }
+    }, [path]);
 
     useEffect(() => {
             const socket = new SockJS('http://localhost:8080/ws');
@@ -38,6 +65,30 @@ function FriendsSidebar({ isOpen, toggle, username, jwt, id }) {
             }
         }, [])
 
+    useEffect(() => {
+    const socket = new SockJS('http://localhost:8080/ws');
+    const client = Stomp.over(socket);
+
+    client.connect({}, () => {
+        client.subscribe(`/topic/invitations/${id}`, (message) => {
+            if (!inLobby) {
+            console.log("Invitación recibida");
+            const data = JSON.parse(message.body); 
+            setInvitationData(data.username);
+            setInvitationId(data.lobbyId);
+            setShowToast(true);
+
+            setTimeout(() => {
+                setShowToast(false);
+            }, 30000);
+            }
+        });
+    });
+
+    setStompClient(client);
+    return () => {client.disconnect()};
+}, [id, inLobby]);
+
     // Handlers
     const handleDelete = async(id) => 
         {
@@ -48,7 +99,7 @@ function FriendsSidebar({ isOpen, toggle, username, jwt, id }) {
                                 }
                         });
         if (response.ok) {  
-        stompClient.send('/app/friend', {}, JSON.stringify(""));
+        stompClient.send('/app/friend', {}, );
     }
         };
 
@@ -83,6 +134,25 @@ function FriendsSidebar({ isOpen, toggle, username, jwt, id }) {
             }
         };
 
+    const handleInvite = async(idFriend , props) =>
+    {   
+        stompClient.send(`/app/invite/${idFriend}`, {}, JSON.stringify(props));
+    };
+
+    const handleJoinLobby = async (lobbyId, code) => {
+        setIsLoading(true);
+        setError(null);
+        try {
+            await api.put(`/api/v1/matches/${lobbyId}${code ? `?code=${code}` : ''}`);
+            navigate(`/lobby/${lobbyId}`);
+        } catch (err) {
+            console.error('Error joining lobby', err);
+            setError('No se pudo unir a la sala.');
+        } finally {
+            setIsLoading(false);
+        }
+        };
+
 //Friend List
 
     const filterFriend = friends.filter(
@@ -97,12 +167,24 @@ function FriendsSidebar({ isOpen, toggle, username, jwt, id }) {
                 ? friend.requester.nickname
                 : friend.receiver.nickname;
 
+            const friendId = (friend.receiver.nickname === username)
+                ? friend.requester.id
+                : friend.receiver.id;
+                
             return (
                     <tr key={friend.id}>
+                        
                         <td>{friendDisplayName}</td> 
                         
                         <td>
                             <ButtonGroup>
+                                { inLobby &&
+                                <Button
+                                    style={{justifyContent: 'flex-end', backgroundColor: 'green'}}
+                                    onClick={() => handleInvite(friendId , {lobbyId , username})}>
+                                    
+                                    Invitar a partida
+                                </Button>}
                                 <Button
                                     style={{justifyContent: 'flex-end', backgroundColor: 'red'}}
                                     onClick={() => {handleDelete(friend.id);}}>
@@ -246,7 +328,7 @@ function FriendsSidebar({ isOpen, toggle, username, jwt, id }) {
             );
         });
 
-    return (
+    return (<>
             <div>
             <Offcanvas isOpen={isOpen} onClose={toggle} direction='start'  style={{width: "33%" , overflowY: "scroll", borderLeftColor: "white"}} className="bg-dark text-white">
                 <div className="barra-busqueda-Friends d-flex justify-content-center align-items-center position-relative p-3">
@@ -307,6 +389,26 @@ function FriendsSidebar({ isOpen, toggle, username, jwt, id }) {
         </div>
             </Offcanvas>
             </div>
-    );
+    <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 9999, width: '300px' }}>
+    <Toast isOpen={showToast} className="bg-primary text-white">
+        <div className="p-3 d-flex justify-content-between align-items-center">
+            <strong>Nueva Invitación</strong>
+            <Button close onClick={() => setShowToast(false)} />
+        </div>
+        <div className="p-3 bg-dark text-white border-top">
+            <p>Has recibido una invitación de: {invitationData}</p>
+            <div className="d-flex justify-content-end gap-2">
+                <Button color="success" size="sm" onClick={() => {handleJoinLobby(invitationId); setShowToast(false);}}>
+                    Aceptar
+                </Button>
+                <Button color="danger" size="sm" onClick={() => setShowToast(false)}>
+                    Ignorar
+                </Button>
+            </div>
+        </div>
+    </Toast>
+    </div>
+    </>
+);
 }
 export default FriendsSidebar;

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from 'reactstrap';
 
-export default function HistoryPopup({ showHistoryPopup, setShowHistoryPopup, userGames = [], isWinner, getPlayerProfilePic, handleNavigateToProfile, duracion }) {
+export default function HistoryPopup({ showHistoryPopup, setShowHistoryPopup, userGames = [], isWinner, getPlayerProfilePic, handleNavigateToProfile, duracion, navigate }) {
   if (!showHistoryPopup) return null;
   return (
     <div className="popupOverlay">
@@ -19,11 +19,11 @@ export default function HistoryPopup({ showHistoryPopup, setShowHistoryPopup, us
                 <span className="gameDate">Fecha de creación: {new Date(game.createdAt).toLocaleDateString()}</span>
               </div>
               <div className="gamePlayersContainer">
-                <Button className="gamePlayerInfo" onClick={() => { setShowHistoryPopup(false); handleNavigateToProfile(game.player2.nickname); }}>
+                <Button className="gamePlayerInfo" onClick={() => { setShowHistoryPopup(false); handleNavigateToProfile(game.player2.nickname, navigate); }}>
                   <img src={getPlayerProfilePic(game.player2)} alt={game.player2.nickname} className="gamePlayerPic" /> {game.player2.nickname}
                 </Button>
                 <span className="gameVs">vs</span>
-                <Button className="gamePlayerInfo" onClick={() => { setShowHistoryPopup(false); handleNavigateToProfile(game.player1.nickname); }}>
+                <Button className="gamePlayerInfo" onClick={() => { setShowHistoryPopup(false); handleNavigateToProfile(game.player1.nickname, navigate); }}>
                   {game.player1.nickname} <img src={getPlayerProfilePic(game.player1)} alt={game.player1.nickname} className="gamePlayerPic" />
                 </Button>
               </div>
