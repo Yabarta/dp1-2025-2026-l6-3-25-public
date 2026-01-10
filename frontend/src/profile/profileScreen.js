@@ -36,12 +36,13 @@ export default function ProfileScreen() {
     const [showHistoryPopup, setShowHistoryPopup] = useState(false);
     const [message, setMessage] = useState(null);
     const [visible, setVisible] = useState(false);
+    const [playerExistence, setPlayerExistence] = useState(false);
     const [profilePic, setProfilePic] = useState(DEFAULT_PROFILE_PIC);
     const navigate = useNavigate();
 
     // Data fetching
     const playerUrl = username ? `/api/v1/players/user/${encodeURIComponent(username)}` : "";
-    const [playerData, setPlayerData, playerLoading] = useFetchState({}, playerUrl, jwt, setMessage, setVisible);
+    const [playerData, setPlayerData, playerLoading] = useFetchState({}, playerUrl, jwt, setMessage, setPlayerExistence);
     const [games, , gamesLoading] = useFetchState([], `/api/v1/matches`, jwt, setMessage, setVisible);
     const [userGames, setUserGames] = useState([]);
     const [Achievements, , achievementsLoading] = useFetchState([], `/api/v1/achievements`, jwt, setMessage, setVisible);
@@ -49,7 +50,7 @@ export default function ProfileScreen() {
     const [UserAchievements, , userAchievementsLoading] = useFetchState([], userAchievementsUrl, jwt, setMessage, setVisible, playerData?.id);
     const statsUrl = playerData?.id ? `/api/v1/players/${playerData.id}/statistics` : "";
     const [playerStats, , statsLoading] = useFetchState([], statsUrl, jwt, setMessage, setVisible, playerData?.id);
-
+    console.log(playerData);
     // Effects
     useEffect(() => {
         const userGamesFiltered = games.filter(game => game.endedAt && (game.player1.id === playerData.id || game.player2.id === playerData.id));
@@ -92,10 +93,9 @@ export default function ProfileScreen() {
 
 
     const modal = getErrorModal(setVisible, visible, message);
+
     const isLoading = playerLoading || gamesLoading || achievementsLoading || userAchievementsLoading || statsLoading;
-    const playerExists = useMemo(() => {
-        return playerData && Object.keys(playerData).length > 0 && playerData.id;
-    }, [playerData]);
+
 
     // Event handlers
     const handleChangeProfilePicture = () => imageInputRef.current.click();
@@ -201,8 +201,7 @@ export default function ProfileScreen() {
 
     // Loading state
     if (isLoading) {
-        if (!playerExists) navigate('/');
-            
+        if (playerExistence) navigate('/');
         return (
             <div className="loadingOverlay">
                 {modal}
