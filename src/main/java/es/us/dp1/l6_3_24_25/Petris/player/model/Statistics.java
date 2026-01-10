@@ -37,4 +37,14 @@ public class Statistics extends BaseEntity {
         double winPercent = ((double) gamesWon / (double) gamesPlayed) * 100.0;
         return winPercent + 20.0 * Math.log10((double) gamesPlayed);
     }
+    public Integer getStatisticByName(String statisticName) {
+        return switch (statisticName.toLowerCase()) {
+            case "games_played" -> this.gamesPlayed;
+            case "games_won" -> this.gamesWon;
+            case "time_played" -> this.timePlayed;
+            case "sarcinas_created" -> this.sarcinasCreated;
+            case "bacterias_created" -> this.bacteriasCreated;
+            default -> null;
+        };
+    }
 }
