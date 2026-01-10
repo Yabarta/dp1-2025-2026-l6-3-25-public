@@ -160,6 +160,12 @@ public class AchievementController {
                                                                   @RequestParam(value = "valor", required = false) Integer valor,
                                                                   @RequestParam(value = "statisticName", required = false) String statisticName) {
         Achievement achievement = achievementService.updateAchievementWithImage(id, file, name, description, valor, statisticName);
+         playerService.getAllPlayers().stream().forEach(player -> {
+            if (player.getStatistics().getStatisticByName(statisticName) >= valor) {
+                player.getAchievements().add(achievement);
+                playerService.save(player);
+            }
+        });
         return ResponseEntity.ok(achievement);
     }
 
