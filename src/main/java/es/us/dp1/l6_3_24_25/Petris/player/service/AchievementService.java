@@ -19,7 +19,7 @@ import java.util.UUID;
 
 @Service
 public class AchievementService {
-
+    private static final String DEFAULT_ACHIEVEMENT_IMAGE = "src/main/resources/static/images/trofeo.png";
     @Autowired
     private AchievementRepository achievementRepository;
 
@@ -77,6 +77,8 @@ public class AchievementService {
             } catch (IOException e) {
                 throw new RuntimeException("Error al guardar la imagen: " + e.getMessage(), e);
             }
+        }else {
+            achievement.setImage(DEFAULT_ACHIEVEMENT_IMAGE);
         }
 
         return achievementRepository.save(achievement);

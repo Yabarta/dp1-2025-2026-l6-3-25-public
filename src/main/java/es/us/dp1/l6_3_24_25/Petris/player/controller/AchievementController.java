@@ -3,6 +3,7 @@ package es.us.dp1.l6_3_24_25.Petris.player.controller;
 import es.us.dp1.l6_3_24_25.Petris.exceptions.ResourceNotFoundException;
 import es.us.dp1.l6_3_24_25.Petris.player.model.Achievement;
 import es.us.dp1.l6_3_24_25.Petris.player.service.AchievementService;
+import es.us.dp1.l6_3_24_25.Petris.player.service.PlayerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -26,9 +27,11 @@ import java.util.List;
 public class AchievementController {
 
     AchievementService achievementService;
+    PlayerService playerService;
 
-    public AchievementController(AchievementService as) {
+    public AchievementController(AchievementService as, PlayerService ps) {
         this.achievementService = as;
+        this.playerService = ps;
     }
 
     @Operation(
@@ -102,6 +105,12 @@ public class AchievementController {
                                                                   @RequestParam(value = "statisticName") String statisticName,
                                                                   @RequestParam(value = "image", required = false) MultipartFile file) {
         Achievement saved = achievementService.createAchievementWithImage(name, description, valor, statisticName, file);
+        playerService.getAllPlayers().stream().forEach(player -> {
+            if (player.getStatistics().getStatisticByName(statisticName) >= valor) {
+                player.getAchievements().add(saved);
+                playerService.save(player);
+            }
+        });
         URI location = ServletUriComponentsBuilder
             .fromCurrentRequest()
             .path("/{id}")
@@ -151,6 +160,12 @@ public class AchievementController {
                                                                   @RequestParam(value = "valor", required = false) Integer valor,
                                                                   @RequestParam(value = "statisticName", required = false) String statisticName) {
         Achievement achievement = achievementService.updateAchievementWithImage(id, file, name, description, valor, statisticName);
+         playerService.getAllPlayers().stream().forEach(player -> {
+            if (player.getStatistics().getStatisticByName(statisticName) >= valor) {
+                player.getAchievements().add(achievement);
+                playerService.save(player);
+            }
+        });
         return ResponseEntity.ok(achievement);
     }
 
