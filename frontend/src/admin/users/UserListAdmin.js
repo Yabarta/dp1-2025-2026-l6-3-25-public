@@ -171,7 +171,7 @@ export default function UserListAdmin() {
 
       {users.totalPages > 1 && (
         <>
-          <div style={{ textAlign: 'center', marginTop: '1.5rem', marginBottom: '1rem', color: '#666' }}>
+          <div style={{ textAlign: 'center', color: '#666' }}>
             {users.totalElements > 0
               ? `${(currentPage - 1) * 10 + 1}-${Math.min(currentPage * 10, users.totalElements)} de ${users.totalElements}`
               : 'No hay usuarios'}
