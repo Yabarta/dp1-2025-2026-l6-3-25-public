@@ -3,8 +3,9 @@ import tokenService from "../../services/token.service";
 import { Button } from 'reactstrap';
 import { useState, useCallback } from 'react';
 import { useNavigate } from "react-router-dom";
-import profileScreen, {navigateToProfile} from '../../profile/profileScreen';
+import { navigateToProfile } from '../../profile/profileScreen';
 import bacteria from '../../static/images/bacteria.png';
+import './GamesHistoryScreen.css';
 
 const DEFAULT_PROFILE_PIC = bacteria;
 
@@ -27,8 +28,8 @@ const endedGames = games.filter(game => game.endedAt != null);
 console.log(games);
 
 return (  
-<div>
-    <div className="bg">
+<div className="games-history">
+  <div className="bg">
       <h1 className="title">Historial de Partidas</h1>
       <div className="recentGamesContainer">
         {gamesLoading ? (<div>Cargando...</div>) : (
@@ -38,7 +39,7 @@ return (
           <div key={game.id} className={'GameCard'}>
             <div className="gameHeader">
               <div className="gameResult">
-                {'Ganador:' + (game.winner===game.player1.id ? game.player1.nickname : game.player2.nickname)}
+                {'Ganador: ' + (game.winner===game.player1.id ? game.player1.nickname : game.player2.nickname)}
                 <span className="gameTurns">({game.turn} turnos)</span>
               </div>
               <span className="gameDate">Fecha de creación: {new Date(game.createdAt).toLocaleDateString()}</span>
@@ -48,14 +49,14 @@ return (
                 <Button className="gamePlayerInfo player2Info" onClick={() => navigateToProfile(game.player2.nickname, navigate)}>
                   <img src={getPlayerProfilePic(game.player2)} alt={game.player2.nickname} className="gamePlayerPic" /> {game.player2.nickname}
                 </Button>
-                <div className="score">{game.finalP2Score}</div>
+                <div className="score">Puntuación: {game.player2Score}</div>
               </div>
               <span className="gameVs">vs</span>
               <div className="scorePlayer2">
                 <Button className="gamePlayerInfo player1Info" onClick={() => navigateToProfile(game.player1.nickname, navigate)}>
                   {game.player1.nickname} <img src={getPlayerProfilePic(game.player1)} alt={game.player1.nickname} className="gamePlayerPic" />
                 </Button>
-                <div className="score">{game.finalP1Score}</div>
+                <div className="score">Puntuación: {game.player1Score}</div>
               </div>
             </div>
             <div className="gameDetailsContainer">
@@ -69,6 +70,5 @@ return (
       </div> 
     </div>
 </div>
-
 );
 }
