@@ -35,6 +35,8 @@ function FriendsSidebar({ isOpen, toggle, username, jwt, id}) {
 
     const [lobbyId , setLobbyId] = useState(null);
 
+    const [disabledButtons, setDisabledButtons] = useState({});
+
     if (window.location.pathname !== path) {
         setPath(window.location.pathname);
     }
@@ -92,7 +94,7 @@ function FriendsSidebar({ isOpen, toggle, username, jwt, id}) {
     // Handlers
     const handleDelete = async(id) => 
         {
-        const response = await fetch(`api/v1/friends/${id}`, {method: 'DELETE',
+        const response = await fetch(`/api/v1/friends/${id}`, {method: 'DELETE',
                             headers: {
                                 "Authorization": `Bearer ${jwt}`,
                                 "Content-Type": "application/json"
@@ -122,7 +124,7 @@ function FriendsSidebar({ isOpen, toggle, username, jwt, id}) {
 
     const handleAccept = async(id) =>
         {
-            const response = await fetch(`api/v1/players/friends/${id}`,
+            const response = await fetch(`/api/v1/players/friends/${id}`,
                                 {method: 'PUT',
                                 headers: { 
                                             "Authorization": `Bearer ${jwt}`,
@@ -137,6 +139,14 @@ function FriendsSidebar({ isOpen, toggle, username, jwt, id}) {
     const handleInvite = async(idFriend , props) =>
     {   
         stompClient.send(`/app/invite/${idFriend}`, {}, JSON.stringify(props));
+        setDisabledButtons(prev => ({ ...prev, [idFriend]: true }));
+        setTimeout(() => {
+        setDisabledButtons(prev => {
+            const newState = { ...prev };
+            delete newState[idFriend]; // Eliminamos la propiedad para desbloquearlo
+            return newState;
+        });
+    }, 50000);
     };
 
     const handleJoinLobby = async (lobbyId, code) => {
@@ -181,9 +191,10 @@ function FriendsSidebar({ isOpen, toggle, username, jwt, id}) {
                                 { inLobby &&
                                 <Button
                                     style={{justifyContent: 'flex-end', backgroundColor: 'green'}}
-                                    onClick={() => handleInvite(friendId , {lobbyId , username})}>
-                                    
-                                    Invitar a partida
+                                    onClick={() => handleInvite(friendId , {lobbyId , username})}
+                                    disabled={!!disabledButtons[friendId]} >
+
+                                    {disabledButtons[friendId] ? 'Enviado' : 'Invitar a partida'}
                                 </Button>}
                                 <Button
                                     style={{justifyContent: 'flex-end', backgroundColor: 'red'}}
