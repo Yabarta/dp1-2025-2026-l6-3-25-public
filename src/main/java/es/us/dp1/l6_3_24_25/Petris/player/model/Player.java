@@ -1,5 +1,7 @@
 package es.us.dp1.l6_3_24_25.Petris.player.model;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,6 +41,7 @@ public class Player extends BaseEntity{
     @OneToOne
     private User user;
     @NotAudited
+    @Builder.Default
     @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     private List<Achievement> achievements = new ArrayList<>();
     @NotAudited
@@ -46,4 +49,11 @@ public class Player extends BaseEntity{
     @OneToOne
     private Statistics statistics;
 
+    @NotAudited
+    @Builder.Default
+    private Boolean isOnline = false;
+
+    @NotAudited
+    @Builder.Default
+	private LocalDateTime lastLogin = LocalDateTime.now();
 }

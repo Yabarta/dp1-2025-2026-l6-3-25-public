@@ -24,6 +24,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.lang.NonNull;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import es.us.dp1.l6_3_24_25.Petris.player.service.AchievementService;
 import es.us.dp1.l6_3_24_25.Petris.player.service.PlayerService;
 import es.us.dp1.l6_3_24_25.Petris.player.service.StatisticsService;
 
@@ -75,8 +76,9 @@ public class BatchConfiguration {
     @Bean
     @StepScope
     public PlayerStatsWriter playerStatsWriter(PlayerService playerService,
-                                               StatisticsService statisticsService) {
-        return new PlayerStatsWriter(playerService, statisticsService);
+                                               StatisticsService statisticsService,
+                                               AchievementService achievementService) {
+        return new PlayerStatsWriter(playerService, statisticsService, achievementService);
     }
 
     @Bean

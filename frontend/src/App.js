@@ -24,6 +24,7 @@ import LobbyScreen from "./Game/LobbyScreen";
 import Comparator from "./visualStatistics/page/Comparator";
 import StatisticRanking from "./visualStatistics/page/StatisticsRanking";
 import AchievementListAdmin from "./admin/Achievements/AchievementListAdmin";
+import GamesHistoryScreen from "./admin/GamesHistory/GamesHistoryScreen";
 
 function ErrorFallback({ error, resetErrorBoundary }) {
   return (
@@ -67,6 +68,27 @@ function App() {
         console.error("Error checking active matches:", err);
       }
     };
+    const playerIsInLobby = async () => {
+      try {
+        const resp = await api.get('/api/v1/matches');
+        const matches = resp.data || [];
+        const playerIsInLobby = matches.find((m) => (
+          m.createdAt && !m.startedAt && (
+            m.player1?.nickname === currentUser?.username ||
+            m.player2?.nickname === currentUser?.username
+          )
+        ));
+        if (playerIsInLobby) {
+          const target = `/lobby/${playerIsInLobby.id}`;
+          if (location.pathname !== target) {
+            navigate(target);
+          }
+        }
+      } catch (err) {
+        console.error("Error checking active matches:", err);
+      }
+    };
+    playerIsInLobby();
     checkActiveMatch();
     return;
   }, [jwt, navigate, location.pathname]);
@@ -87,6 +109,7 @@ function App() {
         <>
           <Route path="/users" exact={true} element={<PrivateRoute><UserListAdmin /></PrivateRoute>} />
           <Route path="/users/:username" exact={true} element={<PrivateRoute><UserEditAdmin /></PrivateRoute>} />
+          <Route path="/gamesHistory" exact={true} element={<GamesHistoryScreen />} />
           <Route path="/currentGames" element={<CurrentGames />} />
         </>)
     }
@@ -96,7 +119,6 @@ function App() {
           <Route path="/gameScreen" element={<GameScreen />} />
           <Route path="/notStarted" element={<NotStartedGames/>}/>
           <Route path="/comparator" element={<Comparator />}></Route>
-          <Route path="/profile/:username" element={<PrivateRoute><ProfileScreen /></PrivateRoute>} />
           <Route path="/lobby/:id" element={<PrivateRoute><LobbyScreen /></PrivateRoute>} />       
           <Route path="/lobby" element={<PrivateRoute><Lobby /></PrivateRoute>} /> 
         </>)
@@ -118,6 +140,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/ranking" element={<StatisticRanking />}></Route>
         <Route path="/achievements" element={<PrivateRoute><AchievementListAdmin /></PrivateRoute>} />
+        <Route path="/profile/:username" element={<PrivateRoute><ProfileScreen /></PrivateRoute>} />
       </>
     )
   }

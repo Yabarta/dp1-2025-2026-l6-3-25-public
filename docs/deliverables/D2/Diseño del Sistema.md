@@ -273,6 +273,7 @@ La aplicación nos daba error a la hora de crear nuevos usuarios, tanto players 
 #### Alternativas de solución evaluadas:
 
 *Alternativa 1.a*: arreglar la creación de la manera "tradicional"
+
 *Ventajas:*
 •	Es como estaba antes.
 *Inconvenientes:*
@@ -291,6 +292,59 @@ La aplicación nos daba error a la hora de crear nuevos usuarios, tanto players 
 
 Al final optamos por usar la segunda alternativa, ya que eso mejoraría la calidad de nuestro código a la vez que su legibilidad y a la reducción de la complejidad.
 
+### Decisión 7: Paginación en el listado de usuarios:
+La aplicación puede llegar a manejar muchos usuarios, lo que impactaría en el rendimiento al cargar el listado.
+
+#### Alternativas de solución evaluadas:
+
+*Alternativa 1.a*: una única llamada para obtener todo el listado de usuarios
+
+*Ventajas:*
+•	Más simple, sin lógica de paginación.
+•   Una única petición HTTP.
+*Inconvenientes:*
+•	Carga pesada con muchos usuarios.
+•   Mayor consumo de memoria.
+
+*Alternativa 1.b*: llamada con paginación y número limitado de usuarios por llamada
+*Ventajas:*
+•	Respuestas más ligeras y rápidas.
+•   Mejor escalabilidad con muchos usuarios.
+*Inconvenientes:*
+•	Requiere lógica de paginación tanto en frontend como en backend.
+
+#### Decisión de la solución adoptada
+
+Decidimos implementar la paginación porque la aplicación debe gestionar un gran número de usuarios. Esta solución reduce el consumo de memoria y mejora el rendimiento al cargar y buscar usuarios de forma más eficiente.
+
+### Decisión 8: Paginación en el listado de usuarios en frontend:
+La lista se debe mostrar teniendo en cuenta que sólo se obtienen 10 usuarios por llamada.
+
+#### Alternativas de solución evaluadas:
+
+*Alternativa 1.a*: paginación (frontend)
+
+*Ventajas:*
+•   Permite saber exactamente el total de resultados y la página/posición actual.
+•   Más sencilla de implementar.
+•   Se puede saltar a otras páginas sin tener que hacer peticiones HTTP de las páginas previas.
+*Inconvenientes:*
+•   Requiere clicks adicionales para avanzar.
+
+*Alternativa 1.b*: scroll infinito
+
+*Ventajas:*
+•	Navegación continua y fluida, sin interrupciones.
+*Inconvenientes:*
+•   Más difícil volver a elementos anteriores.
+•   Problemas de rendimiento si se acumulan muchos elementos en el DOM.
+•   No se ve claramente el total de resultados.
+•   Más difícil de implementar.
+•   Requiere llamadas HTTP de las páginas anteriores para llegar a un elemento.
+
+#### Decisión de la solución adoptada
+
+Optamos por la paginación ya que posee muchas más ventajas que el scroll infinito, además que es un sistema más conveniente para la administración de usuarios, que es para lo que está enfocado el listado.
 
 ## Refactorizaciones aplicadas
 

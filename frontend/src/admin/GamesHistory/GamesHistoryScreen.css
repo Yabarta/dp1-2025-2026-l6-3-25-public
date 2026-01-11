@@ -1,0 +1,259 @@
+:root {
+  --petris-green: #22c55e;
+  --petris-green-strong: #00ff9d;
+  --petris-bg: #020617;
+  --petris-panel: rgba(10, 18, 26, 0.78);
+  --petris-border: rgba(34, 197, 94, 0.35);
+  --petris-text: #e2e8f0;
+  --petris-muted: #94a3b8;
+}
+
+.games-history .bg {
+  position: relative;
+  min-height: 100vh;
+  padding: 48px 20px 80px;
+  background: linear-gradient(135deg, rgba(2, 6, 23, 0.9) 0%, rgba(2, 6, 23, 0.8) 50%, rgba(2, 6, 23, 0.9) 100%),
+    url('../../static/images/mainmenu.png');
+  background-size: cover;
+  background-position: center;   
+  border-radius: 0;
+  color: var(--petris-text);
+  overflow-x: hidden;
+}
+
+.games-history .bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 20% 20%, rgba(0, 255, 157, 0.12), transparent 35%),
+    radial-gradient(circle at 80% 10%, rgba(59, 130, 246, 0.12), transparent 35%),
+    radial-gradient(circle at 40% 80%, rgba(234, 179, 8, 0.1), transparent 32%);
+  z-index: 0;
+}
+
+.games-history .title {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  margin: 0 0 32px;
+  font-family: 'Courier Prime', 'Courier New', monospace;
+  font-size: 38px;
+  letter-spacing: 2px;
+  color: #f8fafc;
+  text-shadow: 0 0 14px rgba(34, 197, 94, 0.5);
+}
+
+.games-history .recentGamesContainer {
+  position: relative;
+  z-index: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.games-history .recentGamesContainer ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
+  gap: 18px;
+}
+
+.games-history .GameCard {
+  position: relative;
+  background: var(--petris-panel);
+  border: 1px solid var(--petris-border);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55);
+  overflow: hidden;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.games-history .GameCard::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.08), rgba(0, 0, 0, 0));
+  pointer-events: none;
+}
+
+.games-history .GameCard:hover {
+  transform: translateY(-4px);
+  border-color: rgba(34, 197, 94, 0.6);
+  box-shadow: 0 16px 46px rgba(0, 0, 0, 0.7), 0 0 14px rgba(34, 197, 94, 0.25);
+}
+
+.games-history .gameHeader {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.games-history .gameResult {
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  color: #f8fafc;
+}
+
+.games-history .gameTurns {
+  margin-left: 8px;
+  color: var(--petris-muted);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.games-history .gameDate {
+  color: var(--petris-muted);
+  font-size: 0.9rem;
+}
+
+.games-history .gamePlayersContainer {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 14px;
+  margin: 10px 0 12px;
+}
+
+.games-history .scorePlayer1,
+.games-history .scorePlayer2 {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  min-width: 0;
+}
+
+.games-history .scorePlayer1 {
+  border-left: 3px solid rgba(59, 130, 246, 0.7);
+}
+
+.games-history .scorePlayer2 {
+  border-left: 3px solid rgba(234, 179, 8, 0.7);
+}
+
+.games-history .gamePlayerInfo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  width: 100%;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid var(--petris-border);
+  border-color: rgba(0, 255, 157, 0.12);
+  color: #f8fafc;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  min-width: 0;
+  text-align: left;
+  word-break: break-word;
+}
+
+.games-history .player1Info {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.14), rgba(15, 23, 42, 0.7));
+}
+
+.games-history .player2Info {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.14), rgba(15, 23, 42, 0.7));
+}
+
+.games-history .gamePlayerInfo:hover {
+  transform: translateY(-2px);
+  border-color: rgba(34, 197, 94, 0.6);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.45), 0 0 14px rgba(34, 197, 94, 0.22);
+}
+
+.games-history .gamePlayerPic {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  background: #0b1220;
+}
+
+.games-history .score {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--petris-green-strong);
+  text-align: center;
+  padding: 8px 12px;
+  background: rgba(34, 197, 94, 0.12);
+  border: 1px solid var(--petris-border);
+  border-radius: 10px;
+  box-shadow: inset 0 0 12px rgba(34, 197, 94, 0.2);
+  align-self: center;
+}
+
+.games-history .gameVs {
+  font-family: 'Courier Prime', 'Courier New', monospace;
+  font-weight: 800;
+  color: #cbd5e1;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 8px 10px;
+  border-radius: 50%;
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.games-history .gameDetailsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.games-history .gameDetail {
+  font-size: 0.95rem;
+  color: var(--petris-muted);
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+@media (max-width: 900px) {
+  .games-history .gamePlayersContainer {
+    grid-template-columns: 1fr;
+  }
+
+  .games-history .gameVs {
+    width: fit-content;
+    margin: 0 auto;
+  }
+
+  .games-history .scorePlayer1,
+  .games-history .scorePlayer2 {
+    border-left: 3px solid var(--petris-border);
+  }
+}
+
+@media (max-width: 600px) {
+  .games-history .title {
+    font-size: 28px;
+  }
+
+  .games-history .bg {
+    padding: 36px 16px 60px;
+  }
+
+  .games-history .recentGamesContainer ul {
+    grid-template-columns: 1fr;
+  }
+}

@@ -35,7 +35,7 @@ import io.qameta.allure.Story;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @Epic("Match statistics batch")
 @Feature("Automatic player stats updates")
-@Owner("match-batch-team")
+@Owner("DiegoVicenteCamara(RXW1249)")
 class MatchStatsBatchIntegrationTests {
 
     @Autowired

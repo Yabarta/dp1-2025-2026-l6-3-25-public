@@ -1,8 +1,11 @@
 package es.us.dp1.l6_3_24_25.Petris.player.service;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,4 +67,22 @@ public class PlayerService {
         playerRepository.deleteById(id);
     }
 
+    @Transactional
+    public void detectionCurrentPlayer(Integer id) {
+        Player current = getPlayerById(id);
+        current.setIsOnline(true);
+        current.setLastLogin(LocalDateTime.now());
+        playerRepository.save(current);
+    }
+
+    @Scheduled(fixedDelay = 5000)
+    @Transactional
+    public void markPlayerIsOffline() {
+        LocalDateTime cutoff = LocalDateTime.now().minus(10, java.time.temporal.ChronoUnit.SECONDS);
+        playerRepository.findByIsOnlineTrueAndLastLoginBefore(cutoff)
+                .forEach(player -> {
+                    player.setIsOnline(false);
+                    playerRepository.save(player);
+                });
+    }
 }

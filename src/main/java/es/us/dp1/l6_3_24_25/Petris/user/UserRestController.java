@@ -19,6 +19,9 @@ import java.util.List;
 
 import jakarta.validation.Valid;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -52,12 +55,15 @@ class UserRestController {
 	}
 
 	@GetMapping
-	public ResponseEntity<List<User>> findAll(@RequestParam(required = false) String auth) {
-		List<User> res;
-		if (auth != null) {
-			res = (List<User>) userService.findAllByAuthority(auth);
-		} else
-			res = (List<User>) userService.findAll();
+	public ResponseEntity<Page<User>> findAll(
+		@RequestParam(required = false) String auth,
+		@RequestParam(defaultValue = "0") int page,
+		@RequestParam(defaultValue = "10") int size
+	) {
+		Pageable pageable = PageRequest.of(page, size);
+		Page<User> res = (auth != null)
+			? userService.findAllByAuthorityPaginated(auth, pageable)
+			: userService.findAllPaginated(pageable);
 		return new ResponseEntity<>(res, HttpStatus.OK);
 	}
 
