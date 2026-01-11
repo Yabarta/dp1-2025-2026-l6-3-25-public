@@ -8,12 +8,12 @@
 }
 
 @font-face {
-    font-family: 'american-typewriter'; /*a name to be used later*/
-    src: url('./static/fonts/American\ Typewriter\ Bold.ttf'); /*URL to font*/
+    font-family: 'Freeride'; /* app global font */
+    src: url('./static/fonts/Freeride.ttf') format('truetype'); /* URL to font */
 }
 
 * {
-    font-family: 'american-typewriter';
+    font-family: 'Freeride', sans-serif;
 }
 
 /* div {

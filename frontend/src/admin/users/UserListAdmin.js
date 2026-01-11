@@ -4,6 +4,7 @@ import { Button, ButtonGroup, Table } from "reactstrap";
 import tokenService from "../../services/token.service";
 import "../../static/css/admin/adminPage.css";
 import deleteFromList from "../../util/deleteFromList";
+import ConfirmDeleteModal from "../../components/modal/ConfirmDeleteModal";
 import getErrorModal from "../../util/getErrorModal";
 
 const jwt = tokenService.getLocalAccessToken();
@@ -18,6 +19,8 @@ export default function UserListAdmin() {
   const [currentPage, setCurrentPage] = useState(1);
   const [users, setUsers] = useState({ content: [], totalPages: 1, totalElements: 0 });
   const [alerts, setAlerts] = useState([]);
+  const [confirmVisible, setConfirmVisible] = useState(false);
+  const [toDelete, setToDelete] = useState({ id: null, username: "" });
 
   const authParam = botonAdmin ? "ADMIN" : botonPlayer ? "PLAYER" : null;
 
@@ -92,16 +95,10 @@ export default function UserListAdmin() {
             <button
               className="auth-button danger"
               aria-label={"delete-" + user.id}
-              onClick={() =>
-                deleteFromList(
-                  `/api/v1/users/${user.id}`,
-                  user.id,
-                  [filterUsers, () => fetchUsers(currentPage, authParam)],
-                  [alerts, setAlerts],
-                  setMessage,
-                  setVisible
-                )
-              }
+              onClick={() => {
+                setToDelete({ id: user.id, username: user.username });
+                setConfirmVisible(true);
+              }}
               style={{ padding: '0.5rem 1rem', fontSize: '0.8rem', minWidth: 'auto' }}
             >
               Delete
@@ -112,12 +109,32 @@ export default function UserListAdmin() {
     );
   });
   const modal = getErrorModal(setVisible, visible, message);
+  const confirmModal = (
+    <ConfirmDeleteModal
+      isVisible={confirmVisible}
+      text={toDelete.username ? `¿Seguro que quieres borrar el usuario ${toDelete.username}?` : '¿Seguro que quieres borrar este usuario?'}
+      onCancel={() => setConfirmVisible(false)}
+      onConfirm={() => {
+        deleteFromList(
+          `/api/v1/users/${toDelete.id}`,
+          toDelete.id,
+          [filterUsers, () => fetchUsers(currentPage, authParam)],
+          [alerts, setAlerts],
+          setMessage,
+          setVisible,
+          { skipConfirm: true }
+        );
+        setConfirmVisible(false);
+      }}
+    />
+  );
 
   return (
     <div className="admin-page-container">
       <h1 className="text-center">Users</h1>
       {alerts.map((a) => a.alert)}
       {modal}
+      {confirmModal}
       <div className="custom-form-input" style={{ maxWidth: '400px', margin: '0 auto 1rem auto' }}>
         <input 
           type="search" 

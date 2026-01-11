@@ -130,8 +130,9 @@ public class UserService {
 	@Transactional
 	public void deleteUser(Integer id) {
 		User toDelete = findUser(id);
-		this.userRepository.delete(toDelete);
+		playerRepository.getByUser(toDelete).ifPresentOrElse(
+				player -> playerRepository.delete(player),
+				() -> userRepository.delete(toDelete)
+		);
 	}
-
-
 }
