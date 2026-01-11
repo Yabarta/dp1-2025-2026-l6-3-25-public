@@ -187,7 +187,6 @@ function FriendsSidebar({ isOpen, toggle, username, jwt, id}) {
             const friendDisplay = (friend.receiver.nickname === username) 
                 ? friend.requester
                 : friend.receiver;
-            console.log (friendDisplay);
             return (
                     <tr key={friend.id}>
                         
@@ -195,13 +194,13 @@ function FriendsSidebar({ isOpen, toggle, username, jwt, id}) {
                         <td>{friendDisplay.isOnline ? (friendDisplay.isCurrentlyInMatch ? "En partida" : "Conectado") : "Desconectado"}</td>
                         <td>
                             <ButtonGroup>
-                                { inLobby &&
+                                { inLobby && friendDisplay.isOnline &&
                                 <Button
                                     style={{justifyContent: 'flex-end', backgroundColor: 'green'}}
-                                    onClick={() => handleInvite(friendId , {lobbyId , username})}
-                                    disabled={!!disabledButtons[friendId]} >
+                                    onClick={() => handleInvite(friendDisplay.id , {lobbyId , username})}
+                                    disabled={!!disabledButtons[friendDisplay.id]} >
 
-                                    {disabledButtons[friendId] ? 'Enviado' : 'Invitar a partida'}
+                                    {disabledButtons[friendDisplay.id] ? 'Enviado' : 'Invitar a partida'}
                                 </Button>}
                                 <Button
                                     style={{justifyContent: 'flex-end', backgroundColor: 'red'}}
