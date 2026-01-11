@@ -68,6 +68,27 @@ function App() {
         console.error("Error checking active matches:", err);
       }
     };
+    const playerIsInLobby = async () => {
+      try {
+        const resp = await api.get('/api/v1/matches');
+        const matches = resp.data || [];
+        const playerIsInLobby = matches.find((m) => (
+          m.createdAt && !m.startedAt && (
+            m.player1?.nickname === currentUser?.username ||
+            m.player2?.nickname === currentUser?.username
+          )
+        ));
+        if (playerIsInLobby) {
+          const target = `/lobby/${playerIsInLobby.id}`;
+          if (location.pathname !== target) {
+            navigate(target);
+          }
+        }
+      } catch (err) {
+        console.error("Error checking active matches:", err);
+      }
+    };
+    playerIsInLobby();
     checkActiveMatch();
     return;
   }, [jwt, navigate, location.pathname]);
