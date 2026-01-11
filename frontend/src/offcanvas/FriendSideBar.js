@@ -13,6 +13,7 @@ function FriendsSidebar({ isOpen, toggle, username, jwt, id}) {
     const [nombreBuscadoPlayer , setNombrePlayer] = useState("");
     const [friends, setFriends] = useState([]);
     const [change , setChange] = useState(false); // Estado para controlar cambios
+    const [changeFriend, setChangeFriend] = useState(false); // Estado para controlar cambios en amigos
     const [players, setPlayers] = useFetchState(
         [],
         `/api/v1/players`,
@@ -38,6 +39,15 @@ function FriendsSidebar({ isOpen, toggle, username, jwt, id}) {
     if (window.location.pathname !== path) {
         setPath(window.location.pathname);
     }
+
+    useEffect(() => {
+    const intervalChange = setInterval(() => {
+        setChangeFriend(c => !c);
+    }, 10000);
+
+    // Limpieza: detiene el reloj si el usuario cierra el sidebar
+    return () => clearInterval(intervalChange);
+}, []);
 
     useEffect(() => {
         if (window.location.pathname.includes("/lobby/")) {
@@ -163,25 +173,22 @@ function FriendsSidebar({ isOpen, toggle, username, jwt, id}) {
 
     const friendList = filterFriend.map((friend) =>
         {
-            const friendDisplayName = (friend.receiver.nickname === username) 
-                ? friend.requester.nickname
-                : friend.receiver.nickname;
 
-            const friendId = (friend.receiver.nickname === username)
-                ? friend.requester.id
-                : friend.receiver.id;
-                
+            const friendDisplay = (friend.receiver.nickname === username) 
+                ? friend.requester
+                : friend.receiver;
+            console.log (friendDisplay);
             return (
                     <tr key={friend.id}>
                         
-                        <td>{friendDisplayName}</td> 
-                        
+                        <td>{friendDisplay.nickname}</td> 
+                        <td>{friendDisplay.isOnline ? (friendDisplay.isCurrentlyInMatch ? "En partida" : "Conectado") : "Desconectado"}</td>
                         <td>
                             <ButtonGroup>
                                 { inLobby &&
                                 <Button
                                     style={{justifyContent: 'flex-end', backgroundColor: 'green'}}
-                                    onClick={() => handleInvite(friendId , {lobbyId , username})}>
+                                    onClick={() => handleInvite(friend.id , {lobbyId , username})}>
                                     
                                     Invitar a partida
                                 </Button>}
@@ -190,6 +197,12 @@ function FriendsSidebar({ isOpen, toggle, username, jwt, id}) {
                                     onClick={() => {handleDelete(friend.id);}}>
                                     Eliminar Amigo
                                 </Button>
+                                { friendDisplay.isCurrentlyInMatch &&
+                                <Button
+                                    style={{justifyContent: 'flex-end', backgroundColor: 'blue'}}
+                                    onClick={() => {}}>
+                                    Espectear partida
+                                </Button>}
                             </ButtonGroup>
                         </td>
                     </tr>
@@ -220,7 +233,7 @@ function FriendsSidebar({ isOpen, toggle, username, jwt, id}) {
         // Llamar a la función para obtener la lista de amigos
         fetchFriends();
     },
-    [username , change]);
+    [username , change , changeFriend]);
 
     // Request List
 
@@ -328,6 +341,31 @@ function FriendsSidebar({ isOpen, toggle, username, jwt, id}) {
             );
         });
 
+    // Online
+
+    useEffect(() => {
+    if (!jwt) return;
+    const detection = async () => {
+      try {
+        await fetch("/api/v1/players/onlineDetection/" + id , 
+            {method: 'PUT',
+            headers: {
+                "Authorization": `Bearer ${jwt}`,
+                "Content-Type": "application/json"
+            }
+        }
+        );
+      } catch (err) {
+        console.error("Error en la detección de presencia", err);
+      }
+    };
+
+    
+    detection();
+    const intervalId = setInterval(detection, 5000);
+    return () => clearInterval(intervalId);
+  }, [jwt , id, stompClient]);
+
     return (<>
             <div>
             <Offcanvas isOpen={isOpen} onClose={toggle} direction='start'  style={{width: "33%" , overflowY: "scroll", borderLeftColor: "white"}} className="bg-dark text-white">
@@ -344,6 +382,7 @@ function FriendsSidebar({ isOpen, toggle, username, jwt, id}) {
         <thead>
             <tr>
                 <th>Username</th>
+                <th>Estado</th>
                 <th>Acciones</th>
             </tr>
         </thead>
