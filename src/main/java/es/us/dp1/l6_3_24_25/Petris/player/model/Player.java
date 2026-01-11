@@ -38,7 +38,8 @@ public class Player extends BaseEntity{
     private Boolean isCurrentlyInMatch;
     @NotAudited
     @NotNull
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "user_id")
     private User user;
     @NotAudited
     @Builder.Default
