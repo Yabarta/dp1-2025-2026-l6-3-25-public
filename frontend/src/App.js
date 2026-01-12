@@ -25,6 +25,7 @@ import Comparator from "./visualStatistics/page/Comparator";
 import StatisticRanking from "./visualStatistics/page/StatisticsRanking";
 import AchievementListAdmin from "./admin/Achievements/AchievementListAdmin";
 import GamesHistoryScreen from "./admin/GamesHistory/GamesHistoryScreen";
+import NotFoundPage from "./components/NotFoundPage";
 
 function ErrorFallback({ error, resetErrorBoundary }) {
   return (
@@ -159,6 +160,7 @@ function App() {
           {adminRoutes}
           {playerRoutes}
           {vetRoutes}
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </ErrorBoundary>
     </div>
