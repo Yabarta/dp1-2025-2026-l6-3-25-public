@@ -23,8 +23,9 @@ import getDeleteAlertsOrModal from "./getDeleteAlertsOrModal";
 
 export default function deleteFromList(url, id, [state, setState], [alerts, setAlerts], setMessage, setVisible, options = {}) {
     const jwt = tokenService.getLocalAccessToken();
-    let confirmMessage = window.confirm("Are you sure you want to delete it?");
-    if (confirmMessage) {
+    // options.skipConfirm: if true, caller already confirmed via UI modal and we skip window.confirm
+    const confirmed = options.skipConfirm ? true : window.confirm("Are you sure you want to delete it?");
+    if (confirmed) {
         fetch(url, {
             method: "DELETE",
             headers: {

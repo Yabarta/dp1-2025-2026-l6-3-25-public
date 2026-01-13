@@ -6,8 +6,12 @@ import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.lang.NonNull;
 
+import java.util.List;
+
+import es.us.dp1.l6_3_24_25.Petris.player.model.Achievement;
 import es.us.dp1.l6_3_24_25.Petris.player.model.Player;
 import es.us.dp1.l6_3_24_25.Petris.player.model.Statistics;
+import es.us.dp1.l6_3_24_25.Petris.player.service.AchievementService;
 import es.us.dp1.l6_3_24_25.Petris.player.service.PlayerService;
 import es.us.dp1.l6_3_24_25.Petris.player.service.StatisticsService;
 
@@ -17,10 +21,12 @@ public class PlayerStatsWriter implements ItemWriter<PlayerStatsUpdate> {
 
     private final PlayerService playerService;
     private final StatisticsService statisticsService;
+    private final AchievementService achievementService;
 
-    public PlayerStatsWriter(PlayerService playerService, StatisticsService statisticsService) {
+    public PlayerStatsWriter(PlayerService playerService, StatisticsService statisticsService, AchievementService achievementService) {
         this.playerService = playerService;
         this.statisticsService = statisticsService;
+        this.achievementService = achievementService;
     }
     @Override
     public void write(@NonNull Chunk<? extends PlayerStatsUpdate> items) {
@@ -33,37 +39,34 @@ public class PlayerStatsWriter implements ItemWriter<PlayerStatsUpdate> {
         Player player = playerService.getPlayerById(Math.toIntExact(update.playerId()));
         Statistics statistics = ensureStatistics(player);
 
-        boolean changed = false;
-        if (update.gamesPlayedDelta() > 0) {
+        boolean statsChanged = false;
+        int totaDelta = update.gamesPlayedDelta() + update.gamesWonDelta() + update.sarcinasCreatedDelta()
+                + update.timePlayedDelta() + update.bacteriasCreatedDelta();
+                
+        if (totaDelta > 0) {
             statistics.setGamesPlayed(safeAdd(statistics.getGamesPlayed(), update.gamesPlayedDelta(), "gamesPlayed"));
-            changed = true;
-        }
-        if (update.gamesWonDelta() > 0) {
             statistics.setGamesWon(safeAdd(statistics.getGamesWon(), update.gamesWonDelta(), "gamesWon"));
-            changed = true;
-        }
-        if (update.sarcinasCreatedDelta() > 0) {
             statistics.setSarcinasCreated(safeAdd(statistics.getSarcinasCreated(), update.sarcinasCreatedDelta(), "sarcinasCreated"));
-            changed = true;
-        }
-        if (update.timePlayedDelta() > 0) {
             statistics.setTimePlayed(safeAdd(statistics.getTimePlayed(), update.timePlayedDelta(), "timePlayed"));
-            changed = true;
-        }
-        if (update.bacteriasCreatedDelta() > 0) {
             statistics.setBacteriasCreated(safeAdd(statistics.getBacteriasCreated(), update.bacteriasCreatedDelta(), "bacteriasCreated"));
-            changed = true;
+            statsChanged = true;
         }
 
-        if (!changed) {
+        boolean achievementsAdded = awardNewAchievements(player, statistics);
+
+        if (!statsChanged && !achievementsAdded) {
             log.info("No statistic deltas to persist for player {} in match {}", player.getId(), update.matchId());
             return;
         }
 
-        statisticsService.saveStatistics(statistics);
-        playerService.save(player);
+        if (statsChanged) {
+            statisticsService.saveStatistics(statistics);
+        }
+        if (achievementsAdded || statsChanged) {
+            playerService.save(player);
+        }
         log.info(
-            "Persisted stats for player {} after match {} -> gamesPlayed={}, gamesWon={}, sarcinesCreated={}",
+            "Persisted stats for player {} after match {} -> gamesPlayed={}, gamesWon={}, sarcinesCreated={}, timePlayed={}, bacteriasCreated={}",
             player.getId(),
             update.matchId(),
             statistics.getGamesPlayed(),
@@ -72,6 +75,25 @@ public class PlayerStatsWriter implements ItemWriter<PlayerStatsUpdate> {
             statistics.getTimePlayed(),
             statistics.getBacteriasCreated()
         );
+    }
+
+    private boolean awardNewAchievements(Player player, Statistics statistics) {
+        List<Achievement> unlocked = player.getAchievements();
+        boolean added = false;
+
+        for (Achievement achievement : achievementService.getAllAchievements()) {
+            if (unlocked.contains(achievement)) {
+                continue;
+            }
+            Integer currentValue = statistics.getStatisticByName(achievement.getStatisticName());
+            if (currentValue != null && currentValue >= achievement.getValor()) {
+                unlocked.add(achievement);
+                added = true;
+                log.info("Player {} unlocked achievement {}", player.getId(), achievement.getName());
+            }
+        }
+
+        return added;
     }
 
     private Statistics ensureStatistics(Player player) {

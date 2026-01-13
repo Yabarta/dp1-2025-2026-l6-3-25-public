@@ -20,6 +20,8 @@ import es.us.dp1.l6_3_24_25.Petris.player.model.Statistics;
 import es.us.dp1.l6_3_24_25.Petris.player.repository.PlayerRepository;
 import es.us.dp1.l6_3_24_25.Petris.player.repository.StatisticsRepository;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.dao.DataAccessException;
@@ -106,6 +108,16 @@ public class UserService {
 		return userRepository.findAllByAuthority(auth);
 	}
 
+	@Transactional(readOnly = true)
+	public Page<User> findAllPaginated(Pageable pageable) {
+		return userRepository.findAll(pageable);
+	}
+
+	@Transactional(readOnly = true)
+	public Page<User> findAllByAuthorityPaginated(String auth, Pageable pageable) {
+		return userRepository.findAllByAuthority(auth, pageable);
+	}
+
 	@Transactional
 	public User updateUser(@Valid User user, Integer idToUpdate) {
 		User toUpdate = findUser(idToUpdate);
@@ -118,8 +130,9 @@ public class UserService {
 	@Transactional
 	public void deleteUser(Integer id) {
 		User toDelete = findUser(id);
-		this.userRepository.delete(toDelete);
+		playerRepository.getByUser(toDelete).ifPresentOrElse(
+				player -> playerRepository.delete(player),
+				() -> userRepository.delete(toDelete)
+		);
 	}
-
-
 }

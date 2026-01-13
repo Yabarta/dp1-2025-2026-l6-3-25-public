@@ -14,6 +14,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.List;
 
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -109,12 +112,14 @@ class UserControllerTests {
 		juan.setId(3);
 		juan.setUsername("Juan");
 
-		when(this.userService.findAll()).thenReturn(List.of(user, sara, juan));
+		when(this.userService.findAllPaginated(PageRequest.of(0, 10)))
+				.thenReturn(new PageImpl<>(List.of(user, sara, juan)));
 
-		mockMvc.perform(get(BASE_URL)).andExpect(status().isOk()).andExpect(jsonPath("$.size()").value(3))
-				.andExpect(jsonPath("$[?(@.id == 1)].username").value("user"))
-				.andExpect(jsonPath("$[?(@.id == 2)].username").value("Sara"))
-				.andExpect(jsonPath("$[?(@.id == 3)].username").value("Juan"));
+		mockMvc.perform(get(BASE_URL)).andExpect(status().isOk())
+				.andExpect(jsonPath("$.content.size()").value(3))
+				.andExpect(jsonPath("$.content[?(@.id == 1)].username").value("user"))
+				.andExpect(jsonPath("$.content[?(@.id == 2)].username").value("Sara"))
+				.andExpect(jsonPath("$.content[?(@.id == 3)].username").value("Juan"));
 	}
 
 	@Test
@@ -134,11 +139,13 @@ class UserControllerTests {
 		juan.setUsername("Juan");
 		juan.setAuthority(auth);
 
-		when(this.userService.findAllByAuthority(auth.getAuthority())).thenReturn(List.of(user, juan));
+		when(this.userService.findAllByAuthorityPaginated(auth.getAuthority(), PageRequest.of(0, 10)))
+				.thenReturn(new PageImpl<>(List.of(user, juan)));
 
 		mockMvc.perform(get(BASE_URL).param("auth", "VET")).andExpect(status().isOk())
-				.andExpect(jsonPath("$.size()").value(2)).andExpect(jsonPath("$[?(@.id == 1)].username").value("user"))
-				.andExpect(jsonPath("$[?(@.id == 3)].username").value("Juan"));
+				.andExpect(jsonPath("$.content.size()").value(2))
+				.andExpect(jsonPath("$.content[?(@.id == 1)].username").value("user"))
+				.andExpect(jsonPath("$.content[?(@.id == 3)].username").value("Juan"));
 	}
 
 	@Test

@@ -28,8 +28,6 @@ const FormGenerator = forwardRef((props, ref) => {
           let input = props.inputs[i];
           for (let validator of input.validators) {
             if (!validator.validate(formValues[input.name])) {
-              console.log(input);
-              console.log(formValues[input.name])
               formInputs.current[i].setErrors([validator.message]);
               isValid = false;
             }

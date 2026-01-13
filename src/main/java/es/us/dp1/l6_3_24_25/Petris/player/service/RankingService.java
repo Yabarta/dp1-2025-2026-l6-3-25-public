@@ -32,6 +32,7 @@ public class RankingService {
                 playerRanking.setPartidasGanadas(player.getStatistics().getGamesWon());
                 playerRanking.setSarcinasCreadas(player.getStatistics().getSarcinasCreated());
                 playerRanking.setScore(score);
+                playerRanking.setProfilePicture(player.getProfilePicture());
                 ranking.add(playerRanking);
             }
         }

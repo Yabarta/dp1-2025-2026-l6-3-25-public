@@ -3,8 +3,8 @@
     margin: 0.75rem 0;
     padding: 1rem;
     border-radius: 14px;
-    background: rgba(18, 38, 24, 0.92);
-    border: 1px solid rgba(123, 168, 132, 0.16);
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--petris-border);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
     display: flex;
     flex-direction: column;
@@ -12,12 +12,12 @@
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 .achievement.completed {
-    background: rgba(82, 132, 94, 0.35);
-    border-color: rgba(168, 219, 178, 0.35);
+    background: rgba(34, 197, 94, 0.2);
+    border-color: var(--petris-green);
 }
 .achievementDescriptionContainer {
     margin: 0.25rem 0 0;
-    border-top: 1px solid rgba(123, 168, 132, 0.16);
+    border-top: 1px solid var(--petris-border);
     padding-top: 0.75rem;
 }
 .achievementHeader {
@@ -43,7 +43,9 @@
     color: #8ad49b;
 }
 .bg {
-    background: rgba(25, 53, 32, 0.9);
+    background: rgba(15, 25, 35, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     margin: 0;
     padding: 2rem;
     border-radius: 18px;
@@ -54,7 +56,7 @@
     width: 100%;
     gap: 1.5rem;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
-    border: 1px solid rgba(123, 168, 132, 0.12);
+    border: 1px solid var(--petris-border);
 }
 .closePopupButton {
     position: absolute;
@@ -97,20 +99,21 @@
 .editProfileButton {
     padding: 0.85rem 1.5rem;
     font-size: 1rem;
-    font-weight: 600;
-    color: #f5fff6;
-    background: linear-gradient(135deg, #3a9150 0%, #2f7a44 100%);
+    font-weight: 800;
+    color: #000;
+    background: var(--petris-green);
     border: none;
     border-radius: 12px;
     cursor: pointer;
     align-self: center;
     margin-top: 1rem;
-    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.4);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 .editProfileButton:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 14px 26px rgba(0, 0, 0, 0.32);
+    background: #4ade80;
+    transform: scale(1.02);
+    box-shadow: 0 0 30px rgba(34, 197, 94, 0.6);
 }
 .error {
     color: #f44336;
@@ -127,9 +130,9 @@
     width: 100%;
     padding: 0.75rem 1rem;
     border-radius: 12px;
-    border: 1px solid rgba(123, 168, 132, 0.22);
-    background: rgba(12, 24, 15, 0.85);
-    color: #f0fff2;
+    border: 1px solid var(--petris-border);
+    background: rgba(0, 0, 0, 0.4);
+    color: var(--petris-text);
 }
 .formGroup {
     margin-bottom: 1rem;
@@ -249,15 +252,17 @@
     z-index: 1;
 }
 .loadingCard {
-    background: rgba(25, 53, 32, 0.92);
-    color: #f6fff6;
+    background: rgba(15, 25, 35, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    color: var(--petris-text);
     padding: 1.5rem 2rem;
     border-radius: 16px;
     box-shadow: 0 16px 36px rgba(0,0,0,0.38);
     min-width: 280px;
     max-width: 80%;
     text-align: center;
-    border: 1px solid rgba(123, 168, 132, 0.16);
+    border: 1px solid var(--petris-border);
 }
 
 .loadingCard::before{
@@ -370,7 +375,7 @@
     font-size: 1rem;
     display: flex;
     flex-direction: column;
-    border-bottom: 1px solid rgba(123, 168, 132, 0.16);
+    border-bottom: 1px solid var(--petris-border);
     gap: 0.5rem;
     width: 100%;
     padding-bottom: 0.5rem;
@@ -387,8 +392,10 @@
     white-space: pre-wrap;
 }
 .popupContent {
-    background: rgba(25, 53, 32, 0.95);
-    color: #e2f0e4;
+    background: rgba(15, 25, 35, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    color: var(--petris-text);
     padding: 2.25rem;
     border-radius: 22px;
     width: 50%;
@@ -398,7 +405,7 @@
     flex-direction: column;
     position: relative;
     box-shadow: 0 28px 60px rgba(0, 0, 0, 0.45);
-    border: 1px solid rgba(123, 168, 132, 0.16);
+    border: 1px solid var(--petris-border);
 }
 .profileHeaderEmail {
     color: rgba(226, 240, 228, 0.75);
@@ -425,10 +432,12 @@
     left: 0;
     right: 0;
     bottom: 0;
-    z-index: -1;
-    color: #e2f0e4;
-    background: radial-gradient(circle at 15% 20%, rgba(51, 82, 63, 0.32), transparent 60%),
-        linear-gradient(180deg, #111612 0%, #162318 35%, #101410 100%);
+    z-index: 0;
+    color: var(--petris-text);
+    background-image: linear-gradient(rgba(2, 6, 23, 0.7), rgba(2, 6, 23, 0.8)), url('../../images/mainmenu.png');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
     display: flex;
     flex-wrap: wrap;
     gap: 2.5rem;
@@ -438,7 +447,9 @@
     overflow-y: auto;
 }
 .profileHeader {
-    background: rgba(25, 53, 32, 0.9);
+    background: rgba(15, 25, 35, 0.7);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     border-radius: 18px;
     display: flex;
     align-items: center;
@@ -446,7 +457,7 @@
     gap: 0.75rem;
     padding: 1.5rem 1.75rem;
     box-shadow: 0 12px 28px rgba(0, 0, 0, 0.32);
-    border: 1px solid rgba(123, 168, 132, 0.12);
+    border: 1px solid var(--petris-border);
 }
 .profileNickname {
     font-size: 1.6rem;
@@ -509,8 +520,8 @@
     align-items: center;
     padding: 0.85rem 1rem;
     border-radius: 12px;
-    background: rgba(18, 38, 24, 0.92);
-    border: 1px solid rgba(123, 168, 132, 0.16);
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--petris-border);
 }
 .statLabel {
     color: rgba(226, 240, 228, 0.7);

@@ -1,0 +1,29 @@
+name: Sincronizar Manualmente
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  copy-file:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false  
+
+      - name: Empujar al repositorio público (Fork)
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.API_TOKEN_GITHUB }}
+        run: |
+          git config --global user.email "perezsornipablo@gmail.com"
+          git config --global user.name "Yabarta"
+          
+          git config --global http.extraheader "Authorization: Basic $(echo -n Yabarta:${API_TOKEN_GITHUB} | base64)"
+          
+          git remote add publico https://github.com/Yabarta/dp1-2025-2026-l6-3-25-public.git
+          
+          echo "Iniciando Push al Fork..."
+          git push publico main --force

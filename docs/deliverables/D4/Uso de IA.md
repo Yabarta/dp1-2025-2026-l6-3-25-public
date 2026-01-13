@@ -33,99 +33,99 @@ Este documento describe el uso que se ha echo de la IA en el proyecto. El objeti
 ## Resumen por Sprint (1–4)
 ### Sprint 1 — Resumen de uso de IA
 
-Usos registrados: <!-- nº -->
+Usos registrados: 0
 
-Ámbitos principales: <!-- p.ej., generación de pruebas, esqueletos de código, análisis y resolución de errores --> generación de estilos
+Ámbitos principales: no aplica.
 
-Valor aportado: <!-- síntesis -->
+Valor aportado: no aplica. 
 
-Riesgos relevantes y mitigaciones: <!-- síntesis -->
+Riesgos relevantes y mitigaciones: no aplica.
 
-Lecciones aprendidas: <!-- síntesis -->
+Lecciones aprendidas: no aplica.
 
 Checklist de cumplimiento de uso ético de la IA del sprint X:
 
-- [ ] Toda interacción significativa está en el Registro Detallado con enlace a conversación.
+- [x] Toda interacción significativa está en el Registro Detallado con enlace a conversación.
 
-- [ ] No se usó IA para narrativa (o hay autorización documentada).
+- [x] No se usó IA para narrativa (o hay autorización documentada).
 
-- [ ] Toda pieza aceptada fue comprendida y verificada por humanos (tests/revisión).
+- [x] Toda pieza aceptada fue comprendida y verificada por humanos (tests/revisión).
 
-- [ ] Citas/Atribuciones incluidas cuando corresponde.
+- [x] Citas/Atribuciones incluidas cuando corresponde.
 
-- [ ] Se usó la IA sin dar datos personales/sensibles que puedieran quedar expuestos a herramientas externas.
+- [x] Se usó la IA sin dar datos personales/sensibles que puedieran quedar expuestos a herramientas externas.
 
 ### Sprint 2 — Resumen de uso de IA
 
-Usos registrados: <!-- nº -->
+Usos registrados: 3
 
-Ámbitos principales: <!-- p.ej., generación de pruebas, esqueletos de código, análisis y resolución de errores --> generación de estilos
+Ámbitos principales: generación de estilos, prototipos visuales para el tablero y mejoras UI de la demo.
 
-Valor aportado: <!-- síntesis -->
+Valor aportado: prototipos y componentes visuales iniciales que aceleraron el desarrollo del tablero y facilitaron decisiones de diseño tempranas.
 
-Riesgos relevantes y mitigaciones: <!-- síntesis -->
+Riesgos relevantes y mitigaciones: riesgo de visualizaciones engañosas o escalas mal calibradas; mitigación mediante revisiones de equipo, pruebas manuales con datos de ejemplo y ajuste de paletas/escala.
 
-Lecciones aprendidas: <!-- síntesis -->
+Lecciones aprendidas: la IA agiliza el prototipado visual, pero las propuestas deben validarse y afinarse manualmente antes de integrarlas definitivamente.
 
 Checklist de cumplimiento de uso ético de la IA del sprint X:
 
-- [ ] Toda interacción significativa está en el Registro Detallado con enlace a conversación.
+- [x] Toda interacción significativa está en el Registro Detallado con enlace a conversación.
 
-- [ ] No se usó IA para narrativa (o hay autorización documentada).
+- [x] No se usó IA para narrativa (o hay autorización documentada).
 
-- [ ] Toda pieza aceptada fue comprendida y verificada por humanos (tests/revisión).
+- [x] Toda pieza aceptada fue comprendida y verificada por humanos (tests/revisión).
 
-- [ ] Citas/Atribuciones incluidas cuando corresponde.
+- [x] Citas/Atribuciones incluidas cuando corresponde.
 
-- [ ] Se usó la IA sin dar datos personales/sensibles que puedieran quedar expuestos a herramientas externas.
+- [x] Se usó la IA sin dar datos personales/sensibles que puedieran quedar expuestos a herramientas externas.
 
 ### Sprint 3 — Resumen de uso de IA
 
-Usos registrados: <!-- nº -->
+Usos registrados: 6
 
-Ámbitos principales: <!-- p.ej., generación de pruebas, esqueletos de código, análisis y resolución de errores --> generación de estilos
+Ámbitos principales: implementación y ajuste de lógica de juego, corrección y mejora de comportamientos UI, refactorización de componentes y anotación de pruebas (Allure).
 
-Valor aportado: <!-- síntesis -->
+Valor aportado: aceleró la implementación de la lógica de turnos y el cálculo del ganador, solucionó problemas de interacción en la UI (selección de discos, modal de ganador, chat) y facilitó la mejora de metadatos de pruebas y la modularización del código.
 
-Riesgos relevantes y mitigaciones: <!-- síntesis -->
+Riesgos relevantes y mitigaciones: riesgo de divergencia respecto a las reglas de negocio y regresiones en la UI; mitigación mediante revisión manual, pruebas locales y ejecución de tests.
 
-Lecciones aprendidas: <!-- síntesis -->
+Lecciones aprendidas: validar siempre el código y las propuestas de la IA con pruebas y revisiones usándola solo para acelerar tareas repetitivas y prototipos.
 
 Checklist de cumplimiento de uso ético de la IA del sprint X:
 
-- [ ] Toda interacción significativa está en el Registro Detallado con enlace a conversación.
+- [x] Toda interacción significativa está en el Registro Detallado con enlace a conversación.
 
-- [ ] No se usó IA para narrativa (o hay autorización documentada).
+- [x] No se usó IA para narrativa (o hay autorización documentada).
 
-- [ ] Toda pieza aceptada fue comprendida y verificada por humanos (tests/revisión).
+- [x] Toda pieza aceptada fue comprendida y verificada por humanos (tests/revisión).
 
-- [ ] Citas/Atribuciones incluidas cuando corresponde.
+- [x] Citas/Atribuciones incluidas cuando corresponde.
 
-- [ ] Se usó la IA sin dar datos personales/sensibles que puedieran quedar expuestos a herramientas externas.
+- [x] Se usó la IA sin dar datos personales/sensibles que puedieran quedar expuestos a herramientas externas.
 
 ### Sprint 4 — Resumen de uso de IA
 
-Usos registrados: <!-- nº -->
+Usos registrados: 5
 
-Ámbitos principales: <!-- p.ej., generación de pruebas, esqueletos de código, análisis y resolución de errores --> generación de estilos
+Ámbitos principales: asesoramiento en diseño técnico, refactorización de pantallas, implementación de paginación, prototipado de ranking y rediseño visual del menú.
 
-Valor aportado: <!-- síntesis -->
+Valor aportado: propuestas de arquitectura y prototipos que facilitaron decisiones sobre estructura de código, paginación y mejoras de la interfaz.
 
-Riesgos relevantes y mitigaciones: <!-- síntesis -->
+Riesgos relevantes y mitigaciones: riesgo de introducir cambios en modelos o lógica y de decisiones de diseño inconsistentes; mitigación mediante discusiones de equipo, pruebas manuales y refinamiento.
 
-Lecciones aprendidas: <!-- síntesis -->
+Lecciones aprendidas: la IA es útil para generar ideas y prototipos técnicos/visual, pero requiere validación, refinamiento en equipo y cuidado al proponer cambios en modelos o contratos existentes.
 
 Checklist de cumplimiento de uso ético de la IA del sprint X:
 
-- [ ] Toda interacción significativa está en el Registro Detallado con enlace a conversación.
+- [x] Toda interacción significativa está en el Registro Detallado con enlace a conversación.
 
-- [ ] No se usó IA para narrativa (o hay autorización documentada).
+- [x] No se usó IA para narrativa (o hay autorización documentada).
 
-- [ ] Toda pieza aceptada fue comprendida y verificada por humanos (tests/revisión).
+- [x] Toda pieza aceptada fue comprendida y verificada por humanos (tests/revisión).
 
-- [ ] Citas/Atribuciones incluidas cuando corresponde.
+- [x] Citas/Atribuciones incluidas cuando corresponde.
 
-- [ ] Se usó la IA sin dar datos personales/sensibles que puedieran quedar expuestos a herramientas externas.
+- [x] Se usó la IA sin dar datos personales/sensibles que puedieran quedar expuestos a herramientas externas.
 
 ## Registro detallado de uso de AI por Sprint
 
@@ -162,15 +162,29 @@ Checklist de cumplimiento de uso ético de la IA del sprint X:
 |---:|--------------|:-----:|---------------|----------------------------|------------|------------------------------------|---------------|---------------------------|--------------------------|-----------------------------|---------------|
 | 4.1 | 02/01/2026 11:58 | 4 | David Lozano Acosta | Google Gemini (Pro) | Web | Prompt: si estoy desarrollando una aplicacion en java springboot y tengo la clase Player con asociacion 1-1 con estadisticas, está bien usar el patron de diseño builder para la creacion del jugador? | Implementar de manera el patrón de diseño Builder | `User.java`, `Player.java`, `Statistics.java` | Revisión de que funcionaba bien, implementandolo junto al saveUser | Ineficiencia a la hora de crear usuarios nuevos, sea "player" como "admin" | Aceptado |
 | 4.2 | 02/01/2026 12:30 | 4 | David Lozano Acosta | GitHub Copilot Chat (Assistant) | VS Code (extensión Copilot) | Prompt: "Extrae los subcomponentes de ProfileScreen en React y crea componentes desacoplados en frontend/src/profile/components" | Refactorizar `ProfileScreen` extrayendo subcomponentes y disminuir su tamaño/acoplamiento | `frontend/src/profile/profileScreen.js`, `frontend/src/profile/components/*` | Revisión manual del código y comprobación visual en dev server | Riesgo de omitir props o romper la UI; mitigación: pasar props explícitos y test manual | Aceptado |
+| 4.3 | 10/01/2026 12:40 | 4 | Lu Dao Guerricabeitia Garzón | GitHub Copilot Chat (Assistant) | VS Code (extensión Copilot) | Prompt: "Como hago para crear una función de llamada al listado de usuarios con paginación tanto en el backend como en el frontend" | Implementación de llamada con paginación en el módulo User y al mostrar el listado de usuarios | `frontend\src\admin\users\UserListAdmin.js`, `src\main\java\es\us\dp1\l6_3_24_25\Petris\user\UserRepository.java`, `src\main\java\es\us\dp1\l6_3_24_25\Petris\user\UserRestController.java`, `src\main\java\es\us\dp1\l6_3_24_25\Petris\user\UserService.java` | Revisión manual del funcionamiento en la aplicación y comprobación mediante tests | Riesgos de mal funcionamieneto del módulo debido a la modificación de las funciones usadas | Aceptado |
+| 4.4 | 11/01/2026 09:00 | 4 | Pablo Pérez Sorni | GitHub Copilot Chat (Assistant) | VS Code (extensión Copilot) | Prompt: "Planteamiento del ranking: proponme una fórmula con las estadísticas de un jugador para ordenar jugadores en forma de tabla" | Diseñar y elaborar una versión primitiva del ranking de jugadores para mostrar en la UI | `frontend/src/visualStatistics/ranking.jsx`, `frontend/src/services/rankingService.js` | Revisión manual y pruebas con datos de ejemplo; discusión en equipo y ajustes posteriores | Riesgo: meterse en un berenjenal por el posible planteamiento de cambios en los modelos; Mitigación: refinar la fórmula | Aceptado con modificaciones |
+| 4.5 | 11/01/2026 10:15 | 4 | Pablo Pérez Sorni | GitHub Copilot Chat (Assistant) | VS Code (extensión Copilot) | Prompt: "Rediseña visualmente el menú principal para que no se vea tan mal y vacío" | Proponer un rediseño visual del menú y controlar que queremos en el AppNavbar y que queremos en home | `frontend/src/AppNavbar.js`, `frontend/src/home/*` | Pruebas manuales de usabilidad y revisión visual; se aplicaron cambios y ajustes menores | Riesgo: quedarse en la incertidumbre de dónde poner qué; Mitigación: discusión con el equipo | Aceptado con modificaciones |
 
 ## Conclusiones finales sobre el uso de la IA en el proyecto
-Aqui debéis reflexionar sobre el papel que ha tenido la IA en la realización de vuestro proyecto y las maneras que consideráis que son más adecuadas para su uso en este contexto. Si tenéis alguna curiosida o caso que sea reseñable y pueda ser útil que los profesor conozcamos de cara a orientar a otros compañeros a este respecto podéis incluirlas aquí también.
+La inteligencia artificial ha tenido un uso bastante relevante en el proyecto. Gracias a ella hemos podido acelerar el proceso de diversos campos que nos hubiera costado mucho realizar por nuestra cuenta. Además ha sido de apoyo en ciertos diseños visuales, quitándonos incertidumbre al poner mini prototipos con los que podíamos interactuar y ver si estábamos satisfechos con las ideas que planteábamos.
+
+Por supuesto consideramos que la inteligencia artificial es muy útil si se usa de la manera correcta, es decir, como apoyo y no como reemplazo total al programador, ya que nosotros somos al final los que le damos el toque de gracia a la aplicación. Además, muchas veces, la IA puede cometer errores y hay que tener el conocimiento suficiente de lo que se está haciendo para detectar los fallos y solucionar los errores de la mejor manera y en el menor tiempo posible.
 
 ## Anexo A) Inventario de Herramientas de IA
 |Herramienta|Versión/Modelo|Proveedor|Acceso (web/plugin/API)| Licencia/Plan | Observaciones|
 |-----------|--------------|---------|-----------------------|---------------|--------------|
-|<!-- p.ej., ChatGPT (GPT-5) -->|<!-- 5 (2025)-->|<!-- OpenAI -->|<!-- web -->|<!-- pro -->|<!-- ... -->|
+|GitHub Copilot Chat (GPT-5.1-Codex Preview)|GPT-5.1-Codex Preview|GitHub / OpenAI|VS Code (extensión Copilot Chat)|Suscripción GitHub Copilot requerida|Usado extensamente para generación y ajuste de código (frontend y backend), refactorizaciones y prompts integrados en el editor. 
+|GitHub Copilot Chat (Assistant)|Assistant (integración Copilot)|GitHub|VS Code (extensión Copilot Chat)|Suscripción GitHub Copilot|Uso para fragmentos de código y apoyo interactivo dentro del flujo de desarrollo.
+|Google Gemini (Pro)|Gemini Pro|Google|Web (Gemini) / cuenta Google|Acceso/plan Gemini Pro según cuenta|Consultas de diseño técnico y arquitectura, preguntas sobre patrones (ej. Builder) y apoyo conceptual en refactorizaciones y diseño de la interfaz de usuario.
 
 ## Anexo B) Glosario de Finalidades
 
-Idea/Exploración · Generación de Código funcional · Depuración / Diagnóstico · Generación de pruebas (unitarias/integración/e2e) · Diseño técnico · Documentación técnica (no narrativa) ·  Refactorización.
+A continuación se definen de forma breve las finalidades por las que se ha utilizado IA en el proyecto (tal y como aparecen en el registro):
+
+- Idea / Exploración: uso de la IA para generar ideas, alternativas de diseño o propuestas de interacción UI que sirven como punto de partida para discutir con el equipo.
+- Generación de Código funcional: creación de fragmentos o esqueletos de código para acelerar la implementación, siempre verificado por el equipo.
+- Depuración / Diagnóstico: ayuda para identificar errores, proponer correcciones o estrategias de debugging.
+- Generación de pruebas (unitarias/integración/e2e): asistencia en la creación o anotación de pruebas y metadatos para mejorar la cobertura y documentación de tests.
+- Diseño técnico: propuestas de patrones, organización del código y decisiones arquitectónicas.
+- Refactorización: propuestas y fragmentos para reorganizar componentes, extraer hooks o dividir pantallas en subcomponentes para mejorar mantenibilidad.

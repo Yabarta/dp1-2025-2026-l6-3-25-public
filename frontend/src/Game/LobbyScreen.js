@@ -5,14 +5,24 @@ import api from '../services/api';
 import tokenService from '../services/token.service';
 import '../static/css/lobby/lobby.css';
 
-const currentUser = tokenService.getUser();
-let player = ''
-if(currentUser && currentUser.roles.includes('PLAYER')){
-    player = (await api.get(`/api/v1/players/user/${currentUser.username}`)).data;
-}
-
-
 export default function LobbyScreen() {
+const currentUser = tokenService.getUser();
+
+    const [player, setPlayer] = useState(null);
+
+    useEffect(() => {
+        const fetchPlayer = async () => {
+            if (currentUser && currentUser.roles && currentUser.roles.includes('PLAYER')) {
+                try {
+                    const res = await api.get(`/api/v1/players/user/${currentUser.username}`);
+                    setPlayer(res.data);
+                } catch (err) {
+                    console.error('Unable to fetch current player', err);
+                }
+            }
+        };
+        fetchPlayer();
+    }, []);
     const { id } = useParams();
     const navigate = useNavigate();
     const [lobby, setLobby] = useState(null);
@@ -133,11 +143,11 @@ export default function LobbyScreen() {
     };
 
     const isCreator = useMemo(() => {
-        if (!lobby || !currentUser) {
+        if (!lobby || !currentUser || !player) {
             return false;
         }
         return player.id === lobby.creatorId;
-    }, [lobby]);
+    }, [lobby, player]);
 
     useEffect(() => {
         const ready = Boolean(lobby) && isCreator && lobby.players.length >= 2;

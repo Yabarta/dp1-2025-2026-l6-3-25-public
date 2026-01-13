@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import jwt_decode from "jwt-decode";
 import tokenService from "../services/token.service";
 import '../static/css/profile/profile.css';
+import bacteria from '../static/images/bacteria.png';
 import useFetchState from "../util/useFetchState";
 import getErrorModal from "../util/getErrorModal";
 import ProfileHeader from './components/ProfileHeader';
@@ -15,7 +16,7 @@ import * as Yup from 'yup';
 // Button is used inside extracted components
 
 // Constants
-const DEFAULT_PROFILE_PIC = "https://www.dsac.gov/image-repository/blank-profile-picuture.png/@@images/image.png";
+const DEFAULT_PROFILE_PIC = bacteria;
 
 export default function ProfileScreen() {
     // State declarations
@@ -35,12 +36,13 @@ export default function ProfileScreen() {
     const [showHistoryPopup, setShowHistoryPopup] = useState(false);
     const [message, setMessage] = useState(null);
     const [visible, setVisible] = useState(false);
+    const [playerExistence, setPlayerExistence] = useState(false);
     const [profilePic, setProfilePic] = useState(DEFAULT_PROFILE_PIC);
     const navigate = useNavigate();
 
     // Data fetching
     const playerUrl = username ? `/api/v1/players/user/${encodeURIComponent(username)}` : "";
-    const [playerData, setPlayerData, playerLoading] = useFetchState({}, playerUrl, jwt, setMessage, setVisible);
+    const [playerData, setPlayerData, playerLoading] = useFetchState({}, playerUrl, jwt, setMessage, setPlayerExistence);
     const [games, , gamesLoading] = useFetchState([], `/api/v1/matches`, jwt, setMessage, setVisible);
     const [userGames, setUserGames] = useState([]);
     const [Achievements, , achievementsLoading] = useFetchState([], `/api/v1/achievements`, jwt, setMessage, setVisible);
@@ -48,8 +50,7 @@ export default function ProfileScreen() {
     const [UserAchievements, , userAchievementsLoading] = useFetchState([], userAchievementsUrl, jwt, setMessage, setVisible, playerData?.id);
     const statsUrl = playerData?.id ? `/api/v1/players/${playerData.id}/statistics` : "";
     const [playerStats, , statsLoading] = useFetchState([], statsUrl, jwt, setMessage, setVisible, playerData?.id);
-    console.log("Player Stats:", playerStats);
-
+    console.log(playerData);
     // Effects
     useEffect(() => {
         const userGamesFiltered = games.filter(game => game.endedAt && (game.player1.id === playerData.id || game.player2.id === playerData.id));
@@ -92,7 +93,9 @@ export default function ProfileScreen() {
 
 
     const modal = getErrorModal(setVisible, visible, message);
+
     const isLoading = playerLoading || gamesLoading || achievementsLoading || userAchievementsLoading || statsLoading;
+
 
     // Event handlers
     const handleChangeProfilePicture = () => imageInputRef.current.click();
@@ -195,18 +198,10 @@ export default function ProfileScreen() {
             .required('El correo electrónico es requerido'),
     });
 
-    const handleNavigateToProfile = async (nickname) => {
-        try {
-            const res = await fetch(`/api/v1/players/nickname/${encodeURIComponent(nickname)}`);
-            const user = await res.json();
-            navigate(`/profile/${encodeURIComponent(user.username ?? nickname)}`);
-        } catch (err) {
-            console.error('Unable to go to profile', err);
-        }
-    }
 
     // Loading state
     if (isLoading) {
+        if (playerExistence) navigate('/');
         return (
             <div className="loadingOverlay">
                 {modal}
@@ -249,8 +244,9 @@ export default function ProfileScreen() {
                     isWinner={isWinner}
                     duracion={duracion}
                     getPlayerProfilePic={getPlayerProfilePic}
-                    handleNavigateToProfile={handleNavigateToProfile}
+                    handleNavigateToProfile={navigateToProfile}
                     setShowHistoryPopup={setShowHistoryPopup}
+                    navigate={navigate}
                 />
                 <AchievementsSection 
                     Achievements={Achievements} 
@@ -263,8 +259,9 @@ export default function ProfileScreen() {
                 setShowHistoryPopup={setShowHistoryPopup} 
                 userGames={userGames} isWinner={isWinner} 
                 getPlayerProfilePic={getPlayerProfilePic} 
-                handleNavigateToProfile={handleNavigateToProfile} 
+                handleNavigateToProfile={navigateToProfile} 
                 duracion={duracion} 
+                navigate={navigate}
             />
             <EditPopup 
                 showEditPopup={showEditPopup} 
@@ -276,3 +273,13 @@ export default function ProfileScreen() {
         </div>
     );
 }
+export const navigateToProfile = async (nickname, navigate) => {
+    try {
+        const res = await fetch(`/api/v1/players/nickname/${encodeURIComponent(nickname)}`);
+        const user = await res.json();
+        
+        navigate(`/profile/${encodeURIComponent(user.username ?? nickname)}`);
+    } catch (err) {
+        console.error('Unable to go to profile', err);
+    }
+};

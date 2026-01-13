@@ -1,11 +1,16 @@
 import React from 'react';
 import GlassPanel from './GlassPanel';
 import { useNavigate } from 'react-router-dom';
+import tokenService from '../../services/token.service';
+import jwt_decode from "jwt-decode";
 
 
 export default function Header({ gamesSize, timePlayed, sarcines, playersRegistered }) {
 
     const navigate = useNavigate()
+    const jwt = tokenService.getLocalAccessToken();
+    const isPlayer = jwt ? jwt_decode(jwt).authorities.includes("PLAYER") : false;
+
 
     const navigateToComparator = () => {
         navigate('/comparator')
@@ -23,26 +28,26 @@ export default function Header({ gamesSize, timePlayed, sarcines, playersRegiste
                     <small className="" style={{ letterSpacing: '2px', fontSize: '0.7rem', color: 'white' }}>SISTEMA DE CONTROL</small>
                 </div>
             </div>
-            <button class="search-btn" onClick={() => { navigateToComparator() }}>¡¡Compara tus estadísticas!!</button>
+            {isPlayer && <button class="search-btn" onClick={() => { navigateToComparator() }}>¡¡Compara tus estadísticas!!</button>}
         </div>
 
         {/* KPI GRID */}
         <div className="kpi-grid">
-            <GlassPanel className="kpi-card">
+            <GlassPanel className="kpi-card" style={{ borderLeft: '4px solid var(--alert-gold)' }}>
             <div className="kpi-title">Partidas Jugadas</div>
-            <div className="kpi-value text-mono text-white">{ gamesSize }</div>
+            <div className="kpi-value text-mono text-gold">{ gamesSize }</div>
             </GlassPanel>
             <GlassPanel className="kpi-card" style={{ borderLeft: '4px solid var(--alert-red)' }}>
-            <div className="kpi-title">Tiempo Jugado</div>
-            <div className="kpi-value text-mono text-red">{ timePlayed } horas</div>
-            </GlassPanel>
-            <GlassPanel className="kpi-card">
             <div className="kpi-title">Sarcinas Totales</div>
-            <div className="kpi-value text-mono text-blue">{ sarcines }</div>
+            <div className="kpi-value text-mono text-red">{ sarcines }</div>
             </GlassPanel>
-            <GlassPanel className="kpi-card">
+            <GlassPanel className="kpi-card" style={{ borderLeft: '4px solid var(--alert-green)' }}>
+            <div className="kpi-title">Tiempo Jugado</div>
+            <div className="kpi-value text-mono text-green">{ timePlayed } horas</div>
+            </GlassPanel>
+            <GlassPanel className="kpi-card" style={{ borderLeft: '4px solid var(--alert-blue)' }}>
             <div className="kpi-title">Jugadores registrados</div>
-            <div className="kpi-value text-mono text-gold">{ playersRegistered }</div>
+            <div className="kpi-value text-mono text-blue">{ playersRegistered }</div>
             </GlassPanel>
         </div>
         </header>

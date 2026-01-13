@@ -1,10 +1,13 @@
 package es.us.dp1.l6_3_24_25.Petris.player.model;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 import es.us.dp1.l6_3_24_25.Petris.model.BaseEntity;
 import es.us.dp1.l6_3_24_25.Petris.user.User;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToMany;
@@ -35,14 +38,23 @@ public class Player extends BaseEntity{
     private Boolean isCurrentlyInMatch;
     @NotAudited
     @NotNull
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "user_id")
     private User user;
     @NotAudited
-    @ManyToMany
+    @Builder.Default
+    @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     private List<Achievement> achievements = new ArrayList<>();
     @NotAudited
     @NotNull
     @OneToOne
     private Statistics statistics;
 
+    @NotAudited
+    @Builder.Default
+    private Boolean isOnline = false;
+
+    @NotAudited
+    @Builder.Default
+	private LocalDateTime lastLogin = LocalDateTime.now();
 }

@@ -1,5 +1,6 @@
 package es.us.dp1.l6_3_24_25.Petris.player.repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,5 +24,7 @@ public interface PlayerRepository extends CrudRepository<Player ,Integer>{
     
     @Query("SELECT p FROM Player p JOIN p.user u WHERE u.username = ?1")
     Optional<Player> getByUsername(String username);
+
+    List<Player> findByIsOnlineTrueAndLastLoginBefore(LocalDateTime cutoff);
 
 }
