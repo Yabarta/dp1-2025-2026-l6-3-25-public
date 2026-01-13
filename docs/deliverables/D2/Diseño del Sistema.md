@@ -39,7 +39,7 @@ La duración de una partida es variable, pero ninguna suele superar los 10 minut
 
 ## Descomposición del mockups del tablero de juego en componentes
 
-![alt text](ImagenesD2/m4.png)
+![alt text](ImagenesD2/d2-board.png)
 
   - App – Componente principal de la aplicación
     - $\color{orange}{\textsf{Chat – Barra lateral izquierda para ver la conversación con el rival.}}$
@@ -175,14 +175,14 @@ Al revisar el problema nos dimos cuenta que al ser un trabajo que no se va a pro
 A la hora de hacer la clase Usuario tener el problema de que los admin no pueden jugar partidas.
 
 #### Alternativas de solución evaluadas:
-*Alternativa 1.a*: Que se usara usuario para jugar la partida.
+*Alternativa 2.a*: Que se usara usuario para jugar la partida.
 
 *Ventajas:*
 •	No habría que crear una clase intermedia.
 *Inconvenientes:*
 •	Habría que revisar si el usuario es admin o player.
 
-*Alternativa 1.b*: Crear una clase intermedia llamada player y solo estos pueden jugar.
+*Alternativa 2.b*: Crear una clase intermedia llamada player y solo estos pueden jugar.
 *Ventajas:*
 •	No habría que revisar el rol.
 • Se podría poner un nombre que se viera que no fuera el de usuario para iniciar sesión.
@@ -199,14 +199,14 @@ Hemos optado por la opción 1.b porque la hemos valorado que la revisión si era
 Como actualizar los cambios que se hagan en cada turno.
 
 #### Alternativas de solución evaluadas:
-*Alternativa 1.a*: Que se cambie la tabla Game cuando se crea, se inicia y se finaliza.
+*Alternativa 3.a*: Que se cambie la tabla Game cuando se crea, se inicia y se finaliza.
 
 *Ventajas:*
 •	La tabla Game al ser importante solo se cambiaría 3 veces.
 *Inconvenientes:*
 •	Habría que crear otras tablas para guardar el tablero y el turno en el que va.
 
-*Alternativa 1.b*: Modificar Game cada turno.
+*Alternativa 3.b*: Modificar Game cada turno.
 *Ventajas:*
 •	No habría que crear otras tablas para guardar datos.
 *Inconvenientes:*
@@ -223,14 +223,14 @@ Como poder mirar las estadisticas, logros y historial de manera que sea atractiv
 
 #### Alternativas de solución evaluadas:
 
-*Alternativa 1.a*: Poner una pantalla de carga que espere a todas las llamadas al backend.
+*Alternativa 4.a*: Poner una pantalla de carga que espere a todas las llamadas al backend.
 
 *Ventajas:*
 •	Sería más limpio y es un patrón de diseño bastamente extendido y utilzado.
 *Inconvenientes:*
 •	Haría que los jugadores no pudieran mirar los datos directamente.
 
-*Alternativa 1.b*: Que todo vaya cargando de manera asíncrona cargando esperando al backend para cargar de una en una.
+*Alternativa 4.b*: Que todo vaya cargando de manera asíncrona cargando esperando al backend para cargar de una en una.
 
 *Ventajas:*
 •	Haría que los jugadores pudieran mirar los datos directamente.
@@ -248,14 +248,14 @@ Como hacer el lobby en el que esperan los jugadores justo antes de empezar a jug
 
 #### Alternativas de solución evaluadas:
 
-*Alternativa 1.a*: Poner el lobby directamente en la pantalla de la partida.
+*Alternativa 5.a*: Poner el lobby directamente en la pantalla de la partida.
 
 *Ventajas:*
 •	Directamente empezaria la partida sin tener que cambiar de pantalla.
 *Inconvenientes:*
 •	La partida empezaria directamente cuando otro jugador se uniese, lo cual no da margen al jugador que se une para escoger una sala equivocada o la partida empezaaria dandole a un boton lo que iria un poco en contra de la filosofia utilizada para escoger esta alternativa ya que no seempezaria rapidamente la partida.
 
-*Alternativa 1.b*: Que haya una pantalla de lobby de partida y luego al iniciar te redirija a la pantalla de la misma.
+*Alternativa 5.b*: Que haya una pantalla de lobby de partida y luego al iniciar te redirija a la pantalla de la misma.
 
 *Ventajas:*
 •	Haría que los jugadores pudieran fallar de sala y salirse sin tener que estar abandonando una partida, además seguiria con la estetica de la pantalla de elección de sala en vez de tener un cambio muy abruto entre los estilos de la pagina de elección y la pantalla de la partida.
@@ -272,7 +272,7 @@ La aplicación nos daba error a la hora de crear nuevos usuarios, tanto players 
 
 #### Alternativas de solución evaluadas:
 
-*Alternativa 1.a*: arreglar la creación de la manera "tradicional"
+*Alternativa 6.a*: arreglar la creación de la manera "tradicional"
 
 *Ventajas:*
 •	Es como estaba antes.
@@ -280,7 +280,7 @@ La aplicación nos daba error a la hora de crear nuevos usuarios, tanto players 
 •	Más complejidad a la hora de leer y entender el código.
 •   Mas pesado a la hora de programarlo
 
-*Alternativa 1.b*: aplicar el patrón de diseño Builder
+*Alternativa 6.b*: aplicar el patrón de diseño Builder
 
 *Ventajas:*
 •	Mayor legibilidad
@@ -297,7 +297,7 @@ La aplicación puede llegar a manejar muchos usuarios, lo que impactaría en el 
 
 #### Alternativas de solución evaluadas:
 
-*Alternativa 1.a*: una única llamada para obtener todo el listado de usuarios
+*Alternativa 7.a*: una única llamada para obtener todo el listado de usuarios
 
 *Ventajas:*
 •	Más simple, sin lógica de paginación.
@@ -306,7 +306,7 @@ La aplicación puede llegar a manejar muchos usuarios, lo que impactaría en el 
 •	Carga pesada con muchos usuarios.
 •   Mayor consumo de memoria.
 
-*Alternativa 1.b*: llamada con paginación y número limitado de usuarios por llamada
+*Alternativa 7.b*: llamada con paginación y número limitado de usuarios por llamada
 *Ventajas:*
 •	Respuestas más ligeras y rápidas.
 •   Mejor escalabilidad con muchos usuarios.
@@ -322,7 +322,7 @@ La lista se debe mostrar teniendo en cuenta que sólo se obtienen 10 usuarios po
 
 #### Alternativas de solución evaluadas:
 
-*Alternativa 1.a*: paginación (frontend)
+*Alternativa 8.a*: paginación (frontend)
 
 *Ventajas:*
 •   Permite saber exactamente el total de resultados y la página/posición actual.
@@ -331,7 +331,7 @@ La lista se debe mostrar teniendo en cuenta que sólo se obtienen 10 usuarios po
 *Inconvenientes:*
 •   Requiere clicks adicionales para avanzar.
 
-*Alternativa 1.b*: scroll infinito
+*Alternativa 8.b*: scroll infinito
 
 *Ventajas:*
 •	Navegación continua y fluida, sin interrupciones.
@@ -346,30 +346,33 @@ La lista se debe mostrar teniendo en cuenta que sólo se obtienen 10 usuarios po
 
 Optamos por la paginación ya que posee muchas más ventajas que el scroll infinito, además que es un sistema más conveniente para la administración de usuarios, que es para lo que está enfocado el listado.
 
+### Decisión 9: Sistema de puntuación (fórmula) del ranking
+
+#### Descripción del problema:
+
+Había que decidir cómo calcular la puntuación (score) que ordena a los jugadores en el ranking global. Surgió la propuesta de penalizar en la puntuación el número de sarcinas y bacterias (por ejemplo, restando un término proporcional) y además hubo discusión sobre si esas penalizaciones deberían contabilizarse considerando todas las partidas o solo las partidas ganadas. Esta decisión generó desacuerdo en el equipo por el peso a asignar y por los efectos sobre jugadores activos vs. jugadores con alto win-rate.
+
+#### Alternativas de solución evaluadas:
+
+*Alternativa 9.a*: Incluir sarcinas y bacterias como términos negativos en la fórmula (por ejemplo, score = winRate + alpha * log10(partidasJugadas) - beta * sarcinas - gamma * bacterias), contabilizando los totales de todas las partidas.
+
+*Ventajas:* permitiría penalizar comportamientos que indican fragilidad o poco control en el juego; podría premiar jugadores que evitan acumular penalizaciones.
+
+*Alternativa 9.b*: No incluir sarcinas/bacterias en forma de penalización; usar una fórmula simple y explicable basada en `winRate` y actividad (por ejemplo, score = winRate + alpha *log10(partidasJugadas)).
+
+*Ventajas:* simplicidad, explicabilidad, estabilidad frente a fluctuaciones y fácil cálculo; evita introducir pesos arbitrarios y cambios en modelos; premia consistencia y actividad sin penalizar excesivamente a jugadores activos.
+
+#### Decisión de la solución adoptada
+
+Tras debatir con el equipo, se optó por la **Alternativa 9.b**: elegir simplicidad y robustez. La fórmula adoptada para la puntuación de cada jugador quedó como:
+
+```
+score = winRate + alpha *log10(partidasJugadas)
+```
+
+Razones principales: claridad y facilidad de explicación al usuario;  prioriza la consistencia (mantener un win rate alto a lo largo del tiempo) y la actividad (más partidas aportan confianza en la medida, de ahí el término logaritmo en base 10). Las penalizaciones por sarcinas/bacterias quedan como métricas complementarias que pueden usarse en análisis secundarios (casos de desempate).
+
 ## Refactorizaciones aplicadas
-
-Si ha hecho refactorizaciones en su código, puede documentarlas usando el siguiente formato:
-
-### Refactorización X: 
-En esta refactorización añadimos un mapa de parámtros a la partida para ayudar a personalizar la información precalculada de la que partimos en cada fase del juego.
-#### Estado inicial del código
-```Java 
-class Animal
-{
-}
-``` 
-_Puedes añadir información sobre el lenguaje concreto en el que está escrito el código para habilitar el coloreado de sintaxis tal y como se especifica en [este tutorial](https://docs.github.com/es/get-started/writing-on-github/working-with-advanced-formatting/creating-and-highlighting-code-blocks)_
-
-#### Estado del código refactorizado
-
-```
-código fuente en java, jsx o javascript
-```
-#### Problema que nos hizo realizar la refactorización
-_Ej: Era difícil añadir información para implementar la lógica de negocio en cada una de las fases del juego (en nuestro caso varía bastante)_
-#### Ventajas que presenta la nueva versión del código respecto de la versión original
-_Ej: Ahora podemos añadir arbitrariamente los datos que nos hagan falta al contexto de la partida para que sea más sencillo llevar a cabo los turnos y jugadas_
-
 
 ### Refactorización 1: 
 #### Descomposición de Componentes de la Pantalla de Perfil (ProfileScreen)

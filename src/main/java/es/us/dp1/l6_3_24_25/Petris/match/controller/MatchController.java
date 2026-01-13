@@ -222,11 +222,10 @@ public class MatchController {
             Match matchToUpdate = matchService.getMatchById(id);
             Player currentPlayer = getCurrentPlayer();
 
-            Match updatedMatch = null;
-            updatedMatch = matchService.leaveMatch(matchToUpdate, currentPlayer);
-            
-            if (matchToUpdate.isFull()) {
-                webSocketMatchService.broadcastLobbyState(Objects.requireNonNull(updatedMatch));
+            Match updatedMatch = matchService.leaveMatch(matchToUpdate, currentPlayer);
+
+            if (updatedMatch != null) {
+                webSocketMatchService.broadcastLobbyState(updatedMatch);
             } else {
                 webSocketMatchService.broadcastLobbyClosed(id);
             }
