@@ -1,11 +1,12 @@
 package es.us.dp1.l6_3_24_25.Petris.match.service;
 
-import es.us.dp1.l6_3_24_25.Petris.exceptions.AccessDeniedException;
 import java.time.LocalDateTime;
 import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import es.us.dp1.l6_3_24_25.Petris.exceptions.AccessDeniedException;
 import es.us.dp1.l6_3_24_25.Petris.exceptions.ResourceNotFoundException;
 import es.us.dp1.l6_3_24_25.Petris.match.model.Match;
 import es.us.dp1.l6_3_24_25.Petris.match.model.PetriDish;
@@ -13,8 +14,8 @@ import es.us.dp1.l6_3_24_25.Petris.match.model.TurnType;
 import es.us.dp1.l6_3_24_25.Petris.match.repository.MatchRepository;
 import es.us.dp1.l6_3_24_25.Petris.match.util.MatchDataUtil;
 import es.us.dp1.l6_3_24_25.Petris.match.util.MatchMethodUtil;
-import es.us.dp1.l6_3_24_25.Petris.player.model.Player;
 import es.us.dp1.l6_3_24_25.Petris.player.batchProcessing.MatchStatsBatchOrchestrator;
+import es.us.dp1.l6_3_24_25.Petris.player.model.Player;
 
 @Service
 public class MatchService {
@@ -247,4 +248,8 @@ public class MatchService {
         matchRepository.deleteById(id);
     }
 
+    @Transactional
+    public Match findMatchWithPlayerByIdAndEndedAtNull(Integer id) {
+        return matchRepository.findMatchWithPlayerByIdAndEndedAtNull(id).orElse(null);
+    }
 }

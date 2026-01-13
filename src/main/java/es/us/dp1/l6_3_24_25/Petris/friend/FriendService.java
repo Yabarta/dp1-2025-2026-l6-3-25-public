@@ -54,4 +54,10 @@ public class FriendService {
     public void delete(Integer id){
         friendRepository.deleteById(id);
     }
+
+    @Transactional(readOnly = true)
+    public Boolean Player1IsFriendOfPlayer2(Integer idPlayer1, Integer idPlayer2) {
+        Optional<Friend> friend = friendRepository.Player1IsFriendOfPlayer2(idPlayer1, idPlayer2);
+        return friend.isPresent();
+    }
 }
