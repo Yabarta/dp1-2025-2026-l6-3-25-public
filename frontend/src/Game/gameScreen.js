@@ -213,7 +213,7 @@ export default function GameScreen() {
       return dish.player1Bacteria !== serverDish.player1Bacteria || dish.player2Bacteria !== serverDish.player2Bacteria;
     });
   }, [editedBoard, match]);
-  const isMyTurn = Boolean(match && !matchEnded && (isPropagationTurn ? isMyPropagationTurn : iAmParticipant));
+  const isMyTurn = Boolean(match && !matchEnded && (isMyPropagationTurn));
   const totalTurnPhases = TURN_SEQUENCE.length;
   const rawTurnIndex = typeof match?.turn === 'number' ? match.turn : -1;
   const consumedAllPhases = rawTurnIndex >= totalTurnPhases;
@@ -248,8 +248,8 @@ export default function GameScreen() {
         }
       }
 
-      if (match) {
-        const localWinner = isPlayer1 ? 2 : 1;
+      if (match && isMyTurn) {
+        const localWinner = isPlayer1 ? 1 : 2;
         setMatch((prev) => ({
           ...(prev ?? {}),
           winner: localWinner,
@@ -606,6 +606,7 @@ export default function GameScreen() {
       />
 
       <aside className="chatPanel">
+        
         <div className="chatTitle">CHAT</div>
         <div className="muteChat">
           <button onClick={handleShowChat} style={{
@@ -619,14 +620,15 @@ export default function GameScreen() {
             fontSize: "20px",
             boxShadow: "0 2px 4px rgba(0,0,0,0.2)"
           }}>{muteChatMessage} chat</button>
-        </div>
+        </div> 
         {
-          showChat && 
+          showChat &&
           <div className="chatList" style={{
             height: '85%'
             }}>
             <Chat nickname={nickname}
-            id = {id}/>
+            id = {id}
+            isPlayer={(isPlayer1 || isPlayer2)}/>
           </div>
         }
         {waitingForPlayer && (
