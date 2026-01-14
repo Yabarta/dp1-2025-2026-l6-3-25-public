@@ -143,6 +143,53 @@ Necesitamos una manera rápida y eficiente de crear nuevos jugadores y administr
      2. El método .build() devuelve el objeto final.
      3. El objeto final puede no tener setters, haciéndolo inmutable y seguro para entornos concurrentes.
 
+### Patrón: Repository
+**Tipo**: Arquitectónico
+
+**Contexto de Aplicación**  
+El patrón Repository se ha utilizado para abstraer el acceso a la base de datos. Cada entidad del dominio tiene su propio repositorio, que actúa como una capa intermedia entre la lógica de negocio y la base de datos. Esto permite encapsular las consultas y operaciones de persistencia, manteniendo el código de acceso a datos separado de la lógica de negocio.
+
+**Relación con MVC**  
+El Repository forma parte de la capa Modelo en **MVC**, actuando como un puente entre la lógica de negocio y la base de datos.
+
+**Clases o paquetes creados**  
+- `UserRepository`: gestiona las operaciones CRUD relacionadas con los usuarios.
+- `PlayerRepository`: gestiona las operaciones relacionadas con los jugadores.
+- `MatchRepository`: gestiona las operaciones relacionadas con las partidas.
+- `AchievementRepository`: gestiona las operaciones relacionadas con los logros.
+- `StatisticsRepository`: gestiona las operaciones relacionadas con las estadísticas de los jugadores.
+- `PetriDishRepository`: gestiona las operaciones relacionadas con las placas de Petri.
+- `FriendshipRepository`: gestiona las operaciones relacionadas con las solicitudes y relaciones de amistad.
+
+**Ventajas alcanzadas al aplicar el patrón**  
+- **Separación de responsabilidades**: el acceso a la base de datos está encapsulado en los repositorios, lo que facilita el mantenimiento y las pruebas.
+- **Reutilización**: los métodos de los repositorios pueden ser reutilizados en diferentes servicios.
+- **Flexibilidad**: permite cambiar la implementación de persistencia (por ejemplo, cambiar de JPA a otro framework) sin afectar la lógica de negocio.
+
+### Patrón: Service Layer
+**Tipo**: Arquitectónico
+
+**Contexto de Aplicación**  
+El patrón Service Layer se ha utilizado para encapsular la lógica de negocio de la aplicación. Cada servicio actúa como una capa intermedia entre los controladores (que manejan las solicitudes HTTP) y los repositorios (que gestionan el acceso a la base de datos). Esto permite centralizar la lógica de negocio y mantener los controladores y repositorios más simples y enfocados.
+
+**Relación con MVC**  
+El Service Layer forma parte de la capa Modelo en **MVC**, proporcionando una interfaz de alto nivel para los controladores y manteniendo la lógica de negocio separada de la lógica de presentación.
+
+**Clases o paquetes creados**  
+- `AuthService`: gestiona la lógica de autenticación y autorización de usuarios, incluyendo la validación de credenciales y la generación de tokens.
+- `UserService`: gestiona la lógica de negocio relacionada con los usuarios, como la creación, actualización y eliminación de usuarios.
+- `PlayerService`: gestiona la lógica de negocio relacionada con los jugadores, incluyendo la obtención de estadísticas y la gestión de partidas.
+- `MatchService`: gestiona la lógica de negocio relacionada con las partidas, como la creación, unión, inicio, turnos y finalización de partidas.
+- `WebSocketMatchService`: gestiona las notificaciones en tiempo real relacionadas con las partidas, como actualizaciones del lobby y estados de las partidas.
+- `RankingService`: gestiona la lógica de negocio relacionada con el cálculo del ranking global de jugadores.
+- `AchievementService`: gestiona la lógica de negocio relacionada con los logros, incluyendo su creación, edición y asignación a jugadores.
+- `StatisticsService`: gestiona la lógica de negocio relacionada con las estadísticas de los jugadores, como el cálculo de métricas y su persistencia.
+
+**Ventajas alcanzadas al aplicar el patrón**  
+- **Centralización de la lógica de negocio**: evita duplicación de código y facilita el mantenimiento.
+- **Separación de responsabilidades**: los controladores se centran en manejar las solicitudes HTTP, mientras que los servicios encapsulan la lógica de negocio.
+- **Facilidad para realizar pruebas**: los servicios pueden ser probados de forma aislada, sin depender de los controladores o repositorios.
+- **Escalabilidad**: permite añadir nuevas funcionalidades o modificar las existentes sin afectar otras capas.
 ## Decisiones de diseño
 
 ### Decisión 1: Creación de la tabla estadísticas.
