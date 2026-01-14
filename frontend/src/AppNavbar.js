@@ -49,16 +49,16 @@ function AppNavbar() {
             adminLinks = (
                 <>  
                     <NavItem>
-                        <NavLink style={{ color: "white" }} id="docs" tag={Link} to="/docs">Docs</NavLink>
+                        <NavLink style={{ color: "white" }} id="docs" tag={Link} to="/docs">Documentación</NavLink>
                     </NavItem>
                     <NavItem>
-                        <NavLink style={{ color: "white" }} tag={Link} to="/users">Users</NavLink>
+                        <NavLink style={{ color: "white" }} tag={Link} to="/users">Usuarios</NavLink>
                     </NavItem>
                     <NavItem>
-                        <NavLink style={{ color: "white" }} tag={Link} to="/currentGames">Current Games</NavLink>
+                        <NavLink style={{ color: "white" }} tag={Link} to="/currentGames">Partidas actuales</NavLink>
                     </NavItem>
                     <NavItem>
-                        <NavLink style={{ color: "white" }} tag={Link} to="/gamesHistory">Game History</NavLink>
+                        <NavLink style={{ color: "white" }} tag={Link} to="/gamesHistory">Historial de partidas</NavLink>
                     </NavItem>
                     
                 </>
@@ -66,7 +66,7 @@ function AppNavbar() {
         } else {playerLinks = (
             <>
             <NavItem>
-                    <Button style={{ color: "white" }} id="friends-btn" onClick={toggleMenu} className="btn btn-link nav-link">Friends</Button>
+                    <Button style={{ color: "white" }} id="friends-btn" onClick={toggleMenu} className="btn btn-link nav-link">Amigos</Button>
                 </NavItem>
             <NavItem>
                 <NavLink style={{ color: "white" }} id="comparator" tag={Link} to="/comparator">Comparador</NavLink>
@@ -80,10 +80,10 @@ function AppNavbar() {
             <>
 
                 <NavItem>
-                    <NavLink style={{ color: "white" }} id="login" tag={Link} to="/login">Login</NavLink>
+                    <NavLink style={{ color: "white" }} id="login" tag={Link} to="/login">Iniciar sesión</NavLink>
                 </NavItem>
                 <NavItem>
-                    <NavLink style={{ color: "white" }} id="register" tag={Link} to="/register">Register</NavLink>
+                    <NavLink style={{ color: "white" }} id="register" tag={Link} to="/register">Registrarse</NavLink>
                 </NavItem>
                 
             </>
@@ -92,7 +92,7 @@ function AppNavbar() {
         userLinks = (
             <>
                 <NavItem>
-                    <NavLink style={{ color: "white" }} id="achievement" tag={Link} to="/achievements">Achievements</NavLink>
+                    <NavLink style={{ color: "white" }} id="achievement" tag={Link} to="/achievements">Logros</NavLink>
                 </NavItem>
             </>
         )
@@ -100,7 +100,7 @@ function AppNavbar() {
             <>
                 <NavbarText style={{ color: "white" }} className="justify-content-end">{username}</NavbarText>
                 <NavItem className="d-flex">
-                    <NavLink style={{ color: "white" }} id="logout" tag={Link} to="/logout">Logout</NavLink>
+                    <NavLink style={{ color: "white" }} id="logout" tag={Link} to="/logout">Cerrar sesión</NavLink>
                 </NavItem>
             </>
         )

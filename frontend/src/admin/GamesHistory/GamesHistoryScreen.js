@@ -61,7 +61,7 @@ return (
             </div>
             <div className="gameDetailsContainer">
               <div className="gameDetail">Código de la partida: {game.code}</div>
-              <div className="gameDetail">Duración: {duracion(game)} mins</div>
+              <div className="gameDetail">Duración: {duracion(game)} minutos</div>
             </div>
           </div>
           </li>

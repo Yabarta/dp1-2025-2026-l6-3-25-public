@@ -17,14 +17,14 @@ const PrivateRoute = ({ children }) => {
         }).then(response => {
             return response.json();
         }).then(isValid => {
-            setMessage("Your token has expired. Please, sign in again.")
+            setMessage("Tu token ha expirado. Por favor, inicia sesión de nuevo.")
             setIsValid(isValid);
             setIsLoading(false);
         });
     } else return <Login message={message} navigation={false} />;
 
     if (isLoading === true) {
-        return <div>Loading...</div>;
+        return <div>Cargando...</div>;
     } else return isValid === true ? children : <Login message={message} navigation={true} />
 };
 
