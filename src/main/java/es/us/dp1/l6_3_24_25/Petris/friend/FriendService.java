@@ -38,6 +38,10 @@ public class FriendService {
 
     @Transactional
     public Friend create(Player requester, Player receiver) {
+        Optional<Friend> existingFriendship = friendRepository.Player1IsFriendOfPlayer2(requester.getId(), receiver.getId());
+        if (existingFriendship.isPresent()) {
+            return existingFriendship.get();
+        }
         Friend newFriend = new Friend();
         newFriend.setRequester(requester);
         newFriend.setReceiver(receiver);
@@ -53,5 +57,11 @@ public class FriendService {
     @Transactional
     public void delete(Integer id){
         friendRepository.deleteById(id);
+    }
+
+    @Transactional(readOnly = true)
+    public Boolean Player1IsFriendOfPlayer2(Integer idPlayer1, Integer idPlayer2) {
+        Optional<Friend> friend = friendRepository.Player1IsFriendOfPlayer2(idPlayer1, idPlayer2);
+        return friend.isPresent();
     }
 }

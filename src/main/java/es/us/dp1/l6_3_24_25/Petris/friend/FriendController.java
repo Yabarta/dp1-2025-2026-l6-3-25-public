@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,22 +19,30 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import es.us.dp1.l6_3_24_25.Petris.match.model.Match;
+import es.us.dp1.l6_3_24_25.Petris.match.service.MatchService;
 import es.us.dp1.l6_3_24_25.Petris.player.model.Player;
 import es.us.dp1.l6_3_24_25.Petris.player.service.PlayerService;
 import jakarta.validation.Valid;
 
+import org.springframework.web.bind.annotation.RequestParam;
+
+@RequestMapping("/api/v1")
 @RestController
 public class FriendController {
 
     FriendService friendService;
     PlayerService playerService;
+    MatchService matchService;
 
     @Autowired
-    public FriendController(FriendService fs, PlayerService ps){
+    public FriendController(FriendService fs, PlayerService ps, MatchService ms){
         this.friendService = fs;
         this.playerService = ps;
+        this.matchService = ms;
     }
 
     @Operation(
@@ -45,7 +54,7 @@ public class FriendController {
         @ApiResponse(responseCode = "200", description = "Friend found", content = { @Content(schema = @Schema(implementation = Friend.class))}),
         @ApiResponse(responseCode = "404", description = "Friend not found")
     })
-    @GetMapping("/api/v1/players/friends/{id}")
+    @GetMapping("/players/friends/{id}")
     public ResponseEntity<Optional<Friend>> getFriendsById(@PathVariable Integer id) {
         return new ResponseEntity<>(friendService.getFriendsById(id), HttpStatus.OK);
     }
@@ -59,7 +68,7 @@ public class FriendController {
         @ApiResponse(responseCode = "200", description = "Friends found", content = { @Content(schema = @Schema(implementation = Friend.class))}),
         @ApiResponse(responseCode = "404", description = "Friends not found")
     })
-    @GetMapping("/api/v1/players/{username}/friends")
+    @GetMapping("/players/{username}/friends")
     public ResponseEntity<List<Friend>> getFriendsByUsername(@PathVariable String username) {
         return new ResponseEntity<>(friendService.getFriendsByUsername(username), HttpStatus.OK);
     }
@@ -73,7 +82,7 @@ public class FriendController {
         @ApiResponse(responseCode = "200", description = "Friend requests found", content = { @Content(schema = @Schema(implementation = Friend.class))}),
         @ApiResponse(responseCode = "404", description = "Friend requests not found")
     })
-    @GetMapping("/api/v1/players/{username}/requests")
+    @GetMapping("/players/{username}/requests")
     public ResponseEntity<List<Friend>> getRequest(@PathVariable String username) {
         return new ResponseEntity<>(friendService.getRequests(username), HttpStatus.OK);
     }
@@ -87,7 +96,7 @@ public class FriendController {
         @ApiResponse(responseCode = "200", description = "Sent friend requests found", content = { @Content(schema = @Schema(implementation = Friend.class))}),
         @ApiResponse(responseCode = "404", description = "Sent friend requests not found")
     })
-    @GetMapping("/api/v1/players/{username}/requester")
+    @GetMapping("/players/{username}/requester")
     public ResponseEntity<List<Friend>> getRequester(@PathVariable String username) {
         return new ResponseEntity<>(friendService.getRequester(username), HttpStatus.OK);
     }
@@ -101,7 +110,7 @@ public class FriendController {
         @ApiResponse(responseCode = "201", description = "Friend request created", content = { @Content(schema = @Schema(implementation = Friend.class))}),
         @ApiResponse(responseCode = "400", description = "Bad Request")
     })
-    @PostMapping("/api/v1/players/friends")
+    @PostMapping("/players/friends")
     public ResponseEntity<Friend> createFriend(@Valid @RequestBody Map<String, String> body) {
 
         String requester = (String) body.get("requester");
@@ -121,7 +130,7 @@ public class FriendController {
         @ApiResponse(responseCode = "200", description = "Friend request accepted", content = { @Content(schema = @Schema(implementation = Friend.class))}),
         @ApiResponse(responseCode = "404", description = "Friend request not found")
     })
-    @PutMapping("/api/v1/players/friends/{id}")
+    @PutMapping("/players/friends/{id}")
     public ResponseEntity<Friend> acceptFriend(@PathVariable Integer id) {
         Friend friend = friendService.getFriendsById(id).orElse(null);
         if (friend == null) {
@@ -141,11 +150,25 @@ public class FriendController {
         @ApiResponse(responseCode = "204", description = "Friend deleted"),
         @ApiResponse(responseCode = "404", description = "Friend not found")
     })
-    @DeleteMapping("/api/v1/friends/{id}")
+    @DeleteMapping("/friends/{id}")
     public ResponseEntity<Void> deleteFriendById(@PathVariable Integer id) {
         if (getFriendsById(id) != null) {
             friendService.delete(id);
         }
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/friends/espectate")
+    public ResponseEntity<List<Match>> getFriendMatch(@RequestParam Integer idPlayer ) {
+        List<Match> matchesFriends = new java.util.ArrayList<>();
+        List<Match> matches = matchService.getCurrentMatches();
+        for (Match match : matches) {
+        if (match != null && friendService.Player1IsFriendOfPlayer2(idPlayer , match.getPlayer1().getId()) && 
+            friendService.Player1IsFriendOfPlayer2(idPlayer , match.getPlayer2().getId())) {
+                matchesFriends.add(match);
+        }
+        }
+        return ResponseEntity.ok(matchesFriends);
+    }
+    
 }

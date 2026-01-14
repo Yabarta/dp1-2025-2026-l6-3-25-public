@@ -3,7 +3,7 @@ import { Stomp } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import './chatStyles.css'
 
-export default function Chat({nickname, id}) {
+export default function Chat({nickname, id, isPlayer}) {
     const [messages, setMessages] = useState([])
     const [message, setMessage] = useState('')
     const [stompClient, setStompClient] = useState([])
@@ -68,6 +68,7 @@ export default function Chat({nickname, id}) {
                 value={message}
                 onChange={handleMessageChange}
                 onKeyDown={(e) => { if (e.key === 'Enter') sendMessage(); }}
+                disabled = {!isPlayer}
             />
                 </div>
         </>

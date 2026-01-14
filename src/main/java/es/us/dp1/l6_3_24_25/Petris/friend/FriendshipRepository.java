@@ -22,4 +22,7 @@ public interface FriendshipRepository extends JpaRepository<Friend, Integer> { /
 
     @Query("SELECT f FROM Friend f WHERE (f.requester.nickname = :nickname) AND f.status = 0")
     List<Friend> findRequesterByPlayer(@Param("nickname") String nickname);
+
+    @Query("SELECT f FROM Friend f WHERE ((f.requester.id = :idPlayer1 AND f.receiver.id = :idPlayer2) OR (f.requester.id = :idPlayer2 AND f.receiver.id = :idPlayer1)) AND f.status = 1")
+    Optional<Friend> Player1IsFriendOfPlayer2(@Param("idPlayer1") Integer idPlayer1, @Param("idPlayer2") Integer idPlayer2);
 }

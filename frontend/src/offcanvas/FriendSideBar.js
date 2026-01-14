@@ -3,7 +3,7 @@ import { Table, Button, Offcanvas, ButtonGroup, Toast } from 'reactstrap';
 import useFetchState from "../util/useFetchState";
 import { Stomp } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import api from '../services/api';
 
 function FriendsSidebar({ isOpen, toggle, username, jwt, id}) {
@@ -18,6 +18,7 @@ function FriendsSidebar({ isOpen, toggle, username, jwt, id}) {
         [],
         `/api/v1/players`,
     );
+    const [friendMatches, setFriendMatches] = useState([]);
     const[requester, setRequester] = useState([]);
     const [requests, setRequests] = useState([]);
     const [inLobby, setInLobby] = useState(false);
@@ -172,6 +173,54 @@ function FriendsSidebar({ isOpen, toggle, username, jwt, id}) {
             setIsLoading(false);
         }
         };
+        
+    const handleSpectate = async (idPlayer , idFriend) => 
+            {
+                
+                try {
+                    await api.get(`/api/v1/friends/espectate?idPlayer=${idPlayer}&idFriend=${idFriend}`, {
+                    headers: {
+                        "Authorization": `Bearer ${jwt}`,
+                        "Content-Type": "application/json"
+                    }
+                });
+                } catch (error) {
+                    console.error(error);
+                }};
+
+//Friend Match List
+
+useEffect(() => 
+    {
+        if (!username) return;
+
+        const fetchFriendsMatches = async () => 
+        {
+            try {
+                // Petición para obtener la lista de amigos
+                const response = await fetch(`/api/v1/friends/espectate?idPlayer=${id}`,
+                {headers: {
+                        "Authorization": `Bearer ${jwt}`,
+                        "Content-Type": "application/json"
+                    }
+                }
+                );
+                // Comprobar si la respuesta es correcta
+                if (!response.ok) throw new Error("Error en la petición");
+                // Convertir la respuesta a JSON
+                const data = await response.json();
+                // Actualizar el estado con la lista de amigos
+                setFriendMatches(data);
+                
+            } catch (error) {
+                console.error(error);
+            }
+        };
+
+        // Llamar a la función para obtener la lista de amigos
+        fetchFriendsMatches();
+    },
+    [username , change , changeFriend]);
 
 //Friend List
 
@@ -187,6 +236,9 @@ function FriendsSidebar({ isOpen, toggle, username, jwt, id}) {
             const friendDisplay = (friend.receiver.nickname === username) 
                 ? friend.requester
                 : friend.receiver;
+
+            const matchData = friendMatches.find(m => m.player1.id === friendDisplay.id || m.player2.id === friendDisplay.id);
+
             return (
                     <tr key={friend.id}>
                         
@@ -207,12 +259,13 @@ function FriendsSidebar({ isOpen, toggle, username, jwt, id}) {
                                     onClick={() => {handleDelete(friend.id);}}>
                                     Eliminar Amigo
                                 </Button>
-                                { friendDisplay.isCurrentlyInMatch &&
-                                <Button
-                                    style={{justifyContent: 'flex-end', backgroundColor: 'blue'}}
-                                    onClick={() => {}}>
-                                    Espectear partida
-                                </Button>}
+                                { friendDisplay.isCurrentlyInMatch && matchData &&
+                                <Link
+                                        className="auth-button blue"
+                                        style={{ padding: '0.5rem 1rem', fontSize: '0.8rem', minWidth: 'auto' }}
+                                        to={"/game/" + matchData.id}>
+                                        Espectear juego
+                                    </Link>}
                             </ButtonGroup>
                         </td>
                     </tr>
