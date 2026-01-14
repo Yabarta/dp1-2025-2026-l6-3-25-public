@@ -105,7 +105,7 @@ Checklist de cumplimiento de uso ético de la IA del sprint X:
 
 ### Sprint 4 — Resumen de uso de IA
 
-Usos registrados: 5
+Usos registrados: 6
 
 Ámbitos principales: asesoramiento en diseño técnico, refactorización de pantallas, implementación de paginación, prototipado de ranking y rediseño visual del menú.
 
