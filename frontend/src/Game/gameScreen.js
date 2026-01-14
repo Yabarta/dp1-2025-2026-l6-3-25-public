@@ -424,14 +424,14 @@ export default function GameScreen() {
     if (!sourceDish || !targetDish) {
       return false;
     }
-    const amount = Math.min(moveAmount, sourceDish[currentPlayerKey]);
+    const amount = moveAmount;
     if (amount <= 0 || amount >= 5) {
       return false;
     }
     if (targetDish[currentPlayerKey] + amount > MAX_BACTERIA) {
       return false;
     }
-    if (sourceDish[opponentPlayerKey] !== 0 && targetDish[opponentPlayerKey] === amount) {
+    if (sourceDish[opponentPlayerKey] !== 0 && targetDish[opponentPlayerKey] === amount + targetDish[currentPlayerKey]) {
       return false;
     }
     if (sourceDish[opponentPlayerKey] !== 0 && sourceDish[currentPlayerKey] - amount === sourceDish[opponentPlayerKey]) {
