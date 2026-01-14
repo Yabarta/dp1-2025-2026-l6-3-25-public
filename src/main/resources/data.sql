@@ -36,21 +36,27 @@ VALUES (1, 10, 5, 300, 7, 15),
 
 INSERT INTO players(id, is_currently_in_match, user_id, nickname, email, statistics_id) VALUES(1, false, 4, 'player1', 'hola@gmail.com', 1);
 INSERT INTO players(id, is_currently_in_match, user_id, nickname, email, statistics_id) VALUES(2, false, 5, 'player2', 'adios@gmail.com', 2);
-INSERT INTO players(id, is_currently_in_match, user_id, nickname, email, statistics_id) VALUES(3, true, 6, 'player3', 'player3@gmail.com', 3);
+INSERT INTO players(id, is_currently_in_match, user_id, nickname, email, statistics_id) VALUES(3, false, 6, 'player3', 'player3@gmail.com', 3);
 INSERT INTO players(id, is_currently_in_match, user_id, nickname, email, statistics_id) VALUES(4, false, 7, 'player4', 'player4@gmail.com', 4);
 INSERT INTO players(id, is_currently_in_match, user_id, nickname, email, statistics_id) VALUES(5, false, 8, 'player5', 'player5@gmail.com', 5);
 INSERT INTO players(id, is_currently_in_match, user_id, nickname, email, statistics_id) VALUES(6, false, 9, 'player6', 'player6@gmail.com', 6);
 INSERT INTO players(id, is_currently_in_match, user_id, nickname, email, statistics_id) VALUES(7, false, 10, 'player7', 'player7@gmail.com', 7);
 INSERT INTO players(id, is_currently_in_match, user_id, nickname, email, statistics_id) VALUES(8, false, 11, 'player8', 'player8@gmail.com', 8);
 INSERT INTO players(id, is_currently_in_match, user_id, nickname, email, statistics_id) VALUES(9, false, 12, 'player9', 'player9@gmail.com', 9);
-INSERT INTO players(id, is_currently_in_match, user_id, nickname, email, statistics_id) VALUES(10,true ,13 , 'player10' , 'player10@gmail.com' , 10);
+INSERT INTO players(id, is_currently_in_match, user_id, nickname, email, statistics_id) VALUES(10,false ,13 , 'player10' , 'player10@gmail.com' , 10);
 
 
 
 INSERT INTO achievements(id, name, description, valor, statistic_name, image) VALUES (1, 'First Win', 'Win your first game', 1, 'games_won', 'imagelin.png'),
                                                                                     (2, 'Sarcine Creator', 'Create 5 sarcines', 5, 'sarcinas_created', 'imagelin.png'),
-                                                                                    (3, 'Gamer', 'Play 10 games', 10, 'games_played', 'imagelin.png');
-                                                                                    
+                                                                                    (3, 'Gamer', 'Play 10 games', 10, 'games_played', 'imagelin.png'),
+                                                                                    (4, 'Marathoner', 'Play for 5 hours', 300, 'time_played', 'imagelin.png'),
+                                                                                    (5, 'Bacteria Master', 'Create 20 bacterias', 20, 'bacterias_created', 'imagelin.png'),
+                                                                                    (6, 'Winning Streak', 'Win 5 games', 5, 'games_won', 'imagelin.png'),
+                                                                                    (7, 'Sarcine Expert', 'Create 15 sarcines', 15, 'sarcinas_created', 'imagelin.png'),
+                                                                                    (8, 'Pro Gamer', 'Play 50 games', 50, 'games_played', 'imagelin.png'),
+                                                                                    (9, 'Ultra Marathoner', 'Play for 20 hours', 1200, 'time_played', 'imagelin.png'),
+                                                                                    (10, 'Bacteria Lord', 'Create 50 bacterias', 50, 'bacterias_created', 'imagelin.png');
 INSERT INTO players_achievements(player_id, achievements_id) VALUES (1, 1), (1, 2), (1, 3);
 
 
@@ -68,4 +74,3 @@ INSERT INTO matches(id, code, created_at, started_at, ended_at, creator_id, play
 
 INSERT INTO friend(id, receiver_id, requester_id, status) VALUES (1, 1, 2, 1);
 INSERT INTO friend(id,  receiver_id,  requester_id, status) VALUES (2, 1, 3, 0);
-INSERT INTO friend(id,  receiver_id,  requester_id, status) VALUES (3, 10, 1, 1);
