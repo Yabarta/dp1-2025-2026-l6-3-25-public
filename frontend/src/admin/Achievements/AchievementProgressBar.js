@@ -62,7 +62,7 @@ export default function AchievementProgressBar ({ achievement }) {
         className="progress-filler" 
         style={{ width: `${achievementProgress(achievement)/achievement.valor*100}%` }}
       >
-        <span className="progress-label">{`${achievementProgress(achievement)}/${achievement.valor}`}</span>
+        <span className="progress-label">{`${achievementProgress(achievement)/achievement.valor*100}%`}</span>
       </div>
     </div>
   );

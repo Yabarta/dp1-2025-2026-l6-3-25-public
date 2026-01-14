@@ -17,8 +17,8 @@ export default function Leaderboard({ players, selectedIds, jwt, onToggle }) {
         try {
             const res = await fetch(`/api/v1/players/nickname/${encodeURIComponent(nickname)}`);
             if (!res.ok) throw new Error('Error al buscar usuario');
-            const user = await res.json();
-            navigate(`/profile/${encodeURIComponent(user.username ?? nickname)}`);
+
+            navigate(`/profile/${encodeURIComponent(nickname)}`);
         } catch (err) {
             console.error('Unable to go to profile', err);
             toast.error('No se pudo abrir el perfil');

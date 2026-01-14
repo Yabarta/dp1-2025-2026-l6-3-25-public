@@ -40,7 +40,7 @@ public class StatisticsService {
         List<Statistics> all = getAllStatistics();
 
         Integer totalGamesPlayed = all.stream().map(Statistics::getGamesPlayed).reduce(0, Integer::sum) / 2; // Each game is counted twice, once for each player
-        Integer totalTimePlayed = all.stream().map(Statistics::getTimePlayed).reduce(0, Integer::sum) / 2 / 60; // Each game is counted twice, once for each player, and convert to minutes
+        Integer totalTimePlayed = all.stream().map(Statistics::getTimePlayed).reduce(0, Integer::sum) / 2 / 60 / 60; // Each game is counted twice, once for each player, and convert to minutes
         Integer totalSarcinasCreated = all.stream().map(Statistics::getSarcinasCreated).reduce(0, Integer::sum);
         Integer totalPlayers = all.size();
 
