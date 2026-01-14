@@ -341,58 +341,5 @@ public class PlayerControllerTests {
 
         verify(playerService, times(1)).delete(1);
     }
-/*
-    @Test
-    @Feature("Update Player with Image Upload")
-    @DisplayName("Update Player with Image Upload (Successfully)")
-    void testUpdatePlayerWithImage() throws Exception {
-        final int playerId = 1;
-        final String newNickname = "PhotoPlayer";
-        final String originalFileName = "profile.png";
-        final UUID fakeUuid = UUID.fromString("00000000-0000-0000-0000-000000000000");
 
-        Player originalPlayer = new Player();
-        originalPlayer.setId(playerId);
-        originalPlayer.setNickname(player.getNickname());
-        originalPlayer.setProfilePicture("/uploads/old_pic.jpg");
-        originalPlayer.setUser(user);
-
-        when(playerService.getPlayerById(playerId)).thenReturn(originalPlayer);
-
-        MockMultipartFile mockFile = new MockMultipartFile(
-                "profilePicture",
-                originalFileName,
-                MediaType.IMAGE_PNG_VALUE,
-                "file content".getBytes()
-        );
-
-        try (MockedStatic<UUID> uuidMock = mockStatic(UUID.class);
-             MockedStatic<Files> filesMock = mockStatic(Files.class)) {
-
-            uuidMock.when(UUID::randomUUID).thenReturn(fakeUuid);
-            filesMock.when(() -> Files.exists(any(Path.class))).thenReturn(true);
-            filesMock.when(() -> Files.copy(any(InputStream.class), any(Path.class))).thenReturn(100L);
-            filesMock.when(() -> Files.deleteIfExists(any(Path.class))).thenReturn(true);
-
-            mockMvc.perform(multipart(BASE_URL + "/{id}", playerId)
-                    .file(mockFile)
-                    .param("nickname", newNickname)
-                    .with(csrf())
-                    .with(request -> {
-                        request.setMethod("PUT");
-                        return request;
-                    }))
-                    .andExpect(status().isOk());
-
-            filesMock.verify(() -> Files.copy(any(InputStream.class), any(Path.class)), times(1));
-            ArgumentCaptor<Player> playerCaptor = ArgumentCaptor.forClass(Player.class);
-            verify(playerService, times(1)).save(playerCaptor.capture());
-
-            Player savedPlayer = playerCaptor.getValue();
-            String expectedUrl = "/uploads/" + fakeUuid.toString() + "_" + originalFileName;
-
-            assertEquals(newNickname, savedPlayer.getNickname());
-            assertEquals(expectedUrl, savedPlayer.getProfilePicture());
-        }
-    } */
 }
