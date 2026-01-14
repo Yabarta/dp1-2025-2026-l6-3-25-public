@@ -77,7 +77,7 @@ export default function Register() {
   if (type) {
     return (
       <div className="auth-page-container">
-        <h1>Register</h1>
+        <h1>Registrarse</h1>
         <div className="auth-form-container">
           <FormGenerator
             ref={registerFormRef}
@@ -88,7 +88,7 @@ export default function Register() {
             onSubmit={handleSubmit}
             numberOfColumns={1}
             listenEnterKey
-            buttonText="Save"
+            buttonText="Guardar"
             buttonClassName="auth-button"
           />
         </div>
@@ -98,9 +98,9 @@ export default function Register() {
     return (
       <div className="auth-page-container">
         <div className="auth-form-container">
-          <h1>Register</h1>
+          <h1>Registrarse</h1>
           <h2 className="text-center text-md">
-            What type of user will you be?
+            ¿Qué tipo de usuario serás?
           </h2>
           <div className="options-row">
             <button
@@ -108,14 +108,14 @@ export default function Register() {
               value="Owner"
               onClick={handleButtonClick}
             >
-              Player
+              Jugador
             </button>
             <button
               className="auth-button"
               value="Admin"
               onClick={handleButtonClick}
             >
-              Admin
+              Administrador
             </button>            
           </div>
         </div>

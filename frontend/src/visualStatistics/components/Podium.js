@@ -11,13 +11,13 @@ export default function Podium({ players, jwt }) {
 
     const handleNavigateToProfile = async (nickname) => {
         if (!jwt) {
-            toast.error('User not logged in');
+            toast.error('Debes iniciar sesión');
             navigate('/login');
             return;
         }
         try {
             const res = await fetch(`/api/v1/players/nickname/${encodeURIComponent(nickname)}`);
-            if (!res.ok) throw new Error('User lookup failed');
+            if (!res.ok) throw new Error('Error al buscar usuario');
             const user = await res.json();
             navigate(`/profile/${encodeURIComponent(user.username ?? nickname)}`);
         } catch (err) {
