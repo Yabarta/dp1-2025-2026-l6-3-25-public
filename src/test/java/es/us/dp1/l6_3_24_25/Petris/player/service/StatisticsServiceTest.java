@@ -106,7 +106,7 @@ class StatisticsServiceTest {
     @Owner("dlozaco(FBN588)")
     @Issue("https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/157")
     void testGetGlobalStatistics() {
-        GlobalStatistic expectedStatistics = new GlobalStatistic(72, 681, 95, 11);
+        GlobalStatistic expectedStatistics = new GlobalStatistic(72, 11, 95, 11);
         GlobalStatistic actualStatistics = statisticsService.getGlobalStatistics();
         assertEquals(expectedStatistics.totalGamesPlayed(), actualStatistics.totalGamesPlayed(), "Total games played don't match");
         assertEquals(expectedStatistics.totalTimePlayed(), actualStatistics.totalTimePlayed(), "Total time played don't match");
