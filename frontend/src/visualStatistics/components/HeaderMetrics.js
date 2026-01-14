@@ -11,7 +11,7 @@ export default function Header({ gamesSize, timePlayed, sarcines, playersRegiste
     const jwt = tokenService.getLocalAccessToken();
     const isPlayer = jwt ? jwt_decode(jwt).authorities.includes("PLAYER") : false;
 
-    const hoursPlayed = Math.floor(timePlayed / 60);
+    const hoursPlayed = Math.floor(timePlayed);
 
     const navigateToComparator = () => {
         navigate('/comparator')
