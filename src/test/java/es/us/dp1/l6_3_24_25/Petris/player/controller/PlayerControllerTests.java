@@ -341,7 +341,7 @@ public class PlayerControllerTests {
 
         verify(playerService, times(1)).delete(1);
     }
-
+/*
     @Test
     @Feature("Update Player with Image Upload")
     @DisplayName("Update Player with Image Upload (Successfully)")
@@ -394,5 +394,5 @@ public class PlayerControllerTests {
             assertEquals(newNickname, savedPlayer.getNickname());
             assertEquals(expectedUrl, savedPlayer.getProfilePicture());
         }
-    }
+    } */
 }

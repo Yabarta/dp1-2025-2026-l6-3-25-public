@@ -41,9 +41,14 @@ public class FriendControllerTests {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @MockBean
     private FriendService friendService;
 
+    @MockBean
     private PlayerService playerService;
+
+    @MockBean
+    private MatchService matchService;
 
     private Player player1;
     private Player player2;
@@ -171,4 +176,28 @@ public class FriendControllerTests {
                 .andExpect(jsonPath("$.size()").value(1))
                 .andExpect(jsonPath("$[0].id").value(10));
     }*/
+
+    @Test
+    @Feature("Get Received Friend Requests")
+    @DisplayName("Retrieve friend requests received by a player")
+    void shouldGetRequests() throws Exception {
+        when(friendService.getRequests("player1")).thenReturn(List.of(friendship));
+
+        mockMvc.perform(get(BASE_URL + "/players/player1/requests"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size()").value(1))
+                .andExpect(jsonPath("$[0].requester.nickname").value("player1"));
+    }
+
+    @Test
+    @Feature("Get Sent Friend Requests")
+    @DisplayName("Retrieve friend requests sent by a player")
+    void shouldGetRequester() throws Exception {
+        when(friendService.getRequester("player1")).thenReturn(List.of(friendship));
+
+        mockMvc.perform(get(BASE_URL + "/players/player1/requester"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size()").value(1))
+                .andExpect(jsonPath("$[0].requester.nickname").value("player1"));
+    }
 }
