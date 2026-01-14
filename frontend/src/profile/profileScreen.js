@@ -252,6 +252,7 @@ export default function ProfileScreen() {
                     Achievements={Achievements} 
                     UserAchievements={UserAchievements} 
                     achievementProgress={achievementProgress} 
+                    playerStats={playerStats}
                 />
             </div>
             <HistoryPopup 

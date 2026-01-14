@@ -2,7 +2,7 @@ import React from 'react';
 import trofeo from '../../static/images/trofeo.png';
 import AchievementGrid from '../../admin/Achievements/AchievementGrid';
 
-export default function AchievementsSection({ Achievements = [], UserAchievements = [] }) {
+export default function AchievementsSection({ Achievements = [], UserAchievements = [], playerStats }) {
   return (
     <div className="bg">
       <h1 className="title">Logros</h1>
@@ -11,6 +11,7 @@ export default function AchievementsSection({ Achievements = [], UserAchievement
         <AchievementGrid
           achievements={Achievements}
           isAdmin={false}
+          playerStats={playerStats}
         />
       </div>
     </div>
