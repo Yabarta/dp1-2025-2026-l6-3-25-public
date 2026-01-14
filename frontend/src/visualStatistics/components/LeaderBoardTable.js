@@ -20,7 +20,7 @@ export default function Leaderboard({ players, selectedIds, jwt, onToggle }) {
             const user = await res.json();
             navigate(`/profile/${encodeURIComponent(user.username ?? nickname)}`);
         } catch (err) {
-            console.error('Unable to go to profile', err);
+            console.error('No se pudo abrir el perfil', err);
             toast.error('No se pudo abrir el perfil');
         }
     };
