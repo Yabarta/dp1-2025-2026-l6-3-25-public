@@ -63,7 +63,7 @@ class AchievementServiceTest {
     @Issue("https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/107")
     void testGetAllAchievements() {
         List<Achievement> achievementList = achievementService.getAllAchievements();
-        assertEquals(3, achievementList.size(), "Incorrect number of achievements");
+        assertEquals(10, achievementList.size(), "Incorrect number of achievements");
     }
 
     @Test
@@ -87,7 +87,7 @@ class AchievementServiceTest {
     @Owner("DiegoVicenteCamara(RXW1249)")
     @Issue("https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/107")
     void testGetAchievementByWrongId() {
-        Integer id = 7;
+        Integer id = 689;
         assertThrows(ResourceNotFoundException.class, () -> achievementService.getAchievementById(id));
     }
 
@@ -99,7 +99,7 @@ class AchievementServiceTest {
     @Owner("DiegoVicenteCamara(RXW1249)")
     @Issue("https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/107")
     void testGetAchievementByName() {
-        String name = "Sarcine Creator";
+        String name = "Creador de sarcinas";
         Achievement achievement = achievementService.getAchievementByName(name);
         assertEquals(name, achievement.getName(), "Names don't match");
     }

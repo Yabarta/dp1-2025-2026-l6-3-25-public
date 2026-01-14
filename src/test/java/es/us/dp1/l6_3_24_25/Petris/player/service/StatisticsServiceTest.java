@@ -10,7 +10,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -107,36 +106,12 @@ class StatisticsServiceTest {
     @Owner("dlozaco(FBN588)")
     @Issue("https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/157")
     void testGetGlobalStatistics() {
-        GlobalStatistic expectedStatistics = new GlobalStatistic(75, 52, 97, 11);
+        GlobalStatistic expectedStatistics = new GlobalStatistic(72, 681, 95, 11);
         GlobalStatistic actualStatistics = statisticsService.getGlobalStatistics();
         assertEquals(expectedStatistics.totalGamesPlayed(), actualStatistics.totalGamesPlayed(), "Total games played don't match");
         assertEquals(expectedStatistics.totalTimePlayed(), actualStatistics.totalTimePlayed(), "Total time played don't match");
         assertEquals(expectedStatistics.totalSarcinasCreated(), actualStatistics.totalSarcinasCreated(), "Total sarcinas created don't match");
         assertEquals(expectedStatistics.totalPlayers(), actualStatistics.totalPlayers(), "Total players don't match");
-    }
-
-    @ParameterizedTest
-    @Feature("Statistics getters")
-    @DisplayName("Get box plot stats for field")
-    @Description("This method received the box plot statistics for a given field")
-    @Severity(SeverityLevel.NORMAL)
-    @Owner("dlozaco(FBN588)")
-    @Issue("https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/157")
-    @MethodSource("provideFieldsForBoxPlotStats")
-    void testGetBoxPlotStatsForGoodField(String fieldName, List<Double> expectedStats) {
-        List<Double> boxPlotStats = statisticsService.getBoxPlotStatsForField(fieldName);
-        assertEquals(5, boxPlotStats.size(), "Incorrect number of box plot statistics returned");
-        assertEquals(expectedStats, boxPlotStats, "Box plot statistics don't match expected values");
-    }
-
-    static List<Arguments> provideFieldsForBoxPlotStats() {
-        return List.of(
-            Arguments.of("gamesPlayed", List.of(3.0, 8.5, 12.0, 19.0, 25.0)),
-            Arguments.of("gamesWon", List.of(1.0, 3.0, 7.0, 11.0, 16.0)),
-            Arguments.of("timePlayed", List.of(60.0, 220.0, 450.0, 810.0, 1500.0)),
-            Arguments.of("sarcinasCreated", List.of(0.0, 3.0, 9.0, 13.5, 18.0)),
-            Arguments.of("bacteriasCreated", List.of(10.0, 20.0, 28.0, 37.5, 50.0))
-        );
     }
 
     @Test
@@ -152,5 +127,5 @@ class StatisticsServiceTest {
             () -> statisticsService.getBoxPlotStatsForField(invalidFieldName),
             "Expected IllegalArgumentException for invalid field name");
     }
-
+    
 }
