@@ -20,7 +20,7 @@ export default function Podium({ players, jwt }) {
             if (!res.ok) throw new Error('Error al buscar usuario');
             navigate(`/profile/${encodeURIComponent(nickname)}`);
         } catch (err) {
-            console.error('Unable to go to profile', err);
+            console.error('No se pudo abrir el perfil', err);
             toast.error('No se pudo abrir el perfil');
         }
     };

@@ -36,7 +36,7 @@ export default function CurrentGames() {
                         to={"/game/" + g.id}
                         style={{ padding: '0.5rem 1rem', fontSize: '0.8rem', minWidth: 'auto' }}
                     >
-                        Spectate game
+                        Espectar partida
                     </Link>
                 </td>
             </tr>
@@ -45,16 +45,16 @@ export default function CurrentGames() {
 
     return (
         <div className="admin-page-container">
-            <h1 className="text-center">Current Games</h1>
+            <h1 className="text-center">Partidas Actuales</h1>
             <div style={{ width: '100%', maxWidth: '1200px' }}>
                 <Table aria-label="current-games" className="mt-4">
                     <thead>
                         <tr>
-                            <th className="text-center">Player 1</th>
-                            <th className="text-center">Player 2</th>
-                            <th className="text-center">Started</th>
-                            <th className="text-center">Code</th>
-                            <th className="text-center">Actions</th>
+                            <th className="text-center">Jugador 1</th>
+                            <th className="text-center">Jugador 2</th>
+                            <th className="text-center">Iniciadas</th>
+                            <th className="text-center">Código</th>
+                            <th className="text-center">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>{gameList}</tbody>

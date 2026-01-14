@@ -90,7 +90,7 @@ export default function UserListAdmin() {
               aria-label={"edit-" + user.id}
               style={{ padding: '0.5rem 1rem', fontSize: '0.8rem', minWidth: 'auto' }}
             >
-              Edit
+              Editar
             </Link>
             <button
               className="auth-button danger"
@@ -101,7 +101,7 @@ export default function UserListAdmin() {
               }}
               style={{ padding: '0.5rem 1rem', fontSize: '0.8rem', minWidth: 'auto' }}
             >
-              Delete
+              Eliminar
             </button>
           </div>
         </td>
@@ -131,7 +131,7 @@ export default function UserListAdmin() {
 
   return (
     <div className="admin-page-container">
-      <h1 className="text-center">Users</h1>
+      <h1 className="text-center">Usuarios</h1>
       {alerts.map((a) => a.alert)}
       {modal}
       {confirmModal}
@@ -151,35 +151,35 @@ export default function UserListAdmin() {
           onClick={() => setboton(0)} 
           className={`auth-button ${botonAll ? "selected" : ""}`}
         > 
-          All
+          Todos
         </button>
         <button 
           id="1" 
           onClick={() => setboton(1)} 
           className={`auth-button ${botonAdmin ? "selected" : ""}`}
         > 
-          Admin
+          Administrador
         </button>
         <button 
           id="2" 
           onClick={() => setboton(2)} 
           className={`auth-button ${botonPlayer ? "selected" : ""}`}
         > 
-          Player
+          Jugador
         </button>
       </div>
     
       <Link className="auth-button" style={{textDecoration: "none", marginBottom: "2rem"}} to="/users/new">
-        Add User
+        Añadir Usuario
       </Link>
 
       <div>
         <Table aria-label="users" className="mt-4">
           <thead>
             <tr>
-              <th>Username</th>
-              <th>Authority</th>
-              <th>Actions</th>
+              <th>Nombre de usuario</th>
+              <th>Autoridad</th>
+              <th>Acciones</th>
             </tr>
           </thead>
           <tbody>{userList}</tbody>
