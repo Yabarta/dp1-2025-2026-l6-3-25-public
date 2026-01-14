@@ -156,27 +156,6 @@ public class FriendControllerTests {
         verify(friendService, times(1)).delete(1);
     }
 
-    /* 
-    @Test
-    @Feature("Spectate Friends")
-    @DisplayName("Get matches of friends to spectate")
-    void shouldGetFriendMatches() throws Exception {
-        Match match = new Match();
-        match.setId(10);
-        match.setPlayer1(player1);
-        match.setPlayer2(player2);
-
-        when(matchService.getCurrentMatches()).thenReturn(List.of(match));
-        when(friendService.Player1IsFriendOfPlayer2(1, player1.getId())).thenReturn(true);
-        when(friendService.Player1IsFriendOfPlayer2(1, player2.getId())).thenReturn(true);
-
-        mockMvc.perform(get(BASE_URL + "/friends/espectate")
-                .param("idPlayer", "1"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.size()").value(1))
-                .andExpect(jsonPath("$[0].id").value(10));
-    }*/
-
     @Test
     @Feature("Get Received Friend Requests")
     @DisplayName("Retrieve friend requests received by a player")
