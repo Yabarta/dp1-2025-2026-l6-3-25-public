@@ -11,6 +11,7 @@ export default function Header({ gamesSize, timePlayed, sarcines, playersRegiste
     const jwt = tokenService.getLocalAccessToken();
     const isPlayer = jwt ? jwt_decode(jwt).authorities.includes("PLAYER") : false;
 
+    const hoursPlayed = Math.floor(timePlayed / 60);
 
     const navigateToComparator = () => {
         navigate('/comparator')
@@ -43,7 +44,7 @@ export default function Header({ gamesSize, timePlayed, sarcines, playersRegiste
             </GlassPanel>
             <GlassPanel className="kpi-card" style={{ borderLeft: '4px solid var(--alert-green)' }}>
             <div className="kpi-title">Tiempo Jugado</div>
-            <div className="kpi-value text-mono text-green">{ timePlayed } horas</div>
+            <div className="kpi-value text-mono text-green">{ hoursPlayed } horas</div>
             </GlassPanel>
             <GlassPanel className="kpi-card" style={{ borderLeft: '4px solid var(--alert-blue)' }}>
             <div className="kpi-title">Jugadores registrados</div>

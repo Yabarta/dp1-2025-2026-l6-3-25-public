@@ -124,10 +124,11 @@
 .games-history .scorePlayer1,
 .games-history .scorePlayer2 {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 8px;
   padding: 10px;
   border-radius: 12px;
+  color: #56f85e !important;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.05);
   min-width: 0;

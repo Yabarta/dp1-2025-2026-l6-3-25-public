@@ -33,12 +33,12 @@ export default function getErrorModal(setVisible, visible = false, message = nul
             <div>
                 <Modal isOpen={visible} toggle={() => handleVisible(setVisible, visible)}
                     keyboard={false}>
-                    <ModalHeader toggle={() => handleVisible(setVisible, visible)} close={closeBtn}>Alert!</ModalHeader>
+                    <ModalHeader toggle={() => handleVisible(setVisible, visible)} close={closeBtn}>¡Error!</ModalHeader>
                     <ModalBody>
                         {message}
                     </ModalBody>
                     <ModalFooter>
-                        <Button color="primary" onClick={() => handleVisible(setVisible, visible)}>Close</Button>
+                        <Button color="primary" onClick={() => handleVisible(setVisible, visible)}>Cerrar</Button>
                     </ModalFooter>
                 </Modal>
             </div>

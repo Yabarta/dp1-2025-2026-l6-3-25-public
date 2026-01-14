@@ -2,11 +2,15 @@ import React from 'react';
 import { Button } from 'reactstrap';
 
 export default function RecentGames({ userGames = [], isWinner, duracion, getPlayerProfilePic, handleNavigateToProfile, setShowHistoryPopup, navigate }) {
+  const recentGames = [...(userGames || [])]
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .slice(0, 3);
+
   return (
     <div className="bg">
       <h1 className="title">Partidas Recientes</h1>
       <div className="recentGamesContainer">
-        {userGames.slice(0, 3).map((game) => (
+        {recentGames.map((game) => (
           <div key={game.id} className={isWinner(game) ? 'gameWinBg' : 'gameLoseBg'}>
             <div className="gameHeader">
               <div className="gameResult">

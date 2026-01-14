@@ -168,7 +168,7 @@ export default function Comparator (props) {
     return (
         <div className="comparator-container">
             <h1 className="comparator-title">
-                PETRIS <span className="text-green">COMPARATOR</span>
+                PETRIS <span className="text-green">COMPARADOR</span>
             </h1>
             <div className="boxplot-container" style={{gap: '20px', maxWidth: '1000px', margin: '0 auto 40px auto', alignSelf: 'center'}}>
     
