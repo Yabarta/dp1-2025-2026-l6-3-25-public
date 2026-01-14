@@ -46,25 +46,25 @@ A continuación se definen  todas las historias de usuario a implementar:
 ### Unirse a una partida (jugador)
 ![alt text](ImagenesD1/m1.png)
 
-- ## HU-02 (ISSUE#ID): **Avanzar de turno (jugador)**  https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/120
+- ## HU-02 (ISSUE#120): **Avanzar de turno (jugador)**  https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/120
     - Como jugador quiero avanzar de turno para poder continuar con la partida.
     - _Se requiere tener un botón de terminar el turno para poder confirmar los movimientos en la fase de propagación para pasar al siguiente turno._
 ### Avanzar de turno (jugador)
 ![alt text](ImagenesD1/m2.png)
 
-- ## HU-03 (ISSUE#ID): **Bloqueo de fin de turno (jugador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/200
+- ## HU-03 (ISSUE#200): **Bloqueo de fin de turno (jugador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/200
     - Como jugador quiero que el botón de turno quede bloqueado explicando el motivo para poder jugar correctamente.
     - _Se debe invalidar el avance de turno argumentando el motivo en caso de que se realicen movimientos ilegales o no se haya movido ninguna bacteria._
 ### Bloqueo de fin de turno (jugador)
 ![alt text](ImagenesD1/m37.png)
 
-- ## HU-04 (ISSUE#ID): **Validación de movimientos (jugador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/202
+- ## HU-04 (ISSUE#202): **Validación de movimientos (jugador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/202
     - Como jugador quiero saber qué movimientos puedo o no hacer en una partida para poder jugar correctamente.
     - _Se requiere poder mostrar mediante señales luminosas en los discos si un movimiento es incorrecto antes de terminar mi turno._
 ### Validación de movimientos (jugador)
 ![alt text](ImagenesD1/m3.png)
 
-- ## HU-05 (ISSUE#ID): **Control de turnos (jugador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/201
+- ## HU-05 (ISSUE#201): **Control de turnos (jugador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/201
     - Como jugador quiero conocer el turno por el que voy para poder controlar a quién le toca en cada caso.
     - _Se requiere señalar con colores un marcador de turno de la persona a la que le toca jugar además de los siguientes turnos._
 ### Control de turnos (jugador)
@@ -76,19 +76,19 @@ A continuación se definen  todas las historias de usuario a implementar:
 ### Barra de contaminación (jugador)
 ![alt text](ImagenesD1/m5.png)
 
-- ## HU-07 (ISSUE#ID): **Control de fase de fisión binaria (jugador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/203
+- ## HU-07 (ISSUE#203): **Control de fase de fisión binaria (jugador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/203
     - Como jugador quiero que en la fase de fisión binaria se añada una bacteria del jugador al que pertenece un disco para poder proseguir una partida con normalidad.
     - _Se requiere la automatización para que por cada disco en el que solo existan bacterias de un jugador, se agrege a dicho disco una más._
 ### Control de fase de fisión binaria (jugador)
 ![alt text](ImagenesD1/m38.png)
 
-- ## HU-08 (ISSUE#ID): **Control de fase de contaminación (jugador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/204
+- ## HU-08 (ISSUE#204): **Control de fase de contaminación (jugador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/204
     - Como jugador quiero que en la fase de contaminación se añadan los puntos de contaminación a cada jugador para poder proseguir una partida con normalidad.
     - _Se requiere la automatización para que la barra de contaminación de un jugador suba automáticamente._
 ### Control de fase de contaminación (jugador)
 ![alt text](ImagenesD1/m39.png)
 
-- ## HU-09 (ISSUE#ID): **Creación de sarcinas (jugador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/205
+- ## HU-09 (ISSUE#205): **Creación de sarcinas (jugador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/205
     - Como jugador quiero que al tener 5 bacterias propias en un mismo disco se cree una sarcina para poder proseguir una partida con normalidad.
     - _Se requiere la automatización para la creación de sarcinas._
 ### Creación de sarcinas (jugador)
@@ -131,7 +131,7 @@ A continuación se definen  todas las historias de usuario a implementar:
 ### Expulsión por inactividad (jugador)
 ![alt text](ImagenesD1/m12.png)
 
-- ## HU-16 (ISSUE#ID): **Visualizar partidas recientes (jugador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/206
+- ## HU-16 (ISSUE#206): **Visualizar partidas recientes (jugador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/206
     - Como jugador quiero visualizar las partidas que he jugado recientemente para poder llevar un control sobre mi propio progreso como jugador.
     - _Se requiere una opción que permita al jugador ver las últimas partidas que ha jugado de principio a fin, replicando los mismos movimientos tanto del jugador como del oponente._
 ### Visualizar partidas recientes (jugador)
@@ -141,20 +141,20 @@ A continuación se definen  todas las historias de usuario a implementar:
 ---
 ## **Módulo de gestión de usuarios (obligatorio)**
 
-- ## HU-17 (ISSUE#ID): **Registro de usuario (usuario)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/64
+- ## HU-17 (ISSUE#64): **Registro de usuario (usuario)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/64
     - Como usuario quiero registrarme para poder tener una cuenta propia con la que jugar.
     - _Se requiere una opción de poder crear una cuenta con un nombre de usuario y contraseña de manera que esta quede registrada y se pueda iniciar sesión con ella de ahora en adelante._
 ### Registro de usuario (usuario)
 ![alt text](ImagenesD1/m15.png)
 ![alt text](ImagenesD1/m16.png)
 
-- ## HU-18 (ISSUE#ID): **Inicio de sesión (jugador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/195
+- ## HU-18 (ISSUE#195): **Inicio de sesión (jugador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/195
     - Como jugador quiero iniciar sesión para poder jugar al juego con mi cuenta.
     - _Se requiere una opción para que el jugador pueda iniciar sesión con las credenciales (usuario y contraseña) que el propio usuario ha creado._
 ### Inicio de sesión (jugador)
 ![alt text](ImagenesD1/m17.png)
 
-- ## HU-19 (ISSUE#ID): **Cerrar sesión (jugador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/196
+- ## HU-19 (ISSUE#196): **Cerrar sesión (jugador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/196
     - Como jugador quiero cerrar sesión para poder jugar con otra cuenta.
     - _Se requiere una opción para que el jugador pueda cerrar sesión. De esta manera no podrá jugar si no inicia sesión de nuevo._
 ### Cerrar sesión (jugador)
@@ -166,13 +166,13 @@ A continuación se definen  todas las historias de usuario a implementar:
 ### Editar perfil (jugador)
 ![alt text](ImagenesD1/m19.png)
 
-- ## HU-21 (ISSUE#ID): **Inicio de sesión (administrador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/197
+- ## HU-21 (ISSUE#197): **Inicio de sesión (administrador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/197
     - Como administrador quiero iniciar sesión para poder administrar las acciones de los usuarios.
     - _Se requiere poder iniciar sesión como administrador con las credenciales (usuario y contraseña) que el propio usuario ha creado._
 ### Inicio de sesión (administrador)
 ![alt text](ImagenesD1/m17.png)
 
-- ## HU-22 (ISSUE#ID): **Cerrar sesión (administrador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/198
+- ## HU-22 (ISSUE#198): **Cerrar sesión (administrador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/198
     - Como administrador quiero cerrar sesión para poder loguearme posteriormente con mi cuenta de jugador.
     - _Se requiere poder cerrar sesión siendo administrador para que el usuario pueda cambiar de cuenta._
 ### Cerrar sesión (administrador)
@@ -184,13 +184,13 @@ A continuación se definen  todas las historias de usuario a implementar:
 ### Listado de usuarios (administrador)
 ![alt text](ImagenesD1/m20.png)
 
-- ## HU-24 (ISSUE#ID): **Editar perfil de usuario (administrador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/207
+- ## HU-24 (ISSUE#207): **Editar perfil de usuario (administrador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/207
     - Como administrador quiero editar el perfil de un usuario para poder controlar que los nombres sean apropiados.
     - _Se requiere una opción para poder editar los perfiles de usuario, especialmente el nombre._
 ### Editar perfil de usuario (administrador)
 ![alt text](ImagenesD1/m21.png)
 
-- ## HU-25 (ISSUE#ID): **Eliminar usuario (administrador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/208
+- ## HU-25 (ISSUE#208): **Eliminar usuario (administrador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/208
     - Como administrador quiero eliminar a un usuario en caso de que lo considere necesario.
     - _Se requiere una opción para los administradores para que puedan vetar a un usuario eliminando su cuenta si se considera que su comportamiento no es el adecuado._
 ### Eliminar usuario (administrador)
@@ -211,7 +211,7 @@ A continuación se definen  todas las historias de usuario a implementar:
 ### Ver logros (jugador)
 ![alt text](ImagenesD1/m25.png)
 
-- ## HU-28 (ISSUE#ID): **Ver perfil de otro jugador (jugador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/209
+- ## HU-28 (ISSUE#209): **Ver perfil de otro jugador (jugador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/209
     - Como jugador quiero poder ver el perfil de otro jugador para poder ver sus estadísticas.
     - _Se requiere mostrar de alguna manera el perfil de otro jugador para mostrar sus estadísticas y así identificar mejor a jugadores, socializar mediante el código de amistad o simplemente entretenerse._
 ### Ver perfil de otro jugador (jugador)
@@ -235,19 +235,19 @@ A continuación se definen  todas las historias de usuario a implementar:
 ![Comparación global](ImagenesD1/comparacionGlobal.jpeg)
 ![Comparación individual](ImagenesD1/comparacionIndividual.jpeg)
 
-- ## HU-32 (ISSUE#ID): **Definir nuevos logros (administrador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/210
+- ## HU-32 (ISSUE#210): **Definir nuevos logros (administrador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/210
     - Como administrador quiero definir nuevos logros para poder agregar nuevas razones por las que jugar al juego.
     - _Se requiere una opción para los administradores para publicar un nuevo logro._
 ### Definir nuevos logros (administrador)
 ![alt text](ImagenesD1/m28.png)
 
-- ## HU-33 (ISSUE#ID): **Editar logros (administrador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/217
+- ## HU-33 (ISSUE#217): **Editar logros (administrador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/217
     - Como administrador quiero editar logros para poder arreglar errores cometidos al crear un logro.
     - _Se requiere una opción para los administradores para editar un logro._
 ### Editar logros (administrador)
 ![alt text](ImagenesD1/m41.png)
 
-- ## HU-34 (ISSUE#ID): **Eliminar logros (administrador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/218
+- ## HU-34 (ISSUE#218): **Eliminar logros (administrador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/218
     - Como administrador quiero eliminar logros para poder corregir el seguimiento de estos por los jugadores ante una meta no deseada.
     - _Se requiere una opción para los administradores para eliminar un logro._
 ### Eliminar logros (administrador)
@@ -256,19 +256,19 @@ A continuación se definen  todas las historias de usuario a implementar:
 ---
 ## **Módulo de juego social (opcional)**
 
-- ## HU-35 (ISSUE#ID): **Añadir amigo (jugador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/211
+- ## HU-35 (ISSUE#211): **Añadir amigo (jugador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/211
     - Como jugador quiero añadir un amigo para poder conectar rápidamente con una persona con la que frecuento jugar.
     - _Se requiere una opción que permita agregar a un jugador mediante un código de amigo siempre que la otra persona lo acepte._
 ### Añadir amigo (jugador)
 ![alt text](ImagenesD1/m29.png)
 
-- ## HU-36 (ISSUE#ID): **Ver estado de amigos (jugador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/212
+- ## HU-36 (ISSUE#212): **Ver estado de amigos (jugador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/212
     - Como jugador quiero ver si mis amigos están en línea para poder jugar con ellos.
     - _Se requiere un sistema que permita ver la lista de amigos y si se encuentran en estado conectado o desconectado._
 ### Ver estado de amigos (jugador)
 ![alt text](ImagenesD1/m30.png)
 
-- ## HU-37 (ISSUE#ID): **Eliminar amigo (jugador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/213
+- ## HU-37 (ISSUE#213): **Eliminar amigo (jugador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/213
     - Como jugador quiero eliminar un amigo para poder hacer hueco en la lista de amistades.
     - _Se requiere una opción que permita sin la confirmación del otro jugador eliminarlo de la lista de amigos._
 ### Eliminar amigo (jugador)
@@ -280,17 +280,12 @@ A continuación se definen  todas las historias de usuario a implementar:
 ### Chat en partida (jugador)
 ![alt text](ImagenesD1/m32.png)
 
-- ## HU-39 (ISSUE#ID): **Silenciar chat (jugador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/135
+- ## HU-39 (ISSUE#135): **Silenciar chat (jugador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/135
     - Como jugador quiero silenciar el chat para poder aislarme de cualquier tipo de interacción con otros jugadores por el motivo que sea.
     - _Se requiere una opción para silenciar el chat en una partida._
 ### Silenciar chat (jugador)
 ![alt text](ImagenesD1/m33.png)
 
-- ## HU-40 (ISSUE#ID): **Monitorizar chat (administrador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/214
-    - Como administrador quiero monitorizar el chat de cualquier partida para poder ocultar cualquier mensaje que propicie un mal ambiente.
-    - _Se requiere que el administrador pueda ocultar o eliminar cualquier mensaje dentro del chat de partida por el bienestar de los jugadores._
-### Monitorizar chat (administrador)
-![alt text](ImagenesD1/m36.png)---
 
 
 # Diagrama conceptual del sistema
