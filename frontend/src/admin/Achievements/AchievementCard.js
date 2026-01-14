@@ -4,7 +4,7 @@ import { FaEdit, FaTrash } from "react-icons/fa";
 import trofeo from "../../static/images/trofeo.png";
 import AchievementProgressBar from "./AchievementProgressBar";
 
-export default function AchievementCard({ achievement, onEdit, onDelete, isEditing, isAdmin }) {
+export default function AchievementCard({ achievement, onEdit, onDelete, isEditing, isAdmin, playerStats }) {
     const getImageUrl = (image) => {
         if (!image) return trofeo;
         // Si comienza con /, es una ruta absoluta (uploads/)
@@ -67,6 +67,7 @@ export default function AchievementCard({ achievement, onEdit, onDelete, isEditi
                 &&
                 <AchievementProgressBar
                     achievement={achievement}
+                    playerStats={playerStats}
                 />
             }
         </div>
