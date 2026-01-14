@@ -46,6 +46,29 @@ export default function GameScreen() {
 
   const matchUpdate = useWebSocket(`/app/matches/watch/${id}`, `/topic/match/${id}`);
 
+  const turnSeenKey = (matchId, turn) => `match:${matchId}:turn:${turn}:seenAt`;
+  const setTurnSeen = (matchId, turn, force = false) => {
+    try {
+      if (!matchId || turn === null || turn === undefined) return;
+      const key = turnSeenKey(matchId, turn);
+      if (!force) {
+        const existing = localStorage.getItem(key);
+        if (existing) return; // do not overwrite an existing seen timestamp
+      }
+      localStorage.setItem(key, String(Date.now()));
+    } catch (e) {
+
+    }
+  };
+  const getTurnSeen = (matchId, turn) => {
+    try {
+      const v = localStorage.getItem(turnSeenKey(matchId, turn));
+      return v ? Number(v) : null;
+    } catch (e) {
+      return null;
+    }
+  };
+
   const [showChat, setShowChat] = useState(true)
   const [muteChatMessage, setMuteChatMessage] = useState("Silenciar")
 
@@ -55,7 +78,9 @@ export default function GameScreen() {
       try {
         const response = await api.get(`/api/v1/matches/${id}`);
         setError(null);
-        setMatch(normaliseMatch(response.data));
+        const normal = normaliseMatch(response.data);
+        setMatch(normal);
+        setTurnSeen(normal.id, normal.turn);
       } catch (err) {
         console.error('Unable to load match', err);
         setError('No se pudo cargar la partida.');
@@ -74,7 +99,9 @@ export default function GameScreen() {
       return;
     }
     setError(null);
-    setMatch(normaliseMatch(matchUpdate));
+    const normal = normaliseMatch(matchUpdate);
+    setMatch(normal);
+    setTurnSeen(normal.id, normal.turn);
   }, [matchUpdate]);
 
   useEffect(() => {
@@ -123,7 +150,35 @@ export default function GameScreen() {
       setTimeLeft(TURN_TIME_SECONDS);
       return;
     }
-    setRunning(true);
+
+    const seen = getTurnSeen(match.id, match.turn);
+    if (seen) {
+      const elapsed = Math.floor((Date.now() - seen) / 1000);
+      const remaining = Math.max(0, TURN_TIME_SECONDS - elapsed);
+      setTimeLeft(remaining);
+      setRunning(remaining > 0 && !match.endedAt);
+      return;
+    }
+
+    // Fallback: if we have server timestamps, try to compute from startedAt + turn index
+    if (match.startedAt) {
+      try {
+        const started = new Date(match.startedAt);
+        const turnIndex = typeof match.turn === 'number' ? match.turn : 0;
+        const turnStart = new Date(started.getTime() + turnIndex * TURN_TIME_SECONDS * 1000);
+        const elapsed = Math.floor((Date.now() - turnStart.getTime()) / 1000);
+        const positiveElapsed = Math.max(0, elapsed);
+        const remaining = Math.max(0, TURN_TIME_SECONDS - positiveElapsed);
+        setTimeLeft(remaining);
+        setRunning(remaining > 0 && !match.endedAt);
+        return;
+      } catch (e) {
+        // ignore and fall through
+      }
+    }
+
+    setRunning(false);
+    setTimeLeft(TURN_TIME_SECONDS);
   }, [match]);
 
   useEffect(() => {
@@ -321,7 +376,9 @@ export default function GameScreen() {
         }));
         response = await api.put(`/api/v1/matches/${id}/nextTurn`, payload);
       }
-      setMatch(normaliseMatch(response.data));
+      const normal = normaliseMatch(response.data);
+      setMatch(normal);
+      setTurnSeen(normal.id, normal.turn, true);
       setTimeLeft(TURN_TIME_SECONDS);
       setRunning(true);
       if (propagationTurn && selectedSource !== null) {
