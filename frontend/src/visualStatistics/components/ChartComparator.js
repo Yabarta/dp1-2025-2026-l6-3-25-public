@@ -47,12 +47,12 @@ export default function ChartComparator({ myName, myStats, opponentStats, oppone
     },
     xAxis: {
       categories: [
-        'Bacterias creadas', 
+        'Media bacterias creadas', 
         'Partidas jugadas', 
         'Partidas ganadas', 
         'Partidas perdidas',
         'Sarcinas creadas', 
-        'Tiempo jugado', 
+        'Tiempo jugado(h)', 
       ],
       tickmarkPlacement: 'on',
       lineWidth: 0,
