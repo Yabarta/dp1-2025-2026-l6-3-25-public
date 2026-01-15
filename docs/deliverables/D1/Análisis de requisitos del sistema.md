@@ -291,7 +291,7 @@ A continuación se definen  todas las historias de usuario a implementar:
 # Diagrama conceptual del sistema
 
 ### Diagrama de clases UML
-![alt text](ImagenesD1/DiagramaConceptual.jpg)
+![alt text](ImagenesD1/DiagramaConceptual.png)
 
 ----
 ## Reglas de Negocio
