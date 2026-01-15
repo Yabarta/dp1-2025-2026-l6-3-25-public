@@ -55,19 +55,9 @@ class MatchServiceTest {
     private MatchStatsBatchOrchestrator matchStatsBatchOrchestrator;
     protected MatchService matchService;
 
-    /*
-    private WebSocketMatchService webSocketService;
-    private SimpMessagingTemplate messagingTemplate;
-    private ObjectProvider<SimpMessagingTemplate> messagingTemplateProvider;
-    */
-
     @BeforeEach
     void setup() {
         matchService = new MatchService(matchRepository, matchStatsBatchOrchestrator);
-        /*
-        messagingTemplate = mock(SimpMessagingTemplate.class);
-        webSocketService = new WebSocketMatchService(messagingTemplateProvider, matchRepository, matchService);
-        */
     }
 
     @Test

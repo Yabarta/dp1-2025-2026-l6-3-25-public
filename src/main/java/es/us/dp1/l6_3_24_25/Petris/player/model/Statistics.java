@@ -31,11 +31,12 @@ public class Statistics extends BaseEntity {
     private Integer bacteriasCreated ;
 
     public Double getScore() {
+        Double LOGARITHM_MULTIPLIER = 20.0;
         if(gamesPlayed < 10) {
             return null;
         }
         double winPercent = ((double) gamesWon / (double) gamesPlayed) * 100.0;
-        return winPercent + 20.0 * Math.log10((double) gamesPlayed);
+        return winPercent + LOGARITHM_MULTIPLIER * Math.log10((double) gamesPlayed);
     }
     public Integer getStatisticByName(String statisticName) {
         return switch (statisticName.toLowerCase()) {
