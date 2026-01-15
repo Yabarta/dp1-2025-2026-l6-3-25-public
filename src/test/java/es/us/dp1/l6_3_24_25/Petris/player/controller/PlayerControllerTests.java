@@ -134,6 +134,7 @@ public class PlayerControllerTests {
     @Test
     @Feature("Get All Players")
     @DisplayName("Get All Players (Successfully)")
+    @Owner("luggzz(KDR0901)")
     void shouldGetAllPlayers() throws Exception {
         User user2 = new User();
         user2.setId(2);
@@ -156,6 +157,7 @@ public class PlayerControllerTests {
     @Test
     @Feature("Get Player by Id")
     @DisplayName("Get Player by Id (Successfully)")
+    @Owner("luggzz(KDR0901)")
     void testGetPlayerById() throws Exception {
         when(playerService.getPlayerById(1)).thenReturn(player);
         mockMvc.perform(get(BASE_URL + "/1")).andExpect(status().isOk())
@@ -165,6 +167,7 @@ public class PlayerControllerTests {
     @Test
     @Feature("Get Player by Id")
     @DisplayName("Get Player by Id (Id not found)")
+    @Owner("luggzz(KDR0901)")
     void testGetPlayerById_NotFound() throws Exception {
         when(playerService.getPlayerById(1000)).thenThrow(new ResourceNotFoundException("Player", "id", 1000));
         mockMvc.perform(get(BASE_URL + "/1000")).andExpect(status().isNotFound());
@@ -173,6 +176,7 @@ public class PlayerControllerTests {
     @Test
     @Feature("Get Player Statistics by Id")
     @DisplayName("Get Player Statistics by Id (Successfully)")
+    @Owner("luggzz(KDR0901)")
     void testGetPlayerStatsById() throws Exception {
         when(playerService.getPlayerById(1)).thenReturn(player);
         mockMvc.perform(get(BASE_URL + "/1/statistics")).andExpect(status().isOk())
@@ -186,6 +190,7 @@ public class PlayerControllerTests {
     @Test
     @Feature("Get Player Specific Statistic by Id")
     @DisplayName("Get Player Specific Statistic by Id (Successfully)")
+    @Owner("luggzz(KDR0901)")
     void testGetPlayerSpecificStatById() throws Exception {
         when(playerService.getPlayerById(1)).thenReturn(player);
         mockMvc.perform(get(BASE_URL + "/1/statistics")).andExpect(status().isOk())
@@ -195,6 +200,7 @@ public class PlayerControllerTests {
     @Test
     @Feature("Get Player Achievements by Id")
     @DisplayName("Get Player Achievements by Id (Successfully)")
+    @Owner("luggzz(KDR0901)")
     void testGetPlayerAchievementById() throws Exception {
         when(playerService.getPlayerById(1)).thenReturn(player);
         mockMvc.perform(get(BASE_URL + "/1/achievements")).andExpect(status().isOk())
@@ -206,6 +212,7 @@ public class PlayerControllerTests {
     @Test
     @Feature("Get Player Achievements by Id")
     @DisplayName("Get Player Achievements by Id (No Achievements)")
+    @Owner("luggzz(KDR0901)")
     void testGetPlayerAchievementById_NoAchievements() throws Exception {
         Player playerNoAch = new Player();
         playerNoAch.setId(2);
@@ -225,6 +232,7 @@ public class PlayerControllerTests {
     @Test
     @Feature("Get Player by Nickname")
     @DisplayName("Get Player by Nickname (Successfully)")
+    @Owner("luggzz(KDR0901)")
     void testGetPlayerByNickname() throws Exception {
         when(playerService.getPlayerByNickname("player1")).thenReturn(player);
         mockMvc.perform(get(BASE_URL + "/nickname/player1")).andExpect(status().isOk())
@@ -234,6 +242,7 @@ public class PlayerControllerTests {
     @Test
     @Feature("Get Player by Nickname")
     @DisplayName("Get Player by Nickname (Not Found)")
+    @Owner("luggzz(KDR0901)")
     void testGetPlayerByNickname_NotFound() throws Exception {
         when(playerService.getPlayerByNickname("unknown")).thenThrow(new ResourceNotFoundException("Player", "nickname", "unknown"));
         mockMvc.perform(get(BASE_URL + "/nickname/unknown")).andExpect(status().isNotFound());
@@ -242,6 +251,7 @@ public class PlayerControllerTests {
     @Test
     @Feature("Get Player by Username")
     @DisplayName("Get Player by Username (Successfully)")
+    @Owner("luggzz(KDR0901)")
     void testGetPlayerByUsername() throws Exception {
         when(playerService.getPlayerByUsername("user")).thenReturn(player);
         mockMvc.perform(get(BASE_URL + "/user/user")).andExpect(status().isOk())
@@ -251,6 +261,7 @@ public class PlayerControllerTests {
     @Test
     @Feature("Get Player by Username")
     @DisplayName("Get Player by Username (Not Found)")
+    @Owner("luggzz(KDR0901)")
     void testGetPlayerByUsername_NotFound() throws Exception {
         when(playerService.getPlayerByUsername("unknown")).thenThrow(new ResourceNotFoundException("User", "username", "unknown"));
         mockMvc.perform(get(BASE_URL + "/user/unknown")).andExpect(status().isNotFound());

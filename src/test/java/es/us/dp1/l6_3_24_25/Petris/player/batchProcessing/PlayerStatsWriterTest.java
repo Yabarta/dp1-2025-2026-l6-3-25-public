@@ -6,13 +6,20 @@ import es.us.dp1.l6_3_24_25.Petris.player.model.Statistics;
 import es.us.dp1.l6_3_24_25.Petris.player.service.AchievementService;
 import es.us.dp1.l6_3_24_25.Petris.player.service.PlayerService;
 import es.us.dp1.l6_3_24_25.Petris.player.service.StatisticsService;
+import io.qameta.allure.Description;
+import io.qameta.allure.Epic;
+import io.qameta.allure.Feature;
+import io.qameta.allure.Owner;
+import io.qameta.allure.Severity;
+import io.qameta.allure.SeverityLevel;
+import io.qameta.allure.Story;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import io.qameta.allure.Owner;
 import org.springframework.batch.item.Chunk;
 
 import java.util.ArrayList;
@@ -20,9 +27,11 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@Owner("DiegoVicenteCamara(RXW1249)")
+@Epic("Match statistics batch")
+@Feature("Player stats writer")
 @ExtendWith(MockitoExtension.class)
 class PlayerStatsWriterTest {
 
@@ -43,6 +52,11 @@ class PlayerStatsWriterTest {
     }
 
     @Test
+    @Story("Apply stats updates")
+    @Severity(SeverityLevel.CRITICAL)
+    @DisplayName("write aplica deltas y asigna logros")
+    @Description("Verifies that write applies deltas and awards achievements when thresholds are reached.")
+    @Owner("DiegoVicenteCamara(RXW1249)")
     void write_appliesDeltasAndAwardsAchievements() throws Exception {
         Player player = new Player();
         player.setId(1);
@@ -76,6 +90,11 @@ class PlayerStatsWriterTest {
     }
 
     @Test
+    @Story("Apply stats updates")
+    @Severity(SeverityLevel.NORMAL)
+    @DisplayName("write no guarda si no hay cambios")
+    @Description("Verifies that write skips persistence when the update has zero deltas.")
+    @Owner("DiegoVicenteCamara(RXW1249)")
     void write_skipsSaveWhenNoChanges() throws Exception {
         Player player = new Player();
         player.setId(2);
@@ -109,11 +128,15 @@ class PlayerStatsWriterTest {
     }
 
     @Test
+    @Story("Apply stats updates")
+    @Severity(SeverityLevel.NORMAL)
+    @DisplayName("write inicializa estadísticas si faltan")
+    @Description("Verifies that write initializes statistics when the player does not have them yet.")
+    @Owner("DiegoVicenteCamara(RXW1249)")
     void write_initializesStatisticsWhenMissing() throws Exception {
         Player player = new Player();
         player.setId(3);
         player.setAchievements(new ArrayList<>());
-        // No statistics set to force ensureStatistics() path
 
         when(playerService.getPlayerById(3)).thenReturn(player);
         when(achievementService.getAllAchievements()).thenReturn(List.of());
@@ -127,6 +150,11 @@ class PlayerStatsWriterTest {
     }
 
     @Test
+    @Story("Apply stats updates")
+    @Severity(SeverityLevel.NORMAL)
+    @DisplayName("write no duplica logros existentes")
+    @Description("Verifies that write does not add duplicate achievements already owned by the player.")
+    @Owner("DiegoVicenteCamara(RXW1249)")
     void write_doesNotDuplicateExistingAchievements() throws Exception {
         Player player = new Player();
         player.setId(4);

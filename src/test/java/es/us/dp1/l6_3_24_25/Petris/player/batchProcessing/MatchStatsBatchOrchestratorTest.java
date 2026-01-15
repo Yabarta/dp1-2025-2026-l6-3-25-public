@@ -3,8 +3,15 @@ package es.us.dp1.l6_3_24_25.Petris.player.batchProcessing;
 import es.us.dp1.l6_3_24_25.Petris.match.model.Match;
 import es.us.dp1.l6_3_24_25.Petris.match.model.PetriDish;
 import es.us.dp1.l6_3_24_25.Petris.player.model.Player;
+import io.qameta.allure.Description;
+import io.qameta.allure.Epic;
+import io.qameta.allure.Feature;
 import io.qameta.allure.Owner;
+import io.qameta.allure.Severity;
+import io.qameta.allure.SeverityLevel;
+import io.qameta.allure.Story;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -24,9 +31,12 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
-@Owner("DiegoVicenteCamara(RXW1249)")
+@Epic("Match statistics batch")
+@Feature("Batch orchestrator")
 @ExtendWith(MockitoExtension.class)
 class MatchStatsBatchOrchestratorTest {
 
@@ -50,6 +60,11 @@ class MatchStatsBatchOrchestratorTest {
     }
 
     @Test
+    @Story("Trigger match processing")
+    @Severity(SeverityLevel.CRITICAL)
+    @DisplayName("triggerForMatch crea payloads y lanza el job")
+    @Description("Verifies that triggerForMatch stages payloads for both players and launches the batch job.")
+    @Owner("DiegoVicenteCamara(RXW1249)")
     void triggerForMatch_stagesPayloadsAndLaunchesJobs() throws Exception {
         when(jobLauncher.run(any(), any(JobParameters.class))).thenReturn(new JobExecution(1L));
 
@@ -98,6 +113,11 @@ class MatchStatsBatchOrchestratorTest {
     }
 
     @Test
+    @Story("Trigger match processing")
+    @Severity(SeverityLevel.NORMAL)
+    @DisplayName("triggerForMatch maneja nulls y tablero vacío")
+    @Description("Verifies that triggerForMatch skips missing players and handles null boardState safely.")
+    @Owner("DiegoVicenteCamara(RXW1249)")
     void triggerForMatch_skipsNullPlayersAndHandlesNullBoard() throws Exception {
         when(jobLauncher.run(any(), any(JobParameters.class))).thenReturn(new JobExecution(1L));
 
@@ -127,6 +147,10 @@ class MatchStatsBatchOrchestratorTest {
     }
 
     @Test
+    @Story("Deferred stats handling")
+    @Severity(SeverityLevel.NORMAL)
+    @DisplayName("handleDeferredStats ejecuta en el executor")
+    @Description("Verifies that deferred stats payloads are staged and processed through the configured executor.")
     void handleDeferredStats_runsOnExecutor() throws Exception {
         when(jobLauncher.run(any(), any(JobParameters.class))).thenReturn(new JobExecution(1L));
 

@@ -23,7 +23,6 @@ import io.qameta.allure.Story;
 @ExtendWith(MockitoExtension.class)
 @Epic("Match module")
 @Feature("WebSocket controller")
-@Owner("match-realtime-team")
 class WebSocketMatchControllerTests {
 
     @Mock
@@ -44,6 +43,7 @@ class WebSocketMatchControllerTests {
     @Story("Subscribe single lobby feed")
     @Description("Ensures watchLobby loads the match and publishes a lobby snapshot to subscribers.")
     @Severity(SeverityLevel.CRITICAL)
+    @Owner("DiegoVicenteCamara(RXW1249)")
     void watchLobby_publishesCurrentSnapshot() {
         Match match = new Match();
         when(matchService.getMatchById(55)).thenReturn(match);
@@ -58,6 +58,7 @@ class WebSocketMatchControllerTests {
     @Story("Subscribe lobby list feed")
     @Description("Validates that the lobby list endpoint pushes the aggregated lobby collection.")
     @Severity(SeverityLevel.NORMAL)
+    @Owner("DiegoVicenteCamara(RXW1249)")
     void watchLobbyList_publishesLobbyCollection() {
         controller.watchLobbyList();
 
@@ -69,6 +70,7 @@ class WebSocketMatchControllerTests {
     @Story("Subscribe ongoing match feed")
     @Description("Checks that watchMatch retrieves the match and relays the full board snapshot via WebSocket.")
     @Severity(SeverityLevel.CRITICAL)
+    @Owner("DiegoVicenteCamara(RXW1249)")
     void watchMatch_publishesMatchSnapshot() {
         Match match = new Match();
         when(matchService.getMatchById(99)).thenReturn(match);
