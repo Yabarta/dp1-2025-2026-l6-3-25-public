@@ -30,7 +30,6 @@ import io.qameta.allure.SeverityLevel;
 
 @WebMvcTest(controllers = SalaController.class)
 @Epic("Lobby controller")
-@Feature("SalaController endpoints")
 @WithMockUser
 class SalaControllerTest {
 
@@ -46,6 +45,7 @@ class SalaControllerTest {
     private SimpMessagingTemplate messagingTemplate;
 
     @Test
+    @Feature("HU-01: Unirse a una partida (jugador)")
     @DisplayName("Create lobby returns 200 and body")
     @Description("Verifies that creating a lobby returns OK with lobby data")
     @Severity(SeverityLevel.CRITICAL)
@@ -62,6 +62,7 @@ class SalaControllerTest {
     }
 
     @Test
+    @Feature("HU-01: Unirse a una partida (jugador)")
     @DisplayName("Join lobby sends update and returns lobby")
     @Description("Ensures joinLobby publishes update and returns lobby when found")
     @Severity(SeverityLevel.CRITICAL)
@@ -88,6 +89,7 @@ class SalaControllerTest {
     }
 
     @Test
+    @Feature("HU-01: Unirse a una partida (jugador)")
     @DisplayName("Join lobby returns 404 when not found")
     @Description("Returns 404 when trying to join a non-existing lobby")
     @Severity(SeverityLevel.NORMAL)
