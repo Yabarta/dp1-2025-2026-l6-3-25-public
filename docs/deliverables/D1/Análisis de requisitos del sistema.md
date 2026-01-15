@@ -215,7 +215,7 @@ A continuación se definen  todas las historias de usuario a implementar:
     - Como jugador quiero poder ver el perfil de otro jugador para poder ver sus estadísticas.
     - _Se requiere mostrar de alguna manera el perfil de otro jugador para mostrar sus estadísticas y así identificar mejor a jugadores, socializar mediante el código de amistad o simplemente entretenerse._
 ### Ver perfil de otro jugador (jugador)
-![TO DO](ImagenesD1/m26.png)
+![alt text](ImagenesD1/m24.png)
 
 - ## HU-29 (ISSUE#149): **Ver ranking de jugadores (jugador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/149
     - Como jugador quiero ver el ranking de jugadores para poder ver quienes son los mejores.
@@ -286,12 +286,18 @@ A continuación se definen  todas las historias de usuario a implementar:
 ### Silenciar chat (jugador)
 ![alt text](ImagenesD1/m33.png)
 
+- ## HU-40 (ISSUE#228): **Ver lista de amigos (jugador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/228
+    - Como jugador quiero ver que amigos tengo y poder borrarlos.
+    - _Se requiere un sistema que permita ver la lista de amigos y que tengan un botón para eliminarlos._
+### Ver estado de amigos (jugador)
+![alt text](ImagenesD1/m30.png)
+
 
 
 # Diagrama conceptual del sistema
 
 ### Diagrama de clases UML
-![alt text](ImagenesD1/DiagramaConceptual.jpg)
+![alt text](ImagenesD1/DiagramaConceptual.png)
 
 ----
 ## Reglas de Negocio

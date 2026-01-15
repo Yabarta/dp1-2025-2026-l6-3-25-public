@@ -33,7 +33,7 @@ public class PlayerServiceTests {
 
     @Test
     @Transactional
-    @Feature("Player Retrieval")
+    @Feature("HU-23: Listado de usuarios (administrador)")
     @DisplayName("getAllPlayers Test")
     @Owner("luggzz(KDR0901)")
     void shouldGetAllPlayers() {
@@ -45,7 +45,7 @@ public class PlayerServiceTests {
 
 
     @Test
-    @Feature("Player Retrieval")
+    @Feature("HU-28: Ver perfil de otro jugador (jugador)")
     @Transactional
     @DisplayName("getPlayerById Test")
     @Owner("luggzz(KDR0901)")
@@ -55,7 +55,7 @@ public class PlayerServiceTests {
     }
 
     @Test
-    @Feature("Player Retrieval")
+    @Feature("HU-28: Ver perfil de otro jugador (jugador)")
     @Transactional
     @DisplayName("getPlayerById Test (Negative)")
     @Owner("luggzz(KDR0901)")
@@ -64,7 +64,7 @@ public class PlayerServiceTests {
     }
 
     @Test
-    @Feature("Player Retrieval")
+    @Feature("HU-28: Ver perfil de otro jugador (jugador)")
     @Transactional
     @DisplayName("getPlayerByNickname Test")
     @Owner("luggzz(KDR0901)")
@@ -74,7 +74,7 @@ public class PlayerServiceTests {
     }
 
     @Test
-    @Feature("Player Retrieval")
+    @Feature("HU-28: Ver perfil de otro jugador (jugador)")
     @Transactional
     @DisplayName("getPlayerByNickname Test (Negative)")
     @Owner("luggzz(KDR0901)")
@@ -83,7 +83,7 @@ public class PlayerServiceTests {
     }
 
     @Test
-    @Feature("Player Retrieval")
+    @Feature("HU-28: Ver perfil de otro jugador (jugador)")
     @Transactional
     @DisplayName("getPlayerByUsername Test")
     @Owner("luggzz(KDR0901)")
@@ -94,7 +94,7 @@ public class PlayerServiceTests {
     }
 
     @Test
-    @Feature("Player Retrieval")
+    @Feature("HU-28: Ver perfil de otro jugador (jugador)")
     @Transactional
     @DisplayName("getPlayerByUsername Test (Negative)")
     @Owner("luggzz(KDR0901)")
@@ -103,7 +103,7 @@ public class PlayerServiceTests {
     }
 
     @Test
-    @Feature("Player Retrieval")
+    @Feature("HU-28: Ver perfil de otro jugador (jugador)")
     @Transactional
     @DisplayName("getPlayerByUser Test")
     @Owner("luggzz(KDR0901)")
@@ -114,7 +114,7 @@ public class PlayerServiceTests {
     }
 
     @Test
-    @Feature("Player Retrieval")
+    @Feature("HU-28: Ver perfil de otro jugador (jugador)")
     @Transactional
     @DisplayName("getPlayerByUser Test (Negative)")
     @Owner("luggzz(KDR0901)")
@@ -125,7 +125,7 @@ public class PlayerServiceTests {
 
 
     @Test
-    @Feature("Player Management")
+    @Feature("HU-17: Registro de usuario (usuario)")
     @Transactional
     @DisplayName("Save Test")
     @Owner("luggzz(KDR0901)")
@@ -152,7 +152,7 @@ public class PlayerServiceTests {
 
 
     @Test
-    @Feature("Player Management")
+    @Feature("HU-25: Eliminar usuario (administrador)")
     @Transactional
     @DisplayName("Delete Test")
     @Owner("luggzz(KDR0901)")
@@ -176,7 +176,7 @@ public class PlayerServiceTests {
 
 
     @Test
-    @Feature("Player Management")
+    @Feature("HU-20: Editar perfil (jugador)")
     @Transactional
     @DisplayName("Update match status Test")
     @Owner("DiegoVicenteCamara(RXW1249)")

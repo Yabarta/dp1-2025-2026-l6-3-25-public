@@ -64,7 +64,7 @@ class AchievementControllerTest {
     }
 
     @Test
-    @Feature("Achievement getters")
+    @Feature("HU-27: Ver logros (jugador)")
     @DisplayName("Get all achievements")
     @Description("This method received all the game's achievements")
     @Severity(SeverityLevel.NORMAL)
@@ -94,7 +94,7 @@ class AchievementControllerTest {
     }
 
     @Test
-    @Feature("Achievement getters")
+    @Feature("HU-27: Ver logros (jugador)")
     @DisplayName("Get achievement by ID")
     @Description("This method receive an achievement by a correct id")
     @Severity(SeverityLevel.NORMAL)
@@ -110,7 +110,7 @@ class AchievementControllerTest {
     }
 
     @Test
-    @Feature("Achievement getters")
+    @Feature("HU-27: Ver logros (jugador)")
     @DisplayName("Get achievement by wrong ID")
     @Description("This method throws an exception when try to receive an achievement by a wrong id")
     @Severity(SeverityLevel.NORMAL)
@@ -123,7 +123,7 @@ class AchievementControllerTest {
     }
 
     @Test
-    @Feature("Achievement creation")
+    @Feature("HU-32: Definir nuevos logros (administrador)")
     @DisplayName("Create achievement")
     @Description("This method creates a new achievement")
     @Severity(SeverityLevel.CRITICAL)
@@ -145,7 +145,7 @@ class AchievementControllerTest {
     }
 
     @Test
-    @Feature("Achievement update")
+    @Feature("HU-33: Editar logros (administrador)")
     @DisplayName("Update achievement")
     @Description("This method update an achievement")
     @Severity(SeverityLevel.CRITICAL)
@@ -166,7 +166,7 @@ class AchievementControllerTest {
     }
 
     @Test
-    @Feature("Achievement update")
+    @Feature("HU-33: Editar logros (administrador))")
     @DisplayName("Update achievement with wrong ID")
     @Description("This method throws an exception when try to update an achievement with a wrong id")
     @Severity(SeverityLevel.CRITICAL)
@@ -185,7 +185,7 @@ class AchievementControllerTest {
 
 
     @Test
-    @Feature("Achievement deletion")
+    @Feature("HU-34: Eliminar logros (administrador)")
     @DisplayName("Delete achievement")
     @Description("This method delete an achievement")
     @Severity(SeverityLevel.CRITICAL)
@@ -204,7 +204,7 @@ class AchievementControllerTest {
     }
 
     @Test
-    @Feature("Achievement deletion")
+    @Feature("HU-34: Eliminar logros (administrador)")
     @DisplayName("Delete achievement with wrong ID")
     @Description("This method throws an exception when try to delete an achievement with a wrong id")
     @Severity(SeverityLevel.CRITICAL)
@@ -220,7 +220,7 @@ class AchievementControllerTest {
     }
 
     @Test
-    @Feature("Achievement creation")
+    @Feature("HU-32: Definir nuevos logros (administrador)")
     @DisplayName("Create achievement with image assigns to eligible players")
     @Severity(SeverityLevel.CRITICAL)
     @Owner("DiegoVicenteCamara(RXW1249)")

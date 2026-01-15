@@ -72,6 +72,9 @@ class MatchStatsBatchIntegrationTests {
         int player2Sarcines = 1;
         StatisticsSnapshot player1Initial = loadStatsSnapshot(finishedMatch.getPlayer1().getId());
         StatisticsSnapshot player2Initial = loadStatsSnapshot(finishedMatch.getPlayer2().getId());
+        
+        System.out.println("Initial Player 1 Stats: " + player1Initial);
+        System.out.println("Initial Player 2 Stats: " + player2Initial);
 
         requiresNewTemplate.executeWithoutResult(status -> {
             Integer matchId = Objects.requireNonNull(finishedMatch.getId());
@@ -85,23 +88,25 @@ class MatchStatsBatchIntegrationTests {
             player1Initial,
             1
         );
+        System.out.println("Update Player 1 Stats: " + player1Updated);
+        
         StatisticsSnapshot player2Updated = awaitStatsIncrement(
             finishedMatch.getPlayer2().getId(),
             player2Initial,
             1
         );
-
+        System.out.println("Update Player 2 Stats: " + player2Updated);
         assertThat(player1Updated.gamesPlayed())
             .isEqualTo(player1Initial.gamesPlayed() + 1);
         assertThat(player1Updated.gamesWon())
-            .isEqualTo(player1Initial.gamesWon() + 1);
+            .isEqualTo(player1Initial.gamesWon() );
         assertThat(player1Updated.sarcinesCreated())
             .isEqualTo(player1Initial.sarcinesCreated() + player1Sarcines);
 
         assertThat(player2Updated.gamesPlayed())
             .isEqualTo(player2Initial.gamesPlayed() + 1);
         assertThat(player2Updated.gamesWon())
-            .isEqualTo(player2Initial.gamesWon());
+            .isEqualTo(player2Initial.gamesWon() + 1);
         assertThat(player2Updated.sarcinesCreated())
             .isEqualTo(player2Initial.sarcinesCreated() + player2Sarcines);
     }

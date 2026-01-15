@@ -49,19 +49,31 @@ Las pruebas de integración se enfocarán en evaluar la interacción entre los d
 - **Jest**: Framework para pruebas unitarias en javascript.
 - **React-test**: Librería para la creación de pruebas unitarias de componentes React.
 
+#### Allure — generación y visualización
+
+- **Rutas de resultados:** `target/allure-results` (generadas por Maven al ejecutar las pruebas).
+- **Comandos útiles:**
+  - `mvn allure:report` — generar reporte Allure (si está configurado el plugin en `pom.xml`).
+  - `allure serve target/allure-results` — inicia un servidor temporal y abre la UI interactiva.
+  - `allure generate target/allure-results -o target/site/allure-report && allure open target/site/allure-report` — generar HTML y abrirlo en el navegador.
+- **Notas prácticas:**
+  - Tras ejecutar `mvn install` en este proyecto, los resultados de las pruebas suelen quedar en `target/allure-results`.
+  - Para entregar el informe en la asignatura, copia o genera el HTML y sitúalo en `/docs/deliverables/D3/status` (el fichero `index.html` ahí permite visualizar el estado agregado).
+  - En CI/CD: añadir pasos que ejecuten `mvn test` y luego `mvn allure:report` o `allure generate`, y publicar `target/site/allure-report` como artefacto o página.
+
+![alt text](ImagenesD3/allure100.png)
+
 ### 4.2 Entorno de Pruebas
 Las pruebas se ejecutarán en el entorno de desarrollo y, eventualmente, en el entorno de pruebas del servidor de integración continua.
 
 ## 5. Planificación de Pruebas
 ### 5.1 Estado y trazadibilidad de Pruebas por Módulo y Épica
 
-El informe de estado de las pruebas (con trazabilidad de éstas hacia los módulos y las épicas/historias de usaurio) se encuentra [aquí](
-https://gii-is-dp1.github.io/group-project-seed/deliverables/D3/status/#behaviors).
+El informe de estado de las pruebas (con trazabilidad de éstas hacia los módulos y las épicas/historias de usaurio) se encuentra  `target\site\test-status\index.html`.
 
 ### 5.2 Cobertura de Pruebas
 
-El informe de cobertura de pruebas se puede consultar [aquí](
-https://gii-is-dp1.github.io/group-project-seed/deliverables/D3/coverage/).
+El informe de cobertura de pruebas se puede consultar `target\site\jacoco\index.html`.
 
 
 
@@ -69,7 +81,6 @@ https://gii-is-dp1.github.io/group-project-seed/deliverables/D3/coverage/).
 
 | Historia de Usuario | Prueba | Descripción | Estado | Tipo |
 |---|---|---|---|---|
-| **HU-01: Unirse a una partida (jugador)** | [UTW-01:testJoinMatchPositive](https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/blob/main/src/test/java/es/us/dp1/l6_3_24_25/Petris/match/controller/MatchControllerTest.java) | Verifica unirse a una partida con código válido. | Implementada | Integración en backend (Controller/MockMvc) |
 | **HU-01: Unirse a una partida (jugador)** | [UTB-01:testAddPlayer_Success](https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/blob/main/src/test/java/es/us/dp1/l6_3_24_25/Petris/lobby/servicio/SalaServiceTest.java) | Verifica que se puede añadir un jugador a una sala existente. | Implementada | Unitaria en backend a nivel de Servicio |
 | **HU-01: Unirse a una partida (jugador)** | [UTB-01:testAddPlayer_NonExistentLobby](https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/blob/main/src/test/java/es/us/dp1/l6_3_24_25/Petris/lobby/servicio/SalaServiceTest.java) | Verifica que no se puede añadir un jugador a una sala inexistente. | Implementada | Unitaria en backend a nivel de Servicio (Caso negativo) |
 | **HU-01: Unirse a una partida (jugador)** | [UTW-01:joinLobby_returnsLobbyAndSendsMessage](https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/blob/main/src/test/java/es/us/dp1/l6_3_24_25/Petris/lobby/controlador/SalaControllerTest.java) | Verifica el endpoint **POST /api/salas/{codigo}/unirse** para unirse a una sala y enviar notificación (status 200 OK). | Implementada | Integración en backend (Controller/MockMvc) |
@@ -232,6 +243,22 @@ https://gii-is-dp1.github.io/group-project-seed/deliverables/D3/coverage/).
 | **HU-34: Eliminar logros (administrador)** | [UTB-32:testDeleteAchievementNotFound](https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/blob/main/src/test/java/es/us/dp1/l6_3_24_25/Petris/player/service/AchievementServiceTest.java) | Verifica el manejo de errores al intentar **eliminar** un logro inexistente. | Implementada | Unitaria en backend a nivel de Servicio (Caso negativo) |
 | **HU-34: Eliminar logros (administrador)** | [UTW-34:deleteAchievement\_ValidId](https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/blob/main/src/test/java/es/us/dp1/l6_3_24_25/Petris/player/controller/AchievementControllerTest.java) | Verifica el endpoint **DELETE /achievements/{id}** para un ID válido (status 204 No Content). | Implementada | Integración en backend (Controller/MockMvc) |
 | **HU-34: Eliminar logros (administrador)** | [UTW-34:deleteAchievement\_WrongId](https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/blob/main/src/test/java/es/us/dp1/l6_3_24_25/Petris/player/controller/AchievementControllerTest.java) | Verifica el manejo del endpoint **DELETE /achievements/{id}** cuando el ID es incorrecto (status 404 Not Found). | Implementada | Integración en backend (Controller/MockMvc) |
+| **HU-35: Añadir amigo (jugador)** | [UTW-35:shouldCreateFriendRequest](https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/blob/main/src/test/java/es/us/dp1/l6_3_24_25/Petris/friend/FriendControllerTests.java) | Verifica el endpoint **POST /players/friends** para enviar una solicitud de amistad (status 201 Created). | Implementada | Integración en backend (Controller) |
+| **HU-35: Añadir amigo (jugador)** | [UTW-35:shouldAcceptFriendRequest](https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/blob/main/src/test/java/es/us/dp1/l6_3_24_25/Petris/friend/FriendControllerTests.java) | Verifica el endpoint **PUT /players/friends/{id}** para aceptar una solicitud existente (status 200 OK). | Implementada | Integración en backend (Controller) |
+| **HU-35: Añadir amigo (jugador)** | [UTW-35:shouldReturn404WhenAcceptingNonExistentFriend](https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/blob/main/src/test/java/es/us/dp1/l6_3_24_25/Petris/friend/FriendControllerTests.java) | Verifica el endpoint **PUT /players/friends/{id}** cuando la solicitud no existe (status 404 Not Found). | Implementada | Integración en backend (Controller) |
+| **HU-35: Añadir amigo (jugador)** | [UTB-35:shouldCreateFriendship](https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/blob/main/src/test/java/es/us/dp1/l6_3_24_25/Petris/friend/FriendServiceTest.java) | Verifica la creación de una nueva solicitud de amistad con estado `PENDING`. | Implementada | Lógica de Negocio (Service) |
+| **HU-35: Añadir amigo (jugador)** | [UTB-35:shouldSaveFriendship](https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/blob/main/src/test/java/es/us/dp1/l6_3_24_25/Petris/friend/FriendServiceTest.java) | Verifica la actualización del estado de la amistad (de PENDING a ACCEPTED) en la base de datos. | Implementada | Lógica de Negocio (Service) |
+| **HU-37: Eliminar amigo (jugador)** | [UTW-37:FriendController: shouldDeleteFriend](https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/blob/main/src/test/java/es/us/dp1/l6_3_24_25/Petris/friend/FriendControllerTests.java) | Verifica el endpoint **DELETE /friends/{id}** para eliminar una amistad (status 204 No Content). | Implementada | Integración en backend (Controller) |
+| **HU-37: Eliminar amigo (jugador)** | [UTB-37:shouldDeleteFriendship](https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/blob/main/src/test/java/es/us/dp1/l6_3_24_25/Petris/friend/FriendServiceTest.java) | Verifica que el servicio elimina correctamente una amistad de la base de datos. | Implementada | Lógica de Negocio (Service) |
+| **HU-40: Ver lista de amigos (jugador)** | [UTW-40:shouldGetFriendById](https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/blob/main/src/test/java/es/us/dp1/l6_3_24_25/Petris/friend/FriendControllerTests.java) | Verifica el endpoint **GET /players/friends/{id}** recuperando una amistad por ID (status 200 OK). | Implementada | Integración en backend (Controller) |
+| **HU-40: Ver lista de amigos (jugador)** | [UTW-40:shouldGetFriendsByUsername](https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/blob/main/src/test/java/es/us/dp1/l6_3_24_25/Petris/friend/FriendControllerTests.java) | Verifica el endpoint **GET /players/{username}/friends** recuperando la lista de amigos aceptados (status 200 OK). | Implementada | Integración en backend (Controller) |
+| **HU-40: Ver lista de amigos (jugador)** | [UTW-40:shouldGetRequests](https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/blob/main/src/test/java/es/us/dp1/l6_3_24_25/Petris/friend/FriendControllerTests.java) | Verifica el endpoint **GET /players/{username}/requests** recuperando solicitudes recibidas (status 200 OK). | Implementada | Integración en backend (Controller) |
+| **HU-40: Ver lista de amigos (jugador)** | [UTW-40:shouldGetRequester](https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/blob/main/src/test/java/es/us/dp1/l6_3_24_25/Petris/friend/FriendControllerTests.java) | Verifica el endpoint **GET /players/{username}/requester** recuperando solicitudes enviadas (status 200 OK). | Implementada | Integración en backend (Controller) |
+| **HU-40: Ver lista de amigos (jugador)** | [UTB-40:shouldGetFriendsByUsername](https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/blob/main/src/test/java/es/us/dp1/l6_3_24_25/Petris/friend/FriendServiceTest.java) | Verifica que el servicio recupera correctamente la lista de amigos dado un nombre de usuario. | Implementada | Lógica de Negocio (Service) |
+| **HU-40: Ver lista de amigos (jugador)** | [UTB-40:shouldGetFriendsById](https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/blob/main/src/test/java/es/us/dp1/l6_3_24_25/Petris/friend/FriendServiceTest.java) | Verifica que el servicio recupera una entidad `Friend` específica por su ID. | Implementada | Lógica de Negocio (Service) |
+| **HU-40: Ver lista de amigos (jugador)** | [UTB-40:shouldReturnExistingFriendshipIfDuplicate](https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/blob/main/src/test/java/es/us/dp1/l6_3_24_25/Petris/friend/FriendServiceTest.java) | Comprueba la lógica de idempotencia: si se intenta crear una amistad ya existente, devuelve la original. | Implementada | Lógica de Negocio (Service) |
+| **HU-40: Ver lista de amigos (jugador)** | [UTB-40:shouldVerifyFriendship](https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/blob/main/src/test/java/es/us/dp1/l6_3_24_25/Petris/friend/FriendServiceTest.java) | Prueba el método booleano auxiliar que valida si dos jugadores son amigos aceptados. | Implementada | Lógica de Negocio (Service) |
+
 
 
 ## 6. Criterios de Aceptación

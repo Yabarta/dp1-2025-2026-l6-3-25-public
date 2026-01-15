@@ -43,7 +43,7 @@ class WebSocketMatchServiceTest {
     private MatchRepository matchRepository;
 
     @Mock
-    private MatchService matchService; // unused in service but required by ctor
+    private MatchService matchService; 
 
     private WebSocketMatchService buildServiceWithTemplate(SimpMessagingTemplate template) {
         ObjectProvider<SimpMessagingTemplate> provider = new ObjectProvider<>() {
@@ -92,6 +92,7 @@ class WebSocketMatchServiceTest {
     @DisplayName("publishLobbySnapshot envía DTO al topic de lobby")
     @Description("Verifies that publishLobbySnapshot publishes the LobbyDTO to /topic/lobby/{id} when a template is available.")
     @Owner("DiegoVicenteCamara(RXW1249)")
+    @Feature("HU-01: Unirse a una partida (jugador)")
     void publishLobbySnapshot_sendsWhenTemplatePresent() {
         WebSocketMatchService service = buildServiceWithTemplate(messagingTemplate);
         Match match = sampleMatch();
@@ -109,6 +110,7 @@ class WebSocketMatchServiceTest {
     @DisplayName("publishMatchSnapshot envía DTO al topic de match")
     @Description("Verifies that publishMatchSnapshot publishes the MatchDTO to /topic/match/{id} when a template is available.")
     @Owner("DiegoVicenteCamara(RXW1249)")
+    @Feature("HU-01: Unirse a una partida (jugador)")
     void publishMatchSnapshot_sendsWhenTemplatePresent() {
         WebSocketMatchService service = buildServiceWithTemplate(messagingTemplate);
         Match match = sampleMatch();
@@ -126,6 +128,7 @@ class WebSocketMatchServiceTest {
     @DisplayName("publishLobbyList publica listado desde el repositorio")
     @Description("Verifies that publishLobbyList sends the list of pending lobbies to /topic/lobbies.")
     @Owner("DiegoVicenteCamara(RXW1249)")
+    @Feature("HU-11: Listado de partidas en curso (administrador)")
     void publishLobbyList_sendsListFromRepo() {
         WebSocketMatchService service = buildServiceWithTemplate(messagingTemplate);
         Match match = sampleMatch();
@@ -145,6 +148,7 @@ class WebSocketMatchServiceTest {
     @DisplayName("publishLobbyClosed ignora template o id nulos")
     @Description("Verifies that publishLobbyClosed is a no-op when the template or matchId is null.")
     @Owner("DiegoVicenteCamara(RXW1249)")
+    @Feature("HU-11: Listado de partidas en curso (administrador)")
     void publishLobbyClosed_ignoresNullTemplateOrId() {
         WebSocketMatchService withoutTemplate = buildServiceWithTemplate(null);
         withoutTemplate.publishLobbyClosed(1); // no throw

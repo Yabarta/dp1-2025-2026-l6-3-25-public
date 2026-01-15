@@ -36,25 +36,25 @@ class MatchDTOTest {
     @BeforeEach
     void setUp() {
         matchDTO = new MatchDTO();
-        
+
         User user1 = new User();
         user1.setId(1);
         user1.setUsername("player1");
-        
+
         User user2 = new User();
         user2.setId(2);
         user2.setUsername("player2");
-        
+
         player1 = new Player();
         player1.setId(1);
         player1.setNickname("Player1");
         player1.setUser(user1);
-        
+
         player2 = new Player();
         player2.setId(2);
         player2.setNickname("Player2");
         player2.setUser(user2);
-        
+
         match = new Match();
         match.setId(1);
         match.setCode("ABCD");
@@ -68,7 +68,7 @@ class MatchDTOTest {
         match.setCreatedAt(LocalDateTime.now().minusHours(1));
         match.setStartedAt(LocalDateTime.now().minusMinutes(30));
         match.setEndedAt(LocalDateTime.now());
-        
+
         List<PetriDish> board = new ArrayList<>();
         PetriDish dish = new PetriDish();
         dish.setPlayer1Bacteria(10);

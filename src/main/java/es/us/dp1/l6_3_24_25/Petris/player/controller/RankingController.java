@@ -1,7 +1,6 @@
 package es.us.dp1.l6_3_24_25.Petris.player.controller;
 
 import java.util.List;
-import es.us.dp1.l6_3_24_25.Petris.player.model.Player;
 
 import es.us.dp1.l6_3_24_25.Petris.player.model.PlayerRanking;
 import org.springframework.http.ResponseEntity;

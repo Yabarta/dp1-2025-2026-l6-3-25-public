@@ -21,11 +21,12 @@ import es.us.dp1.l6_3_24_25.Petris.match.model.PetriDish;
 
 import static generatedAssertions.org.assertj.Assertions.assertThat;
 
-@Epic("Game")
+@Epic("Match module")
 @Feature("Utility for the handling of matches")
 public class MatchMethodUtilTest {
 
     @Test
+    @Feature("HU-04")
     @DisplayName("Should return error if board state missing")
     @Description("Test that if propagation is attempted without providing a boardState, IllegalArgumentException is thrown")
     @Owner("josbardel1(WHS7046)")
@@ -413,7 +414,7 @@ public class MatchMethodUtilTest {
         matchToUpdate.setPlayer1Score(player1Score);
         matchToUpdate.setPlayer2Score(player2Score);
         matchToUpdate.setBoardState(currentBoardState);
-        
+
         Match result = MatchMethodUtil.contamination(matchToUpdate);
         assertThat(result).hasPlayer1Score(player1Score + 2);
         assertThat(result).hasPlayer2Score(MatchDataUtil.MAX_SCORE);

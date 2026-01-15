@@ -32,6 +32,7 @@ class SalaServiceTest {
     }
 
     @Test
+    @Feature("HU-01: Unirse a una partida (jugador)")
     @DisplayName("Should create a new lobby with valid code")
     @Description("Test that a new lobby is created with a valid UUID-based code")
     @Story("Create lobby")
@@ -46,6 +47,7 @@ class SalaServiceTest {
     }
 
     @Test
+    @Feature("HU-01: Unirse a una partida (jugador)")
     @DisplayName("Should create lobbies with different codes")
     @Description("Test that consecutive lobby creations generate different codes")
     @Story("Create multiple lobbies")
@@ -60,6 +62,7 @@ class SalaServiceTest {
     }
 
     @Test
+    @Feature("HU-01: Unirse a una partida (jugador)")
     @DisplayName("Should add player to lobby")
     @Description("Test that a player can be added to an existing lobby")
     @Story("Add player to lobby")
@@ -77,6 +80,7 @@ class SalaServiceTest {
     }
 
     @Test
+    @Feature("HU-01: Unirse a una partida (jugador)")
     @DisplayName("Should add multiple players to same lobby")
     @Description("Test that multiple players can be added to the same lobby")
     @Story("Add multiple players")
@@ -99,6 +103,7 @@ class SalaServiceTest {
     }
 
     @Test
+    @Feature("HU-01: Unirse a una partida (jugador)")
     @DisplayName("Should return null when adding player to non-existent lobby")
     @Description("Test that adding player to non-existent lobby returns null")
     @Story("Add player to non-existent lobby")
@@ -110,6 +115,7 @@ class SalaServiceTest {
     }
 
     @Test
+    @Feature("HU-01: Unirse a una partida (jugador)")
     @DisplayName("Should retrieve all lobbies")
     @Description("Test that all created lobbies can be retrieved")
     @Story("Get all lobbies")
@@ -130,6 +136,7 @@ class SalaServiceTest {
     }
 
     @Test
+    @Feature("HU-01: Unirse a una partida (jugador)")
     @DisplayName("Should return empty list when no lobbies exist")
     @Description("Test that empty list is returned when no lobbies have been created")
     @Story("Get all lobbies - empty")
@@ -142,6 +149,7 @@ class SalaServiceTest {
     }
 
     @Test
+    @Feature("HU-01: Unirse a una partida (jugador)")
     @DisplayName("Should maintain lobby data consistency")
     @Description("Test that lobby data remains consistent after multiple operations")
     @Story("Maintain consistency")
@@ -164,6 +172,7 @@ class SalaServiceTest {
     }
 
     @Test
+    @Feature("HU-01: Unirse a una partida (jugador)")
     @DisplayName("Should handle duplicate player additions")
     @Description("Test that the service handles adding duplicate players")
     @Story("Handle duplicate players")
@@ -180,6 +189,7 @@ class SalaServiceTest {
     }
 
     @Test
+    @Feature("HU-01: Unirse a una partida (jugador)")
     @DisplayName("Should handle special characters in player names")
     @Description("Test that special characters in player names are handled")
     @Story("Handle special characters")

@@ -31,7 +31,8 @@ VALUES (1, 24, 16, 14400, 20, 230),
 (7, 10, 5, 6000, 6, 95),
 (8, 8, 4, 4800, 5, 75),
 (9, 6, 0, 3600, 2, 47),
-(10, 2, 0, 1200, 1, 14);
+(10, 2, 0, 1200, 1, 14),
+(11, 8, 3, 147, 2, 28);
 
 INSERT INTO players(id, is_currently_in_match, user_id, nickname, email, statistics_id) VALUES(1, false, 4, 'player1', 'hola@gmail.com', 1);
 INSERT INTO players(id, is_currently_in_match, user_id, nickname, email, statistics_id) VALUES(2, false, 5, 'player2', 'adios@gmail.com', 2);
@@ -46,16 +47,16 @@ INSERT INTO players(id, is_currently_in_match, user_id, nickname, email, statist
 
 
 
-INSERT INTO achievements(id, name, description, valor, statistic_name, image) VALUES (1, 'First Win', 'Gana tu primera partida', 1, 'games_won', 'imagelin.png'),
-                                                                                    (2, 'Sarcine Creator', 'Crea 5 sarcinas', 5, 'sarcinas_created', 'imagelin.png'),
+INSERT INTO achievements(id, name, description, valor, statistic_name, image) VALUES (1, 'Primera Victoria', 'Gana tu primera partida', 1, 'games_won', 'imagelin.png'),
+                                                                                    (2, 'Creador de sarcinas', 'Crea 5 sarcinas', 5, 'sarcinas_created', 'imagelin.png'),
                                                                                     (3, 'Gamer', 'Juega 10 partidas', 10, 'games_played', 'imagelin.png'),
-                                                                                    (4, 'Marathoner', 'Juega durante 5 horas', 18000, 'time_played', 'imagelin.png'),
-                                                                                    (5, 'Bacteria Master', 'Crea 20 bacterias', 20, 'bacterias_created', 'imagelin.png'),
-                                                                                    (6, 'Winning Streak', 'Gana 5 partidas', 5, 'games_won', 'imagelin.png'),
-                                                                                    (7, 'Sarcine Expert', 'Crea 15 sarcinas', 15, 'sarcinas_created', 'imagelin.png'),
-                                                                                    (8, 'Pro Gamer', 'Juega 50 partidas', 50, 'games_played', 'imagelin.png'),
-                                                                                    (9, 'Ultra Marathoner', 'Juega durante 20 horas', 72000, 'time_played', 'imagelin.png'),
-                                                                                    (10, 'Bacteria Lord', 'Crea 50 bacterias', 50, 'bacterias_created', 'imagelin.png');
+                                                                                    (4, 'Adicto', 'Juega por 5 horas', 300, 'time_played', 'imagelin.png'),
+                                                                                    (5, 'Maestro de bacterias', 'Crea 20 bacterias', 20, 'bacterias_created', 'imagelin.png'),
+                                                                                    (6, 'En racha', 'Gana 5 partidas seguidas', 5, 'games_won', 'imagelin.png'),
+                                                                                    (7, 'Experto en sarcinas', 'Crea 15 sarcinas', 15, 'sarcinas_created', 'imagelin.png'),
+                                                                                    (8, 'Dedicacion científica', 'Juega 50 partidas', 50, 'games_played', 'imagelin.png'),
+                                                                                    (9, 'Pegado a la silla', 'Juega por 20 horas', 1200, 'time_played', 'imagelin.png'),
+                                                                                    (10, 'Dominador bacteria', 'Crea 50 bacterias', 50, 'bacterias_created', 'imagelin.png');
                                                                                     
 INSERT INTO players_achievements(player_id, achievements_id)
 VALUES (1, 1), (1, 2), (1, 3), (1,4), (1,5), (1,6), (1,7), (1,8), (1,9), (1,10),

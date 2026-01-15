@@ -1,6 +1,5 @@
 package es.us.dp1.l6_3_24_25.Petris.player.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import es.us.dp1.l6_3_24_25.Petris.player.model.PlayerRanking;
 import es.us.dp1.l6_3_24_25.Petris.player.service.RankingService;
 import io.qameta.allure.*;
@@ -35,7 +34,7 @@ class RankingControllerTest {
 
 
     @Test
-    @Feature("Ranking getters")
+    @Feature("HU-30: Ver estadisticas globales junto al ranking(jugador)")
     @DisplayName("Get global ranking")
     @Description("This method retrieves the global ranking")
     @Severity(SeverityLevel.NORMAL)

@@ -30,19 +30,19 @@ public class FriendServiceTest {
 
     @Test
     @Transactional
-    @Feature("Friendship Retrieval")
+    @Feature("HU-40: Ver lista de amigos (jugador)")
     @DisplayName("getFriendsByUsername Test")
     void shouldGetFriendsByUsername() {
         // Asumiendo que en tus datos de prueba (data.sql) player1 tiene amigos aceptados
         List<Friend> friends = this.friendService.getFriendsByUsername("player1");
         assertNotNull(friends);
         // Ajusta el número esperado según tus datos iniciales
-        assertTrue(friends.size() >= 0); 
+        assertTrue(friends.size() >= 0);
     }
 
     @Test
     @Transactional
-    @Feature("Friendship Retrieval")
+    @Feature("HU-40: Ver lista de amigos (jugador)")
     @DisplayName("getFriendsById Test")
     void shouldGetFriendsById() {
         // Crea una amistad para asegurar que existe un ID
@@ -56,27 +56,28 @@ public class FriendServiceTest {
     }
 
     @Test
+    @Feature("HU-40: Ver lista de amigos (jugador)")
     @Transactional
     void shouldReturnExistingFriendshipIfDuplicate() {
     Player req = playerService.getPlayerById(1);
     Player rec = playerService.getPlayerById(2);
-    
+
     Friend first = friendService.create(req, rec);
     Friend second = friendService.create(req, rec); // Segunda llamada
-    
+
     assertEquals(first.getId(), second.getId(), "Debería devolver la misma entidad");
 }
 
     @Test
     @Transactional
-    @Feature("Friendship Management")
+    @Feature("HU-35: Añadir amigo (jugador)")
     @DisplayName("Create Friendship Test")
     void shouldCreateFriendship() {
         Player req = playerService.getPlayerById(1);
         Player rec = playerService.getPlayerById(3);
-        
+
         Friend created = friendService.create(req, rec);
-        
+
         assertNotNull(created.getId());
         assertEquals(FriendshipStatus.PENDING, created.getStatus());
         assertEquals(req.getId(), created.getRequester().getId());
@@ -84,23 +85,23 @@ public class FriendServiceTest {
 
     @Test
     @Transactional
-    @Feature("Friendship Management")
+    @Feature("HU-35: Añadir amigo (jugador)")
     @DisplayName("Save/Update Friendship Test")
     void shouldSaveFriendship() {
         Player req = playerService.getPlayerById(1);
         Player rec = playerService.getPlayerById(2);
         Friend friend = friendService.create(req, rec);
-        
+
         friend.setStatus(FriendshipStatus.ACCEPTED);
         friendService.save(friend);
-        
+
         Friend updated = friendService.getFriendsById(friend.getId()).get();
         assertEquals(FriendshipStatus.ACCEPTED, updated.getStatus());
     }
 
     @Test
     @Transactional
-    @Feature("Friendship Management")
+    @Feature("HU-37: Eliminar amigo (jugador)")
     @DisplayName("Delete Friendship Test")
     void shouldDeleteFriendship() {
         Player req = playerService.getPlayerById(1);
@@ -109,14 +110,14 @@ public class FriendServiceTest {
         Integer id = friend.getId();
 
         friendService.delete(id);
-        
+
         Optional<Friend> deleted = friendService.getFriendsById(id);
         assertFalse(deleted.isPresent());
     }
 
     @Test
     @Transactional
-    @Feature("Friendship Verification")
+    @Feature("HU-40: Ver lista de amigos (jugador)")
     @DisplayName("Player1IsFriendOfPlayer2 Test")
     void shouldVerifyFriendship() {
         // 1. Crear y aceptar amistad
@@ -126,7 +127,7 @@ public class FriendServiceTest {
         f.setStatus(FriendshipStatus.ACCEPTED);
         friendService.save(f);
 
-        // 2. Verificar (Nota: Tu método del service usa el repo, 
+        // 2. Verificar (Nota: Tu método del service usa el repo,
         // asegúrate que el repo gestione bien quién es p1 y p2)
         Boolean areFriends = friendService.Player1IsFriendOfPlayer2(p1.getId(), p2.getId());
         assertTrue(areFriends, "They should be friends");

@@ -3,7 +3,6 @@ package es.us.dp1.l6_3_24_25.Petris.match.dto;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -19,9 +18,9 @@ import io.qameta.allure.Feature;
 import io.qameta.allure.Owner;
 import io.qameta.allure.Story;
 
-@Epic("Match module")
-@Feature("Lobby DTO")
+@Epic("Lobby module")
 @SpringBootTest
+@Feature("Lobby DTO")
 @DisplayName("LobbyDTO Tests")
 class LobbyDTOTest {
 
@@ -132,6 +131,7 @@ class LobbyDTOTest {
     }
 
     @Test
+    @Feature("HU-11")
     @DisplayName("Should handle null creator")
     @Description("Test that null creator is handled correctly")
     @Story("Handle null creator")

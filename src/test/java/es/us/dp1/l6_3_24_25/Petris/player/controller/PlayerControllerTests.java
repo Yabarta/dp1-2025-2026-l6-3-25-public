@@ -1,6 +1,5 @@
 package es.us.dp1.l6_3_24_25.Petris.player.controller;
 
-import java.io.InputStream;
 import java.time.LocalDateTime;
 
 import io.qameta.allure.Issue;
@@ -8,19 +7,14 @@ import io.qameta.allure.Owner;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.MockedStatic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -42,10 +36,6 @@ import io.qameta.allure.Feature;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import static org.mockito.Mockito.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.UUID;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 
 @Epic("Player Controller Module")
 @WithMockUser(username = "player", roles = {"PLAYER"})
@@ -132,7 +122,7 @@ public class PlayerControllerTests {
     }
 
     @Test
-    @Feature("Get All Players")
+    @Feature("HU-23: Listado de usuarios (administrador)")
     @DisplayName("Get All Players (Successfully)")
     @Owner("luggzz(KDR0901)")
     void shouldGetAllPlayers() throws Exception {
@@ -155,7 +145,7 @@ public class PlayerControllerTests {
     }
 
     @Test
-    @Feature("Get Player by Id")
+    @Feature("HU-28: Ver perfil de otro jugador (jugador)")
     @DisplayName("Get Player by Id (Successfully)")
     @Owner("luggzz(KDR0901)")
     void testGetPlayerById() throws Exception {
@@ -165,7 +155,7 @@ public class PlayerControllerTests {
     }
 
     @Test
-    @Feature("Get Player by Id")
+    @Feature("HU-28: Ver perfil de otro jugador (jugador)")
     @DisplayName("Get Player by Id (Id not found)")
     @Owner("luggzz(KDR0901)")
     void testGetPlayerById_NotFound() throws Exception {
@@ -174,7 +164,7 @@ public class PlayerControllerTests {
     }
 
     @Test
-    @Feature("Get Player Statistics by Id")
+    @Feature("HU-26: Ver estadísticas personales (jugador)")
     @DisplayName("Get Player Statistics by Id (Successfully)")
     @Owner("luggzz(KDR0901)")
     void testGetPlayerStatsById() throws Exception {
@@ -188,7 +178,7 @@ public class PlayerControllerTests {
 
 
     @Test
-    @Feature("Get Player Specific Statistic by Id")
+    @Feature("HU-26: Ver estadísticas personales (jugador)")
     @DisplayName("Get Player Specific Statistic by Id (Successfully)")
     @Owner("luggzz(KDR0901)")
     void testGetPlayerSpecificStatById() throws Exception {
@@ -198,7 +188,7 @@ public class PlayerControllerTests {
     }
 
     @Test
-    @Feature("Get Player Achievements by Id")
+    @Feature("HU-27: Ver logros (jugador)")
     @DisplayName("Get Player Achievements by Id (Successfully)")
     @Owner("luggzz(KDR0901)")
     void testGetPlayerAchievementById() throws Exception {
@@ -210,7 +200,7 @@ public class PlayerControllerTests {
     }
 
     @Test
-    @Feature("Get Player Achievements by Id")
+    @Feature("HU-27: Ver logros (jugador)")
     @DisplayName("Get Player Achievements by Id (No Achievements)")
     @Owner("luggzz(KDR0901)")
     void testGetPlayerAchievementById_NoAchievements() throws Exception {
@@ -230,7 +220,7 @@ public class PlayerControllerTests {
     }
 
     @Test
-    @Feature("Get Player by Nickname")
+    @Feature("HU-28: Ver perfil de otro jugador (jugador)")
     @DisplayName("Get Player by Nickname (Successfully)")
     @Owner("luggzz(KDR0901)")
     void testGetPlayerByNickname() throws Exception {
@@ -240,7 +230,7 @@ public class PlayerControllerTests {
     }
 
     @Test
-    @Feature("Get Player by Nickname")
+    @Feature("HU-28: Ver perfil de otro jugador (jugador)")
     @DisplayName("Get Player by Nickname (Not Found)")
     @Owner("luggzz(KDR0901)")
     void testGetPlayerByNickname_NotFound() throws Exception {
@@ -249,7 +239,7 @@ public class PlayerControllerTests {
     }
 
     @Test
-    @Feature("Get Player by Username")
+    @Feature("HU-28: Ver perfil de otro jugador (jugador)")
     @DisplayName("Get Player by Username (Successfully)")
     @Owner("luggzz(KDR0901)")
     void testGetPlayerByUsername() throws Exception {
@@ -259,7 +249,7 @@ public class PlayerControllerTests {
     }
 
     @Test
-    @Feature("Get Player by Username")
+    @Feature("HU-28: Ver perfil de otro jugador (jugador)")
     @DisplayName("Get Player by Username (Not Found)")
     @Owner("luggzz(KDR0901)")
     void testGetPlayerByUsername_NotFound() throws Exception {
@@ -268,7 +258,7 @@ public class PlayerControllerTests {
     }
 
     @Test
-    @Feature("Create Player")
+    @Feature("HU-17: Registro de usuario (usuario)")
     @DisplayName("Create Player (Successfully)")
     @Owner("dlozaco(FBN588)")
     @Issue("https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/160")
@@ -312,7 +302,7 @@ public class PlayerControllerTests {
     }
 
     @Test
-    @Feature("Update Player")
+    @Feature("HU-20: Editar perfil (jugador)")
     @DisplayName("Update Player (Successfully)")
     void testUpdatePlayer() throws Exception {
         player.setNickname("UPDATED");
@@ -327,7 +317,7 @@ public class PlayerControllerTests {
     }
 
     @Test
-    @Feature("Update Player")
+    @Feature("HU-20: Editar perfil (jugador)")
     @DisplayName("Update Player (Not Found)")
     void testUpdatePlayer_NotFound() throws Exception {
         player.setNickname("UPDATED");
@@ -341,7 +331,7 @@ public class PlayerControllerTests {
     }
 
     @Test
-    @Feature("Delete Player")
+    @Feature("HU-25: Eliminar usuario (administrador)")
     @DisplayName("Delete Player (Successfully)")
     void testDeletePlayer() throws Exception {
         when(this.playerService.getPlayerById(1)).thenReturn(player);

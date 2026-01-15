@@ -72,7 +72,7 @@ public class FriendControllerTests {
     }
 
     @Test
-    @Feature("Get Friend by ID")
+    @Feature("HU-40: Ver lista de amigos (jugador)")
     @DisplayName("Get Friend by ID (Successfully)")
     void shouldGetFriendById() throws Exception {
         when(friendService.getFriendsById(1)).thenReturn(Optional.of(friendship));
@@ -84,7 +84,7 @@ public class FriendControllerTests {
     }
 
     @Test
-    @Feature("Get Friends by Username")
+    @Feature("HU-40: Ver lista de amigos (jugador)")
     @DisplayName("Get Friends by Username (Successfully)")
     void shouldGetFriendsByUsername() throws Exception {
         friendship.setStatus(FriendshipStatus.ACCEPTED);
@@ -97,7 +97,7 @@ public class FriendControllerTests {
     }
 
     @Test
-    @Feature("Create Friend Request")
+    @Feature("HU-35: Añadir amigo (jugador)")
     @DisplayName("Create Friend Request (Successfully)")
     void shouldCreateFriendRequest() throws Exception {
         Map<String, String> body = new HashMap<>();
@@ -118,7 +118,7 @@ public class FriendControllerTests {
     }
 
     @Test
-    @Feature("Accept Friend Request")
+    @Feature("HU-35: Añadir amigo (jugador)")
     @DisplayName("Accept Friend Request (Successfully)")
     void shouldAcceptFriendRequest() throws Exception {
         when(friendService.getFriendsById(1)).thenReturn(Optional.of(friendship));
@@ -132,7 +132,7 @@ public class FriendControllerTests {
     }
 
     @Test
-    @Feature("Accept Friend Request")
+    @Feature("HU-35: Añadir amigo (jugador)")
     @DisplayName("Accept Friend Request (Not Found)")
     void shouldReturn404WhenAcceptingNonExistentFriend() throws Exception {
         when(friendService.getFriendsById(99)).thenReturn(Optional.empty());
@@ -143,7 +143,7 @@ public class FriendControllerTests {
     }
 
     @Test
-    @Feature("Delete Friend")
+    @Feature("HU-37: Eliminar amigo (jugador)")
     @DisplayName("Delete Friend (Successfully)")
     void shouldDeleteFriend() throws Exception {
         // En tu controlador, getFriendsById(id) devuelve ResponseEntity, aquí simulamos que existe
@@ -157,7 +157,7 @@ public class FriendControllerTests {
     }
 
     @Test
-    @Feature("Get Received Friend Requests")
+    @Feature("HU-40: Ver lista de amigos (jugador)")
     @DisplayName("Retrieve friend requests received by a player")
     void shouldGetRequests() throws Exception {
         when(friendService.getRequests("player1")).thenReturn(List.of(friendship));
@@ -169,7 +169,7 @@ public class FriendControllerTests {
     }
 
     @Test
-    @Feature("Get Sent Friend Requests")
+    @Feature("HU-40: Ver lista de amigos (jugador)")
     @DisplayName("Retrieve friend requests sent by a player")
     void shouldGetRequester() throws Exception {
         when(friendService.getRequester("player1")).thenReturn(List.of(friendship));
