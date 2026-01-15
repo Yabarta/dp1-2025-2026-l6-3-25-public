@@ -192,7 +192,7 @@ function FriendsSidebar({ isOpen, toggle, username, jwt, id}) {
 
 useEffect(() => 
     {
-        if (!username) return;
+        if (!id) return;
 
         const fetchFriendsMatches = async () => 
         {
@@ -408,6 +408,7 @@ useEffect(() =>
 
     useEffect(() => {
     if (!jwt) return;
+    if (!id) return;
     const detection = async () => {
       try {
         await fetch("/api/v1/players/onlineDetection/" + id , 

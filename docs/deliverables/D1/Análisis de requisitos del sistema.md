@@ -286,6 +286,12 @@ A continuación se definen  todas las historias de usuario a implementar:
 ### Silenciar chat (jugador)
 ![alt text](ImagenesD1/m33.png)
 
+- ## HU-40 (ISSUE#228): **Ver lista de amigos (jugador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/228
+    - Como jugador quiero ver que amigos tengo y poder borrarlos.
+    - _Se requiere un sistema que permita ver la lista de amigos y que tengan un botón para eliminarlos._
+### Ver estado de amigos (jugador)
+![alt text](ImagenesD1/m30.png)
+
 
 
 # Diagrama conceptual del sistema
