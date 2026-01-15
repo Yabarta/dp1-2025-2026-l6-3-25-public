@@ -35,7 +35,7 @@ class RankingControllerTest {
 
 
     @Test
-    @Feature("Ranking getters")
+    @Feature("HU-30: Ver estadisticas globales junto al ranking(jugador)")
     @DisplayName("Get global ranking")
     @Description("This method retrieves the global ranking")
     @Severity(SeverityLevel.NORMAL)

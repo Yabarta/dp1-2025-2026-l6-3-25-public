@@ -132,7 +132,7 @@ public class PlayerControllerTests {
     }
 
     @Test
-    @Feature("Get All Players")
+    @Feature("HU-23: Listado de usuarios (administrador)")
     @DisplayName("Get All Players (Successfully)")
     void shouldGetAllPlayers() throws Exception {
         User user2 = new User();
@@ -154,7 +154,7 @@ public class PlayerControllerTests {
     }
 
     @Test
-    @Feature("Get Player by Id")
+    @Feature("HU-28: Ver perfil de otro jugador (jugador)")
     @DisplayName("Get Player by Id (Successfully)")
     void testGetPlayerById() throws Exception {
         when(playerService.getPlayerById(1)).thenReturn(player);
@@ -163,7 +163,7 @@ public class PlayerControllerTests {
     }
 
     @Test
-    @Feature("Get Player by Id")
+    @Feature("HU-28: Ver perfil de otro jugador (jugador)")
     @DisplayName("Get Player by Id (Id not found)")
     void testGetPlayerById_NotFound() throws Exception {
         when(playerService.getPlayerById(1000)).thenThrow(new ResourceNotFoundException("Player", "id", 1000));
@@ -171,7 +171,7 @@ public class PlayerControllerTests {
     }
 
     @Test
-    @Feature("Get Player Statistics by Id")
+    @Feature("HU-26: Ver estadísticas personales (jugador)")
     @DisplayName("Get Player Statistics by Id (Successfully)")
     void testGetPlayerStatsById() throws Exception {
         when(playerService.getPlayerById(1)).thenReturn(player);
@@ -184,7 +184,7 @@ public class PlayerControllerTests {
 
 
     @Test
-    @Feature("Get Player Specific Statistic by Id")
+    @Feature("HU-26: Ver estadísticas personales (jugador)")
     @DisplayName("Get Player Specific Statistic by Id (Successfully)")
     void testGetPlayerSpecificStatById() throws Exception {
         when(playerService.getPlayerById(1)).thenReturn(player);
@@ -193,7 +193,7 @@ public class PlayerControllerTests {
     }
 
     @Test
-    @Feature("Get Player Achievements by Id")
+    @Feature("HU-27: Ver logros (jugador)")
     @DisplayName("Get Player Achievements by Id (Successfully)")
     void testGetPlayerAchievementById() throws Exception {
         when(playerService.getPlayerById(1)).thenReturn(player);
@@ -204,7 +204,7 @@ public class PlayerControllerTests {
     }
 
     @Test
-    @Feature("Get Player Achievements by Id")
+    @Feature("HU-27: Ver logros (jugador)")
     @DisplayName("Get Player Achievements by Id (No Achievements)")
     void testGetPlayerAchievementById_NoAchievements() throws Exception {
         Player playerNoAch = new Player();
@@ -223,7 +223,7 @@ public class PlayerControllerTests {
     }
 
     @Test
-    @Feature("Get Player by Nickname")
+    @Feature("HU-28: Ver perfil de otro jugador (jugador)")
     @DisplayName("Get Player by Nickname (Successfully)")
     void testGetPlayerByNickname() throws Exception {
         when(playerService.getPlayerByNickname("player1")).thenReturn(player);
@@ -232,7 +232,7 @@ public class PlayerControllerTests {
     }
 
     @Test
-    @Feature("Get Player by Nickname")
+    @Feature("HU-28: Ver perfil de otro jugador (jugador)")
     @DisplayName("Get Player by Nickname (Not Found)")
     void testGetPlayerByNickname_NotFound() throws Exception {
         when(playerService.getPlayerByNickname("unknown")).thenThrow(new ResourceNotFoundException("Player", "nickname", "unknown"));
@@ -240,7 +240,7 @@ public class PlayerControllerTests {
     }
 
     @Test
-    @Feature("Get Player by Username")
+    @Feature("HU-28: Ver perfil de otro jugador (jugador)")
     @DisplayName("Get Player by Username (Successfully)")
     void testGetPlayerByUsername() throws Exception {
         when(playerService.getPlayerByUsername("user")).thenReturn(player);
@@ -249,7 +249,7 @@ public class PlayerControllerTests {
     }
 
     @Test
-    @Feature("Get Player by Username")
+    @Feature("HU-28: Ver perfil de otro jugador (jugador)")
     @DisplayName("Get Player by Username (Not Found)")
     void testGetPlayerByUsername_NotFound() throws Exception {
         when(playerService.getPlayerByUsername("unknown")).thenThrow(new ResourceNotFoundException("User", "username", "unknown"));
@@ -257,7 +257,7 @@ public class PlayerControllerTests {
     }
 
     @Test
-    @Feature("Create Player")
+    @Feature("HU-17: Registro de usuario (usuario)")
     @DisplayName("Create Player (Successfully)")
     @Owner("dlozaco(FBN588)")
     @Issue("https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/160")
@@ -301,7 +301,7 @@ public class PlayerControllerTests {
     }
 
     @Test
-    @Feature("Update Player")
+    @Feature("HU-20: Editar perfil (jugador)")
     @DisplayName("Update Player (Successfully)")
     void testUpdatePlayer() throws Exception {
         player.setNickname("UPDATED");
@@ -316,7 +316,7 @@ public class PlayerControllerTests {
     }
 
     @Test
-    @Feature("Update Player")
+    @Feature("HU-20: Editar perfil (jugador)")
     @DisplayName("Update Player (Not Found)")
     void testUpdatePlayer_NotFound() throws Exception {
         player.setNickname("UPDATED");
@@ -330,7 +330,7 @@ public class PlayerControllerTests {
     }
 
     @Test
-    @Feature("Delete Player")
+    @Feature("HU-25: Eliminar usuario (administrador)")
     @DisplayName("Delete Player (Successfully)")
     void testDeletePlayer() throws Exception {
         when(this.playerService.getPlayerById(1)).thenReturn(player);

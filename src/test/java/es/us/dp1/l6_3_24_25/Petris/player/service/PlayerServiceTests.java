@@ -33,7 +33,7 @@ public class PlayerServiceTests {
 
     @Test
     @Transactional
-    @Feature("Player Retrieval")
+    @Feature("HU-23: Listado de usuarios (administrador)")
     @DisplayName("getAllPlayers Test")
     @Owner("DiegoVicenteCamara(RXW1249)")
     void shouldGetAllPlayers() {
@@ -45,7 +45,7 @@ public class PlayerServiceTests {
 
 
     @Test
-    @Feature("Player Retrieval")
+    @Feature("HU-28: Ver perfil de otro jugador (jugador)")
     @Transactional
     @DisplayName("getPlayerById Test")
     @Owner("DiegoVicenteCamara(RXW1249)")
@@ -55,7 +55,7 @@ public class PlayerServiceTests {
     }
 
     @Test
-    @Feature("Player Retrieval")
+    @Feature("HU-28: Ver perfil de otro jugador (jugador)")
     @Transactional
     @DisplayName("getPlayerById Test (Negative)")
     @Owner("DiegoVicenteCamara(RXW1249)")
@@ -64,7 +64,7 @@ public class PlayerServiceTests {
     }
 
     @Test
-    @Feature("Player Retrieval")
+    @Feature("HU-28: Ver perfil de otro jugador (jugador)")
     @Transactional
     @DisplayName("getPlayerByNickname Test")
     @Owner("DiegoVicenteCamara(RXW1249)")
@@ -74,7 +74,7 @@ public class PlayerServiceTests {
     }
 
     @Test
-    @Feature("Player Retrieval")
+    @Feature("HU-28: Ver perfil de otro jugador (jugador)")
     @Transactional
     @DisplayName("getPlayerByNickname Test (Negative)")
     @Owner("DiegoVicenteCamara(RXW1249)")
@@ -83,7 +83,7 @@ public class PlayerServiceTests {
     }
 
     @Test
-    @Feature("Player Retrieval")
+    @Feature("HU-28: Ver perfil de otro jugador (jugador)")
     @Transactional
     @DisplayName("getPlayerByUsername Test")
     @Owner("DiegoVicenteCamara(RXW1249)")
@@ -94,7 +94,7 @@ public class PlayerServiceTests {
     }
 
     @Test
-    @Feature("Player Retrieval")
+    @Feature("HU-28: Ver perfil de otro jugador (jugador)")
     @Transactional
     @DisplayName("getPlayerByUsername Test (Negative)")
     @Owner("DiegoVicenteCamara(RXW1249)")
@@ -103,7 +103,7 @@ public class PlayerServiceTests {
     }
 
     @Test
-    @Feature("Player Retrieval")
+    @Feature("HU-28: Ver perfil de otro jugador (jugador)")
     @Transactional
     @DisplayName("getPlayerByUser Test")
     @Owner("DiegoVicenteCamara(RXW1249)")
@@ -114,7 +114,7 @@ public class PlayerServiceTests {
     }
 
     @Test
-    @Feature("Player Retrieval")
+    @Feature("HU-28: Ver perfil de otro jugador (jugador)")
     @Transactional
     @DisplayName("getPlayerByUser Test (Negative)")
     @Owner("DiegoVicenteCamara(RXW1249)")
@@ -125,7 +125,7 @@ public class PlayerServiceTests {
 
 
     @Test
-    @Feature("Player Management")
+    @Feature("HU-17: Registro de usuario (usuario)")
     @Transactional
     @DisplayName("Save Test")
     @Owner("DiegoVicenteCamara(RXW1249)")
@@ -152,7 +152,7 @@ public class PlayerServiceTests {
 
 
     @Test
-    @Feature("Player Management")
+    @Feature("HU-25: Eliminar usuario (administrador)")
     @Transactional
     @DisplayName("Delete Test")
     @Owner("DiegoVicenteCamara(RXW1249)")
@@ -176,7 +176,7 @@ public class PlayerServiceTests {
 
 
     @Test
-    @Feature("Player Management")
+    @Feature("HU-20: Editar perfil (jugador)")
     @Transactional
     @DisplayName("Update match status Test")
     @Owner("DiegoVicenteCamara(RXW1249)")

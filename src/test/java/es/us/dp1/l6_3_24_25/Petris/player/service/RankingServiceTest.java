@@ -19,7 +19,7 @@ class RankingServiceTest {
     private RankingService rankingService;
 
     @Test
-    @Feature("Ranking getter")
+    @Feature("HU-30: Ver estadisticas globales junto al ranking(jugador)")
     @DisplayName("Get global ranking")
     @Description("This method received the global ranking of players")
     @Severity(SeverityLevel.NORMAL)

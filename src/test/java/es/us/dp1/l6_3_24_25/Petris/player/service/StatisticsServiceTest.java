@@ -33,7 +33,7 @@ class StatisticsServiceTest {
     private StatisticsService statisticsService;
 
     @Test
-    @Feature("Statistics getters")
+    @Feature("HU-26: Ver estadísticas personales (jugador)")
     @DisplayName("Get all Statistics")
     @Description("This method received all the statistics from players")
     @Severity(SeverityLevel.NORMAL)
@@ -45,7 +45,7 @@ class StatisticsServiceTest {
     }
 
     @Test
-    @Feature("Statistics getters")
+    @Feature("HU-26: Ver estadísticas personales (jugador)")
     @DisplayName("Get statistic by id")
     @Description("This method received an statistic by a correct id")
     @Severity(SeverityLevel.NORMAL)
@@ -58,7 +58,7 @@ class StatisticsServiceTest {
     }
 
     @Test
-    @Feature("Statistics getters")
+    @Feature("HU-26: Ver estadísticas personales (jugador)")
     @DisplayName("Get statistic by id")
     @Description("This method received an statistic by a correct id")
     @Severity(SeverityLevel.NORMAL)
@@ -71,7 +71,7 @@ class StatisticsServiceTest {
 
     @Test
     @Transactional
-    @Feature("Statistics persistence")
+    @Feature("HU-26: Ver estadísticas personales (jugador)")
     @DisplayName("Save statistics")
     @Description("This method saves a statistics object in the database")
     @Severity(SeverityLevel.CRITICAL)
@@ -99,7 +99,7 @@ class StatisticsServiceTest {
     }
 
     @ParameterizedTest
-    @Feature("Statistics getters")
+    @Feature("HU-26: Ver estadísticas personales (jugador)")
     @DisplayName("Get box plot stats for field")
     @Description("This method received the box plot statistics for a given field")
     @Severity(SeverityLevel.NORMAL)
@@ -125,7 +125,7 @@ class StatisticsServiceTest {
 
 
     @Test
-    @Feature("Statistics getters")
+    @Feature("HU-26: Ver estadísticas personales (jugador)")
     @DisplayName("Get global statistics")
     @Description("This method received the global statistics of the game")
     @Severity(SeverityLevel.NORMAL)
@@ -141,7 +141,7 @@ class StatisticsServiceTest {
     }
 
     @Test
-    @Feature("Statistics getters")
+    @Feature("HU-26: Ver estadísticas personales (jugador)")
     @DisplayName("Get box plot stats for invalid field")
     @Description("This method throws an exception when an invalid field name is provided")
     @Severity(SeverityLevel.CRITICAL)
