@@ -2886,3 +2886,20 @@ Esto hacía el código difícil de mantener, entender y testear. Además, la reu
 - El estado se distribuye lógicamente: el contenedor mantiene lo global, cada modal maneja su propio estado de formulario.
 - Esto reduce la complejidad y los efectos secundarios no deseados.
 
+## A+
+### WebSocket para chat en partida
+#### Resumen
+Lo ha realizado David Lozano Acosta implementando un chat de texto para las partidas, en el cual pueden escribir los dos jugadores exclusivamente, bloqueándose para los espectadores de la partida.
+#### Como se ha implementado
+Se ha realizado en backend con el modelo `ChatMessage` y el controlador `ChatController`. Para el frontend se ha creado el componente `Chat`, donde se ha usado las librerias `sockjs-client` y `stompjs` para poder conectarse al chat y enviar los mensajes
+#### Fuentes
+- Video de youtube: https://www.youtube.com/watch?v=ODGuq0XqG9A&t=347s
+### HighCharts para estadísticas
+#### Resumen
+Lo ha realizado David Lozano Acosta. Se ha creado una pantalla donde se pueden ver dos diagramas de cajas para comparar las estadísticas del usuario loggeado con las estadísticas globales de partidas jugadas y tiempo jugado. Luego, mediante un diagrama polar se ha creado un comparador visual, donde se puede comparar las estadísticas del usuario loggeado con otras de cualquier usuario
+#### Como se ha implementado
+Ha sido realizado completamente en frontend. Se han hecho los componentes React `ChartBoxPlot` para los diagramas de cajas y el `ChartComparator` para el polar. Todo se ha unido en la página `Comparator`, donde se recogen los datos para cada diagrama
+#### Fuentes
+- Documentación de HighCharts: 
+    - https://www.highcharts.com/demo/highcharts/polar
+    - https://www.highcharts.com/demo/highcharts/box-plot
