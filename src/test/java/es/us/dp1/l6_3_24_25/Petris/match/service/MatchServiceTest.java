@@ -45,8 +45,7 @@ import io.qameta.allure.Story;
 
 import static generatedAssertions.org.assertj.Assertions.assertThat;
 
-@Epic("Game module")
-@Feature("Create, play and delete matches")
+@Epic("Match Service")
 @ExtendWith(MockitoExtension.class)
 class MatchServiceTest {
 
@@ -55,7 +54,7 @@ class MatchServiceTest {
     @Mock
     private MatchStatsBatchOrchestrator matchStatsBatchOrchestrator;
     protected MatchService matchService;
-    
+
     /*
     private WebSocketMatchService webSocketService;
     private SimpMessagingTemplate messagingTemplate;
@@ -72,6 +71,7 @@ class MatchServiceTest {
     }
 
     @Test
+    @Feature("HU-11: Listado de partidas en curso (administrador)")
     @DisplayName("Obtener todos las partidas")
     @Description("Método para obtener la lista de partidas")
     @Owner("dlozaco(FBN5868)")
@@ -83,6 +83,7 @@ class MatchServiceTest {
     }
 
     @Test
+    @Feature("HU-05: Control de turnos (jugador)")
     @DisplayName("Obtener partida por ID")
     @Description("Método para obtener partida por ID")
     @Owner("dlozaco(FBN5868)")
@@ -96,6 +97,7 @@ class MatchServiceTest {
     }
 
     @Test
+    @Feature("HU-05: Control de turnos (jugador)")
     @DisplayName("Obtener partida por ID incorrecto")
     @Description("Método para obtener partida por ID incorrecto")
     @Owner("dlozaco(FBN5868)")
@@ -107,6 +109,7 @@ class MatchServiceTest {
     }
 
     @Test
+    @Feature("HU-05: Control de turnos (jugador)")
     @DisplayName("Obtener partida por code incorrecto")
     @Description("Método para obtener partida por código no existente")
     @Owner("dlozaco(FBN5868)")
@@ -118,6 +121,7 @@ class MatchServiceTest {
     }
 
     @Test
+    @Feature("HU-05: Control de turnos (jugador)")
     @DisplayName("Obtener partida no acabada por code")
     @Description("Método para obtener partida por código no existente")
     @Owner("dlozaco(FBN5868)")
@@ -131,6 +135,7 @@ class MatchServiceTest {
     }
 
     @Test
+    @Feature("HU-11: Listado de partidas en curso (administrador)")
     @DisplayName("Obtener todos las partidas en curso")
     @Description("Método para obtener la lista de partidas en curso")
     @Owner("dlozaco(FBN5868)")
@@ -142,6 +147,7 @@ class MatchServiceTest {
     }
 
     @Test
+    @Feature("HU-11: Listado de partidas en curso (administrador)")
     @DisplayName("Obtener todas las partidas sin empezar")
     @Description("Metodo para obtener todas las partidas sin empezar")
     @Owner("dlozaco(FBN5868)")
@@ -153,6 +159,7 @@ class MatchServiceTest {
     }
 
     @Test
+    @Feature("HU-05: Control de turnos (jugador)")
     @DisplayName("Should not create match with creator already in a match")
     @Description("Test that if a player that is currently in a match attempts to create a match, AccessDeniedException is thrown and the match is not created")
     @Owner("josbardel1(WHS7046)")
@@ -171,6 +178,7 @@ class MatchServiceTest {
     }
 
     @Test
+    @Feature("HU-05: Control de turnos (jugador)")
     @DisplayName("Should create match with creator not already in a match")
     @Description("Test that if a player that is not currently in a match attempts to create a match, the match is created with that player as creator")
     @Owner("josbardel1(WHS7046)")
@@ -186,6 +194,7 @@ class MatchServiceTest {
     }
 
     @Test
+    @Feature("HU-01: Unirse a una partida (jugador)")
     @DisplayName("Should not join match if the player is already in a match")
     @Description("Test that if a player that is currently in a match attempts to join a match, AccessDeniedException is thrown and the player doesn't join")
     @Owner("josbardel1(WHS7046)")
@@ -206,6 +215,7 @@ class MatchServiceTest {
     }
 
     @Test
+    @Feature("HU-01: Unirse a una partida (jugador)")
     @DisplayName("Should not join match if the match has already started")
     @Description("Test that if a player attempts to join a match that has started, AccessDeniedException is thrown and the player doesn't join")
     @Owner("josbardel1(WHS7046)")
@@ -228,6 +238,7 @@ class MatchServiceTest {
     }
 
     @Test
+    @Feature("HU-01: Unirse a una partida (jugador)")
     @DisplayName("Should not join match if the match has already ended")
     @Description("Test that if a player attempts to join a match that has ended, AccessDeniedException is thrown and the player doesn't join")
     @Owner("josbardel1(WHS7046)")
@@ -252,6 +263,7 @@ class MatchServiceTest {
     }
 
     @Test
+    @Feature("HU-01: Unirse a una partida (jugador)")
     @DisplayName("Should not join match if the code is incorrect")
     @Description("Test that if a player attempts to join a match with a code that is not the match code, AccessDeniedException is thrown and the player doesn't join")
     @Owner("josbardel1(WHS7046)")
@@ -273,6 +285,7 @@ class MatchServiceTest {
     }
 
     @Test
+    @Feature("HU-01: Unirse a una partida (jugador)")
     @DisplayName("Should not join match if full")
     @Description("Test that if a player attempts to join a match with two players, AccessDeniedException is thrown and the player doesn't join")
     @Owner("josbardel1(WHS7046)")
@@ -297,6 +310,7 @@ class MatchServiceTest {
     }
 
     @Test
+    @Feature("HU-01: Unirse a una partida (jugador)")
     @DisplayName("Should join match if the code is correct")
     @Description("Test that if a player attempts to join a match with a code that is the match code, the player joins as player 2")
     @Owner("josbardel1(WHS7046)")
@@ -314,6 +328,7 @@ class MatchServiceTest {
     }
 
     @Test
+    @Feature("HU-01: Unirse a una partida (jugador)")
     @DisplayName("Should join match if it is public (if it has no code)")
     @Description("Test that if a player attempts to join a match with null code, the player joins as player 2")
     @Owner("josbardel1(WHS7046)")
@@ -330,6 +345,7 @@ class MatchServiceTest {
     }
 
     @Test
+    @Feature("HU-10: Abandonar partida (jugador)")
     @DisplayName("Should not leave match if the player is not in the match")
     @Description("Test that if a player attempts to leave a match where they are not a player, AccessDeniedException is thrown and no player leaves")
     @Owner("josbardel1(WHS7046)")
@@ -347,6 +363,7 @@ class MatchServiceTest {
     }
 
     @Test
+    @Feature("HU-10: Abandonar partida (jugador)")
     @DisplayName("Should not leave match if the match has already started")
     @Description("Test that if a player attempts to leave a match that has started, AccessDeniedException is thrown and the player doesn't leave")
     @Owner("josbardel1(WHS7046)")
@@ -367,6 +384,7 @@ class MatchServiceTest {
     }
 
     @Test
+    @Feature("HU-10: Abandonar partida (jugador)")
     @DisplayName("Should not leave match if the match has already ended")
     @Description("Test that if a player attempts to leave a match that has ended, AccessDeniedException is thrown and the player doesn't leave")
     @Owner("josbardel1(WHS7046)")
@@ -389,6 +407,7 @@ class MatchServiceTest {
     }
 
     @Test
+    @Feature("HU-10: Abandonar partida (jugador)")
     @DisplayName("Should leave full not started match if creator and player 2 becomes creator")
     @Description("Test that if the creator attempts to leave a full not started match, the player leaves, player2 is set to null and both player1 and creator are set to player2")
     @Owner("josbardel1(WHS7046)")
@@ -411,6 +430,7 @@ class MatchServiceTest {
     }
 
     @Test
+    @Feature("HU-10: Abandonar partida (jugador)")
     @DisplayName("Should leave full not started match if player 2")
     @Description("Test that if a player2 attempts to leave a full not started match, the player leaves and player2 is set to null")
     @Owner("josbardel1(WHS7046)")
@@ -424,12 +444,13 @@ class MatchServiceTest {
         Match match = new Match();
         match.setCreator(creatorAndPlayer1);
         match.setPlayer1(creatorAndPlayer1);
-        match.setPlayer2(playerToLeave); 
+        match.setPlayer2(playerToLeave);
 
         assertThat(matchService.leaveMatch(match, playerToLeave)).hasPlayer2(null);
     }
 
     @Test
+    @Feature("HU-10: Abandonar partida (jugador)")
     @DisplayName("Should leave not full not started match if creator")
     @Description("Test that if a creator attempts to leave a not full not started match, the creator leaves and the match is deleted")
     @Owner("josbardel1(WHS7046)")
@@ -446,6 +467,7 @@ class MatchServiceTest {
     }
 
     @Test
+    @Feature("HU-13: Crear partida privada (jugador)")
     @DisplayName("Should not start match if there are less than 2 players")
     @Description("Test that if a player attempts to start a match where player2 is null, AccessDeniedException is thrown and the match doesn't start")
     @Owner("josbardel1(WHS7046)")
@@ -464,6 +486,7 @@ class MatchServiceTest {
     }
 
     @Test
+    @Feature("HU-13: Crear partida privada (jugador)")
     @DisplayName("Should not start match if the match has already started")
     @Description("Test that if a player attempts to start a match that has started, AccessDeniedException is thrown")
     @Owner("josbardel1(WHS7046)")
@@ -488,6 +511,7 @@ class MatchServiceTest {
     }
 
     @Test
+    @Feature("HU-13: Crear partida privada (jugador)")
     @DisplayName("Should not start match if the match has already ended")
     @Description("Test that if a player attempts to start a match that has ended, AccessDeniedException is thrown and the match doesn't start")
     @Owner("josbardel1(WHS7046)")
@@ -514,6 +538,7 @@ class MatchServiceTest {
     }
 
     @Test
+    @Feature("HU-13: Crear partida privada (jugador)")
     @DisplayName("Should start not ended and full match if creator requests it")
     @Description("Test that if a player attempts to start a match that has not ended and has two players, the match starts")
     @Owner("josbardel1(WHS7046)")
@@ -535,6 +560,7 @@ class MatchServiceTest {
     }
 
     @Test
+    @Feature("HU-13: Crear partida privada (jugador)")
     @DisplayName("Should not advance turn if already past last turn")
     @Description("Test that if a turn advance is attempted when the match is past the last turn, IllegalArgumentException is thrown and the turn doesn't advance")
     @Owner("josbardel1(WHS7046)")
@@ -554,6 +580,7 @@ class MatchServiceTest {
     }
 
     @Test
+    @Feature("HU-13: Crear partida privada (jugador)")
     @DisplayName("Should not advance turn if match already ended")
     @Description("Test that if a turn advance is attempted when the match has ended, AccessDeniedException is thrown and the turn doesn't advance")
     @Owner("josbardel1(WHS7046)")
@@ -577,6 +604,7 @@ class MatchServiceTest {
     }
 
     @Test
+    @Feature("HU-13: Crear partida privada (jugador)")
     @DisplayName("Should not advance turn if match already ended")
     @Description("Test that if a turn advance is attempted when the match has ended, AccessDeniedException is thrown and the turn doesn't advance")
     @Owner("josbardel1(WHS7046)")
@@ -596,6 +624,7 @@ class MatchServiceTest {
     }
 
     @Test
+    @Feature("HU-14: Ver ganador al finalizar (jugador)")
     @DisplayName("Should advance turn of not ended match if valid turn")
     @Description("Test that if a turn advance is attempted when the match is in a valid turn, the turn advances")
     @Owner("josbardel1(WHS7046)")
@@ -615,7 +644,7 @@ class MatchServiceTest {
         try (MockedStatic<MatchMethodUtil> utility = Mockito.mockStatic(MatchMethodUtil.class)) {
             utility.when(() -> MatchMethodUtil.propagation(any(Match.class), anyList(), any(int.class)))
                 .then(returnsFirstArg());
-                
+
             Match result = matchService.nextTurn(matchToAdvanceTurn, newBoardState);
             assertThat(result).hasTurn(turn + 1);
             assertThat(result).hasTurnType(MatchDataUtil.getTurnType(turn + 1));
@@ -623,6 +652,7 @@ class MatchServiceTest {
     }
 
     @Test
+    @Feature("HU-14: Ver ganador al finalizar (jugador)")
     @DisplayName("Should end match if finishing turn")
     @Description("Test that if a turn advance is attempted when the match is in a finishing turn, the match ends")
     @Owner("josbardel1(WHS7046)")
@@ -645,7 +675,7 @@ class MatchServiceTest {
                 match.setWinner(1);
                 return match;
             });
-            
+
             Match result = matchService.nextTurn(matchToAdvanceTurn, newBoardState);
             assertThat(result).hasTurn(turn + 1);
             assertThat(result).hasTurnType(null);
@@ -654,6 +684,7 @@ class MatchServiceTest {
     }
 
     @Test
+    @Feature("HU-04: Validación de movimientos (jugador)")
     @DisplayName("Should not check for errors if player who requested is not in the match")
     @Description("Test that if a player who is not in the match attempts to check for propagation errors, AccessDeniedException is thrown")
     @Owner("josbardel1(WHS7046)")
@@ -673,6 +704,7 @@ class MatchServiceTest {
     }
 
     @ParameterizedTest
+    @Feature("HU-04: Validación de movimientos (jugador)")
     @DisplayName("Should not check for errors if not the turn of requesting player")
     @Description("Test that if a player attempts to check for propagation errors in a turn not their own, AccessDeniedException is thrown")
     @Owner("josbardel1(WHS7046)")
@@ -695,6 +727,7 @@ class MatchServiceTest {
     }
 
     @Test
+    @Feature("HU-04: Validación de movimientos (jugador)")
     @DisplayName("Should not check for errors if match already ended")
     @Description("Test that if a player attempts to check for propagation errors in an ended match, AccessDeniedException is thrown")
     @Owner("josbardel1(WHS7046)")
@@ -718,6 +751,7 @@ class MatchServiceTest {
     }
 
     @Test
+    @Feature("HU-04: Validación de movimientos (jugador)")
     @DisplayName("Should check for errors of the current turn player in not ended match")
     @Description("Test that a player can check for propagation errors during their turn in a not ended match")
     @Owner("josbardel1(WHS7046)")
@@ -738,6 +772,7 @@ class MatchServiceTest {
     }
 
     @Test
+    @Feature("HU-10: Abandonar partida (jugador)")
     @DisplayName("Should not concede match if player who requested is not in the match")
     @Description("Test that if a player who is not in the match attempts to concede, AccessDeniedException is thrown and the match doesn't end")
     @Owner("josbardel1(WHS7046)")
@@ -755,6 +790,7 @@ class MatchServiceTest {
     }
 
     @ParameterizedTest
+    @Feature("HU-10: Abandonar partida (jugador)")
     @DisplayName("Should not concede match if not in propagation")
     @Description("Test that if a player attempts to concede outside of a propagation turn, AccessDeniedException is thrown and the match doesn't end")
     @Owner("josbardel1(WHS7046)")
@@ -775,6 +811,7 @@ class MatchServiceTest {
     }
 
     @Test
+    @Feature("HU-10: Abandonar partida (jugador)")
     @DisplayName("Should not concede if match already ended")
     @Description("Test that if a player attempts to concede an ended match, AccessDeniedException is thrown and the match doesn't end")
     @Owner("josbardel1(WHS7046)")
@@ -796,6 +833,7 @@ class MatchServiceTest {
     }
 
     @ParameterizedTest
+    @Feature("HU-10: Abandonar partida (jugador)")
     @DisplayName("Should not concede if match already ended")
     @Description("Test that if a player attempts to concede an ended match, AccessDeniedException is thrown and the match doesn't end")
     @Owner("josbardel1(WHS7046)")
@@ -814,162 +852,4 @@ class MatchServiceTest {
         assertThat(result).hasWinner(2);
     }
 
-    // TODO descomentar y aprovechar tests
-    /*
-    @Test
-    void broadcastLobbyAndMatchState_publishesLobbySnapshotListAndMatchSnapshot() {
-        Player creator = buildPlayer(44, "creator", true);
-        Player guest = buildPlayer(55, "guest", true);
-        Match match = buildMatch(18, creator, guest);
-        match.setBoardState(List.of(new PetriDish()));
-        LobbyDTO expectedLobby = Objects.requireNonNull(LobbyDTO.toLobbyDTO(match));
-        MatchDTO expectedMatch = Objects.requireNonNull(MatchDTO.toMatchDTO(match));
-        List<LobbyDTO> expectedLobbyList = List.of(expectedLobby);
-        when(matchRepository.findByStartedAtNull()).thenReturn(List.of(match));
-
-        webSocketService.broadcastLobbyAndMatchState(match);
-
-        List<org.mockito.invocation.Invocation> sends = mockingDetails(messagingTemplate)
-                .getInvocations()
-                .stream()
-                .filter(invocation -> invocation.getMethod().getName().equals("convertAndSend"))
-                .toList();
-
-        assertEquals(3, sends.size(), "broadcastLobbyAndMatchState should publish three messages");
-        List<String> destinations = sends.stream()
-                .map(invocation -> invocation.getArgument(0, String.class))
-                .toList();
-        assertEquals(List.of("/topic/lobby/18", "/topic/lobbies", "/topic/match/18"), destinations);
-
-        LobbyDTO lobbyPayload = assertInstanceOf(LobbyDTO.class, sends.get(0).getArgument(1));
-        assertEquals(expectedLobby, lobbyPayload);
-
-        @SuppressWarnings("unchecked")
-        List<LobbyDTO> lobbyListPayload = assertInstanceOf(List.class, sends.get(1).getArgument(1));
-        assertEquals(expectedLobbyList, lobbyListPayload);
-
-        MatchDTO matchPayload = assertInstanceOf(MatchDTO.class, sends.get(2).getArgument(1));
-        assertEquals(expectedMatch, matchPayload);
-    }
-
-    @Test
-    @DisplayName("broadcastLobbyClosed notifica refresco y cierre")
-    @Story("WebSocket broadcasting")
-    @Description("broadcastLobbyClosed should notify lobby list refresh plus closure event.")
-    @Severity(SeverityLevel.NORMAL)
-    void broadcastLobbyClosed_publishesListRefreshAndClosure() {
-        when(matchRepository.findByStartedAtNull()).thenReturn(List.of());
-
-        webSocketService.broadcastLobbyClosed(27);
-
-        List<org.mockito.invocation.Invocation> sends = mockingDetails(messagingTemplate)
-                .getInvocations()
-                .stream()
-                .filter(invocation -> invocation.getMethod().getName().equals("convertAndSend"))
-                .toList();
-
-        assertEquals(2, sends.size(), "broadcastLobbyClosed should publish list refresh and closure");
-        List<String> destinations = sends.stream()
-                .map(invocation -> invocation.getArgument(0, String.class))
-                .toList();
-        assertEquals(List.of("/topic/lobbies", "/topic/lobby/27"), destinations);
-
-        @SuppressWarnings("unchecked")
-        List<LobbyDTO> lobbyListPayload = assertInstanceOf(List.class, sends.get(0).getArgument(1));
-        assertTrue(lobbyListPayload.isEmpty(), "Lobby list payload should be empty");
-
-        String closurePayload = assertInstanceOf(String.class, sends.get(1).getArgument(1));
-        assertEquals("LOBBY_CLOSED", closurePayload);
-    }
-
-    @Test
-    void toMatchDTO_includesBoardAndPlayers() {
-        Integer TURN = 7;
-        Player player1 = buildPlayer(41, "alpha", true);
-        Player player2 = buildPlayer(42, "beta", true);
-        Match match = buildMatch(21, player1, player2);
-        match.setPlayer1Score(3);
-        match.setPlayer2Score(5);
-        match.setTurn(TURN);
-        match.setTurnType(MatchDataUtil.getTurnType(TURN));
-        List<PetriDish> board = new ArrayList<>();
-        PetriDish dish0 = new PetriDish();
-        dish0.setPlayer1Bacteria(2);
-        dish0.setPlayer2Bacteria(1);
-        PetriDish dish1 = new PetriDish();
-        dish1.setPlayer1Bacteria(0);
-        dish1.setPlayer2Bacteria(4);
-        board.add(dish0);
-        board.add(dish1);
-        match.setBoardState(board);
-
-        MatchDTO dto = MatchDTO.toMatchDTO(match);
-
-        assertEquals(2, dto.getBoard().size(), "Board size should be preserved");
-        assertEquals(0, dto.getBoard().get(0).getIndex());
-        assertEquals(1, dto.getBoard().get(1).getIndex());
-        assertEquals(2, dto.getBoard().get(0).getPlayer1Bacteria());
-        assertEquals(4, dto.getBoard().get(1).getPlayer2Bacteria());
-        assertEquals("alpha_user", dto.getPlayer1().getUsername());
-        assertEquals("beta_user", dto.getPlayer2().getUsername());
-        assertEquals(7, dto.getTurn());
-        assertEquals(3, dto.getPlayer1Score());
-        assertEquals(5, dto.getPlayer2Score());
-    }
-
-    @Test
-    @DisplayName("toLobbyDTO marca privacidad y jugadores")
-    @Story("DTO mapping")
-    @Description("toLobbyDTO should mark privacy via code and list all players.")
-    @Severity(SeverityLevel.NORMAL)
-    void toLobbyDTO_marksPrivacyAndPlayerList() {
-        Player creator = buildPlayer(51, "creator", true);
-        Player guest = buildPlayer(52, "guest", true);
-        Match match = buildMatch(31, creator, guest);
-        match.setCode("ZXCV");
-
-        LobbyDTO dto = LobbyDTO.toLobbyDTO(match);
-
-        assertEquals(31, dto.getId());
-        assertTrue(dto.isPrivate(), "Code should mark the lobby as private");
-        assertEquals("ZXCV", dto.getCode());
-        assertEquals(creator.getId(), dto.getCreatorId());
-        assertEquals(2, dto.getPlayers().size());
-        assertEquals("creator_user", dto.getPlayers().get(0).getUsername());
-    }
-
-    private @NonNull Match buildMatch(int id, Player player1, Player player2) {
-        Integer TURN = 0;
-        Match match = new Match();
-        match.setId(id);
-        match.setCreator(player1);
-        match.setPlayer1(player1);
-        match.setPlayer2(player2);
-        match.setBoardState(new ArrayList<>());
-        match.setPlayer1Score(0);
-        match.setPlayer2Score(0);
-        match.setTurn(TURN);
-        match.setTurnType(MatchDataUtil.getTurnType(TURN));
-        return match;
-    }
-
-    private @NonNull Player buildPlayer(int id, String prefix, boolean inMatch) {
-        Authorities authority = new Authorities();
-        authority.setAuthority("PLAYER");
-
-        User user = new User();
-        user.setId(id);
-        user.setUsername(prefix + "_user");
-        user.setAuthority(authority);
-
-        Player player = new Player();
-        player.setId(id);
-        player.setNickname(prefix + "_nick");
-        player.setEmail(prefix + "@example.com");
-        player.setProfilePicture(prefix + ".png");
-        player.setIsCurrentlyInMatch(inMatch);
-        player.setUser(user);
-        return player;
-    }
-    */
 }

@@ -7,6 +7,8 @@ import es.us.dp1.l6_3_24_25.Petris.match.model.PetriDish;
 import es.us.dp1.l6_3_24_25.Petris.match.repository.MatchRepository;
 import es.us.dp1.l6_3_24_25.Petris.player.model.Player;
 import es.us.dp1.l6_3_24_25.Petris.user.User;
+import io.qameta.allure.Epic;
+import io.qameta.allure.Feature;
 import io.qameta.allure.Owner;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,6 +24,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@Epic("Match Service")
 @Owner("DiegoVicenteCamara(RXW1249)")
 @ExtendWith(MockitoExtension.class)
 class WebSocketMatchServiceTest {
@@ -77,6 +80,7 @@ class WebSocketMatchServiceTest {
     }
 
     @Test
+    @Feature("HU-01: Unirse a una partida (jugador)")
     void publishLobbySnapshot_sendsWhenTemplatePresent() {
         WebSocketMatchService service = buildServiceWithTemplate(messagingTemplate);
         Match match = sampleMatch();
@@ -89,6 +93,7 @@ class WebSocketMatchServiceTest {
     }
 
     @Test
+    @Feature("HU-01: Unirse a una partida (jugador)")
     void publishMatchSnapshot_sendsWhenTemplatePresent() {
         WebSocketMatchService service = buildServiceWithTemplate(messagingTemplate);
         Match match = sampleMatch();
@@ -101,6 +106,7 @@ class WebSocketMatchServiceTest {
     }
 
     @Test
+    @Feature("HU-11: Listado de partidas en curso (administrador)")
     void publishLobbyList_sendsListFromRepo() {
         WebSocketMatchService service = buildServiceWithTemplate(messagingTemplate);
         Match match = sampleMatch();
@@ -115,6 +121,7 @@ class WebSocketMatchServiceTest {
     }
 
     @Test
+    @Feature("HU-11: Listado de partidas en curso (administrador)")
     void publishLobbyClosed_ignoresNullTemplateOrId() {
         WebSocketMatchService withoutTemplate = buildServiceWithTemplate(null);
         withoutTemplate.publishLobbyClosed(1); // no throw

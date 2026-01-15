@@ -45,13 +45,12 @@ import io.qameta.allure.Feature;
 import io.qameta.allure.Owner;
 import io.qameta.allure.Story;
 
-@Epic("Game module")
-@Feature("REST controller for matches")
+@Epic("Match Controller")
 @WebMvcTest(value = {MatchController.class},
     excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = WebSecurityConfigurer.class),
     excludeAutoConfiguration = SecurityConfiguration.class)
 class MatchControllerTest {
-    
+
     @MockitoBean
     MatchService matchService;
     @MockitoBean
@@ -86,6 +85,7 @@ class MatchControllerTest {
     }
 
     @Test
+    @Feature("HU-05: Control de turnos (jugador)")
     @DisplayName("Should return the match with the provided id")
     @Description("Test that if the match with the id as parameter is requested and exists, OK is returned")
     @Owner("josbardel1(WHS7046)")
@@ -104,6 +104,7 @@ class MatchControllerTest {
     }
 
     @Test
+    @Feature("HU-01: Unirse a una partida (jugador)")
     @DisplayName("Should return the not ended match with the provided code")
     @Description("Test that if a not started match with the code as parameter is requested and exists, OK is returned")
     @Owner("josbardel1(WHS7046)")
@@ -122,6 +123,7 @@ class MatchControllerTest {
     }
 
     @Test
+    @Feature("HU-13: Crear partida privada (jugador)")
     @DisplayName("Should not create match if exception thrown")
     @Description("Test that if an exception is thrown when creating a match, FORBIDDEN is returned")
     @Owner("josbardel1(WHS7046)")
@@ -143,6 +145,7 @@ class MatchControllerTest {
     }
 
     @Test
+    @Feature("HU-13: Crear partida privada (jugador)")
     @DisplayName("Should create match and set player to currently in a match")
     @Description("Test that if a player creates a match, CREATED is returned and isCurrentlyInMatch is set to true for the creator")
     @Owner("josbardel1(WHS7046)")
@@ -167,6 +170,7 @@ class MatchControllerTest {
     }
 
     @Test
+    @Feature("HU-01: Unirse a una partida (jugador)")
     @DisplayName("Should not join match if exception thrown")
     @Description("Test that if an exception is thrown when joining a match, FORBIDDEN is returned")
     @Owner("josbardel1(WHS7046)")
@@ -188,6 +192,7 @@ class MatchControllerTest {
     }
 
     @Test
+    @Feature("HU-01: Unirse a una partida (jugador)")
     @DisplayName("Should join match and set player to currently in a match")
     @Description("Test that if a player joins a match, OK is returned and isCurrentlyInMatch is set to true for that player")
     @Owner("josbardel1(WHS7046)")
@@ -214,6 +219,7 @@ class MatchControllerTest {
     }
 
     @Test
+    @Feature("HU-01: Unirse a una partida (jugador)")
     @DisplayName("Should return match if already in the match")
     @Description("Test that if a player already in a match attempts to join that match, OK is returned")
     @Owner("josbardel1(WHS7046)")
@@ -239,6 +245,7 @@ class MatchControllerTest {
     }
 
     @Test
+    @Feature("HU-10: Abandonar partida (jugador)")
     @DisplayName("Should not leave match if exception thrown")
     @Description("Test that if an exception is thrown when leaving a match, FORBIDDEN is returned")
     @Owner("josbardel1(WHS7046)")
@@ -266,6 +273,7 @@ class MatchControllerTest {
     }
 
     @Test
+    @Feature("HU-10: Abandonar partida (jugador)")
     @DisplayName("Should leave match and set player to not currently in a match")
     @Description("Test that if a player leaves a match, NO_CONTENT is returned and isCurrentlyInMatch is set to false for that player")
     @Owner("josbardel1(WHS7046)")
@@ -294,6 +302,7 @@ class MatchControllerTest {
     }
 
     @Test
+    @Feature("HU-10: Abandonar partida (jugador)")
     @DisplayName("Should leave match and set player to not currently in a match")
     @Description("Test that if a player leaves a match, NO_CONTENT is returned and isCurrentlyInMatch is set to false for that player")
     @Owner("josbardel1(WHS7046)")
@@ -311,13 +320,14 @@ class MatchControllerTest {
         mvc.perform(put(BASE_URL + "/{id}/leave", id)
             .with(csrf()))
             .andExpect(status().isNoContent());
-        
+
         verify(matchService, times(1)).leaveMatch(match, playerToLeave);
         verify(playerService, times(1)).setIsCurrentlyInMatch(playerToLeave, false);
         verify(webSocketMatchService, times(1)).broadcastLobbyClosed(id);
     }
 
     @Test
+    @Feature("HU-13: Crear partida privada (jugador)")
     @DisplayName("Should not start match if exception thrown")
     @Description("Test that if an exception is thrown when leaving a match, FORBIDDEN is returned")
     @Owner("josbardel1(WHS7046)")
@@ -342,6 +352,7 @@ class MatchControllerTest {
     }
 
     @Test
+    @Feature("HU-13: Crear partida privada (jugador)")
     @DisplayName("Should not start match only if non-creator requested")
     @Description("Test that if a non-creator attempts to start the match, FORBIDDEN is returned")
     @Owner("josbardel1(WHS7046)")
@@ -359,12 +370,13 @@ class MatchControllerTest {
         mvc.perform(put(BASE_URL + "/{id}/start", id)
             .with(csrf()))
             .andExpect(status().isForbidden());
-        
+
         verify(matchService, never()).startMatch(any());
         verify(webSocketMatchService, never()).broadcastLobbyAndMatchState(any());
     }
 
     @Test
+    @Feature("HU-13: Crear partida privada (jugador)")
     @DisplayName("Should start match if creator requested")
     @Description("Test that if the creator attempts to start the match, the match starts and OK is returned")
     @Owner("josbardel1(WHS7046)")
@@ -384,11 +396,12 @@ class MatchControllerTest {
         mvc.perform(put(BASE_URL + "/{id}/start", id)
             .with(csrf()))
             .andExpect(status().isOk());
-        
+
         verify(webSocketMatchService, times(1)).broadcastLobbyAndMatchState(match);
     }
 
     @Test
+    @Feature("HU-13: Crear partida privada (jugador)")
     @DisplayName("Should return match if creator requested starting when already started")
     @Description("Test that if the creator attempts to start an already started match, OK is returned")
     @Owner("josbardel1(WHS7046)")
@@ -408,12 +421,13 @@ class MatchControllerTest {
         mvc.perform(put(BASE_URL + "/{id}/start", id)
             .with(csrf()))
             .andExpect(status().isOk());
-        
+
         verify(matchService, never()).startMatch(any());
         verify(webSocketMatchService, never()).broadcastLobbyAndMatchState(any());
     }
 
     @Test
+    @Feature("HU-14: Ver ganador al finalizar (jugador)")
     @DisplayName("Should not advance turn if not the player's propagation turn")
     @Description("Test that if a player attempts to advance the turn of a match with turnType propagation of the other player, FORBIDDEN is returned")
     @Owner("josbardel1(WHS7046)")
@@ -440,6 +454,7 @@ class MatchControllerTest {
     }
 
     @Test
+    @Feature("HU-14: Ver ganador al finalizar (jugador)")
     @DisplayName("Should not advance turn if exception thrown")
     @Description("Test that if an exception is thrown when advancing turn, FORBIDDEN is returned")
     @Owner("josbardel1(WHS7046)")
@@ -466,6 +481,7 @@ class MatchControllerTest {
     }
 
     @Test
+    @Feature("HU-14: Ver ganador al finalizar (jugador)")
     @DisplayName("Should advance turn if appropriate player")
     @Description("Test that if turnType is the propagation of the requesting player, the turn advances and OK is returned")
     @Owner("josbardel1(WHS7046)")
@@ -494,6 +510,7 @@ class MatchControllerTest {
     }
 
     @Test
+    @Feature("HU-14: Ver ganador al finalizar (jugador)")
     @DisplayName("Should set players not in a match after it ends")
     @Description("Test that if a valid turn advance results in the end of the match, the turn advances, isCurrentlyInMatch is set to false for both players and OK is returned")
     @Owner("josbardel1(WHS7046)")
@@ -526,6 +543,7 @@ class MatchControllerTest {
     }
 
     @Test
+    @Feature("HU-04: Validación de movimientos (jugador)")
     @DisplayName("Should return propagation errors")
     @Description("Test that when propagation errors are requested, OK is returned")
     @Owner("josbardel1(WHS7046)")
@@ -547,11 +565,12 @@ class MatchControllerTest {
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(newBoardState)))
             .andExpect(status().isOk());
-        
+
         verify(matchService, times(1)).checkErrors(match, newBoardState, player);
     }
 
     @Test
+    @Feature("HU-10: Abandonar partida (jugador)")
     @DisplayName("Should concede match for requesting player")
     @Description("Test that when a player requests to concede a match, it ends and OK is returned")
     @Owner("josbardel1(WHS7046)")
@@ -571,12 +590,13 @@ class MatchControllerTest {
             .with(csrf())
             .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk());
-        
+
         verify(playerService, times(2)).setIsCurrentlyInMatch(any(), eq(false));
         verify(webSocketMatchService, times(1)).broadcastMatchEnded(match);
     }
 
     @Test
+    @Feature("Delete Game")
     @DisplayName("Should delete match for requesting admin")
     @Description("Test that when an administrator requests to delete a match, it is deleted and NO_CONTENT is returned")
     @Owner("josbardel1(WHS7046)")
@@ -593,7 +613,7 @@ class MatchControllerTest {
             .with(csrf())
             .contentType(MediaType.APPLICATION_JSON))
             .andExpect(status().isNoContent());
-        
+
         verify(matchService, times(1)).delete(id);
         verify(playerService, times(2)).setIsCurrentlyInMatch(any(), eq(false));
         verify(webSocketMatchService, times(1)).broadcastLobbyClosed(id);

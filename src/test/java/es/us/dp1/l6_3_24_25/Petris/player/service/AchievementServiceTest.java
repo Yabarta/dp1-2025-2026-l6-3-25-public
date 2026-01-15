@@ -55,7 +55,7 @@ class AchievementServiceTest {
     private StatisticsService statisticsService;
 
     @Test
-    @Feature("Achievement getters")
+    @Feature("HU-27: Ver logros (jugador)")
     @DisplayName("Get all achievements")
     @Description("This method received all the game's achievements")
     @Severity(SeverityLevel.NORMAL)
@@ -67,7 +67,7 @@ class AchievementServiceTest {
     }
 
     @Test
-    @Feature("Achievement getters")
+    @Feature("HU-27: Ver logros (jugador)")
     @DisplayName("Get achievement by ID")
     @Description("This method receive an achievement by a correct id")
     @Severity(SeverityLevel.NORMAL)
@@ -80,7 +80,7 @@ class AchievementServiceTest {
     }
 
     @Test
-    @Feature("Achievement getters")
+    @Feature("HU-27: Ver logros (jugador)")
     @DisplayName("Get achievement by wrong ID")
     @Description("This method receive an achievement by a wrong id")
     @Severity(SeverityLevel.NORMAL)
@@ -92,7 +92,7 @@ class AchievementServiceTest {
     }
 
     @Test
-    @Feature("Achievement getters")
+    @Feature("HU-27: Ver logros (jugador)")
     @DisplayName("Get achivement by name")
     @Description("This method check if the system can recieve an achievement found by name")
     @Severity(SeverityLevel.NORMAL)
@@ -105,7 +105,7 @@ class AchievementServiceTest {
     }
 
     @Test
-    @Feature("Achievement getters")
+    @Feature("HU-27: Ver logros (jugador)")
     @DisplayName("Get achivement by a wrong name")
     @Description("This method check if the system can managed a not existing achievemnt by a name")
     @Severity(SeverityLevel.NORMAL)
@@ -117,7 +117,7 @@ class AchievementServiceTest {
     }
 
     @Test
-    @Feature("Save achievement")
+    @Feature("HU-32: Definir nuevos logros (administrador)")
     @DisplayName("Save a new achievement")
     @Description("This method check if the system can save a new achievement")
     @Severity(SeverityLevel.CRITICAL)
@@ -148,7 +148,7 @@ class AchievementServiceTest {
     }
 
     @Test
-    @Feature("Delete achievement")
+    @Feature("HU-34: Eliminar logros (administrador)")
     @DisplayName("Delete an achievement")
     @Description("This method check if the system can delete an achievement")
     @Severity(SeverityLevel.CRITICAL)
@@ -163,7 +163,7 @@ class AchievementServiceTest {
     }
 
     @Test
-    @Feature("Delete achievement")
+    @Feature("HU-34: Eliminar logros (administrador)")
     @DisplayName("Delete an achievement not found")
     @Description("This method check if the system can manage the deletion of a not existing achievement")
     @Severity(SeverityLevel.CRITICAL)
@@ -175,7 +175,7 @@ class AchievementServiceTest {
     }
 
     @Test
-    @Feature("Delete achievement")
+    @Feature("HU-34: Eliminar logros (administrador)")
     @DisplayName("Delete achievement removes it from players")
     @Description("deleteAchievement should remove the achievement from each player and delete it")
     @Severity(SeverityLevel.CRITICAL)
@@ -208,7 +208,7 @@ class AchievementServiceTest {
     }
 
     @Test
-    @Feature("Achievement management")
+    @Feature("HU-32: Definir nuevos logros (administrador)")
     @DisplayName("Create achievement with image uploads file")
     @Description("createAchievementWithImage should store file on disk and persist path")
     @Severity(SeverityLevel.CRITICAL)
@@ -229,7 +229,7 @@ class AchievementServiceTest {
     }
 
     @Test
-    @Feature("Achievement management")
+    @Feature("HU-32: Definir nuevos logros (administrador)")
     @DisplayName("Create achievement creates uploads directory when missing")
     @Description("saveUploadedFile should create uploads folder if it does not exist")
     @Severity(SeverityLevel.NORMAL)
@@ -267,7 +267,7 @@ class AchievementServiceTest {
     }
 
     @Test
-    @Feature("Achievement management")
+    @Feature("HU-33: Editar logros (administrador))")
     @DisplayName("Update achievement replaces image and deletes old")
     @Description("updateAchievementWithImage should delete previous image and save new one")
     @Severity(SeverityLevel.CRITICAL)
@@ -303,7 +303,7 @@ class AchievementServiceTest {
     }
 
     @Test
-    @Feature("Achievement management")
+    @Feature("HU-33: Editar logros (administrador))")
     @DisplayName("Update achievement without image keeps current image")
     @Description("updateAchievementWithImage should preserve image when no file provided")
     @Severity(SeverityLevel.NORMAL)
@@ -326,7 +326,7 @@ class AchievementServiceTest {
     }
 
     @Test
-    @Feature("Achievement management")
+    @Feature("HU-33: Editar logros (administrador))")
     @DisplayName("Update achievement throws when id not found")
     @Description("updateAchievementWithImage should raise ResourceNotFoundException for missing achievement")
     @Severity(SeverityLevel.NORMAL)
@@ -339,7 +339,7 @@ class AchievementServiceTest {
     }
 
     @Test
-    @Feature("Achievement management")
+    @Feature("HU-34: Eliminar logros (administrador)")
     @DisplayName("Delete achievement throws when id not found")
     @Description("deleteAchievement should raise ResourceNotFoundException when the achievement does not exist")
     @Severity(SeverityLevel.NORMAL)
@@ -349,7 +349,7 @@ class AchievementServiceTest {
     }
 
     @Test
-    @Feature("Achievement management")
+    @Feature("HU-32: Definir nuevos logros (administrador)")
     @DisplayName("Create achievement with image failure surfaces runtime exception")
     @Description("createAchievementWithImage should wrap IO issues into RuntimeException")
     @Severity(SeverityLevel.CRITICAL)
@@ -367,7 +367,7 @@ class AchievementServiceTest {
     }
 
     @Test
-    @Feature("Achievement management")
+    @Feature("HU-32: Definir nuevos logros (administrador)")
     @DisplayName("Update achievement with image failure surfaces runtime exception")
     @Description("updateAchievementWithImage should wrap IO issues into RuntimeException")
     @Severity(SeverityLevel.CRITICAL)

@@ -19,9 +19,9 @@ import io.qameta.allure.Feature;
 import io.qameta.allure.Owner;
 import io.qameta.allure.Story;
 
-@Epic("Match module")
-@Feature("Lobby DTO")
+@Epic("Lobby module")
 @SpringBootTest
+@Feature("Lobby DTO")
 @DisplayName("LobbyDTO Tests")
 class LobbyDTOTest {
 
@@ -132,6 +132,7 @@ class LobbyDTOTest {
     }
 
     @Test
+    @Feature("HU-11")
     @DisplayName("Should handle null creator")
     @Description("Test that null creator is handled correctly")
     @Story("Handle null creator")

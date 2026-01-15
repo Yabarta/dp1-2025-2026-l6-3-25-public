@@ -25,7 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = StatisticsController.class)
-@Feature("Statistics Controller Tests")
+@Epic("Statistics Controller")
 class StatisticsControllerTest {
 
     private final static String BASE_URL = "/api/v1/statistics";
@@ -72,7 +72,7 @@ class StatisticsControllerTest {
 
 
     @Test
-    @Feature("Statistics getters")
+    @Feature("HU-26: Ver estadísticas personales (jugador)")
     @DisplayName("Get all statistics")
     @Description("This method retrieves all player statistics")
     @Severity(SeverityLevel.NORMAL)
@@ -90,7 +90,7 @@ class StatisticsControllerTest {
     }
 
     @Test
-    @Feature("Statistics getters")
+    @Feature("HU-26: Ver estadísticas personales (jugador)")
     @DisplayName("Get global statistics array")
     @Description("This method retrieves the global statistics array")
     @Severity(SeverityLevel.NORMAL)
@@ -110,7 +110,7 @@ class StatisticsControllerTest {
     }
 
     @Test
-    @Feature("Statistics getters")
+    @Feature("HU-26: Ver estadísticas personales (jugador)")
     @DisplayName("Get statistics by ID")
     @Description("This method retrieves statistics by ID")
     @Severity(SeverityLevel.NORMAL)
@@ -128,7 +128,7 @@ class StatisticsControllerTest {
     }
 
     @Test
-    @Feature("Statistics getters")
+    @Feature("HU-26: Ver estadísticas personales (jugador)")
     @DisplayName("Get statistics by invalid ID")
     @Description("This method verifies the behavior when an invalid ID is provided")
     @Severity(SeverityLevel.CRITICAL)
@@ -146,7 +146,7 @@ class StatisticsControllerTest {
     }
 
     @ParameterizedTest
-    @Feature("Statistics getters")
+    @Feature("HU-26: Ver estadísticas personales (jugador)")
     @DisplayName("Get statistics distribution")
     @Description("This method retrieves the statistics distribution for a given field")
     @Severity(SeverityLevel.NORMAL)
@@ -172,7 +172,7 @@ class StatisticsControllerTest {
     }
 
     @Test
-    @Feature("Statistics getters")
+    @Feature("HU-26: Ver estadísticas personales (jugador)")
     @DisplayName("Get statistics distribution with invalid field")
     @Description("This method verifies the behavior when an invalid field name is provided")
     @Severity(SeverityLevel.CRITICAL)
