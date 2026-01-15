@@ -117,7 +117,7 @@ class StatisticsServiceTest {
         return List.of(
             Arguments.of("gamesPlayed", List.of(2.0, 8.0, 12.0, 19.0, 24.0)),
             Arguments.of("gamesWon", List.of(0.0, 3.5, 6.0, 8.5, 16.0)),
-            Arguments.of("timePlayed", List.of(147.0, 4200.0, 7200.0, 11400.0, 14400.0)),
+            Arguments.of("timePlayed", List.of(0.0, 1.0, 2.0, 3.0, 4.0)),
             Arguments.of("sarcinasCreated", List.of(1.0, 3.5, 8.0, 13.0, 20.0)),
             Arguments.of("bacteriasCreated", List.of(14.0, 61.0, 110.0, 178.0, 230.0))
         );

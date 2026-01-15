@@ -49,6 +49,20 @@ Las pruebas de integración se enfocarán en evaluar la interacción entre los d
 - **Jest**: Framework para pruebas unitarias en javascript.
 - **React-test**: Librería para la creación de pruebas unitarias de componentes React.
 
+#### Allure — generación y visualización
+
+- **Rutas de resultados:** `target/allure-results` (generadas por Maven al ejecutar las pruebas).
+- **Comandos útiles:**
+  - `mvn allure:report` — generar reporte Allure (si está configurado el plugin en `pom.xml`).
+  - `allure serve target/allure-results` — inicia un servidor temporal y abre la UI interactiva.
+  - `allure generate target/allure-results -o target/site/allure-report && allure open target/site/allure-report` — generar HTML y abrirlo en el navegador.
+- **Notas prácticas:**
+  - Tras ejecutar `mvn install` en este proyecto, los resultados de las pruebas suelen quedar en `target/allure-results`.
+  - Para entregar el informe en la asignatura, copia o genera el HTML y sitúalo en `/docs/deliverables/D3/status` (el fichero `index.html` ahí permite visualizar el estado agregado).
+  - En CI/CD: añadir pasos que ejecuten `mvn test` y luego `mvn allure:report` o `allure generate`, y publicar `target/site/allure-report` como artefacto o página.
+
+![alt text](ImagenesD3/allure100.png)
+
 ### 4.2 Entorno de Pruebas
 Las pruebas se ejecutarán en el entorno de desarrollo y, eventualmente, en el entorno de pruebas del servidor de integración continua.
 
