@@ -29,12 +29,6 @@ export default function Comparator (props) {
     const [opponent, setOpponent] = useState(null);
     const [opponentStats, setOpponentStats] = useState([0, 0, 0, 0, 0, 0])
     const [error, setError] = useState('');
-    const [globalStats, setGlobalStats] = useState({
-        totalGames: 0,
-        totalTime: 0,
-        totalSarcinas: 0,
-        totalPlayers: 0
-    });
 
     const [gamesDistribution, setGameDistribution] = useFetchState(
         [],
@@ -51,18 +45,6 @@ export default function Comparator (props) {
         setMessage,
         setVisible
     )
-
-    useEffect(() => {
-        const fetchGlobalStats = async () => {
-             setGlobalStats({
-                 totalGames: 75,
-                 totalTime: 52, // horas
-                 totalSarcinas: 97,
-                 totalPlayers: 11
-             });
-        };
-        fetchGlobalStats();
-    }, []);
 
     useEffect(() => {
         if (currentPlayer) fetchCurrentPlayerStats();
@@ -120,12 +102,12 @@ export default function Comparator (props) {
     const transformStatsToChartFormat = (stats) => {
         if (!stats) return [0, 0, 0, 0, 0, 0];
         return [
-            stats.bacteriasCreated || 0,
+            stats.bacteriasCreated / stats.gamesPlayed|| 0,
             stats.gamesPlayed || 0,
             stats.gamesWon || 0,
             (stats.gamesPlayed || 0) - (stats.gamesWon || 0),
             stats.sarcinasCreated || 0,
-            (stats.timePlayed || 0) / 60 
+            (stats.timePlayed || 0) / 60 / 60
         ];
     };
 
@@ -180,10 +162,10 @@ export default function Comparator (props) {
                     {/* Gráfico de Caja 2: Sarcinas */}
                 <div className="glass-card" style={{ padding: '20px' }}>
                     <ChartBoxPlot 
-                        title="Tiempo de juego"
-                        yAxisTitle="Tiempo por persona"
+                        title="Tiempo de juego (h)"
+                        yAxisTitle="Tiempo por persona (h)"
                         dataDistribution={timePlayedDistribution}
-                        userValue={currentPlayerStats?.timePlayed || 0}
+                        userValue={Math.round((((currentPlayerStats?.timePlayed ?? 0) / 60) / 60) * 100) / 100}
                     />
                 </div>
 

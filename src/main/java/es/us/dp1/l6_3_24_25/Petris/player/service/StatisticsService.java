@@ -60,7 +60,7 @@ public class StatisticsService {
                 fieldValues = allStats.stream().map(Statistics::getGamesWon).toList();
                 break;
             case "timePlayed":
-                fieldValues = allStats.stream().map(Statistics::getTimePlayed).toList();
+                fieldValues = allStats.stream().map(stat -> stat.getTimePlayed() / 3600).toList();
                 break;
             case "sarcinasCreated":
                 fieldValues = allStats.stream().map(Statistics::getSarcinasCreated).toList();
