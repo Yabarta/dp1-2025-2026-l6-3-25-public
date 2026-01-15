@@ -65,8 +65,6 @@ public class AchievementController {
         return achievement;
     }
 
-    // TODO: Add GET method by name
-
     @Operation(
         summary = "Create a new achievement",
         tags = { "achievements", "create" }

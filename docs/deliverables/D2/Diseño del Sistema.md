@@ -2920,3 +2920,11 @@ Ha sido realizado completamente en frontend. Se han hecho los componentes React 
 - Documentación de HighCharts: 
     - https://www.highcharts.com/demo/highcharts/polar
     - https://www.highcharts.com/demo/highcharts/box-plot
+
+### SonarCloud con Github Actions
+#### Resumen
+Lo ha realizado Pablo Pérez Sorni. Se ha creado un fork para obtener un repositorio público que la versión gratuita de SonarCloud pueda analizar y se ha sincronizado el repositorio privado con el repositorio público para que los cambios se copien y se analicen en el momento correcto.
+#### Como se ha implementado
+Se ha implementado en `.github\workflows\sonarcloud.yml` y `.github\workflows\sync.yml` donde se han puesto los datos necesarios para la sincronización con el repositorio público y que este permita que SonarCloud lo analice.
+#### Fuentes
+- Documentación de SonarCloud: https://sonarcloud.io/project/configuration/GitHubActions?id=Yabarta_dp1-2025-2026-l6-3-25-public
