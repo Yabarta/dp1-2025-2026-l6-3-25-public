@@ -48,15 +48,6 @@ public class AuthService {
 			role = authoritiesService.findByAuthority("PLAYER");
 			user.setAuthority(role);
 			userService.saveUser(user);
-			/*Player player = new Player();
-			player.setFirstName(request.getFirstName());
-			player.setLastName(request.getLastName());
-			player.setAddress(request.getAddress());
-			player.setCity(request.getCity());
-			player.setTelephone(request.getTelephone());
-			player.setUser(user);
-			playerService.savePlayer(player);
-			*/
 		}
 	}
 
