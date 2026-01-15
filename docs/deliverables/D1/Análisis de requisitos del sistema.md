@@ -215,7 +215,7 @@ A continuación se definen  todas las historias de usuario a implementar:
     - Como jugador quiero poder ver el perfil de otro jugador para poder ver sus estadísticas.
     - _Se requiere mostrar de alguna manera el perfil de otro jugador para mostrar sus estadísticas y así identificar mejor a jugadores, socializar mediante el código de amistad o simplemente entretenerse._
 ### Ver perfil de otro jugador (jugador)
-![TO DO](ImagenesD1/m26.png)
+![alt text](ImagenesD1/m24.png)
 
 - ## HU-29 (ISSUE#149): **Ver ranking de jugadores (jugador)** https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/149
     - Como jugador quiero ver el ranking de jugadores para poder ver quienes son los mejores.

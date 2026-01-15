@@ -52,11 +52,6 @@ export default function Comparator (props) {
         setVisible
     )
 
-    const boxPlotData = {
-        games: [5, 12, 25, 50, 120],  // Distribución de partidas
-        sarcinas: [0, 20, 55, 100, 300] // Distribución de sarcinas
-    };
-
     useEffect(() => {
         const fetchGlobalStats = async () => {
              setGlobalStats({
