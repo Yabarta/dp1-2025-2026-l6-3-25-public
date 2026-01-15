@@ -2894,6 +2894,23 @@ Lo ha realizado David Lozano Acosta implementando un chat de texto para las part
 Se ha realizado en backend con el modelo `ChatMessage` y el controlador `ChatController`. Para el frontend se ha creado el componente `Chat`, donde se ha usado las librerias `sockjs-client` y `stompjs` para poder conectarse al chat y enviar los mensajes
 #### Fuentes
 - Video de youtube: https://www.youtube.com/watch?v=ODGuq0XqG9A&t=347s
+
+### WebSocket para actualización de friends en ventanas distintas
+#### Resumen
+Lo ha realizado José Antonio Aguadero García implementando un envío de mensaje a un canal a la hora de que haya una actualización relacionado con amistades.
+#### Como se ha implementado
+Se ha realizado en backend con el controlador `WebSocketFriends`. Para el frontend ha modificado el componente `FriendSideBar`, donde se ha usado las librerias `sockjs-client` y `stompjs` para poder conectarse al canal de amistades y enviar los avisos de actualización.
+#### Fuentes
+- Video de youtube: https://www.youtube.com/watch?v=ODGuq0XqG9A&t=347s
+
+### WebSocket para invitaciones a partidas
+#### Resumen
+Lo ha realizado José Antonio Aguadero García implementando un envío de mensaje a un canal exclusivo de cada player, para que reciba la información necesaria para unirse a una partida en la que estes.
+#### Como se ha implementado
+Se ha realizado en backend con el controlador `WebSocketInvitation`. Para el frontend ha modificado el componente `FriendSideBar`, donde se ha usado las librerias `sockjs-client` y `stompjs` para poder conectarse al canal del jugador donde recibe los mensajes hacia su persona y enviar las invitaciones a partida.
+#### Fuentes
+- Video de youtube: https://www.youtube.com/watch?v=ODGuq0XqG9A&t=347s
+
 ### HighCharts para estadísticas
 #### Resumen
 Lo ha realizado David Lozano Acosta. Se ha creado una pantalla donde se pueden ver dos diagramas de cajas para comparar las estadísticas del usuario loggeado con las estadísticas globales de partidas jugadas y tiempo jugado. Luego, mediante un diagrama polar se ha creado un comparador visual, donde se puede comparar las estadísticas del usuario loggeado con otras de cualquier usuario
