@@ -1,9 +1,6 @@
 package es.us.dp1.l6_3_24_25.Petris.player.service;
 
 import java.util.*;
-import java.util.stream.IntStream;
-
-import es.us.dp1.l6_3_24_25.Petris.exceptions.ResourceNotFoundException;
 
 import es.us.dp1.l6_3_24_25.Petris.player.model.PlayerRanking;
 import org.springframework.beans.factory.annotation.Autowired;

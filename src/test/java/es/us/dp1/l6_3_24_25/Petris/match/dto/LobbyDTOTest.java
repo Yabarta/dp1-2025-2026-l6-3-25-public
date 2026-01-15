@@ -3,7 +3,6 @@ package es.us.dp1.l6_3_24_25.Petris.match.dto;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

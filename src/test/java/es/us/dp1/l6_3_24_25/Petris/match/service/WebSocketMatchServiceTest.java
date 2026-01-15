@@ -36,7 +36,7 @@ class WebSocketMatchServiceTest {
     private MatchRepository matchRepository;
 
     @Mock
-    private MatchService matchService; // unused in service but required by ctor
+    private MatchService matchService; 
 
     private WebSocketMatchService buildServiceWithTemplate(SimpMessagingTemplate template) {
         ObjectProvider<SimpMessagingTemplate> provider = new ObjectProvider<>() {

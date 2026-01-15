@@ -6,8 +6,6 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
 
-import es.us.dp1.l6_3_24_25.Petris.match.model.Match;
-
 @Controller
 public class WebSocketInvitation {
 

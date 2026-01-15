@@ -1,6 +1,5 @@
 package es.us.dp1.l6_3_24_25.Petris.player.controller;
 
-import java.io.InputStream;
 import java.time.LocalDateTime;
 
 import io.qameta.allure.Issue;
@@ -8,19 +7,14 @@ import io.qameta.allure.Owner;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.MockedStatic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -42,10 +36,6 @@ import io.qameta.allure.Feature;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import static org.mockito.Mockito.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.UUID;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 
 @Epic("Player Controller Module")
 @WithMockUser(username = "player", roles = {"PLAYER"})
