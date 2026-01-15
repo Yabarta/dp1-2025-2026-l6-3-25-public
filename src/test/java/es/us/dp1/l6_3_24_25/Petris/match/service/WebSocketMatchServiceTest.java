@@ -7,9 +7,14 @@ import es.us.dp1.l6_3_24_25.Petris.match.model.PetriDish;
 import es.us.dp1.l6_3_24_25.Petris.match.repository.MatchRepository;
 import es.us.dp1.l6_3_24_25.Petris.player.model.Player;
 import es.us.dp1.l6_3_24_25.Petris.user.User;
+import io.qameta.allure.Description;
 import io.qameta.allure.Epic;
 import io.qameta.allure.Feature;
 import io.qameta.allure.Owner;
+import io.qameta.allure.Severity;
+import io.qameta.allure.SeverityLevel;
+import io.qameta.allure.Story;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -22,10 +27,12 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
-@Epic("Match Service")
-@Owner("DiegoVicenteCamara(RXW1249)")
+@Epic("Match WebSocket")
+@Feature("WebSocketMatchService publishing")
 @ExtendWith(MockitoExtension.class)
 class WebSocketMatchServiceTest {
 
@@ -80,6 +87,11 @@ class WebSocketMatchServiceTest {
     }
 
     @Test
+    @Story("Lobby snapshot publishing")
+    @Severity(SeverityLevel.CRITICAL)
+    @DisplayName("publishLobbySnapshot envía DTO al topic de lobby")
+    @Description("Verifies that publishLobbySnapshot publishes the LobbyDTO to /topic/lobby/{id} when a template is available.")
+    @Owner("DiegoVicenteCamara(RXW1249)")
     @Feature("HU-01: Unirse a una partida (jugador)")
     void publishLobbySnapshot_sendsWhenTemplatePresent() {
         WebSocketMatchService service = buildServiceWithTemplate(messagingTemplate);
@@ -93,6 +105,11 @@ class WebSocketMatchServiceTest {
     }
 
     @Test
+    @Story("Match snapshot publishing")
+    @Severity(SeverityLevel.CRITICAL)
+    @DisplayName("publishMatchSnapshot envía DTO al topic de match")
+    @Description("Verifies that publishMatchSnapshot publishes the MatchDTO to /topic/match/{id} when a template is available.")
+    @Owner("DiegoVicenteCamara(RXW1249)")
     @Feature("HU-01: Unirse a una partida (jugador)")
     void publishMatchSnapshot_sendsWhenTemplatePresent() {
         WebSocketMatchService service = buildServiceWithTemplate(messagingTemplate);
@@ -106,6 +123,11 @@ class WebSocketMatchServiceTest {
     }
 
     @Test
+    @Story("Lobby list publishing")
+    @Severity(SeverityLevel.NORMAL)
+    @DisplayName("publishLobbyList publica listado desde el repositorio")
+    @Description("Verifies that publishLobbyList sends the list of pending lobbies to /topic/lobbies.")
+    @Owner("DiegoVicenteCamara(RXW1249)")
     @Feature("HU-11: Listado de partidas en curso (administrador)")
     void publishLobbyList_sendsListFromRepo() {
         WebSocketMatchService service = buildServiceWithTemplate(messagingTemplate);
@@ -121,6 +143,11 @@ class WebSocketMatchServiceTest {
     }
 
     @Test
+    @Story("Lobby closed publishing")
+    @Severity(SeverityLevel.MINOR)
+    @DisplayName("publishLobbyClosed ignora template o id nulos")
+    @Description("Verifies that publishLobbyClosed is a no-op when the template or matchId is null.")
+    @Owner("DiegoVicenteCamara(RXW1249)")
     @Feature("HU-11: Listado de partidas en curso (administrador)")
     void publishLobbyClosed_ignoresNullTemplateOrId() {
         WebSocketMatchService withoutTemplate = buildServiceWithTemplate(null);
@@ -133,6 +160,11 @@ class WebSocketMatchServiceTest {
     }
 
     @Test
+    @Story("Broadcast helpers")
+    @Severity(SeverityLevel.NORMAL)
+    @DisplayName("broadcast helpers llaman a los publish correctos")
+    @Description("Verifies that broadcast helper methods invoke the expected publish methods.")
+    @Owner("DiegoVicenteCamara(RXW1249)")
     void broadcastHelpers_callExpectedPublishes() {
         WebSocketMatchService service = spy(buildServiceWithTemplate(messagingTemplate));
         Match match = sampleMatch();

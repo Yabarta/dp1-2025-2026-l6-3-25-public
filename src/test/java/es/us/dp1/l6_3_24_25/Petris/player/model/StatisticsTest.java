@@ -1,14 +1,28 @@
 package es.us.dp1.l6_3_24_25.Petris.player.model;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import io.qameta.allure.Description;
+import io.qameta.allure.Epic;
+import io.qameta.allure.Feature;
 import io.qameta.allure.Owner;
+import io.qameta.allure.Severity;
+import io.qameta.allure.SeverityLevel;
+import io.qameta.allure.Story;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@Owner("DiegoVicenteCamara(RXW1249)")
+
+@Epic("Statistics model")
+@Feature("Statistics computed fields")
 class StatisticsTest {
 
     @Test
+    @Owner("DiegoVicenteCamara(RXW1249)")
+    @Story("Score")
+    @Severity(SeverityLevel.NORMAL)
+    @DisplayName("getScore returns null when gamesPlayed < 10")
+    @Description("Verifies that getScore returns null when the player has fewer than 10 games played")
     void getScore_returnsNullWhenLessThanTenGames() {
         Statistics stats = Statistics.builder()
             .gamesPlayed(9)
@@ -22,6 +36,11 @@ class StatisticsTest {
     }
 
     @Test
+    @Owner("DiegoVicenteCamara(RXW1249)")
+    @Story("Score")
+    @Severity(SeverityLevel.NORMAL)
+    @DisplayName("getScore computes expected value when gamesPlayed >= 10")
+    @Description("Verifies that getScore computes the expected formula when the player has enough games played")
     void getScore_computesWhenEnoughGames() {
         Statistics stats = Statistics.builder()
             .gamesPlayed(20)
@@ -36,6 +55,11 @@ class StatisticsTest {
     }
 
     @Test
+    @Owner("DiegoVicenteCamara(RXW1249)")
+    @Story("Dynamic statistic access")
+    @Severity(SeverityLevel.NORMAL)
+    @DisplayName("getStatisticByName returns expected values")
+    @Description("Verifies that getStatisticByName returns the correct value for supported statistic keys")
     void getStatisticByName_returnsValues() {
         Statistics stats = Statistics.builder()
             .gamesPlayed(11)
@@ -53,6 +77,11 @@ class StatisticsTest {
     }
 
     @Test
+    @Owner("DiegoVicenteCamara(RXW1249)")
+    @Story("Dynamic statistic access")
+    @Severity(SeverityLevel.NORMAL)
+    @DisplayName("getStatisticByName returns null for unknown keys")
+    @Description("Verifies that getStatisticByName returns null when an unsupported statistic key is provided")
     void getStatisticByName_unknownReturnsNull() {
         Statistics stats = Statistics.builder()
             .gamesPlayed(1)

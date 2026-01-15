@@ -57,7 +57,7 @@ class AchievementServiceTest {
     @DisplayName("Get all achievements")
     @Description("This method received all the game's achievements")
     @Severity(SeverityLevel.NORMAL)
-    @Owner("DiegoVicenteCamara(RXW1249)")
+    @Owner("dlozaco(FBN5868)")
     @Issue("https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/107")
     void testGetAllAchievements() {
         List<Achievement> achievementList = achievementService.getAllAchievements();
@@ -69,7 +69,7 @@ class AchievementServiceTest {
     @DisplayName("Get achievement by ID")
     @Description("This method receive an achievement by a correct id")
     @Severity(SeverityLevel.NORMAL)
-    @Owner("DiegoVicenteCamara(RXW1249)")
+    @Owner("dlozaco(FBN5868)")
     @Issue("https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/107")
     void testGetAchievementByCorrectId() {
         Integer id = 1;
@@ -82,7 +82,7 @@ class AchievementServiceTest {
     @DisplayName("Get achievement by wrong ID")
     @Description("This method receive an achievement by a wrong id")
     @Severity(SeverityLevel.NORMAL)
-    @Owner("DiegoVicenteCamara(RXW1249)")
+    @Owner("dlozaco(FBN5868)")
     @Issue("https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/107")
     void testGetAchievementByWrongId() {
         Integer id = 689;
@@ -94,7 +94,7 @@ class AchievementServiceTest {
     @DisplayName("Get achivement by name")
     @Description("This method check if the system can recieve an achievement found by name")
     @Severity(SeverityLevel.NORMAL)
-    @Owner("DiegoVicenteCamara(RXW1249)")
+    @Owner("dlozaco(FBN5868)")
     @Issue("https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/107")
     void testGetAchievementByName() {
         String name = "Creador de sarcinas";
@@ -107,7 +107,7 @@ class AchievementServiceTest {
     @DisplayName("Get achivement by a wrong name")
     @Description("This method check if the system can managed a not existing achievemnt by a name")
     @Severity(SeverityLevel.NORMAL)
-    @Owner("DiegoVicenteCamara(RXW1249)")
+    @Owner("dlozaco(FBN5868)")
     @Issue("https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/107")
     void testGetAchievementWrongByName() {
         String name = "Master";
@@ -119,7 +119,7 @@ class AchievementServiceTest {
     @DisplayName("Save a new achievement")
     @Description("This method check if the system can save a new achievement")
     @Severity(SeverityLevel.CRITICAL)
-    @Owner("DiegoVicenteCamara(RXW1249)")
+    @Owner("dlozaco(FBN5868)")
     @Issue("https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/107")
     @Transactional
     void testSaveAchievement() {
@@ -150,7 +150,7 @@ class AchievementServiceTest {
     @DisplayName("Delete an achievement")
     @Description("This method check if the system can delete an achievement")
     @Severity(SeverityLevel.CRITICAL)
-    @Owner("DiegoVicenteCamara(RXW1249)")
+    @Owner("dlozaco(FBN5868)")
     @Issue("https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/107")
     @Transactional
     void testDeleteAchievement() {
@@ -165,7 +165,7 @@ class AchievementServiceTest {
     @DisplayName("Delete an achievement not found")
     @Description("This method check if the system can manage the deletion of a not existing achievement")
     @Severity(SeverityLevel.CRITICAL)
-    @Owner("DiegoVicenteCamara(RXW1249)")
+    @Owner("dlozaco(FBN5868)")
     @Issue("https://github.com/gii-is-DP1/dp1-2025-2026-l6-3-25/issues/107")
     void testDeleteAchievementNotFound() {
         Integer id = 99;

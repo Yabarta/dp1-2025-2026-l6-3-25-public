@@ -35,7 +35,7 @@ public class PlayerServiceTests {
     @Transactional
     @Feature("HU-23: Listado de usuarios (administrador)")
     @DisplayName("getAllPlayers Test")
-    @Owner("DiegoVicenteCamara(RXW1249)")
+    @Owner("luggzz(KDR0901)")
     void shouldGetAllPlayers() {
         List<Player> players = this.playerService.getAllPlayers();
         assertEquals(10, players.size(), "Incorrect number of players");
@@ -48,7 +48,7 @@ public class PlayerServiceTests {
     @Feature("HU-28: Ver perfil de otro jugador (jugador)")
     @Transactional
     @DisplayName("getPlayerById Test")
-    @Owner("DiegoVicenteCamara(RXW1249)")
+    @Owner("luggzz(KDR0901)")
     void shouldGetPlayerById() {
         Player player = this.playerService.getPlayerById(1);
         assertEquals(1, player.getId(), "Incorrect id");
@@ -58,7 +58,7 @@ public class PlayerServiceTests {
     @Feature("HU-28: Ver perfil de otro jugador (jugador)")
     @Transactional
     @DisplayName("getPlayerById Test (Negative)")
-    @Owner("DiegoVicenteCamara(RXW1249)")
+    @Owner("luggzz(KDR0901)")
     void shouldNotGetPlayerByIncorrectId() {
         assertThrows(ResourceNotFoundException.class, () -> this.playerService.getPlayerById(1000));
     }
@@ -67,7 +67,7 @@ public class PlayerServiceTests {
     @Feature("HU-28: Ver perfil de otro jugador (jugador)")
     @Transactional
     @DisplayName("getPlayerByNickname Test")
-    @Owner("DiegoVicenteCamara(RXW1249)")
+    @Owner("luggzz(KDR0901)")
     void shouldGetPlayerByNickname() {
         Player player = this.playerService.getPlayerByNickname("player1");
         assertEquals("player1", player.getNickname(), "Incorrect nickname");
@@ -77,7 +77,7 @@ public class PlayerServiceTests {
     @Feature("HU-28: Ver perfil de otro jugador (jugador)")
     @Transactional
     @DisplayName("getPlayerByNickname Test (Negative)")
-    @Owner("DiegoVicenteCamara(RXW1249)")
+    @Owner("luggzz(KDR0901)")
     void shouldNotGetPlayerByIncorrectNickname() {
         assertThrows(ResourceNotFoundException.class, () -> this.playerService.getPlayerByNickname("nonExistentNickname"));
     }
@@ -86,7 +86,7 @@ public class PlayerServiceTests {
     @Feature("HU-28: Ver perfil de otro jugador (jugador)")
     @Transactional
     @DisplayName("getPlayerByUsername Test")
-    @Owner("DiegoVicenteCamara(RXW1249)")
+    @Owner("luggzz(KDR0901)")
     void shouldGetPlayerByUsername() {
         Player correctPlayer = this.playerService.getPlayerById(1);
         Player player = this.playerService.getPlayerByUsername("player1");
@@ -97,7 +97,7 @@ public class PlayerServiceTests {
     @Feature("HU-28: Ver perfil de otro jugador (jugador)")
     @Transactional
     @DisplayName("getPlayerByUsername Test (Negative)")
-    @Owner("DiegoVicenteCamara(RXW1249)")
+    @Owner("luggzz(KDR0901)")
     void shouldNotGetPlayerByIncorrectUsername() {
         assertThrows(ResourceNotFoundException.class, () -> this.playerService.getPlayerByUsername("nonExistentUsername"));
     }
@@ -106,7 +106,7 @@ public class PlayerServiceTests {
     @Feature("HU-28: Ver perfil de otro jugador (jugador)")
     @Transactional
     @DisplayName("getPlayerByUser Test")
-    @Owner("DiegoVicenteCamara(RXW1249)")
+    @Owner("luggzz(KDR0901)")
     void shouldGetPlayerByUser() {
         User user = this.userService.findUser(4);
         Player player = this.playerService.getPlayerByUser(user);
@@ -117,7 +117,7 @@ public class PlayerServiceTests {
     @Feature("HU-28: Ver perfil de otro jugador (jugador)")
     @Transactional
     @DisplayName("getPlayerByUser Test (Negative)")
-    @Owner("DiegoVicenteCamara(RXW1249)")
+    @Owner("luggzz(KDR0901)")
     void shouldNotGetPlayerWithIncorrectUser() {
         User user = this.userService.findUser(1);
         assertThrows(ResourceNotFoundException.class, () -> this.playerService.getPlayerByUser(user));
@@ -128,7 +128,7 @@ public class PlayerServiceTests {
     @Feature("HU-17: Registro de usuario (usuario)")
     @Transactional
     @DisplayName("Save Test")
-    @Owner("DiegoVicenteCamara(RXW1249)")
+    @Owner("luggzz(KDR0901)")
     void shouldSave() {
         Integer count = this.playerService.getAllPlayers().size();
 
@@ -155,7 +155,7 @@ public class PlayerServiceTests {
     @Feature("HU-25: Eliminar usuario (administrador)")
     @Transactional
     @DisplayName("Delete Test")
-    @Owner("DiegoVicenteCamara(RXW1249)")
+    @Owner("luggzz(KDR0901)")
     void shouldDelete() {
         Integer firstCount = this.playerService.getAllPlayers().size();
 

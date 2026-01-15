@@ -10,6 +10,7 @@ import es.us.dp1.l6_3_24_25.Petris.exceptions.ResourceNotFoundException;
 import io.qameta.allure.Description;
 import io.qameta.allure.Epic;
 import io.qameta.allure.Feature;
+import io.qameta.allure.Owner;
 import io.qameta.allure.Story;
 
 @Epic("Utility module")
@@ -22,6 +23,7 @@ class RestPreconditionsTest {
     @DisplayName("Should throw exception when resource is null")
     @Description("Test that ResourceNotFoundException is thrown when checking null resource")
     @Story("Check null resource")
+    @Owner("DiegoVicenteCamara(RXW1249)")
     void testCheckNotNull_ThrowsException() {
         assertThrows(ResourceNotFoundException.class, () -> {
             RestPreconditions.checkNotNull(null, "User", "id", 1);
@@ -32,6 +34,7 @@ class RestPreconditionsTest {
     @DisplayName("Should throw exception with correct details")
     @Description("Test that ResourceNotFoundException contains correct details about the resource")
     @Story("Exception contains details")
+    @Owner("DiegoVicenteCamara(RXW1249)")
     void testCheckNotNull_ExceptionDetails() {
         ResourceNotFoundException exception = assertThrows(ResourceNotFoundException.class, () -> {
             RestPreconditions.checkNotNull(null, "User", "username", "nonexistent");
@@ -45,6 +48,7 @@ class RestPreconditionsTest {
     @DisplayName("Should return resource when not null")
     @Description("Test that the resource is returned when it's not null")
     @Story("Return valid resource")
+    @Owner("DiegoVicenteCamara(RXW1249)")
     void testCheckNotNull_ReturnsResource() {
         String resource = "ValidResource";
         String result = RestPreconditions.checkNotNull(resource, "Resource", "type", "String");
@@ -57,6 +61,7 @@ class RestPreconditionsTest {
     @DisplayName("Should return different types of resources")
     @Description("Test that checkNotNull works with different object types")
     @Story("Support different types")
+    @Owner("DiegoVicenteCamara(RXW1249)")
     void testCheckNotNull_DifferentTypes() {
         Integer intResource = 42;
         Integer intResult = RestPreconditions.checkNotNull(intResource, "Integer", "value", 42);
@@ -75,6 +80,7 @@ class RestPreconditionsTest {
     @DisplayName("Should work with various resource names")
     @Description("Test that various resource names are handled correctly")
     @Story("Handle different resource names")
+    @Owner("DiegoVicenteCamara(RXW1249)")
     void testCheckNotNull_DifferentResourceNames() {
         String resource = "Test";
 
@@ -92,6 +98,7 @@ class RestPreconditionsTest {
     @DisplayName("Should handle null fieldValue in message")
     @Description("Test that null fieldValue is handled properly")
     @Story("Handle null field value")
+    @Owner("DiegoVicenteCamara(RXW1249)")
     void testCheckNotNull_NullFieldValue() {
         assertThrows(ResourceNotFoundException.class, () -> {
             RestPreconditions.checkNotNull(null, "Entity", "field", null);
@@ -102,6 +109,7 @@ class RestPreconditionsTest {
     @DisplayName("Should handle empty string resources")
     @Description("Test that empty strings are not treated as null")
     @Story("Handle empty strings")
+    @Owner("DiegoVicenteCamara(RXW1249)")
     void testCheckNotNull_EmptyString() {
         String emptyResource = "";
         String result = RestPreconditions.checkNotNull(emptyResource, "String", "value", "");
@@ -110,13 +118,5 @@ class RestPreconditionsTest {
         assertEquals("", result);
     }
 
-    @Test
-    @DisplayName("Should have private constructor")
-    @Description("Test that RestPreconditions has a private constructor")
-    @Story("Private constructor")
-    void testRestPreconditions_HasPrivateConstructor() {
-        // Verify the class cannot be instantiated directly
-        // Constructor is private by design
-        assertTrue(true);
-    }
+    
 }

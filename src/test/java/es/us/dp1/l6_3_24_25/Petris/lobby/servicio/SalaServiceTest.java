@@ -14,6 +14,7 @@ import es.us.dp1.l6_3_24_25.Petris.lobby.interfaz.Lobby;
 import io.qameta.allure.Description;
 import io.qameta.allure.Epic;
 import io.qameta.allure.Feature;
+import io.qameta.allure.Owner;
 import io.qameta.allure.Story;
 
 @Epic("Lobby module")
@@ -27,8 +28,7 @@ class SalaServiceTest {
 
     @BeforeEach
     void setUp() {
-        // Service is stateless, but lobbies are stored in a concurrent map
-        // We may need to clear state between tests if needed
+        
     }
 
     @Test
@@ -36,6 +36,7 @@ class SalaServiceTest {
     @DisplayName("Should create a new lobby with valid code")
     @Description("Test that a new lobby is created with a valid UUID-based code")
     @Story("Create lobby")
+    @Owner("DiegoVicenteCamara(RXW1249)")
     void testCreateLobby_Success() {
         Lobby lobby = salaService.createLobby();
 
@@ -50,6 +51,7 @@ class SalaServiceTest {
     @DisplayName("Should create lobbies with different codes")
     @Description("Test that consecutive lobby creations generate different codes")
     @Story("Create multiple lobbies")
+    @Owner("DiegoVicenteCamara(RXW1249)")
     void testCreateLobby_DifferentCodes() {
         Lobby lobby1 = salaService.createLobby();
         Lobby lobby2 = salaService.createLobby();
@@ -64,6 +66,7 @@ class SalaServiceTest {
     @DisplayName("Should add player to lobby")
     @Description("Test that a player can be added to an existing lobby")
     @Story("Add player to lobby")
+    @Owner("DiegoVicenteCamara(RXW1249)")
     void testAddPlayer_Success() {
         Lobby lobby = salaService.createLobby();
         String playerName = "Player1";
@@ -81,6 +84,7 @@ class SalaServiceTest {
     @DisplayName("Should add multiple players to same lobby")
     @Description("Test that multiple players can be added to the same lobby")
     @Story("Add multiple players")
+    @Owner("DiegoVicenteCamara(RXW1249)")
     void testAddPlayer_MultiplePlayers() {
         Lobby lobby = salaService.createLobby();
         String player1 = "Player1";
@@ -103,6 +107,7 @@ class SalaServiceTest {
     @DisplayName("Should return null when adding player to non-existent lobby")
     @Description("Test that adding player to non-existent lobby returns null")
     @Story("Add player to non-existent lobby")
+    @Owner("DiegoVicenteCamara(RXW1249)")
     void testAddPlayer_NonExistentLobby() {
         Lobby result = salaService.addPlayer("NONEXISTENT", "Player1");
 
@@ -114,8 +119,8 @@ class SalaServiceTest {
     @DisplayName("Should retrieve all lobbies")
     @Description("Test that all created lobbies can be retrieved")
     @Story("Get all lobbies")
+    @Owner("DiegoVicenteCamara(RXW1249)")
     void testGetAllLobbies_Success() {
-        // First, clear any existing lobbies by creating fresh service context
         Lobby lobby1 = salaService.createLobby();
         Lobby lobby2 = salaService.createLobby();
         Lobby lobby3 = salaService.createLobby();
@@ -135,9 +140,8 @@ class SalaServiceTest {
     @DisplayName("Should return empty list when no lobbies exist")
     @Description("Test that empty list is returned when no lobbies have been created")
     @Story("Get all lobbies - empty")
+    @Owner("DiegoVicenteCamara(RXW1249)")
     void testGetAllLobbies_Empty() {
-        // This test depends on test isolation - in production this might not work
-        // as expected due to shared state
         List<Lobby> lobbies = salaService.getAllLobbies();
 
         assertNotNull(lobbies, "Should return non-null list");
@@ -149,6 +153,7 @@ class SalaServiceTest {
     @DisplayName("Should maintain lobby data consistency")
     @Description("Test that lobby data remains consistent after multiple operations")
     @Story("Maintain consistency")
+    @Owner("DiegoVicenteCamara(RXW1249)")
     void testDataConsistency() {
         Lobby lobby = salaService.createLobby();
         String codigo = lobby.getCodigoDeUnion();
@@ -171,6 +176,7 @@ class SalaServiceTest {
     @DisplayName("Should handle duplicate player additions")
     @Description("Test that the service handles adding duplicate players")
     @Story("Handle duplicate players")
+    @Owner("DiegoVicenteCamara(RXW1249)")
     void testAddDuplicatePlayer() {
         Lobby lobby = salaService.createLobby();
         String player = "Player1";
@@ -179,7 +185,6 @@ class SalaServiceTest {
         Lobby result = salaService.addPlayer(lobby.getCodigoDeUnion(), player);
 
         assertNotNull(result);
-        // Result may contain duplicates depending on implementation
         assertEquals(2, result.getJugadores().size());
     }
 
@@ -188,6 +193,7 @@ class SalaServiceTest {
     @DisplayName("Should handle special characters in player names")
     @Description("Test that special characters in player names are handled")
     @Story("Handle special characters")
+    @Owner("DiegoVicenteCamara(RXW1249)")
     void testAddPlayerWithSpecialCharacters() {
         Lobby lobby = salaService.createLobby();
         String playerName = "Player-!@#$%";

@@ -35,7 +35,6 @@ import io.qameta.allure.Story;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @Epic("Match statistics batch")
 @Feature("Automatic player stats updates")
-@Owner("DiegoVicenteCamara(RXW1249)")
 class MatchStatsBatchIntegrationTests {
 
     @Autowired
@@ -64,6 +63,7 @@ class MatchStatsBatchIntegrationTests {
     @Story("Finished matches trigger stats updates")
     @Description("Verifies that a completed match publishes payloads and increments all player statistics accordingly.")
     @Severity(SeverityLevel.CRITICAL)
+    @Owner("DiegoVicenteCamara(RXW1249)")
     void shouldUpdateStatsForFinishedMatch() {
         Match finishedMatch = matchRepository.findById(1).orElseThrow();
         assertThat(finishedMatch.getEndedAt()).as("sample match must be finished").isNotNull();
@@ -116,6 +116,7 @@ class MatchStatsBatchIntegrationTests {
     @Story("Forced match ending updates stats")
     @Description("Covers the admin force-end action to guarantee stats are persisted even when the match doesn't finish naturally.")
     @Severity(SeverityLevel.CRITICAL)
+    @Owner("DiegoVicenteCamara(RXW1249)")
     void shouldUpdateStatsWhenMatchForceEnded() {
         Match ongoingMatch = matchRepository.findById(10).orElseThrow();
         assertThat(ongoingMatch.getStartedAt()).isNotNull();

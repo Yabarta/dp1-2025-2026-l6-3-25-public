@@ -7,11 +7,9 @@ import AchievementProgressBar from "./AchievementProgressBar";
 export default function AchievementCard({ achievement, onEdit, onDelete, isEditing, isAdmin, playerStats }) {
     const getImageUrl = (image) => {
         if (!image) return trofeo;
-        // Si comienza con /, es una ruta absoluta (uploads/)
         if (image.startsWith('/')) {
             return `url(${image})`;
         }
-        // Si no, es una imagen en static/images/
         return `url(${trofeo})`;
     };
 
